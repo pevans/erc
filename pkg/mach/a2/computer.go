@@ -1,4 +1,4 @@
-// The a2 package defines all of the code necessary to describe an Apple
+// Package a2 defines all of the code necessary to describe an Apple
 // II computer. Specifically, it builds what would qualify as an Apple
 // //e computer, which is the Apple IIe "enhanced" model. (Contrast with
 // the original Apple ][, Apple ][+ ("plus"), Apple ][e, and Apple //c.)
@@ -28,18 +28,20 @@ type Computer struct {
 }
 
 const (
-	// Auxiliary memory was implemented through a peripheral called a
+	// AuxMemorySize is the length of memory for auxiliary memory in the
+	// Apple II, which was implemented through a peripheral called a
 	// "language card" installed in the back. Bank-switches let you swap
 	// in and out auxiliary memory for main memory. Note that auxiliary
 	// memory is only 64k bytes large.
 	AuxMemorySize = 0x10000
 
-	// Main memory consists of 68k of RAM; although only 64k is
-	// addressible at a time, the last 4k can be accessed via
+	// MainMemorySize is the length of memory for so-called "main
+	// memory" in an Apple II. It consists of 68k of RAM; although only
+	// 64k is addressible at a time, the last 4k can be accessed via
 	// bank-switches.
 	MainMemorySize = 0x11000
 
-	// ROM is 20k bytes large.
+	// RomMemorySize is the length of system read-only memory.
 	RomMemorySize = 0x5000
 )
 

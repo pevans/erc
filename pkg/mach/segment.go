@@ -1,6 +1,9 @@
 package mach
 
+// SegmentReadFn is a function signature for read mapper functions.
 type SegmentReadFn func(s *Segment, addr Addressor) Byte
+
+// SegmentWriteFn is a function signature for write mapper functions.
 type SegmentWriteFn func(s *Segment, addr Addressor, val Byte)
 
 // A Cell is one byte within a memory segment. Each Cell can also have a
@@ -15,6 +18,8 @@ type Cell struct {
 	WriteFn SegmentWriteFn
 }
 
+// A Segment is a block of memory divided into Bytes. Each Byte is
+// stored inside of a Cell.
 type Segment struct {
 	Mem []Cell
 }
