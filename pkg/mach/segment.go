@@ -42,7 +42,7 @@ func NewSegment(size int) *Segment {
 // bypass the Set() function by design; CopySlice is intended to be used
 // at (for example) boot-time, where soft-switches will not be tripped.
 func (s *Segment) CopySlice(start, end int, bytes []Byte) error {
-	if start < 0 || end >= len(s.Mem) {
+	if start < 0 || end > len(s.Mem) {
 		return fmt.Errorf("Destination slice is out of bounds: %v, %v", start, end)
 	}
 
