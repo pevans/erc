@@ -1,5 +1,9 @@
 package mach
 
+import (
+	"fmt"
+)
+
 // SegmentReadFn is a function signature for read mapper functions.
 type SegmentReadFn func(s *Segment, addr Addressor) Byte
 
@@ -30,6 +34,23 @@ func NewSegment(size int) *Segment {
 	s.Mem = make([]Cell, size)
 
 	return s
+}
+
+// CopySlice copies the contents of a slice of Bytes into a segment.
+// This is not as simple as a call to the copy() function; Segments hold
+// a slice of Cells, not Bytes, so we do the loop ourselves. We also
+// bypass the Set() function by design; CopySlice is intended to be used
+// at (for example) boot-time, where soft-switches will not be tripped.
+func (s *Segment) CopySlice(start, end int, bytes []Byte) error {
+	if start < 0 || end >= len(s.Mem) {
+		return fmt.Errorf("Destination slice is out of bounds: %v, %v", start, end)
+	}
+
+	for i := start; i < end; i++ {
+		s.Mem[i].Val = bytes[i-start]
+	}
+
+	return nil
 }
 
 // Set will set the value at a given cell. If a write function is
