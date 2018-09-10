@@ -25,6 +25,10 @@ type Computer struct {
 	Main *mach.Segment
 	ROM  *mach.Segment
 	Aux  *mach.Segment
+
+	// MemMode is a collection of bit flags which tell us what state of
+	// memory we have.
+	MemMode int
 }
 
 const (

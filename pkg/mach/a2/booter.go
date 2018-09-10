@@ -61,4 +61,7 @@ func (c *Computer) Reset() {
 	// When reset, the stack goes to its top (which is the end of the
 	// stack page).
 	c.CPU.S = 0xFF
+
+	// Set our initial memory mode
+	c.MemMode = MemDefault | MemSlotCxROM
 }
