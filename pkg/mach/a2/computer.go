@@ -29,6 +29,10 @@ type Computer struct {
 	// MemMode is a collection of bit flags which tell us what state of
 	// memory we have.
 	MemMode int
+
+	// BankMode is the set of bit flags which are the memory banks that
+	// we are accessing right now.
+	BankMode int
 }
 
 const (

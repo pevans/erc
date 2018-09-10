@@ -1,6 +1,26 @@
 package a2
 
 const (
+	// BankDefault is the default bank-switching scheme: reads in
+	// bs-memory go to ROM; writes to RAM are disallowed; bank 1 memory
+	// is used.
+	BankDefault = 0x00
+
+	// BankRAM indicates that reads are from RAM rather than ROM.
+	BankRAM = 0x01
+
+	// BankWrite tells us that we can write to RAM in bs-memory.
+	BankWrite = 0x02
+
+	// BankRAM2 tells us to read from bank 2 memory for $D000..$DFFF.
+	BankRAM2 = 0x04
+
+	// BankAuxiliary indicates that we should reads and writes in the
+	// zero page AND stack page will be done in auxiliary memory rather
+	// than main memory. This flag ALSO indicates that reads and/or
+	// writes to bs-memory are done in auxiliary memory.
+	BankAuxiliary = 0x08
+
 	// MemDefault tells us to read and write only to main memory.
 	MemDefault = 0x00
 
