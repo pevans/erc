@@ -13,6 +13,8 @@ func TestNewComputer(t *testing.T) {
 	assert.NotEqual(t, nil, comp.Aux)
 	assert.NotEqual(t, nil, comp.ROM)
 	assert.NotEqual(t, nil, comp.CPU)
-	assert.NotEqual(t, nil, comp.CPU.RSeg)
-	assert.NotEqual(t, nil, comp.CPU.WSeg)
+	assert.NotEqual(t, nil, comp.CPU.RMem)
+	assert.NotEqual(t, nil, comp.CPU.WMem)
+	assert.NotEqual(t, nil, comp.RMap)
+	assert.NotEqual(t, nil, comp.WMap)
 }

@@ -1,13 +1,15 @@
 package mos65c02
 
-import "github.com/pevans/erc/pkg/mach"
+import (
+	"github.com/pevans/erc/pkg/mach"
+)
 
 // A CPU is an implementation of an MOS 65c02 processor.
 type CPU struct {
-	// RSeg and WSeg are the segments from which we will read or write
+	// RMem and WMem are the segments from which we will read or write
 	// whenever it is necessary.
-	RSeg *mach.Segment
-	WSeg *mach.Segment
+	RMem mach.Getter
+	WMem mach.Setter
 
 	// This is the current address mode that the CPU is operating
 	// within. The address mode affects how the CPU will determine the
@@ -225,19 +227,19 @@ func Compare(c *CPU, base mach.Byte) {
 
 // Get will return the byte at a given address.
 func (c *CPU) Get(addr mach.DByte) mach.Byte {
-	return c.RSeg.Get(addr)
+	return c.RMem.Get(addr)
 }
 
 // Set will set the byte at a given address to the given value.
 func (c *CPU) Set(addr mach.DByte, val mach.Byte) {
-	c.WSeg.Set(addr, val)
+	c.WMem.Set(addr, val)
 }
 
 // Get16 returns a 16-bit value at a given address, which is read in
 // little-endian order.
 func (c *CPU) Get16(addr mach.DByte) mach.DByte {
-	lsb := c.RSeg.Get(addr)
-	msb := c.RSeg.Get(addr + 1)
+	lsb := c.RMem.Get(addr)
+	msb := c.RMem.Get(addr + 1)
 
 	return (mach.DByte(msb) << 8) | mach.DByte(lsb)
 }
@@ -248,8 +250,8 @@ func (c *CPU) Set16(addr mach.DByte, val mach.DByte) {
 	lsb := mach.Byte(val & 0xFF)
 	msb := mach.Byte(val >> 8)
 
-	c.WSeg.Set(addr, lsb)
-	c.WSeg.Set(addr+1, msb)
+	c.WMem.Set(addr, lsb)
+	c.WMem.Set(addr+1, msb)
 }
 
 // Execute will process through one instruction and return. While doing

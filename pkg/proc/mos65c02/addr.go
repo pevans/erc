@@ -126,7 +126,7 @@ func Idy(c *CPU) {
 	// And here we account for the `,Y` part; Y is added to the
 	// dereferenced address.
 	c.EffAddr = effAddr + mach.DByte(c.Y)
-	c.EffVal = c.RSeg.Get(c.EffAddr)
+	c.EffVal = c.RMem.Get(c.EffAddr)
 }
 
 // Rel resolves the relative address mode. This is only used by branch

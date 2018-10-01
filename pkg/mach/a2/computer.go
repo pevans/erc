@@ -14,6 +14,14 @@ import (
 	"github.com/pevans/erc/pkg/proc/mos65c02"
 )
 
+// ReadMapFn is a function which can execute a soft switch procedure on
+// read.
+type ReadMapFn func(*Computer, mach.Addressor) mach.Byte
+
+// WriteMapFn is a function which can execute a soft switch procedure on
+// write.
+type WriteMapFn func(*Computer, mach.Addressor, mach.Byte)
+
 // A Computer is our abstraction of an Apple //e ("enhanced") computer.
 type Computer struct {
 	// The CPU of the Apple //e was an MOS 65C02 processor.
@@ -25,6 +33,12 @@ type Computer struct {
 	Main *mach.Segment
 	ROM  *mach.Segment
 	Aux  *mach.Segment
+
+	// RMap and WMap are the read and write address maps. These contain
+	// functions which emulate the "soft switches" that Apple IIs used
+	// to implement special functionality.
+	RMap map[int]ReadMapFn
+	WMap map[int]WriteMapFn
 
 	// MemMode is a collection of bit flags which tell us what state of
 	// memory we have.
@@ -63,8 +77,11 @@ func NewComputer() *Computer {
 	comp.ROM = mach.NewSegment(RomMemorySize)
 
 	comp.CPU = new(mos65c02.CPU)
-	comp.CPU.WSeg = comp.Main
-	comp.CPU.RSeg = comp.Main
+	comp.CPU.WMem = comp.Main
+	comp.CPU.RMem = comp.Main
+
+	comp.RMap = make(map[int]ReadMapFn)
+	comp.WMap = make(map[int]WriteMapFn)
 
 	return comp
 }

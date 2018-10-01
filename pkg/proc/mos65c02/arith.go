@@ -89,7 +89,7 @@ func Inc(c *CPU) {
 		return
 	}
 
-	c.WSeg.Set(c.EffAddr, c.EffVal)
+	c.WMem.Set(c.EffAddr, c.EffVal)
 }
 
 // Inx implements the INX (increment X) instruction. INX can only

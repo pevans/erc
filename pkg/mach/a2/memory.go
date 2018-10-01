@@ -1,5 +1,7 @@
 package a2
 
+import "github.com/pevans/erc/pkg/mach"
+
 const (
 	// BankDefault is the default bank-switching scheme: reads in
 	// bs-memory go to ROM; writes to RAM are disallowed; bank 1 memory
@@ -59,3 +61,24 @@ const (
 	// ROM.
 	MemSlotC3ROM = 0x80
 )
+
+// Get will return the byte at addr, or will execute a read switch if
+// one is present at the given address.
+func (c *Computer) Get(addr mach.Addressor) mach.Byte {
+	if fn, ok := c.RMap[addr.Addr()]; ok {
+		return fn(c, addr)
+	}
+
+	return c.Main.Get(addr)
+}
+
+// Set will set the byte at addr to val, or will execute a write switch
+// if one is present at the given address.
+func (c *Computer) Set(addr mach.Addressor, val mach.Byte) {
+	if fn, ok := c.WMap[addr.Addr()]; ok {
+		fn(c, addr, val)
+		return
+	}
+
+	c.Main.Set(addr, val)
+}
