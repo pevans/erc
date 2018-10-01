@@ -42,6 +42,9 @@ func (c *Computer) Boot() error {
 	c.Main.Set(BootVector, mach.Byte(AppleSoft&0xFF))
 	c.Main.Set(BootVector+1, mach.Byte(AppleSoft>>8))
 
+	// Set up all the soft switches we'll need
+	c.defineSoftSwitches()
+
 	// Now run the warm start code.
 	c.Reset()
 

@@ -82,3 +82,30 @@ func (c *Computer) Set(addr mach.Addressor, val mach.Byte) {
 
 	c.Main.Set(addr, val)
 }
+
+// Here we set up all the soft switches that we'll use in the computer,
+// which is a lot!
+func (c *Computer) defineSoftSwitches() {
+	for addr := 0x0; addr < 0x200; addr++ {
+		c.RMap[addr] = zeroPageRead
+		c.WMap[addr] = zeroPageWrite
+	}
+}
+
+func zeroPageRead(c *Computer, addr mach.Addressor) mach.Byte {
+	seg := c.Main
+	if c.BankMode&BankAuxiliary > 0 {
+		seg = c.Aux
+	}
+
+	return seg.Get(addr)
+}
+
+func zeroPageWrite(c *Computer, addr mach.Addressor, val mach.Byte) {
+	seg := c.Main
+	if c.BankMode&BankAuxiliary > 0 {
+		seg = c.Aux
+	}
+
+	seg.Set(addr, val)
+}
