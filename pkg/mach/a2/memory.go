@@ -1,6 +1,8 @@
 package a2
 
-import "github.com/pevans/erc/pkg/mach"
+import (
+	"github.com/pevans/erc/pkg/mach"
+)
 
 const (
 	// BankDefault is the default bank-switching scheme: reads in
@@ -83,12 +85,12 @@ func (c *Computer) Set(addr mach.Addressor, val mach.Byte) {
 	c.Main.Set(addr, val)
 }
 
-// Here we set up all the soft switches that we'll use in the computer,
-// which is a lot!
-func (c *Computer) defineSoftSwitches() {
-	for addr := 0x0; addr < 0x200; addr++ {
-		c.RMap[addr] = zeroPageRead
-		c.WMap[addr] = zeroPageWrite
+// MapRange will, given a range of addresses (from..to), set the read
+// and write map functions to those given.
+func (c *Computer) MapRange(from, to int, rfn ReadMapFn, wfn WriteMapFn) {
+	for addr := from; addr < to; addr++ {
+		c.RMap[addr] = rfn
+		c.WMap[addr] = wfn
 	}
 }
 
@@ -108,4 +110,40 @@ func zeroPageWrite(c *Computer, addr mach.Addressor, val mach.Byte) {
 	}
 
 	seg.Set(addr, val)
+}
+
+func (c *Computer) memorySwitchIsSetR(flag int) ReadMapFn {
+	return func(c *Computer, addr mach.Addressor) mach.Byte {
+		if c.MemMode&flag > 0 {
+			return mach.Byte(0x80)
+		}
+
+		return mach.Byte(0x0)
+	}
+}
+
+func (c *Computer) memorySwitchSetR(flag int) ReadMapFn {
+	return func(c *Computer, addr mach.Addressor) mach.Byte {
+		c.MemMode = c.MemMode | flag
+		return mach.Byte(0x80)
+	}
+}
+
+func (c *Computer) memorySwitchSetW(flag int) WriteMapFn {
+	return func(c *Computer, addr mach.Addressor, val mach.Byte) {
+		c.MemMode = c.MemMode | flag
+	}
+}
+
+func (c *Computer) memorySwitchUnsetR(flag int) ReadMapFn {
+	return func(c *Computer, addr mach.Addressor) mach.Byte {
+		c.MemMode = c.MemMode & ^flag
+		return mach.Byte(0x0)
+	}
+}
+
+func (c *Computer) memorySwitchUnsetW(flag int) WriteMapFn {
+	return func(c *Computer, addr mach.Addressor, val mach.Byte) {
+		c.MemMode = c.MemMode & ^flag
+	}
 }

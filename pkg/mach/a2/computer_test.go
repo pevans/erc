@@ -33,3 +33,7 @@ func TestNewComputer(t *testing.T) {
 	assert.NotEqual(t, nil, comp.RMap)
 	assert.NotEqual(t, nil, comp.WMap)
 }
+
+func TestA2Suite(t *testing.T) {
+	suite.Run(t, new(a2Suite))
+}
