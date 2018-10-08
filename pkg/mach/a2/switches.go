@@ -5,6 +5,8 @@ package a2
 func (c *Computer) defineSoftSwitches() {
 	c.MapRange(0x0, 0x200, zeroPageRead, zeroPageWrite)
 
+	c.MapRange(0xD000, 0x10000, bankRead, bankWrite)
+
 	c.RMap[0xC013] = c.memorySwitchIsSetR(MemReadAux)
 	c.RMap[0xC014] = c.memorySwitchIsSetR(MemWriteAux)
 	c.RMap[0xC018] = c.memorySwitchIsSetR(Mem80Store)
@@ -25,4 +27,19 @@ func (c *Computer) defineSoftSwitches() {
 	c.WMap[0xC055] = c.memorySwitchSetW(MemPage2)
 	c.WMap[0xC056] = c.memorySwitchUnsetW(MemHires)
 	c.WMap[0xC057] = c.memorySwitchSetW(MemHires)
+
+	c.RMap[0xC080] = c.bankSwitchSetR(BankRAM | BankRAM2)
+	c.RMap[0xC081] = c.bankSwitchSetR(BankWrite | BankRAM2)
+	c.RMap[0xC082] = c.bankSwitchSetR(BankRAM2)
+	c.RMap[0xC083] = c.bankSwitchSetR(BankRAM | BankWrite | BankRAM2)
+	c.RMap[0xC088] = c.bankSwitchSetR(BankRAM)
+	c.RMap[0xC089] = c.bankSwitchSetR(BankWrite)
+	c.RMap[0xC08A] = c.bankSwitchSetR(BankDefault)
+	c.RMap[0xC08B] = c.bankSwitchSetR(BankRAM | BankWrite)
+	c.RMap[0xC011] = c.bankSwitchIsSetR(BankRAM2)
+	c.RMap[0xC012] = c.bankSwitchIsSetR(BankRAM)
+	c.RMap[0xC016] = c.bankSwitchIsSetR(BankAuxiliary)
+
+	c.WMap[0xC008] = c.bankSwitchUnsetW(BankAuxiliary)
+	c.WMap[0xC009] = c.bankSwitchSetW(BankAuxiliary)
 }

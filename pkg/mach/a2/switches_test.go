@@ -3,12 +3,28 @@ package a2
 import "github.com/stretchr/testify/assert"
 
 func (s *a2Suite) TestDefineSoftSwitches() {
-	var addr int
+	var (
+		addr int
+		ok   bool
+	)
 
 	// Testing for BankAuxiliary switches
 	for addr = 0; addr < 0x200; addr++ {
-		assert.Contains(s.T(), s.comp.RMap, addr)
-		assert.Contains(s.T(), s.comp.WMap, addr)
+		_, ok = s.comp.RMap[addr]
+		assert.Equal(s.T(), true, ok)
+
+		_, ok = s.comp.WMap[addr]
+		assert.Equal(s.T(), true, ok)
+	}
+
+	// Testing all cases where ROM or bank-addressable RAM could be
+	// found
+	for addr = 0xD000; addr < 0x10000; addr++ {
+		_, ok = s.comp.RMap[addr]
+		assert.Equal(s.T(), true, ok)
+
+		_, ok = s.comp.WMap[addr]
+		assert.Equal(s.T(), true, ok)
 	}
 
 	rmapModifiers := []int{
@@ -21,6 +37,17 @@ func (s *a2Suite) TestDefineSoftSwitches() {
 		0xC055,
 		0xC056,
 		0xC057,
+		0xC080,
+		0xC081,
+		0xC082,
+		0xC083,
+		0xC088,
+		0xC089,
+		0xC08A,
+		0xC08B,
+		0xC011,
+		0xC012,
+		0xC016,
 	}
 
 	wmapModifiers := []int{
@@ -34,15 +61,19 @@ func (s *a2Suite) TestDefineSoftSwitches() {
 		0xC055,
 		0xC056,
 		0xC057,
+		0xC008,
+		0xC009,
 	}
 
 	// Here we simply test all of the possible RMap and WMap switches
 	// which modify something
 	for _, addr = range rmapModifiers {
-		assert.Contains(s.T(), s.comp.RMap, addr)
+		_, ok = s.comp.RMap[addr]
+		assert.Equal(s.T(), true, ok)
 	}
 
 	for _, addr = range wmapModifiers {
-		assert.Contains(s.T(), s.comp.WMap, addr)
+		_, ok = s.comp.WMap[addr]
+		assert.Equal(s.T(), true, ok)
 	}
 }

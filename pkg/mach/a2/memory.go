@@ -94,22 +94,24 @@ func (c *Computer) MapRange(from, to int, rfn ReadMapFn, wfn WriteMapFn) {
 	}
 }
 
-func zeroPageRead(c *Computer, addr mach.Addressor) mach.Byte {
-	seg := c.Main
-	if c.BankMode&BankAuxiliary > 0 {
-		seg = c.Aux
+// ReadSegment returns the segment that should be used for general
+// reads, according to our current memory mode.
+func (c *Computer) ReadSegment() *mach.Segment {
+	if c.MemMode&MemReadAux > 0 {
+		return c.Aux
 	}
 
-	return seg.Get(addr)
+	return c.Main
 }
 
-func zeroPageWrite(c *Computer, addr mach.Addressor, val mach.Byte) {
-	seg := c.Main
-	if c.BankMode&BankAuxiliary > 0 {
-		seg = c.Aux
+// WriteSegment returns the segment that should be used for general
+// writes, according to our current memory mode.
+func (c *Computer) WriteSegment() *mach.Segment {
+	if c.MemMode&MemWriteAux > 0 {
+		return c.Aux
 	}
 
-	seg.Set(addr, val)
+	return c.Main
 }
 
 func (c *Computer) memorySwitchIsSetR(flag int) ReadMapFn {

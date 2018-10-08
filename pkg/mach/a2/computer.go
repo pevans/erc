@@ -65,6 +65,9 @@ const (
 
 	// RomMemorySize is the length of system read-only memory.
 	RomMemorySize = 0x5000
+
+	// SysRomOffset is the spot in memory where system ROM can be found.
+	SysRomOffset = 0xC000
 )
 
 // NewComputer returns an Apple //e computer value, which essentially
