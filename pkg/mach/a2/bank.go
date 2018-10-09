@@ -1,6 +1,8 @@
 package a2
 
-import "github.com/pevans/erc/pkg/mach"
+import (
+	"github.com/pevans/erc/pkg/mach"
+)
 
 func bankRead(c *Computer, addr mach.Addressor) mach.Byte {
 	if ^c.BankMode&BankRAM > 0 {
