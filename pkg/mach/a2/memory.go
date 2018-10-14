@@ -5,26 +5,6 @@ import (
 )
 
 const (
-	// BankDefault is the default bank-switching scheme: reads in
-	// bs-memory go to ROM; writes to RAM are disallowed; bank 1 memory
-	// is used.
-	BankDefault = 0x00
-
-	// BankRAM indicates that reads are from RAM rather than ROM.
-	BankRAM = 0x01
-
-	// BankWrite tells us that we can write to RAM in bs-memory.
-	BankWrite = 0x02
-
-	// BankRAM2 tells us to read from bank 2 memory for $D000..$DFFF.
-	BankRAM2 = 0x04
-
-	// BankAuxiliary indicates that we should reads and writes in the
-	// zero page AND stack page will be done in auxiliary memory rather
-	// than main memory. This flag ALSO indicates that reads and/or
-	// writes to bs-memory are done in auxiliary memory.
-	BankAuxiliary = 0x08
-
 	// MemDefault tells us to read and write only to main memory.
 	MemDefault = 0x00
 
@@ -114,38 +94,14 @@ func (c *Computer) WriteSegment() *mach.Segment {
 	return c.Main
 }
 
-func (c *Computer) memorySwitchIsSetR(flag int) ReadMapFn {
-	return func(c *Computer, addr mach.Addressor) mach.Byte {
-		if c.MemMode&flag > 0 {
-			return mach.Byte(0x80)
-		}
-
-		return mach.Byte(0x0)
-	}
+func newMemorySwitchCheck() *SwitchCheck {
+	return &SwitchCheck{mode: memoryMode, setMode: memorySetMode}
 }
 
-func (c *Computer) memorySwitchSetR(flag int) ReadMapFn {
-	return func(c *Computer, addr mach.Addressor) mach.Byte {
-		c.MemMode = c.MemMode | flag
-		return mach.Byte(0x80)
-	}
+func memoryMode(c *Computer) int {
+	return c.MemMode
 }
 
-func (c *Computer) memorySwitchSetW(flag int) WriteMapFn {
-	return func(c *Computer, addr mach.Addressor, val mach.Byte) {
-		c.MemMode = c.MemMode | flag
-	}
-}
-
-func (c *Computer) memorySwitchUnsetR(flag int) ReadMapFn {
-	return func(c *Computer, addr mach.Addressor) mach.Byte {
-		c.MemMode = c.MemMode & ^flag
-		return mach.Byte(0x0)
-	}
-}
-
-func (c *Computer) memorySwitchUnsetW(flag int) WriteMapFn {
-	return func(c *Computer, addr mach.Addressor, val mach.Byte) {
-		c.MemMode = c.MemMode & ^flag
-	}
+func memorySetMode(c *Computer, mode int) {
+	c.MemMode = mode
 }

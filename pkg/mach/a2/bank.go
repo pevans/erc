@@ -4,6 +4,40 @@ import (
 	"github.com/pevans/erc/pkg/mach"
 )
 
+const (
+	// BankDefault is the default bank-switching scheme: reads in
+	// bs-memory go to ROM; writes to RAM are disallowed; bank 1 memory
+	// is used.
+	BankDefault = 0x00
+
+	// BankRAM indicates that reads are from RAM rather than ROM.
+	BankRAM = 0x01
+
+	// BankWrite tells us that we can write to RAM in bs-memory.
+	BankWrite = 0x02
+
+	// BankRAM2 tells us to read from bank 2 memory for $D000..$DFFF.
+	BankRAM2 = 0x04
+
+	// BankAuxiliary indicates that we should reads and writes in the
+	// zero page AND stack page will be done in auxiliary memory rather
+	// than main memory. This flag ALSO indicates that reads and/or
+	// writes to bs-memory are done in auxiliary memory.
+	BankAuxiliary = 0x08
+)
+
+func newBankSwitchCheck() *SwitchCheck {
+	return &SwitchCheck{mode: bankMode, setMode: bankSetMode}
+}
+
+func bankMode(c *Computer) int {
+	return c.BankMode
+}
+
+func bankSetMode(c *Computer, mode int) {
+	c.BankMode = mode
+}
+
 func bankRead(c *Computer, addr mach.Addressor) mach.Byte {
 	if ^c.BankMode&BankRAM > 0 {
 		return c.ROM.Get(mach.Plus(addr, -SysRomOffset))
@@ -27,35 +61,4 @@ func bankWrite(c *Computer, addr mach.Addressor, val mach.Byte) {
 	}
 
 	c.WriteSegment().Set(addr, val)
-}
-
-func (c *Computer) bankSwitchSetR(flag int) ReadMapFn {
-	return func(c *Computer, addr mach.Addressor) mach.Byte {
-		// You'll note that this assigns to BankMode, rather than
-		// OR'ing. That is intentional.
-		c.BankMode = flag
-		return 0x80
-	}
-}
-
-func (c *Computer) bankSwitchIsSetR(flag int) ReadMapFn {
-	return func(c *Computer, addr mach.Addressor) mach.Byte {
-		if c.BankMode&flag > 0 {
-			return 0x80
-		}
-
-		return 0x0
-	}
-}
-
-func (c *Computer) bankSwitchUnsetW(flag int) WriteMapFn {
-	return func(c *Computer, addr mach.Addressor, val mach.Byte) {
-		c.BankMode &= ^flag
-	}
-}
-
-func (c *Computer) bankSwitchSetW(flag int) WriteMapFn {
-	return func(c *Computer, addr mach.Addressor, val mach.Byte) {
-		c.BankMode |= flag
-	}
 }
