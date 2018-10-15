@@ -30,18 +30,6 @@ const (
 	// MemHires allows auxiliary memory access for $2000..$3FFF, as long
 	// as MemPage2 and Mem80Store are also enabled.
 	MemHires = 0x10
-
-	// MemExpROM allows access to expansion ROM. When this is on, memory
-	// in the $C800..$CFFF range is mapped to expansion ROM.
-	MemExpROM = 0x20
-
-	// MemSlotCxROM tells us to map $C100..$C7FF to the peripheral ROM
-	// area of system ROM.
-	MemSlotCxROM = 0x40
-
-	// MemSlotC3ROM maps just the $C300 page of memory to peripheral
-	// ROM.
-	MemSlotC3ROM = 0x80
 )
 
 // Get will return the byte at addr, or will execute a read switch if

@@ -4,7 +4,9 @@ package a2
 // which is a lot!
 func (c *Computer) defineSoftSwitches() {
 	c.MapRange(0x0, 0x200, zeroPageRead, zeroPageWrite)
-
+	c.MapRange(0x0400, 0x0800, displayRead, displayWrite)
+	c.MapRange(0x2000, 0x4000, displayRead, displayWrite)
+	c.MapRange(0xC100, 0xD000, pcRead, pcWrite)
 	c.MapRange(0xD000, 0x10000, bankRead, bankWrite)
 
 	msc := newMemorySwitchCheck()
@@ -42,4 +44,41 @@ func (c *Computer) defineSoftSwitches() {
 	c.RMap[0xC016] = bsc.IsSetter(BankAuxiliary)
 	c.WMap[0xC008] = bsc.UnSetterW(BankAuxiliary)
 	c.WMap[0xC009] = bsc.ReSetterW(BankAuxiliary)
+
+	psc := newPCSwitchCheck()
+	c.RMap[0xC015] = psc.IsSetter(PCSlotCxROM)
+	c.RMap[0xC017] = psc.IsSetter(PCSlotC3ROM)
+	c.WMap[0xC006] = psc.ReSetterW(PCSlotCxROM)
+	c.WMap[0xC007] = psc.UnSetterW(PCSlotCxROM)
+	c.WMap[0xC00A] = psc.UnSetterW(PCSlotC3ROM)
+	c.WMap[0xC00B] = psc.ReSetterW(PCSlotC3ROM)
+
+	dsc := newDisplaySwitchCheck()
+	c.RMap[0xC01A] = dsc.IsSetter(DisplayText)
+	c.RMap[0xC01B] = dsc.IsSetter(DisplayMixed)
+	c.RMap[0xC01E] = dsc.IsSetter(DisplayAltCharset)
+	c.RMap[0xC01F] = dsc.IsSetter(Display80Col)
+	c.RMap[0xC050] = dsc.UnSetterR(DisplayText)
+	c.RMap[0xC051] = dsc.ReSetterR(DisplayText)
+	c.RMap[0xC052] = dsc.UnSetterR(DisplayMixed)
+	c.RMap[0xC053] = dsc.ReSetterR(DisplayMixed)
+	// Technically DHires should only be reset/unset if IOU is set; I'm
+	// not sure if this is necessary in practice.
+	c.RMap[0xC05E] = dsc.ReSetterR(DisplayDHires)
+	c.RMap[0xC05F] = dsc.UnSetterR(DisplayDHires)
+	// --
+	c.RMap[0xC07E] = dsc.IsSetter(DisplayIOU)
+	c.RMap[0xC07F] = dsc.IsSetter(DisplayDHires)
+	c.WMap[0xC00C] = dsc.UnSetterW(Display80Col)
+	c.WMap[0xC00D] = dsc.ReSetterW(Display80Col)
+	c.WMap[0xC00E] = dsc.UnSetterW(DisplayAltCharset)
+	c.WMap[0xC00F] = dsc.ReSetterW(DisplayAltCharset)
+	c.WMap[0xC050] = dsc.UnSetterW(DisplayText)
+	c.WMap[0xC051] = dsc.ReSetterW(DisplayText)
+	c.WMap[0xC052] = dsc.UnSetterW(DisplayMixed)
+	c.WMap[0xC053] = dsc.ReSetterW(DisplayMixed)
+	c.WMap[0xC05E] = dsc.ReSetterW(DisplayDHires)
+	c.WMap[0xC05F] = dsc.UnSetterW(DisplayDHires)
+	c.WMap[0xC07E] = dsc.ReSetterW(DisplayIOU)
+	c.WMap[0xC07F] = dsc.UnSetterW(DisplayIOU)
 }

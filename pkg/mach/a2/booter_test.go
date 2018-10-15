@@ -41,6 +41,7 @@ func TestReset(t *testing.T) {
 	assert.Equal(t, defp, c.CPU.P)
 	assert.Equal(t, ResetPC, c.CPU.PC)
 	assert.Equal(t, mach.Byte(0xFF), c.CPU.S)
-	assert.Equal(t, MemDefault|MemSlotCxROM, c.MemMode)
+	assert.Equal(t, MemDefault, c.MemMode)
 	assert.Equal(t, BankDefault, c.BankMode)
+	assert.Equal(t, PCSlotCxROM, c.PCMode)
 }
