@@ -41,3 +41,45 @@ func (s *a2Suite) TestDisplayAuxSegment() {
 		assert.Equal(s.T(), c.want, displayAuxSegment(s.comp, c.addr))
 	}
 }
+
+func (s *a2Suite) TestDisplayRead() {
+	cases := []struct {
+		memMode int
+		addr    mach.DByte
+		seg     *mach.Segment
+		want    mach.Byte
+	}{
+		{0, 0x444, s.comp.Main, 111},
+		{Mem80Store | MemHires, 0x445, s.comp.Aux, 111},
+		{0, 0x2444, s.comp.Main, 111},
+		{Mem80Store | MemHires | MemPage2, 0x2445, s.comp.Aux, 111},
+	}
+
+	for _, c := range cases {
+		s.comp.MemMode = c.memMode
+		c.seg.Set(c.addr, c.want)
+
+		assert.Equal(s.T(), c.want, displayRead(s.comp, c.addr))
+	}
+}
+
+func (s *a2Suite) TestDisplayWrite() {
+	cases := []struct {
+		memMode int
+		addr    mach.DByte
+		seg     *mach.Segment
+		want    mach.Byte
+	}{
+		{0, 0x444, s.comp.Main, 111},
+		{Mem80Store | MemHires, 0x445, s.comp.Aux, 111},
+		{0, 0x2444, s.comp.Main, 111},
+		{Mem80Store | MemHires | MemPage2, 0x2445, s.comp.Aux, 111},
+	}
+
+	for _, c := range cases {
+		s.comp.MemMode = c.memMode
+		displayWrite(s.comp, c.addr, c.want)
+
+		assert.Equal(s.T(), c.want, c.seg.Get(c.addr))
+	}
+}
