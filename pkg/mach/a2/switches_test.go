@@ -17,6 +17,22 @@ func (s *a2Suite) TestDefineSoftSwitches() {
 		assert.Equal(s.T(), true, ok)
 	}
 
+	for addr = 0x400; addr < 0x800; addr++ {
+		_, ok = s.comp.RMap[addr]
+		assert.Equal(s.T(), true, ok)
+
+		_, ok = s.comp.WMap[addr]
+		assert.Equal(s.T(), true, ok)
+	}
+
+	for addr = 0x2000; addr < 0x4000; addr++ {
+		_, ok = s.comp.RMap[addr]
+		assert.Equal(s.T(), true, ok)
+
+		_, ok = s.comp.WMap[addr]
+		assert.Equal(s.T(), true, ok)
+	}
+
 	// Testing all cases where ROM or bank-addressable RAM could be
 	// found
 	for addr = 0xD000; addr < 0x10000; addr++ {
@@ -48,6 +64,18 @@ func (s *a2Suite) TestDefineSoftSwitches() {
 		0xC011,
 		0xC012,
 		0xC016,
+		0xC01A,
+		0xC01B,
+		0xC01E,
+		0xC01F,
+		0xC050,
+		0xC051,
+		0xC052,
+		0xC053,
+		0xC05E,
+		0xC05F,
+		0xC07E,
+		0xC07F,
 	}
 
 	wmapModifiers := []int{
@@ -63,6 +91,18 @@ func (s *a2Suite) TestDefineSoftSwitches() {
 		0xC057,
 		0xC008,
 		0xC009,
+		0xC00C,
+		0xC00D,
+		0xC00E,
+		0xC00F,
+		0xC050,
+		0xC051,
+		0xC052,
+		0xC053,
+		0xC05E,
+		0xC05F,
+		0xC07E,
+		0xC07F,
 	}
 
 	// Here we simply test all of the possible RMap and WMap switches
