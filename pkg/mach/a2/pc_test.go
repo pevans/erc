@@ -1,0 +1,37 @@
+package a2
+
+import (
+	"github.com/pevans/erc/pkg/mach"
+	"github.com/stretchr/testify/assert"
+)
+
+// This is kind of a nasty function, in that it handles a lot of
+// different cases. Hence the rather large table of test cases.
+func (s *a2Suite) TestPCROMAddr() {
+	cases := []struct {
+		addr   mach.DByte
+		pcMode int
+		want   mach.DByte
+	}{
+		{0xC000, 0, 0},
+		{0xC000, PCExpROM, 0},
+		{0xC800, PCExpROM, 0x4800},
+		{0xCFFF, PCExpROM, 0x4FFF},
+		{0xC000, PCSlotCxROM, 0},
+		{0xC100, PCSlotCxROM, 0x4100},
+		{0xC7FF, PCSlotCxROM, 0x47FF},
+		{0xC000, PCSlotC3ROM, 0},
+		{0xC300, PCSlotC3ROM, 0x4300},
+		{0xC3FF, PCSlotC3ROM, 0x43FF},
+		{0xC800, PCExpROM | PCSlotCxROM, 0x4800},
+		{0xC800, PCExpROM | PCSlotC3ROM, 0x4800},
+		{0xC100, PCExpROM | PCSlotCxROM, 0x4100},
+		{0xC100, PCExpROM | PCSlotC3ROM, 0x100},
+		{0xC300, PCExpROM | PCSlotCxROM, 0x4300},
+		{0xC300, PCExpROM | PCSlotC3ROM, 0x4300},
+	}
+
+	for _, c := range cases {
+		assert.Equal(s.T(), c.want, pcROMAddr(c.addr, c.pcMode))
+	}
+}
