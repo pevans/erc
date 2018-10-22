@@ -7,6 +7,13 @@ import (
 )
 
 const (
+	// DDMaxSteps is the maximum number of steps we can move the drive
+	// head before running out of tracks on the disk. (Note that steps
+	// are half of the length of a track; 35 tracks, 70 steps.)
+	DDMaxSteps = 70
+)
+
+const (
 	// DDDOS33 is the image type for DOS 3.3, which is the
 	// generally-used image type for Apple II DOS images. There are
 	// other DOS versions, which are formatted differently, but we don't
@@ -116,4 +123,22 @@ func (d *DiskDrive) Shift(offset int) {
 	if d.SectorPos >= EncTrackLen || d.SectorPos < 0 {
 		d.SectorPos = 0
 	}
+}
+
+// Step moves the track position forward or backward, depending on the
+// sign of the offset. This simulates the stepper motor that moves the
+// drive head further into the center of the disk platter (offset > 0)
+// or further out (offset < 0).
+func (d *DiskDrive) Step(offset int) {
+	d.TrackPos += offset
+
+	switch {
+	case d.TrackPos > DDMaxSteps:
+		d.TrackPos = DDMaxSteps
+	case d.TrackPos < 0:
+		d.TrackPos = 0
+	}
+
+	// The sector position also resets when the drive motor steps
+	d.SectorPos = 0
 }

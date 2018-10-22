@@ -92,3 +92,24 @@ func (s *a2Suite) TestShift() {
 		assert.Equal(s.T(), c.want, s.drive.SectorPos)
 	}
 }
+
+func (s *a2Suite) TestStep() {
+	cases := []struct {
+		tpos   int
+		offset int
+		want   int
+	}{
+		{0, 0, 0},
+		{0, 1, 1},
+		{2, -1, 1},
+		{5, DDMaxSteps, DDMaxSteps},
+		{5, -10, 0},
+	}
+
+	for _, c := range cases {
+		s.drive.TrackPos = c.tpos
+		s.drive.Step(c.offset)
+
+		assert.Equal(s.T(), c.want, s.drive.TrackPos)
+	}
+}
