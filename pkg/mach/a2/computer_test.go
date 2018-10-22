@@ -10,11 +10,13 @@ import (
 type a2Suite struct {
 	suite.Suite
 
-	comp *Computer
+	comp  *Computer
+	drive *DiskDrive
 }
 
 func (s *a2Suite) SetupSuite() {
 	s.comp = NewComputer()
+	s.drive = NewDiskDrive()
 }
 
 func (s *a2Suite) SetupTest() {
