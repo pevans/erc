@@ -35,3 +35,56 @@ func (s *a2Suite) TestPCROMAddr() {
 		assert.Equal(s.T(), c.want, pcROMAddr(c.addr, c.pcMode))
 	}
 }
+
+func (s *a2Suite) TestPCRead() {
+	cases := []struct {
+		addr mach.DByte
+		want mach.Byte
+	}{
+		{0xC111, 123},
+		{0xC222, 223},
+	}
+
+	for _, c := range cases {
+		s.comp.ROM.Set(c.addr-0xC000, c.want)
+		assert.Equal(s.T(), c.want, pcRead(s.comp, c.addr))
+	}
+}
+
+func (s *a2Suite) TestPCWrite() {
+	cases := []struct {
+		addr mach.DByte
+		want mach.Byte
+	}{
+		{0xC111, 123},
+		{0xC222, 223},
+	}
+
+	for _, c := range cases {
+		pcWrite(s.comp, c.addr, c.want)
+
+		// We test here that the value is NOT equal, because pcWrite()
+		// should prevent any writes to ROM.
+		assert.NotEqual(s.T(), c.want, s.comp.ROM.Get(c.addr-0xC000))
+	}
+}
+
+func (s *a2Suite) TestNewPCSwitchCheck() {
+	assert.NotEqual(s.T(), nil, newPCSwitchCheck())
+}
+
+func (s *a2Suite) TestPCMode() {
+	s.comp.PCMode = 123
+	assert.Equal(s.T(), 123, pcMode(s.comp))
+
+	s.comp.PCMode = 124
+	assert.Equal(s.T(), 124, pcMode(s.comp))
+}
+
+func (s *a2Suite) TestPCSetMode() {
+	pcSetMode(s.comp, 123)
+	assert.Equal(s.T(), 123, s.comp.PCMode)
+
+	pcSetMode(s.comp, 124)
+	assert.Equal(s.T(), 124, s.comp.PCMode)
+}
