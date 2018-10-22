@@ -32,6 +32,10 @@ const (
 	DDWrite
 )
 
+const (
+	EncTrackLen = 0x1a00
+)
+
 // A DiskDrive represents the state of a virtual Disk II drive.
 type DiskDrive struct {
 	Phase        int
@@ -86,4 +90,30 @@ func (d *DiskDrive) LogicalSector(sect int) int {
 	// Note: logical nibble sectors are the same as the "physical"
 	// sectors.
 	return sect
+}
+
+// Position returns the segment position that the drive is currently at,
+// based upon track and sector position.
+func (d *DiskDrive) Position() int {
+	if d.Data == nil {
+		return 0
+	}
+
+	return ((d.TrackPos / 2) * EncTrackLen) + d.SectorPos
+}
+
+// Shift moves the sector position forward, or backward, depending on
+// the sign of the given offset. If this would involve moving beyond the
+// beginning or end of a track, then the sector position is instead set
+// to zero.
+func (d *DiskDrive) Shift(offset int) {
+	if d.Locked {
+		return
+	}
+
+	d.SectorPos += offset
+
+	if d.SectorPos >= EncTrackLen || d.SectorPos < 0 {
+		d.SectorPos = 0
+	}
 }
