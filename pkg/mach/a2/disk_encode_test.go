@@ -81,3 +81,20 @@ func (s *encSuite) TestWrite() {
 		assert.Equal(s.T(), s.enc.src.Mem[i], s.enc.dst.Mem[i])
 	}
 }
+
+func (s *encSuite) TestEncode4n4() {
+	cases := []struct {
+		in    mach.Byte
+		want1 mach.Byte
+		want2 mach.Byte
+	}{
+		{0xFE, 0xFF, 0xFE},
+		{0x37, 0xBB, 0xBF},
+	}
+
+	for _, c := range cases {
+		assert.Equal(s.T(), 2, s.enc.Encode4n4(0, c.in))
+		assert.Equal(s.T(), c.want1, s.enc.dst.Mem[0])
+		assert.Equal(s.T(), c.want2, s.enc.dst.Mem[1])
+	}
+}
