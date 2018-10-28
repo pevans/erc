@@ -27,15 +27,22 @@ func NewSegment(size int) *Segment {
 	return s
 }
 
+func (s *Segment) Size() int {
+	return len(s.Mem)
+}
+
 // CopySlice copies the contents of a slice of Bytes into a segment.
-func (s *Segment) CopySlice(start, end int, bytes []Byte) error {
+func (s *Segment) CopySlice(start int, bytes []Byte) (int, error) {
+	toWrite := len(bytes)
+	end := start + toWrite
+
 	if start < 0 || end > len(s.Mem) {
-		return fmt.Errorf("Destination slice is out of bounds: %v, %v", start, end)
+		return 0, fmt.Errorf("Destination slice is out of bounds: %v, %v", start, end)
 	}
 
 	_ = copy(s.Mem[start:end], bytes)
 
-	return nil
+	return toWrite, nil
 }
 
 // Set will set the value at a given cell. If a write function is

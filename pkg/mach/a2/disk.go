@@ -106,16 +106,6 @@ type DiskDrive struct {
 	Locked       bool
 }
 
-var dosSectorTable = []int{
-	0x0, 0x7, 0xe, 0x6, 0xd, 0x5, 0xc, 0x4,
-	0xb, 0x3, 0xa, 0x2, 0x9, 0x1, 0x8, 0xf,
-}
-
-var proSectorTable = []int{
-	0x0, 0x8, 0x1, 0x9, 0x2, 0xa, 0x3, 0xb,
-	0x4, 0xc, 0x5, 0xd, 0x6, 0xe, 0x7, 0xf,
-}
-
 // NewDiskDrive returns a new disk drive ready for DOS 3.3 images.
 func NewDiskDrive() *DiskDrive {
 	drive := new(DiskDrive)
@@ -126,26 +116,6 @@ func NewDiskDrive() *DiskDrive {
 	return drive
 }
 
-// LogicalSector returns the logical sector number, given the current
-// image type and a physical sector number (sect).
-func (d *DiskDrive) LogicalSector(sect int) int {
-	if sect < 0 || sect > 15 {
-		return 0
-	}
-
-	switch d.ImageType {
-	case DDDOS33:
-		return dosSectorTable[sect]
-
-	case DDProDOS:
-		return proSectorTable[sect]
-	}
-
-	// Note: logical nibble sectors are the same as the "physical"
-	// sectors.
-	return sect
-}
-
 // Position returns the segment position that the drive is currently at,
 // based upon track and sector position.
 func (d *DiskDrive) Position() int {
@@ -153,7 +123,7 @@ func (d *DiskDrive) Position() int {
 		return 0
 	}
 
-	return ((d.TrackPos / 2) * EncTrackLen) + d.SectorPos
+	return ((d.TrackPos / 2) * PhysTrackLen) + d.SectorPos
 }
 
 // Shift moves the sector position forward, or backward, depending on
@@ -167,7 +137,7 @@ func (d *DiskDrive) Shift(offset int) {
 
 	d.SectorPos += offset
 
-	if d.SectorPos >= EncTrackLen || d.SectorPos < 0 {
+	if d.SectorPos >= PhysTrackLen || d.SectorPos < 0 {
 		d.SectorPos = 0
 	}
 }

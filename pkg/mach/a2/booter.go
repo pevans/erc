@@ -33,7 +33,7 @@ func (c *Computer) Boot() error {
 	}
 
 	// Copy the ROM bytes into the ROM segment.
-	err = c.ROM.CopySlice(0, RomMemorySize, rom)
+	_, err = c.ROM.CopySlice(0, rom)
 	if err != nil {
 		return err
 	}
