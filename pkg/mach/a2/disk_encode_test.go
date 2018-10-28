@@ -5,7 +5,25 @@ import (
 
 	"github.com/pevans/erc/pkg/mach"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
+
+type encSuite struct {
+	suite.Suite
+
+	enc *Encoder
+	dos *mach.Segment
+}
+
+func (s *encSuite) SetupSuite() {
+	s.enc = NewEncoder(0, nil)
+}
+
+func (s *encSuite) SetupTest() {
+	s.enc.imageType = DDDOS33
+	s.enc.src = mach.NewSegment(DD140K)
+	s.enc.dst = mach.NewSegment(DD140KNib)
+}
 
 func TestNewEncoder(t *testing.T) {
 	seg := mach.NewSegment(1)
@@ -17,7 +35,7 @@ func TestNewEncoder(t *testing.T) {
 	assert.Equal(t, typ, enc.imageType)
 }
 
-func (s *a2Suite) TestLogicalSector() {
+func (s *encSuite) TestLogicalSector() {
 	cases := []struct {
 		imgType int
 		psect   int
@@ -37,37 +55,29 @@ func (s *a2Suite) TestLogicalSector() {
 		{DDNibble, 1, 1},
 	}
 
-	seg := mach.NewSegment(100)
 	for _, c := range cases {
-		enc := NewEncoder(c.imgType, seg)
-		assert.Equal(s.T(), c.want, enc.LogicalSector(c.psect))
+		assert.Equal(s.T(), c.want, s.enc.LogicalSector(c.psect))
 	}
 }
 
-func TestEncodeNIB(t *testing.T) {
-	seg := mach.NewSegment(3)
-	_, _ = seg.CopySlice(0, []mach.Byte{0x1, 0x2, 0x3})
+func (s *encSuite) TestEncodeNIB() {
+	_, _ = s.enc.src.CopySlice(0, []mach.Byte{0x1, 0x2, 0x3})
 
-	enc := NewEncoder(DDNibble, seg)
-	dst, err := enc.EncodeNIB()
-	assert.Equal(t, nil, err)
+	dst, err := s.enc.EncodeNIB()
+	assert.Equal(s.T(), nil, err)
 
 	for i := 0; i < dst.Size(); i++ {
-		assert.Equal(t, seg.Mem[i], dst.Mem[i])
+		assert.Equal(s.T(), s.enc.src.Mem[i], dst.Mem[i])
 	}
 }
 
-func TestWrite(t *testing.T) {
-	seg := mach.NewSegment(3)
-	enc := NewEncoder(0, seg)
-	enc.dst = mach.NewSegment(3)
-
+func (s *encSuite) TestWrite() {
 	bytes := []mach.Byte{0x1, 0x2, 0x3}
-	_, _ = seg.CopySlice(0, bytes)
+	_, _ = s.enc.src.CopySlice(0, bytes)
 
-	assert.Equal(t, 3, enc.Write(0, bytes))
+	assert.Equal(s.T(), 3, s.enc.Write(0, bytes))
 
-	for i := 0; i < enc.dst.Size(); i++ {
-		assert.Equal(t, seg.Mem[i], enc.dst.Mem[i])
+	for i := 0; i < s.enc.dst.Size(); i++ {
+		assert.Equal(s.T(), s.enc.src.Mem[i], s.enc.dst.Mem[i])
 	}
 }
