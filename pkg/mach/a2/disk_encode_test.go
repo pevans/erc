@@ -1,6 +1,9 @@
 package a2
 
 import (
+	"io/ioutil"
+	"log"
+	"os"
 	"testing"
 
 	"github.com/pevans/erc/pkg/mach"
@@ -11,18 +14,29 @@ import (
 type encSuite struct {
 	suite.Suite
 
-	enc *Encoder
-	dos *mach.Segment
+	enc     *Encoder
+	dos     *mach.Segment
+	baseDir string
 }
 
 func (s *encSuite) SetupSuite() {
 	s.enc = NewEncoder(0, nil)
+	dir, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	s.baseDir = dir + "/../../../data"
 }
 
 func (s *encSuite) SetupTest() {
 	s.enc.imageType = DDDOS33
 	s.enc.src = mach.NewSegment(DD140K)
 	s.enc.dst = mach.NewSegment(DD140KNib)
+}
+
+func TestEncoderSuite(t *testing.T) {
+	suite.Run(t, new(encSuite))
 }
 
 func TestNewEncoder(t *testing.T) {
@@ -56,6 +70,7 @@ func (s *encSuite) TestLogicalSector() {
 	}
 
 	for _, c := range cases {
+		s.enc.imageType = c.imgType
 		assert.Equal(s.T(), c.want, s.enc.LogicalSector(c.psect))
 	}
 }
@@ -77,7 +92,7 @@ func (s *encSuite) TestWrite() {
 
 	assert.Equal(s.T(), 3, s.enc.Write(0, bytes))
 
-	for i := 0; i < s.enc.dst.Size(); i++ {
+	for i := 0; i < len(bytes); i++ {
 		assert.Equal(s.T(), s.enc.src.Mem[i], s.enc.dst.Mem[i])
 	}
 }
@@ -96,5 +111,25 @@ func (s *encSuite) TestEncode4n4() {
 		assert.Equal(s.T(), 2, s.enc.Encode4n4(0, c.in))
 		assert.Equal(s.T(), c.want1, s.enc.dst.Mem[0])
 		assert.Equal(s.T(), c.want2, s.enc.dst.Mem[1])
+	}
+}
+
+func (s *encSuite) TestEncodeSector() {
+	bytes, err := ioutil.ReadFile(s.baseDir + "/logical.sector")
+	assert.Equal(s.T(), nil, err)
+
+	mbytes := make([]mach.Byte, len(bytes))
+	for i, b := range bytes {
+		mbytes[i] = mach.Byte(b)
+	}
+
+	s.enc.src.CopySlice(0, mbytes)
+	assert.Equal(s.T(), PhysSectorLen, s.enc.EncodeSector(0, 0, 0, 0))
+
+	bytes, err = ioutil.ReadFile(s.baseDir + "/physical.sector")
+	assert.Equal(s.T(), nil, err)
+
+	for i, b := range bytes {
+		assert.Equal(s.T(), mach.Byte(b), s.enc.dst.Mem[i])
 	}
 }

@@ -143,7 +143,7 @@ func (e *Encoder) EncodeSector(track, sect, doff, soff int) int {
 	doff += e.Write(doff, []mach.Byte{
 		0xDE, 0xAA, 0xEB,
 		0xFF, 0xFF, 0xFF,
-		0xFF, 0xFF,
+		0xFF, 0xFF, 0xFF,
 	})
 
 	// This is the initial preparation of data to be encoded. It's
@@ -205,7 +205,7 @@ func (e *Encoder) EncodeSector(track, sect, doff, soff int) int {
 	// Now we copy everything we XOR'd into the destination segment,
 	// except that the bytes must be passed through the GCR table.
 	for i := 0; i < 0x157; i++ {
-		e.dst.Set(mach.DByte(doff+i), encGCR62[xor[i]<<2])
+		e.dst.Set(mach.DByte(doff+i), encGCR62[xor[i]>>2])
 	}
 
 	// Finally, we write the end marker for sector data, plus 48 bytes
