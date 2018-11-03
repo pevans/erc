@@ -1,6 +1,8 @@
 package a2
 
-import "github.com/pevans/erc/pkg/mach"
+import (
+	"github.com/pevans/erc/pkg/mach"
+)
 
 // This is the table that holds the bytes that represent 6-and-2 encoded
 // data. Note the table goes from $00..$3F; that is the amount of values
@@ -143,7 +145,7 @@ func (e *Encoder) EncodeSector(track, sect, doff, soff int) int {
 	doff += e.Write(doff, []mach.Byte{
 		0xDE, 0xAA, 0xEB,
 		0xFF, 0xFF, 0xFF,
-		0xFF, 0xFF, 0xFF,
+		0xFF, 0xFF,
 	})
 
 	// This is the initial preparation of data to be encoded. It's

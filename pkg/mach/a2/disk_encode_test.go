@@ -86,6 +86,26 @@ func (s *encSuite) TestEncodeNIB() {
 	}
 }
 
+func (s *encSuite) TestEncodeDOS() {
+	bytes, err := ioutil.ReadFile(s.baseDir + "/logical.disk")
+	assert.Equal(s.T(), nil, err)
+
+	s.enc.src = mach.NewSegment(DD140K)
+	for i, b := range bytes {
+		s.enc.src.Set(mach.DByte(i), mach.Byte(b))
+	}
+
+	dst, err := s.enc.EncodeDOS()
+	assert.Equal(s.T(), nil, err)
+
+	bytes, err = ioutil.ReadFile(s.baseDir + "/physical.disk")
+	assert.Equal(s.T(), nil, err)
+
+	for i, b := range bytes {
+		assert.Equal(s.T(), mach.Byte(b), dst.Mem[i])
+	}
+}
+
 func (s *encSuite) TestWrite() {
 	bytes := []mach.Byte{0x1, 0x2, 0x3}
 	_, _ = s.enc.src.CopySlice(0, bytes)
@@ -127,6 +147,26 @@ func (s *encSuite) TestEncodeSector() {
 	assert.Equal(s.T(), PhysSectorLen, s.enc.EncodeSector(0, 0, 0, 0))
 
 	bytes, err = ioutil.ReadFile(s.baseDir + "/physical.sector")
+	assert.Equal(s.T(), nil, err)
+
+	for i, b := range bytes {
+		assert.Equal(s.T(), mach.Byte(b), s.enc.dst.Mem[i])
+	}
+}
+
+func (s *encSuite) TestEncodeTrack() {
+	bytes, err := ioutil.ReadFile(s.baseDir + "/logical.track")
+	assert.Equal(s.T(), nil, err)
+
+	mbytes := make([]mach.Byte, len(bytes))
+	for i, b := range bytes {
+		mbytes[i] = mach.Byte(b)
+	}
+
+	s.enc.src.CopySlice(0, mbytes)
+	assert.Equal(s.T(), PhysTrackLen, s.enc.EncodeTrack(0, 0))
+
+	bytes, err = ioutil.ReadFile(s.baseDir + "/physical.track")
 	assert.Equal(s.T(), nil, err)
 
 	for i, b := range bytes {

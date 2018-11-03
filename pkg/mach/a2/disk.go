@@ -28,17 +28,11 @@ const (
 	LogTrackLen = LogSectorLen * DDNumSectors
 
 	// PhysSectorLen is the length of a physical sector
-	PhysSectorLen = 0x18C
+	PhysSectorLen = 0x1A0
 
 	// PhysTrackLen is the length of a physical track, consisting of 16
 	// physical sectors.
-	PhysTrackLen = PhysSectorLen * DDNumSectors
-
-	// A sector header consists of some byte markers--all byte markers
-	// in 6-and-2 encoding are 3 bytes long--and also some metadata,
-	// such as the track number, the sector number, the volume, and an
-	// XOR'd combination of all three. It also contains some padding.
-	PhysSectorHeader = 0x14
+	PhysTrackLen = (PhysSectorLen * DDNumSectors) + PhysTrackHeader
 
 	// The track header is 48 bytes of--well, nothing really, just
 	// padding.
@@ -61,7 +55,7 @@ const (
 	// DD140KNib is the capacity of the segment we will create for
 	// nibblized data, whether from 140k logical data or just any-old
 	// NIB file.
-	DD140KNib = 250000
+	DD140KNib = 234640
 )
 
 const (
