@@ -15,12 +15,15 @@ type encSuite struct {
 	suite.Suite
 
 	enc     *Encoder
+	dec     *Decoder
 	dos     *mach.Segment
 	baseDir string
 }
 
 func (s *encSuite) SetupSuite() {
 	s.enc = NewEncoder(0, nil)
+	s.dec = NewDecoder(0, nil)
+
 	dir, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
@@ -33,6 +36,10 @@ func (s *encSuite) SetupTest() {
 	s.enc.imageType = DDDOS33
 	s.enc.src = mach.NewSegment(DD140K)
 	s.enc.dst = mach.NewSegment(DD140KNib)
+
+	s.dec.imageType = DDDOS33
+	s.dec.src = mach.NewSegment(DD140KNib)
+	s.dec.dst = mach.NewSegment(DD140K)
 }
 
 func TestEncoderSuite(t *testing.T) {
