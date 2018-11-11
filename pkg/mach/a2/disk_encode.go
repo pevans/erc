@@ -73,12 +73,12 @@ func (e *Encoder) EncodeNIB() (*mach.Segment, error) {
 
 // LogicalSector returns the logical sector number, given the current
 // image type and a physical sector number (sect).
-func (e *Encoder) LogicalSector(sect int) int {
+func LogicalSector(imageType, sect int) int {
 	if sect < 0 || sect > 15 {
 		return 0
 	}
 
-	switch e.imageType {
+	switch imageType {
 	case DDDOS33:
 		return dosSectorTable[sect]
 
@@ -110,7 +110,7 @@ func (e *Encoder) EncodeTrack(track, doff int) int {
 
 	orig := doff
 	for i := 0; i < DDNumSectors; i++ {
-		logSect := e.LogicalSector(i)
+		logSect := LogicalSector(e.imageType, i)
 		physSect := encPhysOrder[i]
 
 		soff := toff + (LogSectorLen * logSect)

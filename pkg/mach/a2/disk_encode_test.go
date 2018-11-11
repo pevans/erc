@@ -78,7 +78,7 @@ func (s *encSuite) TestLogicalSector() {
 
 	for _, c := range cases {
 		s.enc.imageType = c.imgType
-		assert.Equal(s.T(), c.want, s.enc.LogicalSector(c.psect))
+		assert.Equal(s.T(), c.want, LogicalSector(s.enc.imageType, c.psect))
 	}
 }
 
