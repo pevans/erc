@@ -1,6 +1,8 @@
 package a2
 
-import "github.com/pevans/erc/pkg/mach"
+import (
+	"github.com/pevans/erc/pkg/mach"
+)
 
 type Decoder struct {
 	src       *mach.Segment
@@ -54,8 +56,8 @@ var conv6bit = []mach.Byte{
 }
 
 func (d *Decoder) DecodeSector(track, sect, doff, soff int) int {
-	// Skip header
-	soff += 3
+	// Skip header and the data marker
+	soff += PhysSectorHeader + 3
 
 	conv := make([]mach.Byte, 0x157)
 	for i := 0; i < 0x157; i++ {
@@ -77,8 +79,8 @@ func (d *Decoder) DecodeSector(track, sect, doff, soff int) int {
 		offac = i + 0xAC
 		off56 = i + 0x56
 
-		vac = (xor[offac+0x56] & 0xFC) | ((xor[i] & 0x80) >> 7) | ((xor[i] & 0x40) >> 5)
-		v56 = (xor[off56+0x56] & 0xFC) | ((xor[i] & 0x20) >> 5) | ((xor[i] & 0x10) >> 3)
+		vac = (xor[int(offac)+0x56] & 0xFC) | ((xor[i] & 0x80) >> 7) | ((xor[i] & 0x40) >> 5)
+		v56 = (xor[int(off56)+0x56] & 0xFC) | ((xor[i] & 0x20) >> 5) | ((xor[i] & 0x10) >> 3)
 		v00 = (xor[i+0x56] & 0xFC) | ((xor[i] & 0x08) >> 3) | ((xor[i] & 0x04) >> 1)
 
 		if offac >= 0xAC {

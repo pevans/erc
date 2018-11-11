@@ -30,6 +30,9 @@ const (
 	// PhysSectorLen is the length of a physical sector
 	PhysSectorLen = 0x1A0
 
+	// PhysSectorHeader is the length of a sector header
+	PhysSectorHeader = 0x13
+
 	// PhysTrackLen is the length of a physical track, consisting of 16
 	// physical sectors.
 	PhysTrackLen = (PhysSectorLen * DDNumSectors) + PhysTrackHeader
