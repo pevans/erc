@@ -33,3 +33,11 @@ func (s *encSuite) TestDecodeSector() {
 	assert.Equal(s.T(), LogSectorLen, s.dec.DecodeSector(0, 0, 0, 0))
 	assert.Equal(s.T(), true, fileMatches(s.dec.dst, s.baseDir+"/logical.sector"))
 }
+
+func (s *encSuite) TestDecodeTrack() {
+	err := loadFile(s.dec.src, s.baseDir+"/physical.track")
+	assert.Equal(s.T(), nil, err)
+
+	assert.Equal(s.T(), LogTrackLen, s.dec.DecodeTrack(0, 0))
+	assert.Equal(s.T(), true, fileMatches(s.dec.dst, s.baseDir+"/logical.track"))
+}

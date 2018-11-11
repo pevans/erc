@@ -10,6 +10,18 @@ type Decoder struct {
 	imageType int
 }
 
+//  00    01    02    03    04    05    06    07    08    09    0A    0B    0C    0D    0E    0F
+var conv6bit = []mach.Byte{
+	0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, // 00
+	0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0X00, 0X04, 0XFF, 0XFF, 0X08, 0X0C, 0XFF, 0X10, 0X14, 0X18, // 10
+	0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0X1C, 0X20, 0XFF, 0XFF, 0XFF, 0X24, 0X28, 0X2C, 0X30, 0X34, // 20
+	0XFF, 0XFF, 0X38, 0X3C, 0X40, 0X44, 0X48, 0X4C, 0XFF, 0X50, 0X54, 0X58, 0X5C, 0X60, 0X64, 0X68, // 30
+	0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0X6C, 0XFF, 0X70, 0X74, 0X78, // 40
+	0XFF, 0XFF, 0XFF, 0X7C, 0XFF, 0XFF, 0X80, 0X84, 0XFF, 0X88, 0X8C, 0X90, 0X94, 0X98, 0X9C, 0XA0, // 50
+	0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XA4, 0XA8, 0XAC, 0XFF, 0XB0, 0XB4, 0XB8, 0XBC, 0XC0, 0XC4, 0XC8, // 60
+	0XFF, 0XFF, 0XCC, 0XD0, 0XD4, 0XD8, 0XDC, 0XE0, 0XFF, 0XE4, 0XE8, 0XEC, 0XF0, 0XF4, 0XF8, 0XFC, // 70
+}
+
 func NewDecoder(imgType int, src *mach.Segment) *Decoder {
 	return &Decoder{
 		src:       src,
@@ -40,19 +52,15 @@ func (d *Decoder) DecodeDOS() (*mach.Segment, error) {
 }
 
 func (d *Decoder) DecodeTrack(track, doff int) int {
-	return doff
-}
+	soff := (track * PhysTrackLen) + PhysTrackHeader
 
-//  00    01    02    03    04    05    06    07    08    09    0A    0B    0C    0D    0E    0F
-var conv6bit = []mach.Byte{
-	0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, // 00
-	0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0X00, 0X04, 0XFF, 0XFF, 0X08, 0X0C, 0XFF, 0X10, 0X14, 0X18, // 10
-	0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0X1C, 0X20, 0XFF, 0XFF, 0XFF, 0X24, 0X28, 0X2C, 0X30, 0X34, // 20
-	0XFF, 0XFF, 0X38, 0X3C, 0X40, 0X44, 0X48, 0X4C, 0XFF, 0X50, 0X54, 0X58, 0X5C, 0X60, 0X64, 0X68, // 30
-	0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0X6C, 0XFF, 0X70, 0X74, 0X78, // 40
-	0XFF, 0XFF, 0XFF, 0X7C, 0XFF, 0XFF, 0X80, 0X84, 0XFF, 0X88, 0X8C, 0X90, 0X94, 0X98, 0X9C, 0XA0, // 50
-	0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XA4, 0XA8, 0XAC, 0XFF, 0XB0, 0XB4, 0XB8, 0XBC, 0XC0, 0XC4, 0XC8, // 60
-	0XFF, 0XFF, 0XCC, 0XD0, 0XD4, 0XD8, 0XDC, 0XE0, 0XFF, 0XE4, 0XE8, 0XEC, 0XF0, 0XF4, 0XF8, 0XFC, // 70
+	for sect := 0; sect < DDNumSectors; sect++ {
+		doff := (track * LogTrackLen) + (LogicalSector(d.imageType, sect) * LogSectorLen)
+		_ = d.DecodeSector(track, sect, doff, soff)
+		soff += PhysSectorLen
+	}
+
+	return LogTrackLen
 }
 
 func (d *Decoder) DecodeSector(track, sect, doff, soff int) int {
