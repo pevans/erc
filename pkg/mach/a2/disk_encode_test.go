@@ -115,11 +115,13 @@ func fileMatches(seg *mach.Segment, path string) bool {
 	}
 
 	if len(seg.Mem) != len(fseg.Mem) {
+		log.Printf("Seg mem size (%v) mismatches fseg mem size (%v)\n", len(seg.Mem), len(fseg.Mem))
 		return false
 	}
 
 	for i, b := range seg.Mem {
 		if b != fseg.Mem[i] {
+			log.Printf("seg byte %x (%x) mismatches fseg byte (%x)\n", i, b, fseg.Mem[i])
 			return false
 		}
 	}
