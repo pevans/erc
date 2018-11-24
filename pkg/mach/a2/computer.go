@@ -11,6 +11,7 @@ package a2
 
 import (
 	"github.com/pevans/erc/pkg/mach"
+	"github.com/pevans/erc/pkg/mach/a2/disk"
 	"github.com/pevans/erc/pkg/proc/mos65c02"
 )
 
@@ -33,6 +34,8 @@ type Computer struct {
 	Main *mach.Segment
 	ROM  *mach.Segment
 	Aux  *mach.Segment
+
+	Drive1 *disk.Drive
 
 	// RMap and WMap are the read and write address maps. These contain
 	// functions which emulate the "soft switches" that Apple IIs used
@@ -86,6 +89,8 @@ func NewComputer() *Computer {
 	comp.Aux = mach.NewSegment(AuxMemorySize)
 	comp.Main = mach.NewSegment(MainMemorySize)
 	comp.ROM = mach.NewSegment(RomMemorySize)
+
+	comp.Drive1 = disk.NewDrive()
 
 	comp.CPU = new(mos65c02.CPU)
 	comp.CPU.WMem = comp.Main

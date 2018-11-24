@@ -3,7 +3,6 @@ package a2
 import (
 	"testing"
 
-	"github.com/pevans/erc/pkg/mach/a2/disk"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -11,13 +10,11 @@ import (
 type a2Suite struct {
 	suite.Suite
 
-	comp  *Computer
-	drive *disk.Drive
+	comp *Computer
 }
 
 func (s *a2Suite) SetupSuite() {
 	s.comp = NewComputer()
-	s.drive = disk.NewDrive()
 }
 
 func (s *a2Suite) SetupTest() {
@@ -31,6 +28,7 @@ func TestNewComputer(t *testing.T) {
 	assert.NotEqual(t, nil, comp.Aux)
 	assert.NotEqual(t, nil, comp.ROM)
 	assert.NotEqual(t, nil, comp.CPU)
+	assert.NotEqual(t, nil, comp.Drive1)
 	assert.NotEqual(t, nil, comp.CPU.RMem)
 	assert.NotEqual(t, nil, comp.CPU.WMem)
 	assert.NotEqual(t, nil, comp.RMap)
