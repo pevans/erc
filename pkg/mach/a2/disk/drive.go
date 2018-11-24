@@ -1,9 +1,13 @@
 package disk
 
 import (
+	"fmt"
+	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/pevans/erc/pkg/mach"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -194,4 +198,54 @@ func (d *Drive) StepPhase(addr mach.DByte) {
 	d.Step(offset)
 
 	d.Phase = phase
+}
+
+func ImageType(file string) (int, error) {
+	lower := strings.ToLower(file)
+
+	switch {
+	case strings.HasSuffix(lower, ".do"):
+		return DOS33, nil
+	case strings.HasSuffix(lower, ".nib"):
+		return Nibble, nil
+	case strings.HasSuffix(lower, ".po"):
+		return ProDOS, nil
+	}
+
+	return -1, fmt.Errorf("Unrecognized suffix for file %s", file)
+}
+
+func (d *Drive) Load(file string) error {
+	// See if we can figure out what type of image this is
+	d.ImageType, err = ImageType(file)
+	if err != nil {
+		return errors.Wrapf(err, "Failed to understand image type")
+	}
+
+	// Read the bytes from the file into a buffer
+	bytes, err := ioutil.ReadFile(file)
+	if err != nil {
+		return errors.Wrapf(err, "Failed to read file %s", file)
+	}
+
+	// Copy directly into the image segment
+	d.Image = mach.NewSegment(len(bytes))
+	err = d.Image.CopySlice(0, bytes)
+	if err != nil {
+		d.Image = nil
+		return errors.Wrapf(err, "Failed to copy bytes into image segment")
+	}
+
+	// Decode into the data segment
+	dec := NewDecoder(d.ImageType, d.Image)
+	d.Data, err = dec.Decode()
+	if err != nil {
+		d.Image = nil
+		return errors.Wrapf(err, "Failed to decode image")
+	}
+
+	return nil
+}
+
+func (d *Drive) Save(file string) error {
 }

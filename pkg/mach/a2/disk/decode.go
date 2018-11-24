@@ -1,6 +1,8 @@
 package disk
 
 import (
+	"fmt"
+
 	"github.com/pevans/erc/pkg/mach"
 )
 
@@ -27,6 +29,17 @@ func NewDecoder(imgType int, src *mach.Segment) *Decoder {
 		src:       src,
 		imageType: imgType,
 	}
+}
+
+func (d *Decoder) Decode() (*mach.Segment, error) {
+	switch d.imageType {
+	case DOS33, ProDOS:
+		return d.DecodeDOS()
+	case Nibble:
+		return d.DecodeNIB()
+	}
+
+	return nil, fmt.Errorf("Unrecognized image type: %v", d.imageType)
 }
 
 func (d *Decoder) DecodeNIB() (*mach.Segment, error) {
