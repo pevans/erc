@@ -41,10 +41,10 @@ func (d *Decoder) DecodeNIB() (*mach.Segment, error) {
 }
 
 func (d *Decoder) DecodeDOS() (*mach.Segment, error) {
-	d.dst = mach.NewSegment(DD140K)
+	d.dst = mach.NewSegment(DosSize)
 	doff := 0
 
-	for track := 0; track < DDNumTracks; track++ {
+	for track := 0; track < NumTracks; track++ {
 		doff += d.DecodeTrack(track, doff)
 	}
 
@@ -54,7 +54,7 @@ func (d *Decoder) DecodeDOS() (*mach.Segment, error) {
 func (d *Decoder) DecodeTrack(track, doff int) int {
 	soff := (track * PhysTrackLen) + PhysTrackHeader
 
-	for sect := 0; sect < DDNumSectors; sect++ {
+	for sect := 0; sect < NumSectors; sect++ {
 		doff := (track * LogTrackLen) + (LogicalSector(d.imageType, sect) * LogSectorLen)
 		_ = d.DecodeSector(track, sect, doff, soff)
 		soff += PhysSectorLen

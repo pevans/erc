@@ -86,7 +86,7 @@ func (s *diskSuite) TestStep() {
 		{0, 0, 0},
 		{0, 1, 1},
 		{2, -1, 1},
-		{5, DDMaxSteps, DDMaxSteps},
+		{5, MaxSteps, MaxSteps},
 		{5, -10, 0},
 	}
 

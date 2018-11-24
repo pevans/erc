@@ -34,12 +34,12 @@ func (s *encSuite) SetupSuite() {
 
 func (s *encSuite) SetupTest() {
 	s.enc.imageType = DDDOS33
-	s.enc.src = mach.NewSegment(DD140K)
-	s.enc.dst = mach.NewSegment(DD140KNib)
+	s.enc.src = mach.NewSegment(DosSize)
+	s.enc.dst = mach.NewSegment(NibSize)
 
 	s.dec.imageType = DDDOS33
-	s.dec.src = mach.NewSegment(DD140KNib)
-	s.dec.dst = mach.NewSegment(DD140K)
+	s.dec.src = mach.NewSegment(NibSize)
+	s.dec.dst = mach.NewSegment(DosSize)
 }
 
 func TestEncoderSuite(t *testing.T) {

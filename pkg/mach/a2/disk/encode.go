@@ -50,10 +50,10 @@ func NewEncoder(imgType int, src *mach.Segment) *Encoder {
 }
 
 func (e *Encoder) EncodeDOS() (*mach.Segment, error) {
-	e.dst = mach.NewSegment(DD140KNib)
+	e.dst = mach.NewSegment(NibSize)
 	doff := 0
 
-	for track := 0; track < DDNumTracks; track++ {
+	for track := 0; track < NumTracks; track++ {
 		doff += e.EncodeTrack(track, doff)
 	}
 
@@ -109,7 +109,7 @@ func (e *Encoder) EncodeTrack(track, doff int) int {
 	})
 
 	orig := doff
-	for i := 0; i < DDNumSectors; i++ {
+	for i := 0; i < NumSectors; i++ {
 		logSect := LogicalSector(e.imageType, i)
 		physSect := encPhysOrder[i]
 
@@ -136,10 +136,10 @@ func (e *Encoder) EncodeSector(track, sect, doff, soff int) int {
 	})
 
 	// Write the metadata
-	doff += e.Encode4n4(doff, DDVolumeMarker)
+	doff += e.Encode4n4(doff, VolumeMarker)
 	doff += e.Encode4n4(doff, mach.Byte(track))
 	doff += e.Encode4n4(doff, mach.Byte(sect))
-	doff += e.Encode4n4(doff, mach.Byte(DDVolumeMarker^track^sect))
+	doff += e.Encode4n4(doff, mach.Byte(VolumeMarker^track^sect))
 
 	// Write the sector header epilogue
 	doff += e.Write(doff, []mach.Byte{

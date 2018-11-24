@@ -9,14 +9,14 @@ import (
 const (
 	// VolumeMarker is a hard-coded number that encoding software will
 	// expect to see in the track padding.
-	DDVolumeMarker = 0xFE
+	VolumeMarker = 0xFE
 
 	// NumTracks is the number of tracks that can be contained on a
 	// disk.
-	DDNumTracks = 35
+	NumTracks = 35
 
 	// NumSectors is the number of sectors that each track contains.
-	DDNumSectors = 16
+	NumSectors = 16
 
 	// LogSectorLen is the length of a logical sector, which is 256
 	// bytes.
@@ -25,7 +25,7 @@ const (
 	// LogTrackLen is the length of a logical track, consisting of 16
 	// logical sectors, which are each 256 bytes long. It thus holds 4
 	// kilobytes of data.
-	LogTrackLen = LogSectorLen * DDNumSectors
+	LogTrackLen = LogSectorLen * NumSectors
 
 	// PhysSectorLen is the length of a physical sector
 	PhysSectorLen = 0x1A0
@@ -35,7 +35,7 @@ const (
 
 	// PhysTrackLen is the length of a physical track, consisting of 16
 	// physical sectors.
-	PhysTrackLen = (PhysSectorLen * DDNumSectors) + PhysTrackHeader
+	PhysTrackLen = (PhysSectorLen * NumSectors) + PhysTrackHeader
 
 	// The track header is 48 bytes of--well, nothing really, just
 	// padding.
@@ -43,22 +43,22 @@ const (
 )
 
 const (
-	// DDMaxSteps is the maximum number of steps we can move the drive
+	// MaxSteps is the maximum number of steps we can move the drive
 	// head before running out of tracks on the disk. (Note that steps
 	// are half of the length of a track; 35 tracks, 70 steps.)
-	DDMaxSteps = 70
+	MaxSteps = 70
 
-	// DDMaxSectorPos is the highest sector position that we can allow
+	// MaxSectorPos is the highest sector position that we can allow
 	// within a given track. (0xFFF = 4k - 1.)
-	DDMaxSectorPos = 0xFFF
+	MaxSectorPos = 0xFFF
 
-	// DD140K is the number of bytes in 140 kilobytes.
-	DD140K = 143360
+	// DosSize is the number of bytes in 140 kilobytes.
+	DosSize = 143360
 
-	// DD140KNib is the capacity of the segment we will create for
+	// NibSize is the capacity of the segment we will create for
 	// nibblized data, whether from 140k logical data or just any-old
 	// NIB file.
-	DD140KNib = 234640
+	NibSize = 234640
 )
 
 const (
@@ -147,8 +147,8 @@ func (d *Drive) Step(offset int) {
 	d.TrackPos += offset
 
 	switch {
-	case d.TrackPos > DDMaxSteps:
-		d.TrackPos = DDMaxSteps
+	case d.TrackPos > MaxSteps:
+		d.TrackPos = MaxSteps
 	case d.TrackPos < 0:
 		d.TrackPos = 0
 	}
