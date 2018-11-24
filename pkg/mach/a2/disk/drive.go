@@ -87,8 +87,8 @@ const (
 	DDWrite
 )
 
-// A DiskDrive represents the state of a virtual Disk II drive.
-type DiskDrive struct {
+// A Drive represents the state of a virtual Disk II drive.
+type Drive struct {
 	Phase        int
 	Latch        mach.Byte
 	TrackPos     int
@@ -103,9 +103,9 @@ type DiskDrive struct {
 	Locked       bool
 }
 
-// NewDiskDrive returns a new disk drive ready for DOS 3.3 images.
-func NewDiskDrive() *DiskDrive {
-	drive := new(DiskDrive)
+// NewDrive returns a new disk drive ready for DOS 3.3 images.
+func NewDrive() *Drive {
+	drive := new(Drive)
 
 	drive.Mode = DDRead
 	drive.ImageType = DDDOS33
@@ -115,7 +115,7 @@ func NewDiskDrive() *DiskDrive {
 
 // Position returns the segment position that the drive is currently at,
 // based upon track and sector position.
-func (d *DiskDrive) Position() int {
+func (d *Drive) Position() int {
 	if d.Data == nil {
 		return 0
 	}
@@ -127,7 +127,7 @@ func (d *DiskDrive) Position() int {
 // the sign of the given offset. If this would involve moving beyond the
 // beginning or end of a track, then the sector position is instead set
 // to zero.
-func (d *DiskDrive) Shift(offset int) {
+func (d *Drive) Shift(offset int) {
 	if d.Locked {
 		return
 	}
@@ -143,7 +143,7 @@ func (d *DiskDrive) Shift(offset int) {
 // sign of the offset. This simulates the stepper motor that moves the
 // drive head further into the center of the disk platter (offset > 0)
 // or further out (offset < 0).
-func (d *DiskDrive) Step(offset int) {
+func (d *Drive) Step(offset int) {
 	d.TrackPos += offset
 
 	switch {
@@ -183,7 +183,7 @@ var phaseTransitions = []int{
 	0, 1, 0, -1, 0, // phase 4
 }
 
-func (d *DiskDrive) StepPhase(addr mach.DByte) {
+func (d *Drive) StepPhase(addr mach.DByte) {
 	phase := DiskPhase(addr)
 
 	if phase < 0 || phase > 4 {

@@ -12,12 +12,12 @@ type a2Suite struct {
 	suite.Suite
 
 	comp  *Computer
-	drive *disk.DiskDrive
+	drive *disk.Drive
 }
 
 func (s *a2Suite) SetupSuite() {
 	s.comp = NewComputer()
-	s.drive = disk.NewDiskDrive()
+	s.drive = disk.NewDrive()
 }
 
 func (s *a2Suite) SetupTest() {

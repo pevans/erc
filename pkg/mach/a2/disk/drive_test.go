@@ -10,15 +10,15 @@ import (
 
 type diskSuite struct {
 	suite.Suite
-	drive *DiskDrive
+	drive *Drive
 }
 
 func (s *diskSuite) SetupTest() {
-	s.drive = NewDiskDrive()
+	s.drive = NewDrive()
 }
 
-func TestNewDiskDrive(t *testing.T) {
-	drive := NewDiskDrive()
+func TestNewDrive(t *testing.T) {
+	drive := NewDrive()
 
 	assert.NotEqual(t, nil, drive)
 	assert.Equal(t, DDRead, drive.Mode)
