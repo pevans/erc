@@ -1,4 +1,4 @@
-package a2
+package disk
 
 import (
 	"os"

@@ -3,6 +3,7 @@ package a2
 import (
 	"testing"
 
+	"github.com/pevans/erc/pkg/mach/a2/disk"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -11,12 +12,12 @@ type a2Suite struct {
 	suite.Suite
 
 	comp  *Computer
-	drive *DiskDrive
+	drive *disk.DiskDrive
 }
 
 func (s *a2Suite) SetupSuite() {
 	s.comp = NewComputer()
-	s.drive = NewDiskDrive()
+	s.drive = disk.NewDiskDrive()
 }
 
 func (s *a2Suite) SetupTest() {

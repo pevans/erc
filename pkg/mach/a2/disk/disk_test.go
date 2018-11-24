@@ -1,11 +1,21 @@
-package a2
+package disk
 
 import (
 	"testing"
 
 	"github.com/pevans/erc/pkg/mach"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
+
+type diskSuite struct {
+	suite.Suite
+	drive *DiskDrive
+}
+
+func (s *diskSuite) SetupTest() {
+	s.drive = NewDiskDrive()
+}
 
 func TestNewDiskDrive(t *testing.T) {
 	drive := NewDiskDrive()
@@ -15,7 +25,7 @@ func TestNewDiskDrive(t *testing.T) {
 	assert.Equal(t, DDDOS33, drive.ImageType)
 }
 
-func (s *a2Suite) TestPosition() {
+func (s *diskSuite) TestPosition() {
 	// When there is no valid segment in s.drive.Data, the position
 	// should be zero.
 	assert.Equal(s.T(), 0, s.drive.Position())
@@ -42,7 +52,7 @@ func (s *a2Suite) TestPosition() {
 	}
 }
 
-func (s *a2Suite) TestShift() {
+func (s *diskSuite) TestShift() {
 	cases := []struct {
 		locked bool
 		spos   int
@@ -67,7 +77,7 @@ func (s *a2Suite) TestShift() {
 	}
 }
 
-func (s *a2Suite) TestStep() {
+func (s *diskSuite) TestStep() {
 	cases := []struct {
 		tpos   int
 		offset int

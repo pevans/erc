@@ -1,4 +1,4 @@
-package a2
+package disk
 
 import (
 	"io/ioutil"
@@ -29,7 +29,7 @@ func (s *encSuite) SetupSuite() {
 		log.Fatal(err)
 	}
 
-	s.baseDir = dir + "/../../../data"
+	s.baseDir = dir + "/../../../../data"
 }
 
 func (s *encSuite) SetupTest() {
