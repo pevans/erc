@@ -79,10 +79,10 @@ func LogicalSector(imageType, sect int) int {
 	}
 
 	switch imageType {
-	case DDDOS33:
+	case DOS33:
 		return dosSectorTable[sect]
 
-	case DDProDOS:
+	case ProDOS:
 		return proSectorTable[sect]
 	}
 

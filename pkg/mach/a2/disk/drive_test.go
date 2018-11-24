@@ -21,8 +21,8 @@ func TestNewDrive(t *testing.T) {
 	drive := NewDrive()
 
 	assert.NotEqual(t, nil, drive)
-	assert.Equal(t, DDRead, drive.Mode)
-	assert.Equal(t, DDDOS33, drive.ImageType)
+	assert.Equal(t, ReadMode, drive.Mode)
+	assert.Equal(t, DOS33, drive.ImageType)
 }
 
 func (s *diskSuite) TestPosition() {

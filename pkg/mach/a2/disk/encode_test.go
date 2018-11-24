@@ -33,11 +33,11 @@ func (s *encSuite) SetupSuite() {
 }
 
 func (s *encSuite) SetupTest() {
-	s.enc.imageType = DDDOS33
+	s.enc.imageType = DOS33
 	s.enc.src = mach.NewSegment(DosSize)
 	s.enc.dst = mach.NewSegment(NibSize)
 
-	s.dec.imageType = DDDOS33
+	s.dec.imageType = DOS33
 	s.dec.src = mach.NewSegment(NibSize)
 	s.dec.dst = mach.NewSegment(DosSize)
 }
@@ -63,17 +63,17 @@ func (s *encSuite) TestLogicalSector() {
 		want    int
 	}{
 		{0, 0, 0},
-		{DDDOS33, -1, 0},
-		{DDDOS33, 16, 0},
-		{DDDOS33, 0x0, 0x0},
-		{DDDOS33, 0x1, 0x7},
-		{DDDOS33, 0xE, 0x8},
-		{DDDOS33, 0xF, 0xF},
-		{DDProDOS, 0x0, 0x0},
-		{DDProDOS, 0x1, 0x8},
-		{DDProDOS, 0xE, 0x7},
-		{DDProDOS, 0xF, 0xF},
-		{DDNibble, 1, 1},
+		{DOS33, -1, 0},
+		{DOS33, 16, 0},
+		{DOS33, 0x0, 0x0},
+		{DOS33, 0x1, 0x7},
+		{DOS33, 0xE, 0x8},
+		{DOS33, 0xF, 0xF},
+		{ProDOS, 0x0, 0x0},
+		{ProDOS, 0x1, 0x8},
+		{ProDOS, 0xE, 0x7},
+		{ProDOS, 0xF, 0xF},
+		{Nibble, 1, 1},
 	}
 
 	for _, c := range cases {

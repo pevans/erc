@@ -62,29 +62,29 @@ const (
 )
 
 const (
-	// DDDOS33 is the image type for DOS 3.3, which is the
+	// DOS33 is the image type for DOS 3.3, which is the
 	// generally-used image type for Apple II DOS images. There are
 	// other DOS versions, which are formatted differently, but we don't
 	// handle them here.
-	DDDOS33 = iota
+	DOS33 = iota
 
-	// DDProDOS indicates that the image type is ProDOS.
-	DDProDOS
+	// ProDOS indicates that the image type is ProDOS.
+	ProDOS
 
-	// DDNibble is the disk type for nibble (*.NIB) disk images.
+	// Nibble is the disk type for nibble (*.NIB) disk images.
 	// Although this is an image type, it's not something that actual
 	// disks would have been formatted in during the Apple II era.
-	DDNibble
+	Nibble
 )
 
 // The drive mode helps us determine whether to read or write from
 // the disk, but is actually unrelated to write protect mode!
 const (
-	// DDRead is read mode for the drive.
-	DDRead = iota
+	// ReadMode is read mode for the drive.
+	ReadMode = iota
 
-	// DDWrite indicates that we are in write mode for the drive.
-	DDWrite
+	// WriteMode indicates that we are in write mode for the drive.
+	WriteMode
 )
 
 // A Drive represents the state of a virtual Disk II drive.
@@ -107,8 +107,8 @@ type Drive struct {
 func NewDrive() *Drive {
 	drive := new(Drive)
 
-	drive.Mode = DDRead
-	drive.ImageType = DDDOS33
+	drive.Mode = ReadMode
+	drive.ImageType = DOS33
 
 	return drive
 }
