@@ -3,15 +3,15 @@ package a2
 import "github.com/pevans/erc/pkg/mach"
 
 const (
-	// MemExpROM allows access to expansion ROM. When this is on, memory
+	// PCExpROM allows access to expansion ROM. When this is on, memory
 	// in the $C800..$CFFF range is mapped to expansion ROM.
 	PCExpROM = 0x20
 
-	// MemSlotCxROM tells us to map $C100..$C7FF to the peripheral ROM
+	// PCSlotCxROM tells us to map $C100..$C7FF to the peripheral ROM
 	// area of system ROM.
 	PCSlotCxROM = 0x40
 
-	// MemSlotC3ROM maps just the $C300 page of memory to peripheral
+	// PCSlotC3ROM maps just the $C300 page of memory to peripheral
 	// ROM.
 	PCSlotC3ROM = 0x80
 )

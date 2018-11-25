@@ -41,8 +41,7 @@ const (
 	// physical sectors.
 	PhysTrackLen = (PhysSectorLen * NumSectors) + PhysTrackHeader
 
-	// The track header is 48 bytes of--well, nothing really, just
-	// padding.
+	// PhysTrackHeader is the length of a track header.
 	PhysTrackHeader = 0x30
 )
 
@@ -161,7 +160,8 @@ func (d *Drive) Step(offset int) {
 	d.SectorPos = 0
 }
 
-func DiskPhase(addr mach.DByte) int {
+// Phase returns the motor phase based upon the given address.
+func Phase(addr mach.DByte) int {
 	phase := -1
 
 	switch addr & 0xF {
@@ -187,8 +187,10 @@ var phaseTransitions = []int{
 	0, 1, 0, -1, 0, // phase 4
 }
 
+// StepPhase will step the drive head forward or backward based upon the
+// given address (from which we decipher the motor phase).
 func (d *Drive) StepPhase(addr mach.DByte) {
-	phase := DiskPhase(addr)
+	phase := Phase(addr)
 
 	if phase < 0 || phase > 4 {
 		return
@@ -200,6 +202,8 @@ func (d *Drive) StepPhase(addr mach.DByte) {
 	d.Phase = phase
 }
 
+// ImageType returns the type of image that is suggested by the suffix
+// of the given filename.
 func ImageType(file string) (int, error) {
 	lower := strings.ToLower(file)
 
@@ -215,6 +219,9 @@ func ImageType(file string) (int, error) {
 	return -1, fmt.Errorf("Unrecognized suffix for file %s", file)
 }
 
+// Load will read a file from the filesystem and set its contents as the
+// image in the drive. It also decodes the contents according to the
+// (detected) image type.
 func (d *Drive) Load(file string) error {
 	// See if we can figure out what type of image this is
 	d.ImageType, err = ImageType(file)
@@ -245,7 +252,4 @@ func (d *Drive) Load(file string) error {
 	}
 
 	return nil
-}
-
-func (d *Drive) Save(file string) error {
 }

@@ -3,32 +3,39 @@ package a2
 import "github.com/pevans/erc/pkg/mach"
 
 const (
+	// DisplayDefault is the default state of the display settings.
 	DisplayDefault = 0x0
 
-	// Display text in the "alternate" character set
+	// DisplayAltCharset indicates that we should render characters in
+	// Apple's alternate character set.
 	DisplayAltCharset = 0x1
 
-	// Show text in 80 columns, rather than the default 40 columns
+	// Display80Col directs us to show text in 80 columns, which is
+	// double the normal width. The number of displayed rows is
+	// unchanged.
 	Display80Col = 0x2
 
-	// Display only text. By default, we display lo-res graphics and
-	// perhaps mixed graphics and text if the MIXED bit is high.
+	// DisplayText tells us to render the display buffer in text mode,
+	// which means we should interpret the data there as text symbols
+	// and not (for example) graphic cells.
 	DisplayText = 0x4
 
-	// If TEXT is not high, then we are directed to display both text
-	// and graphics.
+	// DisplayMixed tells us to show both lores graphics and text. (It
+	// is not possible to show hires graphics and text.) In this mode,
+	// text is rendered at the bottom several rows; lores graphics,
+	// above.
 	DisplayMixed = 0x8
 
-	// If this is high, we will show high-resolution graphics; if not,
-	// low-resolution. This bit is overridden by TEXT; if TEXT is high,
-	// we will only show text.
+	// DisplayHires directs us to show high resolution graphics, rather
+	// than low-resolution. The number of colors we can show decreases,
+	// but the number of dots per inch increases.
 	DisplayHires = 0x10
 
-	// Enable IOU access for $C058..$C05F when this bit is on; NOTE: the
-	// tech ref says that this is left on by the firmware
+	// DisplayIOU enables IOU access for $C058 - $C05F.
 	DisplayIOU = 0x20
 
-	// Display double-high-resolution graphics
+	// DisplayDHires indicates that we will show double high-resolution
+	// graphics. This mode requires the use of auxiliary memory.
 	DisplayDHires = 0x40
 )
 

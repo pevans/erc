@@ -27,6 +27,7 @@ func NewSegment(size int) *Segment {
 	return s
 }
 
+// Size returns the size of the given segment.
 func (s *Segment) Size() int {
 	return len(s.Mem)
 }

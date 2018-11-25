@@ -6,6 +6,8 @@ import (
 	"github.com/pevans/erc/pkg/mach"
 )
 
+// A Decoder is a type which defines the information we need to decode
+// the data from one segment into another.
 type Decoder struct {
 	src       *mach.Segment
 	dst       *mach.Segment
@@ -24,6 +26,8 @@ var conv6bit = []mach.Byte{
 	0XFF, 0XFF, 0XCC, 0XD0, 0XD4, 0XD8, 0XDC, 0XE0, 0XFF, 0XE4, 0XE8, 0XEC, 0XF0, 0XF4, 0XF8, 0XFC, // 70
 }
 
+// NewDecoder returns a new decoder struct, based on the given image
+// type and source segment.
 func NewDecoder(imgType int, src *mach.Segment) *Decoder {
 	return &Decoder{
 		src:       src,
@@ -31,6 +35,8 @@ func NewDecoder(imgType int, src *mach.Segment) *Decoder {
 	}
 }
 
+// Decode returns a segment of the decoded source segment, based upon
+// the given image type.
 func (d *Decoder) Decode() (*mach.Segment, error) {
 	switch d.imageType {
 	case DOS33, ProDOS:
@@ -42,6 +48,8 @@ func (d *Decoder) Decode() (*mach.Segment, error) {
 	return nil, fmt.Errorf("Unrecognized image type: %v", d.imageType)
 }
 
+// DecodeNIB returns a decoded segment based upon a source segment in
+// nibble-format.
 func (d *Decoder) DecodeNIB() (*mach.Segment, error) {
 	dst := mach.NewSegment(d.src.Size())
 	_, err := dst.CopySlice(0, d.src.Mem)
@@ -53,6 +61,8 @@ func (d *Decoder) DecodeNIB() (*mach.Segment, error) {
 	return dst, nil
 }
 
+// DecodeDOS returns a decoded segment based upon a source segment in
+// dos-format. This includes both DOS33 and ProDOS.
 func (d *Decoder) DecodeDOS() (*mach.Segment, error) {
 	d.dst = mach.NewSegment(DosSize)
 	doff := 0
@@ -64,6 +74,8 @@ func (d *Decoder) DecodeDOS() (*mach.Segment, error) {
 	return d.dst, nil
 }
 
+// DecodeTrack returns the number of logical bytes written while
+// decoding a physical track.
 func (d *Decoder) DecodeTrack(track, doff int) int {
 	soff := (track * PhysTrackLen) + PhysTrackHeader
 
@@ -76,6 +88,8 @@ func (d *Decoder) DecodeTrack(track, doff int) int {
 	return LogTrackLen
 }
 
+// DecodeSector returns the number of logical bytes written while
+// decoding a physical sector.
 func (d *Decoder) DecodeSector(track, sect, doff, soff int) int {
 	// Skip header and the data marker
 	soff += PhysSectorHeader + 3

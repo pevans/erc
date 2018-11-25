@@ -26,22 +26,28 @@ var encPhysOrder = []int{
 	0xE, 0xC, 0xA, 0x8, 0x6, 0x4, 0x2, 0xF,
 }
 
+// This is the sector table for DOS 3.3.
 var dosSectorTable = []int{
 	0x0, 0x7, 0xe, 0x6, 0xd, 0x5, 0xc, 0x4,
 	0xb, 0x3, 0xa, 0x2, 0x9, 0x1, 0x8, 0xf,
 }
 
+// This is the sector table for ProDOS.
 var proSectorTable = []int{
 	0x0, 0x8, 0x1, 0x9, 0x2, 0xa, 0x3, 0xb,
 	0x4, 0xc, 0x5, 0xd, 0x6, 0xe, 0x7, 0xf,
 }
 
+// An Encoder is a struct which defines the pieces we need to encode
+// logical data into a physical format.
 type Encoder struct {
 	src       *mach.Segment
 	dst       *mach.Segment
 	imageType int
 }
 
+// NewEncoder returns a new encoder struct based upon a given image type
+// and source segment.
 func NewEncoder(imgType int, src *mach.Segment) *Encoder {
 	return &Encoder{
 		src:       src,
@@ -49,6 +55,8 @@ func NewEncoder(imgType int, src *mach.Segment) *Encoder {
 	}
 }
 
+// EncodeDOS returns a segment that is dos-encoded based on the given
+// encoder struct.
 func (e *Encoder) EncodeDOS() (*mach.Segment, error) {
 	e.dst = mach.NewSegment(NibSize)
 	doff := 0
@@ -60,6 +68,8 @@ func (e *Encoder) EncodeDOS() (*mach.Segment, error) {
 	return e.dst, nil
 }
 
+// EncodeNIB returns a segment that is nibble-encoded based on the given
+// encoder struct.
 func (e *Encoder) EncodeNIB() (*mach.Segment, error) {
 	dst := mach.NewSegment(e.src.Size())
 	_, err := dst.CopySlice(0, e.src.Mem)
@@ -91,11 +101,15 @@ func LogicalSector(imageType, sect int) int {
 	return sect
 }
 
+// Write will write a set of bytes into the destination segment at a
+// given offset. The number of bytes written is returned.
 func (e *Encoder) Write(doff int, bytes []mach.Byte) int {
 	off, _ := e.dst.CopySlice(doff, bytes)
 	return off
 }
 
+// EncodeTrack will write a physically encoded track into the
+// destination segment based on a logically encoded source.
 func (e *Encoder) EncodeTrack(track, doff int) int {
 	// toff is the offset where we can find the logical track that we
 	// are looking to write out
@@ -122,6 +136,8 @@ func (e *Encoder) EncodeTrack(track, doff int) int {
 	return PhysTrackLen
 }
 
+// Encode4n4 writes the given byte in 4-and-4 encoded form, which is
+// used in sector headers.
 func (e *Encoder) Encode4n4(doff int, val mach.Byte) int {
 	return e.Write(doff, []mach.Byte{
 		((val >> 1) & 0x55) | 0xAA,
@@ -129,6 +145,8 @@ func (e *Encoder) Encode4n4(doff int, val mach.Byte) int {
 	})
 }
 
+// EncodeSector writes a physically encoded sector into the destination
+// segment based on the logically encoded source segment.
 func (e *Encoder) EncodeSector(track, sect, doff, soff int) int {
 	// Write the sector header prologue
 	doff += e.Write(doff, []mach.Byte{
