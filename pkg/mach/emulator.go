@@ -4,6 +4,7 @@ package mach
 // for all intents and purposes.
 type Emulator struct {
 	Booter    Booter
+	Ender     Ender
 	Processor Processor
 	Loader    Loader
 }
