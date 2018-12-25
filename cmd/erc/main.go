@@ -25,7 +25,7 @@ func main() {
 	// This sets up our processor loop
 	for {
 		if err := emu.Processor.Process(); err != nil {
-			log.Printf(errors.Wrapf(err, "received error from processor"))
+			log.Println(errors.Wrapf(err, "received error from processor"))
 			break
 		}
 	}
