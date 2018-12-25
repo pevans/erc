@@ -5,4 +5,5 @@ package mach
 type Emulator struct {
 	Booter    Booter
 	Processor Processor
+	Loader    Loader
 }
