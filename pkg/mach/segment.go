@@ -27,6 +27,18 @@ func NewSegment(size int) *Segment {
 	return s
 }
 
+// ByteSlice returns a slice of mach.Byte from a given regular set of
+// bytes
+func ByteSlice(b []byte) []Byte {
+	bytes := make([]Byte, len(b))
+
+	for i := range b {
+		bytes[i] = Byte(b[i])
+	}
+
+	return bytes
+}
+
 // Size returns the size of the given segment.
 func (s *Segment) Size() int {
 	return len(s.Mem)
