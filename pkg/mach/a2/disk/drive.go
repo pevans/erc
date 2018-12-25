@@ -223,6 +223,8 @@ func ImageType(file string) (int, error) {
 // image in the drive. It also decodes the contents according to the
 // (detected) image type.
 func (d *Drive) Load(file string) error {
+	var err error
+
 	// See if we can figure out what type of image this is
 	d.ImageType, err = ImageType(file)
 	if err != nil {
@@ -237,7 +239,7 @@ func (d *Drive) Load(file string) error {
 
 	// Copy directly into the image segment
 	d.Image = mach.NewSegment(len(bytes))
-	err = d.Image.CopySlice(0, bytes)
+	_, err = d.Image.CopySlice(0, mach.ByteSlice(bytes))
 	if err != nil {
 		d.Image = nil
 		return errors.Wrapf(err, "Failed to copy bytes into image segment")
