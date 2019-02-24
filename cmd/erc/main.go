@@ -9,12 +9,16 @@ import (
 )
 
 func main() {
+	if len(os.Args) < 2 {
+		log.Fatal("You must pass the name of a file to load")
+	}
+
 	// Right now, there's only one machine to emulate.
 	emu := a2.NewEmulator()
 
 	// At this stage, we need to decide what we should be loading.
-	if err := emu.Loader.Load(os.Stdin); err != nil {
-		log.Fatal(errors.Wrapf(err, "could not load from stdin"))
+	if err := emu.Loader.Load(os.Args[1]); err != nil {
+		log.Fatal(errors.Wrapf(err, "could not load file %s", os.Args[1]))
 	}
 
 	// Attempt a cold boot

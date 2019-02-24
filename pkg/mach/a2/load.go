@@ -1,7 +1,14 @@
 package a2
 
-import "io"
+import (
+	"github.com/pkg/errors"
+)
 
-func (c *Computer) Load(r io.Reader) error {
+// Load a file as a disk into the main disk drive
+func (c *Computer) Load(file string) error {
+	if err := c.Drive1.Load(file); err != nil {
+		return errors.Wrapf(err, "could not read file: %s", file)
+	}
+
 	return nil
 }
