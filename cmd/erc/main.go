@@ -9,13 +9,25 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const (
+	ConfigFile = `.erc/config.toml`
+)
+
 func main() {
 	var (
-		logFile  = os.Getenv("LOG_FILE")
-		logLevel = os.Getenv("LOG_LEVEL")
+		homeDir    = os.Getenv("HOME")
+		configFile = fmt.Sprintf("%s/%s", homeDir, ConfigFile)
 	)
 
-	if err := setLogging(logFile, logLevel); err != nil {
+	// Let's see if we can figure out our config situation
+	conf, err := NewConfig(configFile)
+	if err != nil {
+		fmt.Println(errors.Wrapf(err, "unable to read config file %s", configFile))
+		os.Exit(1)
+	}
+
+	// And, if we need to be logging, where that goes
+	if err := setLogging(conf.Log.File, conf.Log.Level); err != nil {
 		fmt.Printf("unable to set logging: %v", err)
 		os.Exit(1)
 	}
