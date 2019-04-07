@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/hajimehoshi/ebiten"
 	"github.com/pevans/erc/pkg/mach/a2"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -52,12 +53,20 @@ func main() {
 		os.Exit(1)
 	}
 
-	// This sets up our processor loop
-	for {
-		if err := emu.Processor.Process(); err != nil {
-			log.Error(errors.Wrapf(err, "received error from processor"))
-			break
+	var (
+		width, height = emu.Drawer.Dimensions()
+
+		loop = func(screen *ebiten.Image) error {
+			if err := emu.Processor.Process(); err != nil {
+				log.Error(errors.Wrapf(err, "received error from processor"))
+			}
+
+			return nil
 		}
+	)
+
+	if err := ebiten.Run(loop, width, height, 3, "erc"); err != nil {
+		fmt.Println(errors.Wrap(err, "run loop failed"))
 	}
 
 	// Shutdown

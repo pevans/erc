@@ -7,4 +7,5 @@ type Emulator struct {
 	Ender     Ender
 	Processor Processor
 	Loader    Loader
+	Drawer    Drawer
 }
