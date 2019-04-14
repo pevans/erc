@@ -1,6 +1,6 @@
 package mos65c02
 
-import "github.com/pevans/erc/pkg/mach"
+import "github.com/pevans/erc/pkg/data"
 
 // Adc implements the ADC (add with carry) instruction. ADC is used to
 // add integers to the accumulator; if the carry flag is set, then the
@@ -8,13 +8,13 @@ import "github.com/pevans/erc/pkg/mach"
 func Adc(c *CPU) {
 	// It's useful to make an accounting of how the result looks in a
 	// 16-bit context (to determine if the C bit should be set)
-	res16 := mach.DByte(c.A)
-	res16 += mach.DByte(c.EffVal)
-	res16 += mach.DByte(c.P & CARRY)
+	res16 := data.DByte(c.A)
+	res16 += data.DByte(c.EffVal)
+	res16 += data.DByte(c.P & CARRY)
 
 	// But we mostly care about the 8-bit result, even if the unsigned
 	// 8-bit value overflows
-	res8 := mach.Byte(res16)
+	res8 := data.Byte(res16)
 
 	c.ApplyNZ(res8)
 	c.ApplyStatus(res16 > 0xFF, CARRY)
@@ -117,7 +117,7 @@ func Sbc(c *CPU) {
 		res--
 	}
 
-	res8 := mach.Byte(res)
+	res8 := data.Byte(res)
 
 	c.ApplyZ(res8)
 	c.ApplyStatus(res < 0, NEGATIVE)

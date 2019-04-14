@@ -1,15 +1,15 @@
 package mos65c02
 
 import (
-	"github.com/pevans/erc/pkg/mach"
+	"github.com/pevans/erc/pkg/data"
 	"github.com/stretchr/testify/assert"
 )
 
 func (s *mosSuite) TestSaveResult() {
 	cases := []struct {
 		mode int
-		addr mach.DByte
-		want mach.Byte
+		addr data.DByte
+		want data.Byte
 	}{
 		{amAcc, 0x1234, 0x12},
 		{amAbs, 0x1234, 0x34},
@@ -33,11 +33,11 @@ func (s *mosSuite) TestSaveResult() {
 }
 
 type bitCase struct {
-	a     mach.Byte
-	in    mach.Byte
-	want  mach.Byte
-	initp mach.Byte
-	p     mach.Byte
+	a     data.Byte
+	in    data.Byte
+	want  data.Byte
+	initp data.Byte
+	p     data.Byte
 }
 
 // And implements the AND instruction, which performs a bitwise-and on A
@@ -219,7 +219,7 @@ func (s *mosSuite) TestRor() {
 }
 
 func (s *mosSuite) TestTrb() {
-	addr := mach.DByte(0x1234)
+	addr := data.DByte(0x1234)
 	cases := []bitCase{
 		{0x1, 0x3, 0, 0, 0},
 		{0x1, 0x2, 0, 0, ZERO},
@@ -238,7 +238,7 @@ func (s *mosSuite) TestTrb() {
 }
 
 func (s *mosSuite) TestTsb() {
-	addr := mach.DByte(0x1234)
+	addr := data.DByte(0x1234)
 	cases := []bitCase{
 		{0x1, 0x3, 0, 0, 0},
 		{0x1, 0x2, 0, 0, ZERO},

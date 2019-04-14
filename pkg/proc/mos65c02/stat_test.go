@@ -1,7 +1,7 @@
 package mos65c02
 
 import (
-	"github.com/pevans/erc/pkg/mach"
+	"github.com/pevans/erc/pkg/data"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -9,28 +9,28 @@ func (s *mosSuite) TestClc() {
 	s.cpu.P = CARRY
 	Clc(s.cpu)
 
-	assert.Equal(s.T(), mach.Byte(0), s.cpu.P)
+	assert.Equal(s.T(), data.Byte(0), s.cpu.P)
 }
 
 func (s *mosSuite) TestCld() {
 	s.cpu.P = DECIMAL
 	Cld(s.cpu)
 
-	assert.Equal(s.T(), mach.Byte(0), s.cpu.P)
+	assert.Equal(s.T(), data.Byte(0), s.cpu.P)
 }
 
 func (s *mosSuite) TestCli() {
 	s.cpu.P = INTERRUPT
 	Cli(s.cpu)
 
-	assert.Equal(s.T(), mach.Byte(0), s.cpu.P)
+	assert.Equal(s.T(), data.Byte(0), s.cpu.P)
 }
 
 func (s *mosSuite) TestClv() {
 	s.cpu.P = OVERFLOW
 	Clv(s.cpu)
 
-	assert.Equal(s.T(), mach.Byte(0), s.cpu.P)
+	assert.Equal(s.T(), data.Byte(0), s.cpu.P)
 }
 
 func (s *mosSuite) TestSec() {

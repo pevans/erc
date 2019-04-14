@@ -1,12 +1,12 @@
 package mos65c02
 
-import "github.com/pevans/erc/pkg/mach"
+import "github.com/pevans/erc/pkg/data"
 import "github.com/stretchr/testify/assert"
 
 const (
-	execAddr = mach.DByte(0x4444)
-	execPC   = mach.DByte(0x1234)
-	execP    = mach.Byte(0x12)
+	execAddr = data.DByte(0x4444)
+	execPC   = data.DByte(0x1234)
+	execP    = data.Byte(0x12)
 )
 
 func (s *mosSuite) TestBrk() {
@@ -18,8 +18,8 @@ func (s *mosSuite) TestBrk() {
 
 	assert.Equal(s.T(), execP, s.cpu.PopStack())
 
-	lsb := mach.DByte(s.cpu.PopStack())
-	msb := mach.DByte(s.cpu.PopStack())
+	lsb := data.DByte(s.cpu.PopStack())
+	msb := data.DByte(s.cpu.PopStack())
 
 	assert.Equal(s.T(), execPC, (msb<<8)|lsb)
 }
@@ -39,8 +39,8 @@ func (s *mosSuite) TestJsr() {
 
 	assert.Equal(s.T(), execAddr, s.cpu.PC)
 
-	lsb := mach.DByte(s.cpu.PopStack())
-	msb := mach.DByte(s.cpu.PopStack())
+	lsb := data.DByte(s.cpu.PopStack())
+	msb := data.DByte(s.cpu.PopStack())
 
 	assert.Equal(s.T(), execPC+2, (msb<<8)|lsb)
 }
@@ -53,8 +53,8 @@ func (s *mosSuite) TestNops() {
 }
 
 func (s *mosSuite) TestRti() {
-	msb := mach.Byte(execPC >> 8)
-	lsb := mach.Byte(execPC & 0xFF)
+	msb := data.Byte(execPC >> 8)
+	lsb := data.Byte(execPC & 0xFF)
 
 	s.cpu.PushStack(msb)
 	s.cpu.PushStack(lsb)
@@ -68,8 +68,8 @@ func (s *mosSuite) TestRti() {
 
 func (s *mosSuite) TestRts() {
 	pc := execPC + 2
-	msb := mach.Byte(pc >> 8)
-	lsb := mach.Byte(pc & 0xFF)
+	msb := data.Byte(pc >> 8)
+	lsb := data.Byte(pc & 0xFF)
 
 	s.cpu.PushStack(msb)
 	s.cpu.PushStack(lsb)

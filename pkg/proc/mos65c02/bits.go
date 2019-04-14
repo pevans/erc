@@ -1,12 +1,12 @@
 package mos65c02
 
-import "github.com/pevans/erc/pkg/mach"
+import "github.com/pevans/erc/pkg/data"
 
 // saveResult makes a decision on the instruction level where to save
 // the result of an operation. If we're in accumulator mode, then we
 // save the result in the A register; if not, then we save it in memory
 // at the effective address.
-func (c *CPU) saveResult(res mach.Byte) {
+func (c *CPU) saveResult(res data.Byte) {
 	if c.AddrMode == amAcc {
 		c.A = res
 	} else {

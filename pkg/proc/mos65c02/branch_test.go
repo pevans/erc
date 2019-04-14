@@ -1,16 +1,16 @@
 package mos65c02
 
 import (
-	"github.com/pevans/erc/pkg/mach"
+	"github.com/pevans/erc/pkg/data"
 	"github.com/stretchr/testify/assert"
 )
 
 func (s *mosSuite) TestJumpIf() {
 	cases := []struct {
-		in   mach.Byte
-		pc   mach.DByte
-		addr mach.DByte
-		want mach.DByte
+		in   data.Byte
+		pc   data.DByte
+		addr data.DByte
+		want data.DByte
 	}{
 		{0, 0x1111, 0x2222, 0x1113},
 		{1, 0x1111, 0x2222, 0x2222},
@@ -27,9 +27,9 @@ func (s *mosSuite) TestJumpIf() {
 
 var branchCases = []struct {
 	on   bool
-	pc   mach.DByte
-	addr mach.DByte
-	want mach.DByte
+	pc   data.DByte
+	addr data.DByte
+	want data.DByte
 }{
 	{false, 0x1234, 0x1234 + 0x28, 0x1234 + 2},
 	{true, 0x1234, 0x1234 + 0x28, 0x1234 + 0x28},

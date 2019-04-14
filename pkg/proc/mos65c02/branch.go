@@ -1,12 +1,12 @@
 package mos65c02
 
-import "github.com/pevans/erc/pkg/mach"
+import "github.com/pevans/erc/pkg/data"
 
 // jumpIf will jump to EffAddr if the value in bits is greater than
 // zero. The value of bits is typically computed with a bitwise
 // operation, so we can say that if bits is non-zero then the operation
 // was "successful".
-func (c *CPU) jumpIf(bits mach.Byte) {
+func (c *CPU) jumpIf(bits data.Byte) {
 	if bits > 0 {
 		c.PC = c.EffAddr
 	} else {

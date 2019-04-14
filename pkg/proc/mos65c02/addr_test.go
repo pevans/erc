@@ -3,7 +3,7 @@ package mos65c02
 import (
 	"testing"
 
-	"github.com/pevans/erc/pkg/mach"
+	"github.com/pevans/erc/pkg/data"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -15,7 +15,7 @@ type mosSuite struct {
 }
 
 func (s *mosSuite) SetupTest() {
-	seg := mach.NewSegment(0x10000)
+	seg := data.NewSegment(0x10000)
 	s.cpu = new(CPU)
 	s.cpu.RMem = seg
 	s.cpu.WMem = seg
@@ -27,7 +27,7 @@ func TestMosSuite(t *testing.T) {
 
 func (s *mosSuite) TestAcc() {
 	cases := []struct {
-		want mach.Byte
+		want data.Byte
 	}{
 		{123},
 		{0xFF},
@@ -38,15 +38,15 @@ func (s *mosSuite) TestAcc() {
 		s.cpu.A = c.want
 		Acc(s.cpu)
 
-		assert.Equal(s.T(), mach.DByte(0), s.cpu.EffAddr)
+		assert.Equal(s.T(), data.DByte(0), s.cpu.EffAddr)
 		assert.Equal(s.T(), c.want, s.cpu.EffVal)
 	}
 }
 
 func (s *mosSuite) TestAbs() {
 	cases := []struct {
-		oper mach.DByte
-		want mach.Byte
+		oper data.DByte
+		want data.Byte
 	}{
 		{0x1234, 0xFB},
 		{0x6012, 0x33},
@@ -66,9 +66,9 @@ func (s *mosSuite) TestAbs() {
 
 func (s *mosSuite) TestAbx() {
 	cases := []struct {
-		oper mach.DByte
-		x    mach.Byte
-		want mach.Byte
+		oper data.DByte
+		x    data.Byte
+		want data.Byte
 	}{
 		{0x1234, 0x11, 0xFB},
 		{0x6012, 0x21, 0x33},
@@ -77,21 +77,21 @@ func (s *mosSuite) TestAbx() {
 
 	for _, c := range cases {
 		s.cpu.Set16(s.cpu.PC+1, c.oper)
-		s.cpu.Set(c.oper+mach.DByte(c.x), c.want)
+		s.cpu.Set(c.oper+data.DByte(c.x), c.want)
 
 		s.cpu.X = c.x
 		Abx(s.cpu)
 
-		assert.Equal(s.T(), c.oper+mach.DByte(c.x), s.cpu.EffAddr)
+		assert.Equal(s.T(), c.oper+data.DByte(c.x), s.cpu.EffAddr)
 		assert.Equal(s.T(), c.want, s.cpu.EffVal)
 	}
 }
 
 func (s *mosSuite) TestAby() {
 	cases := []struct {
-		oper mach.DByte
-		y    mach.Byte
-		want mach.Byte
+		oper data.DByte
+		y    data.Byte
+		want data.Byte
 	}{
 		{0x1234, 0x65, 0xFB},
 		{0x6012, 0x55, 0x33},
@@ -100,19 +100,19 @@ func (s *mosSuite) TestAby() {
 
 	for _, c := range cases {
 		s.cpu.Set16(s.cpu.PC+1, c.oper)
-		s.cpu.Set(c.oper+mach.DByte(c.y), c.want)
+		s.cpu.Set(c.oper+data.DByte(c.y), c.want)
 
 		s.cpu.Y = c.y
 		Aby(s.cpu)
 
-		assert.Equal(s.T(), c.oper+mach.DByte(c.y), s.cpu.EffAddr)
+		assert.Equal(s.T(), c.oper+data.DByte(c.y), s.cpu.EffAddr)
 		assert.Equal(s.T(), c.want, s.cpu.EffVal)
 	}
 }
 
 func (s *mosSuite) TestImm() {
 	cases := []struct {
-		want mach.Byte
+		want data.Byte
 	}{
 		{0x12},
 		{0x34},
@@ -124,16 +124,16 @@ func (s *mosSuite) TestImm() {
 
 		Imm(s.cpu)
 
-		assert.Equal(s.T(), mach.DByte(0), s.cpu.EffAddr)
+		assert.Equal(s.T(), data.DByte(0), s.cpu.EffAddr)
 		assert.Equal(s.T(), c.want, s.cpu.EffVal)
 	}
 }
 
 func (s *mosSuite) TestInd() {
 	cases := []struct {
-		oper mach.DByte
-		addr mach.DByte
-		want mach.Byte
+		oper data.DByte
+		addr data.DByte
+		want data.Byte
 	}{
 		{0x1111, 0x2222, 0xFE},
 		{0x3333, 0x4444, 0xEA},
@@ -159,10 +159,10 @@ func (s *mosSuite) TestInd() {
 
 func (s *mosSuite) TestIdx() {
 	cases := []struct {
-		oper   mach.Byte
-		atOper mach.DByte
-		x      mach.Byte
-		want   mach.Byte
+		oper   data.Byte
+		atOper data.DByte
+		x      data.Byte
+		want   data.Byte
 	}{
 		{0x05, 0x3333, 0x03, 0x34},
 		{0xD0, 0x4444, 0xFF, 0x33},
@@ -173,7 +173,7 @@ func (s *mosSuite) TestIdx() {
 		s.cpu.Set(s.cpu.PC+1, c.oper)
 
 		// And at the operand (+ X).
-		s.cpu.Set16(mach.DByte(c.oper+c.x), c.atOper)
+		s.cpu.Set16(data.DByte(c.oper+c.x), c.atOper)
 
 		// Finally, the value we want to see.
 		s.cpu.Set(c.atOper, c.want)
@@ -188,10 +188,10 @@ func (s *mosSuite) TestIdx() {
 
 func (s *mosSuite) TestIdy() {
 	cases := []struct {
-		oper   mach.Byte
-		atOper mach.DByte
-		y      mach.Byte
-		want   mach.Byte
+		oper   data.Byte
+		atOper data.DByte
+		y      data.Byte
+		want   data.Byte
 	}{
 		{0x05, 0x3102, 0x03, 0x34},
 		{0xD0, 0x3156, 0xFF, 0x33},
@@ -202,10 +202,10 @@ func (s *mosSuite) TestIdy() {
 		s.cpu.Set(s.cpu.PC+1, c.oper)
 
 		// Now set the base address we want at `$NN`
-		s.cpu.Set16(mach.DByte(c.oper), c.atOper)
+		s.cpu.Set16(data.DByte(c.oper), c.atOper)
 
 		// The value we want to see will be set at the base address + Y
-		addr := c.atOper + mach.DByte(c.y)
+		addr := c.atOper + data.DByte(c.y)
 		s.cpu.Set(addr, c.want)
 
 		// And now we resolve the address.
@@ -219,23 +219,23 @@ func (s *mosSuite) TestIdy() {
 
 func (s *mosSuite) TestImp() {
 	Imp(s.cpu)
-	assert.Equal(s.T(), mach.Byte(0), s.cpu.EffVal)
-	assert.Equal(s.T(), mach.DByte(0), s.cpu.EffAddr)
+	assert.Equal(s.T(), data.Byte(0), s.cpu.EffVal)
+	assert.Equal(s.T(), data.DByte(0), s.cpu.EffAddr)
 
 	By2(s.cpu)
-	assert.Equal(s.T(), mach.Byte(0), s.cpu.EffVal)
-	assert.Equal(s.T(), mach.DByte(0), s.cpu.EffAddr)
+	assert.Equal(s.T(), data.Byte(0), s.cpu.EffVal)
+	assert.Equal(s.T(), data.DByte(0), s.cpu.EffAddr)
 
 	By3(s.cpu)
-	assert.Equal(s.T(), mach.Byte(0), s.cpu.EffVal)
-	assert.Equal(s.T(), mach.DByte(0), s.cpu.EffAddr)
+	assert.Equal(s.T(), data.Byte(0), s.cpu.EffVal)
+	assert.Equal(s.T(), data.DByte(0), s.cpu.EffAddr)
 }
 
 func (s *mosSuite) TestRel() {
 	cases := []struct {
-		pc   mach.DByte
-		next mach.Byte
-		want mach.DByte
+		pc   data.DByte
+		next data.Byte
+		want data.DByte
 	}{
 		{0x00, 0x30, 0x32},
 		{0xFF, 0x02, 0x103},
@@ -253,8 +253,8 @@ func (s *mosSuite) TestRel() {
 
 func (s *mosSuite) TestZpg() {
 	cases := []struct {
-		addr mach.Byte
-		want mach.Byte
+		addr data.Byte
+		want data.Byte
 	}{
 		{0x30, 82},
 		{0x00, 28},
@@ -266,19 +266,19 @@ func (s *mosSuite) TestZpg() {
 		s.cpu.Set(s.cpu.PC+1, c.addr)
 
 		// Set the value for `$NN`
-		s.cpu.Set(mach.DByte(c.addr), c.want)
+		s.cpu.Set(data.DByte(c.addr), c.want)
 
 		Zpg(s.cpu)
-		assert.Equal(s.T(), mach.DByte(c.addr), s.cpu.EffAddr)
+		assert.Equal(s.T(), data.DByte(c.addr), s.cpu.EffAddr)
 		assert.Equal(s.T(), c.want, s.cpu.EffVal)
 	}
 }
 
 func (s *mosSuite) TestZpx() {
 	cases := []struct {
-		oper mach.Byte
-		x    mach.Byte
-		want mach.Byte
+		oper data.Byte
+		x    data.Byte
+		want data.Byte
 	}{
 		{0x30, 0xF, 82},
 		{0x83, 0x1, 28},
@@ -286,7 +286,7 @@ func (s *mosSuite) TestZpx() {
 	}
 
 	for _, c := range cases {
-		addr := mach.DByte(c.oper + c.x)
+		addr := data.DByte(c.oper + c.x)
 
 		// Set `$NN`
 		s.cpu.Set(s.cpu.PC+1, c.oper)
@@ -304,9 +304,9 @@ func (s *mosSuite) TestZpx() {
 
 func (s *mosSuite) TestZpy() {
 	cases := []struct {
-		oper mach.Byte
-		y    mach.Byte
-		want mach.Byte
+		oper data.Byte
+		y    data.Byte
+		want data.Byte
 	}{
 		{0x30, 0xF, 82},
 		{0x84, 0x1, 28},
@@ -314,7 +314,7 @@ func (s *mosSuite) TestZpy() {
 	}
 
 	for _, c := range cases {
-		addr := mach.DByte(c.oper + c.y)
+		addr := data.DByte(c.oper + c.y)
 
 		// Set the `$NN` part.
 		s.cpu.Set(s.cpu.PC+1, c.oper)

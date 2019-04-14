@@ -1,13 +1,13 @@
 package mos65c02
 
 import (
-	"github.com/pevans/erc/pkg/mach"
+	"github.com/pevans/erc/pkg/data"
 	"github.com/stretchr/testify/assert"
 )
 
 func (s *mosSuite) TestAdc() {
 	cases := []struct {
-		a, oper, p, aWant, pWant mach.Byte
+		a, oper, p, aWant, pWant data.Byte
 	}{
 		{0, 1, 0, 1, 0},
 		{80, 80, CARRY, 161, NEGATIVE},
@@ -27,7 +27,7 @@ func (s *mosSuite) TestAdc() {
 
 func (s *mosSuite) TestCmp() {
 	cases := []struct {
-		a, x, y mach.Byte
+		a, x, y data.Byte
 		fn      func(c *CPU)
 	}{
 		{5, 0, 0, Cmp},
@@ -48,10 +48,10 @@ func (s *mosSuite) TestCmp() {
 func (s *mosSuite) TestDexy() {
 	cases := []struct {
 		fn       func(c *CPU)
-		a, aWant mach.Byte
-		x, xWant mach.Byte
-		y, yWant mach.Byte
-		pWant    mach.Byte
+		a, aWant data.Byte
+		x, xWant data.Byte
+		y, yWant data.Byte
+		pWant    data.Byte
 	}{
 		{Dec, 3, 2, 0, 0, 0, 0, 0},
 		{Dec, 1, 0, 0, 0, 0, 0, ZERO},
@@ -83,10 +83,10 @@ func (s *mosSuite) TestDexy() {
 func (s *mosSuite) TestInxy() {
 	cases := []struct {
 		fn       func(c *CPU)
-		a, aWant mach.Byte
-		x, xWant mach.Byte
-		y, yWant mach.Byte
-		pWant    mach.Byte
+		a, aWant data.Byte
+		x, xWant data.Byte
+		y, yWant data.Byte
+		pWant    data.Byte
 	}{
 		{Inc, 11, 12, 2, 2, 0, 0, 0},
 		{Inc, 0xFF, 0, 2, 2, 0, 0, ZERO},
@@ -119,7 +119,7 @@ func (s *mosSuite) TestInxy() {
 
 func (s *mosSuite) TestSbc() {
 	cases := []struct {
-		a, oper, aWant, p, pWant mach.Byte
+		a, oper, aWant, p, pWant data.Byte
 	}{
 		{3, 2, 1, CARRY, CARRY},
 		{3, 2, 0, 0, CARRY | ZERO},

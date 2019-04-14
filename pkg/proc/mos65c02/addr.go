@@ -1,6 +1,6 @@
 package mos65c02
 
-import "github.com/pevans/erc/pkg/mach"
+import "github.com/pevans/erc/pkg/data"
 
 // AddrSpace is the total number of addressable values that an MOS 65c02
 // processor can work with. It's possible for a computer to have more
@@ -32,7 +32,7 @@ func Abs(c *CPU) {
 //
 // Ex. INC $1234,X increments the byte at $1234 + X
 func Abx(c *CPU) {
-	c.EffAddr = c.Get16(c.PC+1) + mach.DByte(c.X)
+	c.EffAddr = c.Get16(c.PC+1) + data.DByte(c.X)
 	c.EffVal = c.Get(c.EffAddr)
 }
 
@@ -40,7 +40,7 @@ func Abx(c *CPU) {
 //
 // Ex. INC $1234,Y increments the byte at $1234 + Y
 func Aby(c *CPU) {
-	c.EffAddr = c.Get16(c.PC+1) + mach.DByte(c.Y)
+	c.EffAddr = c.Get16(c.PC+1) + data.DByte(c.Y)
 	c.EffVal = c.Get(c.EffAddr)
 }
 
@@ -103,7 +103,7 @@ func Idx(c *CPU) {
 
 	// Our effective address is the dereferenced value found at the base
 	// address.
-	c.EffAddr = c.Get16(mach.DByte(baseAddr))
+	c.EffAddr = c.Get16(data.DByte(baseAddr))
 	c.EffVal = c.Get(c.EffAddr)
 }
 
@@ -121,11 +121,11 @@ func Idy(c *CPU) {
 
 	// This dereferences the base address, essentially resolving the
 	// `()` part of the operand.
-	effAddr := c.Get16(mach.DByte(baseAddr))
+	effAddr := c.Get16(data.DByte(baseAddr))
 
 	// And here we account for the `,Y` part; Y is added to the
 	// dereferenced address.
-	c.EffAddr = effAddr + mach.DByte(c.Y)
+	c.EffAddr = effAddr + data.DByte(c.Y)
 	c.EffVal = c.RMem.Get(c.EffAddr)
 }
 
@@ -151,7 +151,7 @@ func Rel(c *CPU) {
 	// or 0000 to FFFF. We add 2 more bytes to account for the (fixed)
 	// size of all branch instruction sequences, which is one byte for
 	// the opcode and one byte for the operand.
-	addr := c.PC + mach.DByte(change) + 2
+	addr := c.PC + data.DByte(change) + 2
 
 	// Because negative numbers in the MOS 6502 are encoded with
 	// twos-complement, if change has its eigth bit set to 1, then we
@@ -170,7 +170,7 @@ func Rel(c *CPU) {
 //
 // Ex. INC $12 increments the byte at $12 by one.
 func Zpg(c *CPU) {
-	c.EffAddr = mach.DByte(c.Get(c.PC + 1))
+	c.EffAddr = data.DByte(c.Get(c.PC + 1))
 	c.EffVal = c.Get(c.EffAddr)
 }
 
@@ -179,7 +179,7 @@ func Zpg(c *CPU) {
 //
 // Ex. INC $12,X increments the byte at $12 + X by one.
 func Zpx(c *CPU) {
-	c.EffAddr = mach.DByte(c.Get(c.PC+1) + c.X)
+	c.EffAddr = data.DByte(c.Get(c.PC+1) + c.X)
 	c.EffVal = c.Get(c.EffAddr)
 }
 
@@ -188,6 +188,6 @@ func Zpx(c *CPU) {
 //
 // Ex. INC $12,Y increments the byte at $12 + Y by one.
 func Zpy(c *CPU) {
-	c.EffAddr = mach.DByte(c.Get(c.PC+1) + c.Y)
+	c.EffAddr = data.DByte(c.Get(c.PC+1) + c.Y)
 	c.EffVal = c.Get(c.EffAddr)
 }

@@ -1,15 +1,15 @@
 package mos65c02
 
 import (
-	"github.com/pevans/erc/pkg/mach"
+	"github.com/pevans/erc/pkg/data"
 )
 
 // A CPU is an implementation of an MOS 65c02 processor.
 type CPU struct {
 	// RMem and WMem are the segments from which we will read or write
 	// whenever it is necessary.
-	RMem mach.Getter
-	WMem mach.Setter
+	RMem data.Getter
+	WMem data.Setter
 
 	// This is the current address mode that the CPU is operating
 	// within. The address mode affects how the CPU will determine the
@@ -18,13 +18,13 @@ type CPU struct {
 
 	// The Opcode is the byte which indicates both the instruction and
 	// the address mode of the instruction that we must carry out.
-	Opcode mach.Byte
+	Opcode data.Byte
 
 	// This is the effective address for the current operation. The
 	// effective address is the one computed by the address mode, taking
 	// into account the current state of the CPU and the current operand
 	// for the instruction.
-	EffAddr mach.DByte
+	EffAddr data.DByte
 
 	// The effective value is data that the instruction wants after the
 	// effective address is dereferenced. In some cases, the instruction
@@ -33,33 +33,33 @@ type CPU struct {
 	// all it cares about. In yet other cases, both this and the EffAddr
 	// may be zero because the behavior of the instruction is implied
 	// and cannot be modified by any operand.
-	EffVal mach.Byte
+	EffVal data.Byte
 
 	// PC is the Program Counter. It is where the processor
 	// will look to execute its next instruction.
-	PC mach.DByte
+	PC data.DByte
 
 	// The A register is the Accumulator. You can think of the
 	// accumulator as similar to how old calculators work; arithmetic
 	// operations will add to, subtract from, etc., this register.
-	A mach.Byte
+	A data.Byte
 
 	// The X and Y registers are most often treated as indexes for
 	// loops, but can also be treated as general-purpose registers to
 	// hold onto numbers.
-	X, Y mach.Byte
+	X, Y data.Byte
 
 	// The P register doesn't seem to have a formal name, but I like to
 	// think of it as the Predicator. Its bits are used to indicate
 	// several statuses the CPU can have; 1 to mean the status is on, 0
 	// to mean it is off.
-	P mach.Byte
+	P data.Byte
 
 	// The S register is the Stack pointer. The stack in the MOS 6502
 	// processor is in memory page 1 ($100 - $1FF); the S register
 	// value is treated as an offset from $100. S will begin at $FF and
 	// decrease as the stack depth increases.
-	S mach.Byte
+	S data.Byte
 }
 
 // An Instruction is a function that performs an operation on the CPU.
@@ -72,14 +72,14 @@ type AddrMode func(c *CPU)
 // This block defines the flags that we recognize within the status
 // register.
 const (
-	CARRY     = mach.Byte(1)
-	ZERO      = mach.Byte(2)
-	INTERRUPT = mach.Byte(4)
-	DECIMAL   = mach.Byte(8)
-	BREAK     = mach.Byte(16)
-	UNUSED    = mach.Byte(32)
-	OVERFLOW  = mach.Byte(64)
-	NEGATIVE  = mach.Byte(128)
+	CARRY     = data.Byte(1)
+	ZERO      = data.Byte(2)
+	INTERRUPT = data.Byte(4)
+	DECIMAL   = data.Byte(8)
+	BREAK     = data.Byte(16)
+	UNUSED    = data.Byte(32)
+	OVERFLOW  = data.Byte(64)
+	NEGATIVE  = data.Byte(128)
 )
 
 // While here we define the address modes that we can work with.
@@ -149,7 +149,7 @@ var addrModes = [256]AddrMode{
 // offset is given as zero.
 //
 //  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-var offsets = [256]mach.DByte{
+var offsets = [256]data.DByte{
 	0, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, // 0x
 	0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2, 1, // 1x
 	0, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, // 2x
@@ -169,7 +169,7 @@ var offsets = [256]mach.DByte{
 }
 
 //  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-var cycles = [256]mach.Byte{
+var cycles = [256]data.Byte{
 	7, 6, 2, 1, 5, 3, 5, 1, 3, 2, 2, 1, 6, 4, 6, 1, // 0x
 	2, 5, 5, 1, 5, 4, 6, 1, 2, 4, 2, 1, 6, 4, 6, 1, // 1x
 	6, 6, 2, 1, 3, 3, 5, 1, 4, 2, 2, 1, 4, 4, 6, 1, // 2x
@@ -190,7 +190,7 @@ var cycles = [256]mach.Byte{
 
 // ApplyStatus will make a status update for the given flag based upon
 // cond being true or not.
-func (c *CPU) ApplyStatus(cond bool, flag mach.Byte) {
+func (c *CPU) ApplyStatus(cond bool, flag data.Byte) {
 	c.P &= ^flag
 	if cond {
 		c.P |= flag
@@ -199,18 +199,18 @@ func (c *CPU) ApplyStatus(cond bool, flag mach.Byte) {
 
 // ApplyN will apply the normal negative status check (which is whether
 // the eighth bit is high or not).
-func (c *CPU) ApplyN(val mach.Byte) {
+func (c *CPU) ApplyN(val data.Byte) {
 	c.ApplyStatus(val&0x80 > 0, NEGATIVE)
 }
 
 // ApplyZ will apply the normal zero status check, which is literally if
 // val is zero or not.
-func (c *CPU) ApplyZ(val mach.Byte) {
+func (c *CPU) ApplyZ(val data.Byte) {
 	c.ApplyStatus(val == 0, ZERO)
 }
 
 // ApplyNZ will apply both the normal negative and zero checks.
-func (c *CPU) ApplyNZ(val mach.Byte) {
+func (c *CPU) ApplyNZ(val data.Byte) {
 	c.ApplyN(val)
 	c.ApplyZ(val)
 }
@@ -218,7 +218,7 @@ func (c *CPU) ApplyNZ(val mach.Byte) {
 // Compare will compute the difference between the given base and the
 // current EffVal value of c. ApplyNZ is called on the result. CARRY is
 // set if the result is greater than zero.
-func Compare(c *CPU, base mach.Byte) {
+func Compare(c *CPU, base data.Byte) {
 	res := base - c.EffVal
 
 	c.ApplyNZ(res)
@@ -226,29 +226,29 @@ func Compare(c *CPU, base mach.Byte) {
 }
 
 // Get will return the byte at a given address.
-func (c *CPU) Get(addr mach.DByte) mach.Byte {
+func (c *CPU) Get(addr data.DByte) data.Byte {
 	return c.RMem.Get(addr)
 }
 
 // Set will set the byte at a given address to the given value.
-func (c *CPU) Set(addr mach.DByte, val mach.Byte) {
+func (c *CPU) Set(addr data.DByte, val data.Byte) {
 	c.WMem.Set(addr, val)
 }
 
 // Get16 returns a 16-bit value at a given address, which is read in
 // little-endian order.
-func (c *CPU) Get16(addr mach.DByte) mach.DByte {
+func (c *CPU) Get16(addr data.DByte) data.DByte {
 	lsb := c.RMem.Get(addr)
 	msb := c.RMem.Get(addr + 1)
 
-	return (mach.DByte(msb) << 8) | mach.DByte(lsb)
+	return (data.DByte(msb) << 8) | data.DByte(lsb)
 }
 
 // Set16 sets the two bytes beginning at the given address to the given
 // value. The bytes are set in little-endian order.
-func (c *CPU) Set16(addr mach.DByte, val mach.DByte) {
-	lsb := mach.Byte(val & 0xFF)
-	msb := mach.Byte(val >> 8)
+func (c *CPU) Set16(addr data.DByte, val data.DByte) {
+	lsb := data.Byte(val & 0xFF)
+	msb := data.Byte(val >> 8)
 
 	c.WMem.Set(addr, lsb)
 	c.WMem.Set(addr+1, msb)
@@ -266,7 +266,7 @@ func (c *CPU) Execute() error {
 	var (
 		inst   Instruction
 		mode   AddrMode
-		opcode mach.Byte
+		opcode data.Byte
 	)
 
 	opcode = c.Get(c.PC)
