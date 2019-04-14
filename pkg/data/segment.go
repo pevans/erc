@@ -1,4 +1,4 @@
-package mach
+package data
 
 import (
 	"fmt"

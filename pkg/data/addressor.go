@@ -1,4 +1,4 @@
-package mach
+package data
 
 // The Addressor interface allows you to abstract how to get an address
 // (the way a slice might consider it) from another type.

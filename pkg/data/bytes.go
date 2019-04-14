@@ -1,4 +1,4 @@
-package mach
+package data
 
 // A Byte is simply an abstraction of what a byte would be to a generic
 // machine.
