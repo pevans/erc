@@ -74,7 +74,7 @@ func (e *encoder) write(bytes []data.Byte) {
 // writeByte simply writes a single byte into the physical segment
 // without having to deal with passing around a slice
 func (e *encoder) writeByte(byt data.Byte) {
-	e.ps.Set(data.Int(e.poff), byt)
+	e.ps.Set(data.DByte(e.poff), byt)
 	e.poff++
 }
 
