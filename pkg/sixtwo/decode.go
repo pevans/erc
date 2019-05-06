@@ -3,11 +3,11 @@ package sixtwo
 import "github.com/pevans/erc/pkg/data"
 
 type decoder struct {
-	ls   *data.Segment
-	ps   *data.Segment
-	typ  int
-	loff int
-	poff int
+	logSeg    *data.Segment
+	physSeg   *data.Segment
+	imageType int
+	logOff    int
+	physOff   int
 }
 
 //  00    01    02    03    04    05    06    07    08    09    0A    0B    0C    0D    0E    0F
@@ -24,24 +24,24 @@ var conv6bit = []data.Byte{
 
 func Decode(imageType int, src *data.Segment) (*data.Segment, error) {
 	dec := &decoder{
-		ps:  src,
-		ls:  data.NewSegment(DosSize),
-		typ: imageType,
+		physSeg:   src,
+		logSeg:    data.NewSegment(DosSize),
+		imageType: imageType,
 	}
 
 	for track := 0; track < NumTracks; track++ {
 		dec.writeTrack(track)
 	}
 
-	return dec.ls, nil
+	return dec.logSeg, nil
 }
 
 func (d *decoder) writeTrack(track int) {
-	d.poff = (track * PhysTrackLen) + PhysTrackHeader
+	d.physOff = (track * PhysTrackLen) + PhysTrackHeader
 
 	for sect := 0; sect < NumSectors; sect++ {
-		d.loff = (track * LogTrackLen) +
-			(logicalSector(d.typ, sect) * LogSectorLen)
+		d.logOff = (track * LogTrackLen) +
+			(logicalSector(d.imageType, sect) * LogSectorLen)
 
 		d.writeSector(track, sect)
 	}
@@ -57,7 +57,7 @@ func HeaderOK(seg *data.Segment, off int) bool {
 
 func (d *decoder) writeSector(track, sect int) {
 	// Skip header and the data marker
-	d.poff += PhysSectorHeader + 3
+	d.physOff += PhysSectorHeader + 3
 
 	var (
 		conv = make([]data.Byte, 0x157)
@@ -65,7 +65,7 @@ func (d *decoder) writeSector(track, sect int) {
 	)
 
 	for i := 0; i < 0x157; i++ {
-		conv[i] = conv6bit[d.ps.Get(data.DByte(d.poff+i))&0x7F]
+		conv[i] = conv6bit[d.physSeg.Get(data.DByte(d.physOff+i))&0x7F]
 	}
 
 	for i, lval := 0, data.Byte(0); i < 0x156; i++ {
@@ -84,12 +84,12 @@ func (d *decoder) writeSector(track, sect int) {
 		)
 
 		if offac >= 0xAC {
-			d.ls.Set(data.DByte(d.poff+int(offac)), vac)
+			d.logSeg.Set(data.DByte(d.physOff+int(offac)), vac)
 		}
 
-		d.ls.Set(data.DByte(d.poff+int(off56)), v56)
-		d.ls.Set(data.DByte(d.poff+int(i)), v00)
+		d.logSeg.Set(data.DByte(d.physOff+int(off56)), v56)
+		d.logSeg.Set(data.DByte(d.physOff+int(i)), v00)
 	}
 
-	d.loff += LogSectorLen
+	d.logOff += LogSectorLen
 }
