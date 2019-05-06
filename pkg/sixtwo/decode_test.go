@@ -1,12 +1,6 @@
-package disk
+package sixtwo
 
-import (
-	"testing"
-
-	"github.com/pevans/erc/pkg/mach"
-	"github.com/stretchr/testify/assert"
-)
-
+/*
 func TestNewDecoder(t *testing.T) {
 	seg := mach.NewSegment(1)
 	typ := 3
@@ -15,6 +9,14 @@ func TestNewDecoder(t *testing.T) {
 	assert.NotEqual(t, nil, dec)
 	assert.Equal(t, typ, dec.imageType)
 	assert.Equal(t, seg, dec.src)
+}
+
+func (s *encSuite) TestDecodeDOS() {
+	assert.Nil(s.T(), loadFile(s.dec.src, s.baseDir+"/physical.disk"))
+
+	dst, err := s.dec.DecodeDOS()
+	assert.Nil(s.T(), err)
+	assert.True(s.T(), fileMatches(dst, s.baseDir+"/logical.disk"))
 }
 
 func (s *encSuite) TestDecodeNIB() {
@@ -41,3 +43,4 @@ func (s *encSuite) TestDecodeTrack() {
 	assert.Equal(s.T(), LogTrackLen, s.dec.DecodeTrack(0, 0))
 	assert.Equal(s.T(), true, fileMatches(s.dec.dst, s.baseDir+"/logical.track"))
 }
+*/

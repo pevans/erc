@@ -1,21 +1,17 @@
-package disk
+package sixtwo
 
-import (
-	"fmt"
+import "github.com/pevans/erc/pkg/data"
 
-	"github.com/pevans/erc/pkg/mach"
-)
-
-// A Decoder is a type which defines the information we need to decode
-// the data from one segment into another.
-type Decoder struct {
-	src       *mach.Segment
-	dst       *mach.Segment
-	imageType int
+type decoder struct {
+	ls   *data.Segment
+	ps   *data.Segment
+	typ  int
+	loff int
+	poff int
 }
 
 //  00    01    02    03    04    05    06    07    08    09    0A    0B    0C    0D    0E    0F
-var conv6bit = []mach.Byte{
+var conv6bit = []data.Byte{
 	0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, // 00
 	0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0X00, 0X04, 0XFF, 0XFF, 0X08, 0X0C, 0XFF, 0X10, 0X14, 0X18, // 10
 	0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0X1C, 0X20, 0XFF, 0XFF, 0XFF, 0X24, 0X28, 0X2C, 0X30, 0X34, // 20
@@ -26,105 +22,74 @@ var conv6bit = []mach.Byte{
 	0XFF, 0XFF, 0XCC, 0XD0, 0XD4, 0XD8, 0XDC, 0XE0, 0XFF, 0XE4, 0XE8, 0XEC, 0XF0, 0XF4, 0XF8, 0XFC, // 70
 }
 
-// NewDecoder returns a new decoder struct, based on the given image
-// type and source segment.
-func NewDecoder(imgType int, src *mach.Segment) *Decoder {
-	return &Decoder{
-		src:       src,
-		imageType: imgType,
+func Decode(imageType int, src *data.Segment) (*data.Segment, error) {
+	dec := &decoder{
+		ps:  src,
+		ls:  data.NewSegment(DosSize),
+		typ: imageType,
 	}
-}
-
-// Decode returns a segment of the decoded source segment, based upon
-// the given image type.
-func (d *Decoder) Decode() (*mach.Segment, error) {
-	switch d.imageType {
-	case DOS33, ProDOS:
-		return d.DecodeDOS()
-	case Nibble:
-		return d.DecodeNIB()
-	}
-
-	return nil, fmt.Errorf("Unrecognized image type: %v", d.imageType)
-}
-
-// DecodeNIB returns a decoded segment based upon a source segment in
-// nibble-format.
-func (d *Decoder) DecodeNIB() (*mach.Segment, error) {
-	dst := mach.NewSegment(d.src.Size())
-	_, err := dst.CopySlice(0, d.src.Mem)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return dst, nil
-}
-
-// DecodeDOS returns a decoded segment based upon a source segment in
-// dos-format. This includes both DOS33 and ProDOS.
-func (d *Decoder) DecodeDOS() (*mach.Segment, error) {
-	d.dst = mach.NewSegment(DosSize)
-	doff := 0
 
 	for track := 0; track < NumTracks; track++ {
-		doff += d.DecodeTrack(track, doff)
+		dec.writeTrack(track)
 	}
 
-	return d.dst, nil
+	return dec.ls, nil
 }
 
-// DecodeTrack returns the number of logical bytes written while
-// decoding a physical track.
-func (d *Decoder) DecodeTrack(track, doff int) int {
-	soff := (track * PhysTrackLen) + PhysTrackHeader
+func (d *decoder) writeTrack(track int) {
+	d.poff = (track * PhysTrackLen) + PhysTrackHeader
 
 	for sect := 0; sect < NumSectors; sect++ {
-		doff := (track * LogTrackLen) + (LogicalSector(d.imageType, sect) * LogSectorLen)
-		_ = d.DecodeSector(track, sect, doff, soff)
-		soff += PhysSectorLen
-	}
+		d.loff = (track * LogTrackLen) +
+			(logicalSector(d.typ, sect) * LogSectorLen)
 
-	return LogTrackLen
+		d.writeSector(track, sect)
+	}
 }
 
-// DecodeSector returns the number of logical bytes written while
-// decoding a physical sector.
-func (d *Decoder) DecodeSector(track, sect, doff, soff int) int {
-	// Skip header and the data marker
-	soff += PhysSectorHeader + 3
+func HeaderOK(seg *data.Segment, off int) bool {
+	addr := data.Int(off)
 
-	conv := make([]mach.Byte, 0x157)
+	return seg.Get(addr) == data.Byte(0xD5) &&
+		seg.Get(data.Plus(addr, 1)) == data.Byte(0xAA) &&
+		seg.Get(data.Plus(addr, 2)) == data.Byte(0xAD)
+}
+
+func (d *decoder) writeSector(track, sect int) {
+	// Skip header and the data marker
+	d.poff += PhysSectorHeader + 3
+
+	var (
+		conv = make([]data.Byte, 0x157)
+		xor  = make([]data.Byte, 0x156)
+	)
+
 	for i := 0; i < 0x157; i++ {
-		conv[i] = conv6bit[d.src.Get(mach.DByte(soff+i))&0x7F]
+		conv[i] = conv6bit[d.ps.Get(data.DByte(d.poff+i))&0x7F]
 	}
 
-	xor := make([]mach.Byte, 0x156)
-	for i, lval := 0, mach.Byte(0); i < 0x156; i++ {
+	for i, lval := 0, data.Byte(0); i < 0x156; i++ {
 		xor[i] = lval ^ conv[i]
 		lval = xor[i]
 	}
 
-	for i := mach.Byte(0); i < 0x56; i++ {
+	for i := data.Byte(0); i < 0x56; i++ {
 		var (
-			offac, off56  mach.Byte
-			vac, v56, v00 mach.Byte
+			offac = i + 0xAC
+			off56 = i + 0x56
+
+			vac = (xor[int(offac)+0x56] & 0xFC) | ((xor[i] & 0x80) >> 7) | ((xor[i] & 0x40) >> 5)
+			v56 = (xor[int(off56)+0x56] & 0xFC) | ((xor[i] & 0x20) >> 5) | ((xor[i] & 0x10) >> 3)
+			v00 = (xor[i+0x56] & 0xFC) | ((xor[i] & 0x08) >> 3) | ((xor[i] & 0x04) >> 1)
 		)
 
-		offac = i + 0xAC
-		off56 = i + 0x56
-
-		vac = (xor[int(offac)+0x56] & 0xFC) | ((xor[i] & 0x80) >> 7) | ((xor[i] & 0x40) >> 5)
-		v56 = (xor[int(off56)+0x56] & 0xFC) | ((xor[i] & 0x20) >> 5) | ((xor[i] & 0x10) >> 3)
-		v00 = (xor[i+0x56] & 0xFC) | ((xor[i] & 0x08) >> 3) | ((xor[i] & 0x04) >> 1)
-
 		if offac >= 0xAC {
-			d.dst.Set(mach.DByte(doff+int(offac)), vac)
+			d.ls.Set(data.DByte(d.poff+int(offac)), vac)
 		}
 
-		d.dst.Set(mach.DByte(doff+int(off56)), v56)
-		d.dst.Set(mach.DByte(doff+int(i)), v00)
+		d.ls.Set(data.DByte(d.poff+int(off56)), v56)
+		d.ls.Set(data.DByte(d.poff+int(i)), v00)
 	}
 
-	return LogSectorLen
+	d.loff += LogSectorLen
 }
