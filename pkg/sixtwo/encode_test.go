@@ -1,37 +1,6 @@
 package sixtwo
 
 /*
-type encSuite struct {
-	suite.Suite
-
-	enc     *encoder
-	dec     *decoder
-	dos     *data.Segment
-	baseDir string
-}
-
-func (s *encSuite) SetupSuite() {
-	s.enc = NewEncoder(0, nil)
-	s.dec = NewDecoder(0, nil)
-
-	dir, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	s.baseDir = dir + "/../../../../data"
-}
-
-func (s *encSuite) SetupTest() {
-	s.enc.imageType = DOS33
-	s.enc.src = data.NewSegment(DosSize)
-	s.enc.dst = data.NewSegment(NibSize)
-
-	s.dec.imageType = DOS33
-	s.dec.src = data.NewSegment(NibSize)
-	s.dec.dst = data.NewSegment(DosSize)
-}
-
 func TestEncoderSuite(t *testing.T) {
 	suite.Run(t, new(encSuite))
 }
@@ -81,42 +50,6 @@ func (s *encSuite) TestEncodeNIB() {
 	for i := 0; i < dst.Size(); i++ {
 		assert.Equal(s.T(), s.enc.src.Mem[i], dst.Mem[i])
 	}
-}
-
-func loadFile(seg *data.Segment, path string) error {
-	bytes, err := ioutil.ReadFile(path)
-	if err != nil {
-		return err
-	}
-
-	for i, b := range bytes {
-		seg.Mem[i] = data.Byte(b)
-	}
-
-	return nil
-}
-
-func fileMatches(seg *data.Segment, path string) bool {
-	fseg := data.NewSegment(len(seg.Mem))
-	err := loadFile(fseg, path)
-	if err != nil {
-		log.Printf("Couldn't complete fileMatches: file doesn't exist: %v\n", path)
-		return false
-	}
-
-	if len(seg.Mem) != len(fseg.Mem) {
-		log.Printf("Seg mem size (%v) mismatches fseg mem size (%v)\n", len(seg.Mem), len(fseg.Mem))
-		return false
-	}
-
-	for i, b := range seg.Mem {
-		if b != fseg.Mem[i] {
-			log.Printf("seg byte %x (%x) mismatches fseg byte (%x)\n", i, b, fseg.Mem[i])
-			return false
-		}
-	}
-
-	return true
 }
 
 func (s *encSuite) TestEncodeDOS() {
