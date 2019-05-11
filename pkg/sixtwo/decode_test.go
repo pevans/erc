@@ -27,6 +27,7 @@ func (s *sixtwoSuite) TestWriteSector() {
 	)
 
 	dec.writeSector(0, 0)
+	dec.logSeg.WriteFile("/tmp/writeSector.seg")
 
 	_, err := seg.CopySlice(0, dec.logSeg.Mem[logStart:logEnd])
 	assert.NoError(s.T(), err)
