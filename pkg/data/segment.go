@@ -2,6 +2,7 @@ package data
 
 import (
 	"fmt"
+	"io/ioutil"
 )
 
 // A Segment is a block of memory divided into Bytes.
@@ -81,4 +82,15 @@ func (s *Segment) Get(addr Addressor) Byte {
 	}
 
 	return s.Mem[offset]
+}
+
+// WriteFile writes the contents of this segment out to a file.
+func (s *Segment) WriteFile(path string) error {
+	bytes := make([]byte, len(s.Mem))
+
+	for i, b := range s.Mem {
+		bytes[i] = byte(b)
+	}
+
+	return ioutil.WriteFile(path, bytes, 0644)
 }
