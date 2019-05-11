@@ -1,105 +1,68 @@
 package sixtwo
 
-/*
-func TestEncoderSuite(t *testing.T) {
-	suite.Run(t, new(encSuite))
+import (
+	"testing"
+
+	"github.com/pevans/erc/pkg/data"
+	"github.com/stretchr/testify/assert"
+)
+
+func (s *sixtwoSuite) TestEncodeWrite() {
+	type test struct {
+		bytes     []data.Byte
+		startPoff int
+		wantPoff  int
+	}
+
+	cases := map[string]test{
+		"no bytes": {
+			bytes:     []data.Byte{},
+			startPoff: 0,
+			wantPoff:  0,
+		},
+
+		"some bytes": {
+			bytes:     []data.Byte{0x23, 0x34, 0x45},
+			startPoff: 5,
+			wantPoff:  8,
+		},
+	}
+
+	for desc, c := range cases {
+		enc := newEncoder(0, c.startPoff+len(c.bytes))
+		enc.poff = c.startPoff
+
+		s.T().Run(desc, func(t *testing.T) {
+			enc.write(c.bytes)
+			assert.Equal(t, c.wantPoff, enc.poff)
+		})
+	}
 }
 
-func TestNewEncoder(t *testing.T) {
-	seg := data.NewSegment(1)
-	typ := 3
+func (s *sixtwoSuite) TestWriteByte() {
+	bytes := []data.Byte{0, 1, 2}
 
-	enc := NewEncoder(typ, seg)
-	assert.NotEqual(t, nil, enc)
-	assert.Equal(t, seg, enc.src)
-	assert.Equal(t, typ, enc.imageType)
+	enc := newEncoder(0, len(bytes))
+	for i, b := range bytes {
+		enc.writeByte(b)
+		assert.Equal(s.T(), i+1, enc.poff)
+	}
 }
 
-func (s *encSuite) TestLogicalSector() {
+func (s *sixtwoSuite) TestWrite4n4() {
 	cases := []struct {
-		imgType int
-		psect   int
-		want    int
+		byt  data.Byte
+		want []data.Byte
 	}{
-		{0, 0, 0},
-		{DOS33, -1, 0},
-		{DOS33, 16, 0},
-		{DOS33, 0x0, 0x0},
-		{DOS33, 0x1, 0x7},
-		{DOS33, 0xE, 0x8},
-		{DOS33, 0xF, 0xF},
-		{ProDOS, 0x0, 0x0},
-		{ProDOS, 0x1, 0x8},
-		{ProDOS, 0xE, 0x7},
-		{ProDOS, 0xF, 0xF},
-		{Nibble, 1, 1},
+		{0x32, []data.Byte{0xBB, 0xBA}},
+		{0xFE, []data.Byte{0xFF, 0xFE}},
+		{0x45, []data.Byte{0xAA, 0xEF}},
 	}
 
 	for _, c := range cases {
-		s.enc.imageType = c.imgType
-		assert.Equal(s.T(), c.want, LogicalSector(s.enc.imageType, c.psect))
+		enc := newEncoder(0, 2)
+		enc.write4n4(c.byt)
+
+		assert.Equal(s.T(), c.want, enc.ps.Mem)
 	}
 }
-
-func (s *encSuite) TestEncodeNIB() {
-	_, _ = s.enc.src.CopySlice(0, []data.Byte{0x1, 0x2, 0x3})
-
-	dst, err := s.enc.EncodeNIB()
-	assert.Equal(s.T(), nil, err)
-
-	for i := 0; i < dst.Size(); i++ {
-		assert.Equal(s.T(), s.enc.src.Mem[i], dst.Mem[i])
-	}
-}
-
-func (s *encSuite) TestEncodeDOS() {
-	err := loadFile(s.enc.src, s.baseDir+"/logical.disk")
-	assert.Equal(s.T(), nil, err)
-
-	dst, err := s.enc.EncodeDOS()
-	assert.Equal(s.T(), nil, err)
-	assert.Equal(s.T(), true, fileMatches(dst, s.baseDir+"/physical.disk"))
-}
-
-func (s *encSuite) TestWrite() {
-	bytes := []data.Byte{0x1, 0x2, 0x3}
-	_, _ = s.enc.src.CopySlice(0, bytes)
-
-	assert.Equal(s.T(), 3, s.enc.Write(0, bytes))
-
-	for i := 0; i < len(bytes); i++ {
-		assert.Equal(s.T(), s.enc.src.Mem[i], s.enc.dst.Mem[i])
-	}
-}
-
-func (s *encSuite) TestEncode4n4() {
-	cases := []struct {
-		in    data.Byte
-		want1 data.Byte
-		want2 data.Byte
-	}{
-		{0xFE, 0xFF, 0xFE},
-		{0x37, 0xBB, 0xBF},
-	}
-
-	for _, c := range cases {
-		assert.Equal(s.T(), 2, s.enc.Encode4n4(0, c.in))
-		assert.Equal(s.T(), c.want1, s.enc.dst.Mem[0])
-		assert.Equal(s.T(), c.want2, s.enc.dst.Mem[1])
-	}
-}
-
-func (s *encSuite) TestEncodeSector() {
-	err := loadFile(s.enc.src, s.baseDir+"/logical.sector")
-	assert.Equal(s.T(), nil, err)
-	assert.Equal(s.T(), PhysSectorLen, s.enc.EncodeSector(0, 0, 0, 0))
-	assert.Equal(s.T(), true, fileMatches(s.enc.dst, s.baseDir+"/physical.sector"))
-}
-
-func (s *encSuite) TestEncodeTrack() {
-	err := loadFile(s.enc.src, s.baseDir+"/logical.track")
-	assert.Equal(s.T(), nil, err)
-	assert.Equal(s.T(), PhysTrackLen, s.enc.EncodeTrack(0, 0))
-	assert.Equal(s.T(), true, fileMatches(s.enc.dst, s.baseDir+"/physical.track"))
-}
-*/
