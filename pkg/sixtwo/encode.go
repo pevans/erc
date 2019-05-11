@@ -48,6 +48,13 @@ type encoder struct {
 	poff int
 }
 
+func newEncoder(logSize, physSize int) *encoder {
+	return &encoder{
+		ls: data.NewSegment(logSize),
+		ps: data.NewSegment(physSize),
+	}
+}
+
 // EncodeDOS returns a segment that is dos-encoded based on the given
 // encoder struct.
 func Encode(imageType int, src *data.Segment) (*data.Segment, error) {
