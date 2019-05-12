@@ -14,8 +14,10 @@ import (
 type sixtwoSuite struct {
 	suite.Suite
 
-	physDisk  *data.Segment
-	logSector *data.Segment
+	physDisk   *data.Segment
+	logSector  *data.Segment
+	physSector *data.Segment
+	imageType  int
 
 	baseDir       string
 	physDiskPath  string
@@ -30,11 +32,14 @@ func (s *sixtwoSuite) SetupSuite() {
 	s.physDiskPath = s.baseDir + "/physical.disk"
 	s.logSectorPath = s.baseDir + "/logical.sector"
 
+	s.imageType = DOS33
 	s.physDisk = data.NewSegment(NibSize)
 	s.logSector = data.NewSegment(LogSectorLen)
+	s.physSector = data.NewSegment(PhysSectorLen)
 
 	assert.NoError(s.T(), loadFile(s.physDisk, s.baseDir+"/physical.disk"))
 	assert.NoError(s.T(), loadFile(s.logSector, s.baseDir+"/logical.sector"))
+	assert.NoError(s.T(), loadFile(s.physSector, s.baseDir+"/physical.sector"))
 }
 
 func TestSuite(t *testing.T) {

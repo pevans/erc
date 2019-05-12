@@ -94,3 +94,17 @@ func (s *Segment) WriteFile(path string) error {
 
 	return ioutil.WriteFile(path, bytes, 0644)
 }
+
+func (s *Segment) ReadFile(path string) error {
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		return err
+	}
+
+	s.Mem = make([]Byte, len(data))
+	for i, b := range data {
+		s.Mem[i] = Byte(b)
+	}
+
+	return nil
+}

@@ -41,11 +41,11 @@ var proSectorTable = []int{
 // An encoder is a struct which defines the pieces we need to encode
 // logical data into a physical format.
 type encoder struct {
-	ls   *data.Segment
-	ps   *data.Segment
-	typ  int
-	loff int
-	poff int
+	ls        *data.Segment
+	ps        *data.Segment
+	imageType int
+	loff      int
+	poff      int
 }
 
 func newEncoder(logSize, physSize int) *encoder {
@@ -59,9 +59,9 @@ func newEncoder(logSize, physSize int) *encoder {
 // encoder struct.
 func Encode(imageType int, src *data.Segment) (*data.Segment, error) {
 	enc := &encoder{
-		ps:  data.NewSegment(NibSize),
-		ls:  src,
-		typ: imageType,
+		ps:        data.NewSegment(NibSize),
+		ls:        src,
+		imageType: imageType,
 	}
 
 	for track := 0; track < NumTracks; track++ {
@@ -105,7 +105,7 @@ func (e *encoder) writeTrack(track int) {
 	orig := e.poff
 	for sect := 0; sect < NumSectors; sect++ {
 		var (
-			logSect  = logicalSector(e.typ, sect)
+			logSect  = logicalSector(e.imageType, sect)
 			physSect = encPhysOrder[sect]
 		)
 
@@ -165,7 +165,7 @@ func (e *encoder) writeSector(track, sect int) {
 		var (
 			offac = data.DByte(i + 0xAC)
 			off56 = data.DByte(i + 0x56)
-			vac   = e.ls.Get(data.DByte(e.loff) + offac)
+			vac   = e.ls.Get((data.DByte(e.loff) + offac) % 256)
 			v56   = e.ls.Get(data.DByte(e.loff) + off56)
 			v00   = e.ls.Get(data.DByte(e.loff + i))
 			v     data.Byte

@@ -66,3 +66,14 @@ func (s *sixtwoSuite) TestWrite4n4() {
 		assert.Equal(s.T(), c.want, enc.ps.Mem)
 	}
 }
+
+func (s *sixtwoSuite) TestEncodeWriteSector() {
+	enc := encoder{
+		ls:        s.logSector,
+		ps:        data.NewSegment(PhysSectorLen),
+		imageType: s.imageType,
+	}
+
+	enc.writeSector(0, 0)
+	assert.Equal(s.T(), s.physSector, enc.ps)
+}
