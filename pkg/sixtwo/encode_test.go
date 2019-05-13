@@ -77,3 +77,21 @@ func (s *sixtwoSuite) TestEncodeWriteSector() {
 	enc.writeSector(0, 0)
 	assert.Equal(s.T(), s.physSector, enc.ps)
 }
+
+func (s *sixtwoSuite) TestEncodeWriteTrack() {
+	enc := encoder{
+		ls:        s.logTrack,
+		ps:        data.NewSegment(PhysTrackLen),
+		imageType: s.imageType,
+	}
+
+	enc.writeTrack(0)
+	assert.Equal(s.T(), s.physTrack, enc.ps)
+}
+
+func (s *sixtwoSuite) TestEncodeWriteDisk() {
+	ps, err := Encode(s.imageType, s.logDisk)
+
+	assert.NoError(s.T(), err)
+	assert.Equal(s.T(), s.physDisk, ps)
+}

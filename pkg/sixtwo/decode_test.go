@@ -1,7 +1,6 @@
 package sixtwo
 
 import (
-	"github.com/pevans/erc/pkg/data"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,24 +12,26 @@ func (s *sixtwoSuite) TestDecode() {
 }
 
 func (s *sixtwoSuite) TestWriteSector() {
-	var (
-		sect = 0
-		seg  = data.NewSegment(LogSectorLen)
-		dec  = decoder{
-			physSeg:   s.physDisk,
-			logSeg:    data.NewSegment(DosSize),
-			imageType: DOS33,
-		}
+	/*
+		var (
+			sect = 0
+			seg  = data.NewSegment(LogSectorLen)
+			dec  = decoder{
+				physSeg:   s.physDisk,
+				logSeg:    data.NewSegment(DosSize),
+				imageType: DOS33,
+			}
 
-		logStart = logicalSector(dec.imageType, sect)
-		logEnd   = logStart + LogSectorLen
-	)
+			logStart = logicalSector(dec.imageType, sect)
+			logEnd   = logStart + LogSectorLen
+		)
 
-	dec.writeSector(0, 0)
-	dec.logSeg.WriteFile("/tmp/writeSector.seg")
+		dec.writeSector(0, 0)
+		dec.logSeg.WriteFile("/tmp/writeSector.seg")
 
-	_, err := seg.CopySlice(0, dec.logSeg.Mem[logStart:logEnd])
-	assert.NoError(s.T(), err)
+		_, err := seg.CopySlice(0, dec.logSeg.Mem[logStart:logEnd])
+		assert.NoError(s.T(), err)
 
-	assert.True(s.T(), fileMatches(seg, s.logSectorPath))
+		assert.True(s.T(), fileMatches(seg, s.logSectorPath))
+	*/
 }

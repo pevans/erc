@@ -15,13 +15,14 @@ type sixtwoSuite struct {
 	suite.Suite
 
 	physDisk   *data.Segment
-	logSector  *data.Segment
+	physTrack  *data.Segment
 	physSector *data.Segment
+	logDisk    *data.Segment
+	logTrack   *data.Segment
+	logSector  *data.Segment
 	imageType  int
 
-	baseDir       string
-	physDiskPath  string
-	logSectorPath string
+	baseDir string
 }
 
 func (s *sixtwoSuite) SetupSuite() {
@@ -29,17 +30,21 @@ func (s *sixtwoSuite) SetupSuite() {
 	assert.NoError(s.T(), err)
 
 	s.baseDir = dir + "/../../data"
-	s.physDiskPath = s.baseDir + "/physical.disk"
-	s.logSectorPath = s.baseDir + "/logical.sector"
 
 	s.imageType = DOS33
 	s.physDisk = data.NewSegment(NibSize)
-	s.logSector = data.NewSegment(LogSectorLen)
+	s.physTrack = data.NewSegment(PhysTrackLen)
 	s.physSector = data.NewSegment(PhysSectorLen)
+	s.logDisk = data.NewSegment(DosSize)
+	s.logTrack = data.NewSegment(LogTrackLen)
+	s.logSector = data.NewSegment(LogSectorLen)
 
 	assert.NoError(s.T(), loadFile(s.physDisk, s.baseDir+"/physical.disk"))
-	assert.NoError(s.T(), loadFile(s.logSector, s.baseDir+"/logical.sector"))
+	assert.NoError(s.T(), loadFile(s.physTrack, s.baseDir+"/physical.track"))
 	assert.NoError(s.T(), loadFile(s.physSector, s.baseDir+"/physical.sector"))
+	assert.NoError(s.T(), loadFile(s.logDisk, s.baseDir+"/logical.disk"))
+	assert.NoError(s.T(), loadFile(s.logTrack, s.baseDir+"/logical.track"))
+	assert.NoError(s.T(), loadFile(s.logSector, s.baseDir+"/logical.sector"))
 }
 
 func TestSuite(t *testing.T) {
