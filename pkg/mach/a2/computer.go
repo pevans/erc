@@ -10,18 +10,18 @@
 package a2
 
 import (
-	"github.com/pevans/erc/pkg/mach"
+	"github.com/pevans/erc/pkg/data"
 	"github.com/pevans/erc/pkg/mach/a2/disk"
 	"github.com/pevans/erc/pkg/proc/mos65c02"
 )
 
 // ReadMapFn is a function which can execute a soft switch procedure on
 // read.
-type ReadMapFn func(*Computer, mach.Addressor) mach.Byte
+type ReadMapFn func(*Computer, data.Addressor) data.Byte
 
 // WriteMapFn is a function which can execute a soft switch procedure on
 // write.
-type WriteMapFn func(*Computer, mach.Addressor, mach.Byte)
+type WriteMapFn func(*Computer, data.Addressor, data.Byte)
 
 // A Computer is our abstraction of an Apple //e ("enhanced") computer.
 type Computer struct {
@@ -31,9 +31,9 @@ type Computer struct {
 	// There are three primary segments of memory in an Apple //e; main
 	// memory, read-only memory, and auxiliary memory. Each are
 	// accessible through a mechanism called bank-switching.
-	Main *mach.Segment
-	ROM  *mach.Segment
-	Aux  *mach.Segment
+	Main *data.Segment
+	ROM  *data.Segment
+	Aux  *data.Segment
 
 	Drive1 *disk.Drive
 
@@ -86,9 +86,9 @@ const (
 func NewComputer() *Computer {
 	comp := &Computer{}
 
-	comp.Aux = mach.NewSegment(AuxMemorySize)
-	comp.Main = mach.NewSegment(MainMemorySize)
-	comp.ROM = mach.NewSegment(RomMemorySize)
+	comp.Aux = data.NewSegment(AuxMemorySize)
+	comp.Main = data.NewSegment(MainMemorySize)
+	comp.ROM = data.NewSegment(RomMemorySize)
 
 	comp.Drive1 = disk.NewDrive()
 

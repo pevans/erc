@@ -1,6 +1,8 @@
 package a2
 
-import "github.com/pevans/erc/pkg/mach"
+import (
+	"github.com/pevans/erc/pkg/data"
+)
 
 const (
 	// DisplayDefault is the default state of the display settings.
@@ -51,7 +53,7 @@ func displaySetMode(c *Computer, mode int) {
 	c.DisplayMode = mode
 }
 
-func displayAuxSegment(c *Computer, addr mach.DByte) *mach.Segment {
+func displayAuxSegment(c *Computer, addr data.DByte) *data.Segment {
 	is80 := c.MemMode&Mem80Store > 0
 	isHi := c.MemMode&MemHires > 0
 	isP2 := c.MemMode&MemPage2 > 0
@@ -67,16 +69,16 @@ func displayAuxSegment(c *Computer, addr mach.DByte) *mach.Segment {
 	return nil
 }
 
-func displayRead(c *Computer, addr mach.Addressor) mach.Byte {
-	if seg := displayAuxSegment(c, mach.DByte(addr.Addr())); seg != nil {
+func displayRead(c *Computer, addr data.Addressor) data.Byte {
+	if seg := displayAuxSegment(c, data.DByte(addr.Addr())); seg != nil {
 		return seg.Get(addr)
 	}
 
 	return c.ReadSegment().Get(addr)
 }
 
-func displayWrite(c *Computer, addr mach.Addressor, val mach.Byte) {
-	if seg := displayAuxSegment(c, mach.DByte(addr.Addr())); seg != nil {
+func displayWrite(c *Computer, addr data.Addressor, val data.Byte) {
+	if seg := displayAuxSegment(c, data.DByte(addr.Addr())); seg != nil {
 		seg.Set(addr, val)
 	}
 

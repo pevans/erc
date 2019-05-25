@@ -3,7 +3,8 @@ package disk
 import (
 	"testing"
 
-	"github.com/pevans/erc/pkg/mach"
+	"github.com/pevans/erc/pkg/data"
+	"github.com/pevans/erc/pkg/sixtwo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -22,7 +23,7 @@ func TestNewDrive(t *testing.T) {
 
 	assert.NotEqual(t, nil, drive)
 	assert.Equal(t, ReadMode, drive.Mode)
-	assert.Equal(t, DOS33, drive.ImageType)
+	assert.Equal(t, sixtwo.DOS33, drive.ImageType)
 }
 
 func (s *diskSuite) TestPosition() {
@@ -30,7 +31,7 @@ func (s *diskSuite) TestPosition() {
 	// should be zero.
 	assert.Equal(s.T(), 0, s.drive.Position())
 
-	s.drive.Data = mach.NewSegment(PhysTrackLen * 2)
+	s.drive.Data = data.NewSegment(sixtwo.PhysTrackLen * 2)
 	cases := []struct {
 		tpos int
 		spos int
@@ -39,9 +40,9 @@ func (s *diskSuite) TestPosition() {
 		{0, 0, 0},
 		{1, 0, 0},
 		{1, 250, 250},
-		{2, 0, PhysTrackLen},
-		{2, 250, PhysTrackLen + 250},
-		{34, 250, (PhysTrackLen * 17) + 250},
+		{2, 0, sixtwo.PhysTrackLen},
+		{2, 250, sixtwo.PhysTrackLen + 250},
+		{34, 250, (sixtwo.PhysTrackLen * 17) + 250},
 	}
 
 	for _, c := range cases {
@@ -62,7 +63,7 @@ func (s *diskSuite) TestShift() {
 		{false, 0, 0, 0},
 		{false, 1, 0, 1},
 		{false, 1, 1, 2},
-		{false, 1, PhysTrackLen, 0},
+		{false, 1, sixtwo.PhysTrackLen, 0},
 		{false, 2, -1, 1},
 		{false, 2, -3, 0},
 		{true, 1, 1, 1},
@@ -86,7 +87,7 @@ func (s *diskSuite) TestStep() {
 		{0, 0, 0},
 		{0, 1, 1},
 		{2, -1, 1},
-		{5, MaxSteps, MaxSteps},
+		{5, sixtwo.MaxSteps, sixtwo.MaxSteps},
 		{5, -10, 0},
 	}
 

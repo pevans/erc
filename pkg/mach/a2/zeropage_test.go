@@ -1,17 +1,17 @@
 package a2
 
 import (
-	"github.com/pevans/erc/pkg/mach"
+	"github.com/pevans/erc/pkg/data"
 	"github.com/stretchr/testify/assert"
 )
 
 func (s *a2Suite) TestZeroPageRead() {
-	addr := mach.DByte(0x123)
+	addr := data.DByte(0x123)
 	cases := []struct {
 		mode int
-		main mach.Byte
-		aux  mach.Byte
-		want mach.Byte
+		main data.Byte
+		aux  data.Byte
+		want data.Byte
 	}{
 		{BankAuxiliary, 0x1, 0x2, 0x2},
 		{0, 0x3, 0x2, 0x3},
@@ -27,12 +27,12 @@ func (s *a2Suite) TestZeroPageRead() {
 }
 
 func (s *a2Suite) TestZeroPageWrite() {
-	addr := mach.DByte(0x123)
+	addr := data.DByte(0x123)
 	cases := []struct {
 		mode int
-		main mach.Byte
-		aux  mach.Byte
-		want mach.Byte
+		main data.Byte
+		aux  data.Byte
+		want data.Byte
 	}{
 		{BankAuxiliary, 0x0, 0x2, 0x2},
 		{0, 0x3, 0x0, 0x3},

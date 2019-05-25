@@ -1,6 +1,8 @@
 package sixtwo
 
-import "github.com/pevans/erc/pkg/data"
+import (
+	"github.com/pevans/erc/pkg/data"
+)
 
 type decoder struct {
 	logSeg    *data.Segment
@@ -12,14 +14,14 @@ type decoder struct {
 
 //  00    01    02    03    04    05    06    07    08    09    0A    0B    0C    0D    0E    0F
 var conv6bit = []data.Byte{
-	0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, // 00
-	0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0X00, 0X04, 0XFF, 0XFF, 0X08, 0X0C, 0XFF, 0X10, 0X14, 0X18, // 10
-	0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0X1C, 0X20, 0XFF, 0XFF, 0XFF, 0X24, 0X28, 0X2C, 0X30, 0X34, // 20
-	0XFF, 0XFF, 0X38, 0X3C, 0X40, 0X44, 0X48, 0X4C, 0XFF, 0X50, 0X54, 0X58, 0X5C, 0X60, 0X64, 0X68, // 30
-	0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0X6C, 0XFF, 0X70, 0X74, 0X78, // 40
-	0XFF, 0XFF, 0XFF, 0X7C, 0XFF, 0XFF, 0X80, 0X84, 0XFF, 0X88, 0X8C, 0X90, 0X94, 0X98, 0X9C, 0XA0, // 50
-	0XFF, 0XFF, 0XFF, 0XFF, 0XFF, 0XA4, 0XA8, 0XAC, 0XFF, 0XB0, 0XB4, 0XB8, 0XBC, 0XC0, 0XC4, 0XC8, // 60
-	0XFF, 0XFF, 0XCC, 0XD0, 0XD4, 0XD8, 0XDC, 0XE0, 0XFF, 0XE4, 0XE8, 0XEC, 0XF0, 0XF4, 0XF8, 0XFC, // 70
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 00
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x04, 0xFF, 0xFF, 0x08, 0x0C, 0xFF, 0x10, 0x14, 0x18, // 10
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x1C, 0x20, 0xFF, 0xFF, 0xFF, 0x24, 0x28, 0x2C, 0x30, 0x34, // 20
+	0xFF, 0xFF, 0x38, 0x3C, 0x40, 0x44, 0x48, 0x4C, 0xFF, 0x50, 0x54, 0x58, 0x5C, 0x60, 0x64, 0x68, // 30
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x6C, 0xFF, 0x70, 0x74, 0x78, // 40
+	0xFF, 0xFF, 0xFF, 0x7C, 0xFF, 0xFF, 0x80, 0x84, 0xFF, 0x88, 0x8C, 0x90, 0x94, 0x98, 0x9C, 0xA0, // 50
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xA4, 0xA8, 0xAC, 0xFF, 0xB0, 0xB4, 0xB8, 0xBC, 0xC0, 0xC4, 0xC8, // 60
+	0xFF, 0xFF, 0xCC, 0xD0, 0xD4, 0xD8, 0xDC, 0xE0, 0xFF, 0xE4, 0xE8, 0xEC, 0xF0, 0xF4, 0xF8, 0xFC, // 70
 }
 
 func Decode(imageType int, src *data.Segment) (*data.Segment, error) {
@@ -37,35 +39,31 @@ func Decode(imageType int, src *data.Segment) (*data.Segment, error) {
 }
 
 func (d *decoder) writeTrack(track int) {
-	d.physOff = (track * PhysTrackLen) + PhysTrackHeader
+	trackOff := (track * PhysTrackLen) + PhysTrackHeader
 
 	for sect := 0; sect < NumSectors; sect++ {
-		d.logOff = (track * LogTrackLen) +
-			(logicalSector(d.imageType, sect) * LogSectorLen)
+		var (
+			physSect = encPhysOrder[sect]
+			logSect  = logicalSector(d.imageType, sect)
+		)
+
+		d.logOff = (track * LogTrackLen) + (logSect * LogSectorLen)
+		d.physOff = trackOff + (physSect * PhysSectorLen)
 
 		d.writeSector(track, sect)
 	}
 }
 
-func HeaderOK(seg *data.Segment, off int) bool {
-	addr := data.Int(off)
-
-	return seg.Get(addr) == data.Byte(0xD5) &&
-		seg.Get(data.Plus(addr, 1)) == data.Byte(0xAA) &&
-		seg.Get(data.Plus(addr, 2)) == data.Byte(0xAD)
-}
-
 func (d *decoder) writeSector(track, sect int) {
-	// Skip header and the data marker
-	d.physOff += PhysSectorHeader + 3
-
 	var (
-		conv = make([]data.Byte, 0x157)
-		xor  = make([]data.Byte, 0x156)
+		// Skip header and the data marker
+		physOff = d.physOff + PhysSectorHeader + 3
+		conv    = make([]data.Byte, 0x157)
+		xor     = make([]data.Byte, 0x156)
 	)
 
 	for i := 0; i < 0x157; i++ {
-		conv[i] = conv6bit[d.physSeg.Get(data.DByte(d.physOff+i))&0x7F]
+		conv[i] = conv6bit[d.physSeg.Get(data.DByte(physOff+i))&0x7F]
 	}
 
 	for i, lval := 0, data.Byte(0); i < 0x156; i++ {
@@ -84,12 +82,10 @@ func (d *decoder) writeSector(track, sect int) {
 		)
 
 		if offac >= 0xAC {
-			d.logSeg.Set(data.DByte(d.physOff+int(offac)), vac)
+			d.logSeg.Set(data.DByte(d.logOff+int(offac)), vac)
 		}
 
-		d.logSeg.Set(data.DByte(d.physOff+int(off56)), v56)
-		d.logSeg.Set(data.DByte(d.physOff+int(i)), v00)
+		d.logSeg.Set(data.DByte(d.logOff+int(off56)), v56)
+		d.logSeg.Set(data.DByte(d.logOff+int(i)), v00)
 	}
-
-	d.logOff += LogSectorLen
 }

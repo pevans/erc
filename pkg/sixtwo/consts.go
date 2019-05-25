@@ -19,7 +19,7 @@ const (
 	// LogTrackLen is the length of a logical track, consisting of 16
 	// logical sectors, which are each 256 bytes long. It thus holds 4
 	// kilobytes of data.
-	LogTrackLen = LogSectorLen * NumSectors
+	LogTrackLen = 0x1000
 
 	// PhysSectorLen is the length of a physical sector
 	PhysSectorLen = 0x1A0
@@ -29,7 +29,7 @@ const (
 
 	// PhysTrackLen is the length of a physical track, consisting of 16
 	// physical sectors.
-	PhysTrackLen = (PhysSectorLen * NumSectors) + PhysTrackHeader
+	PhysTrackLen = 0x1A30
 
 	// PhysTrackHeader is the length of a track header.
 	PhysTrackHeader = 0x30

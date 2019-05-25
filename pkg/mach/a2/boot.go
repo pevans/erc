@@ -1,7 +1,7 @@
 package a2
 
 import (
-	"github.com/pevans/erc/pkg/mach"
+	"github.com/pevans/erc/pkg/data"
 	"github.com/pevans/erc/pkg/obj"
 	"github.com/pevans/erc/pkg/proc/mos65c02"
 )
@@ -9,15 +9,15 @@ import (
 const (
 	// AppleSoft holds the address of AppleSoft, which is the BASIC
 	// system that is built into Apple 2.
-	AppleSoft = mach.DByte(0xE000)
+	AppleSoft = data.DByte(0xE000)
 
 	// ResetPC is the address that the processor jumps to when it is
 	// reset.
-	ResetPC = mach.DByte(0xFFFC)
+	ResetPC = data.DByte(0xFFFC)
 
 	// BootVector is the location in memory that the operating system
 	// is designed to jump to after the intial boot sequence occurs.
-	BootVector = mach.DByte(0x03F2)
+	BootVector = data.DByte(0x03F2)
 )
 
 // Boot steps through the boot procedures for the Apple II computer.
@@ -39,8 +39,8 @@ func (c *Computer) Boot() error {
 	}
 
 	// Set the initial reset vector to point to the AppleSoft BASIC system.
-	c.Main.Set(BootVector, mach.Byte(AppleSoft&0xFF))
-	c.Main.Set(BootVector+1, mach.Byte(AppleSoft>>8))
+	c.Main.Set(BootVector, data.Byte(AppleSoft&0xFF))
+	c.Main.Set(BootVector+1, data.Byte(AppleSoft>>8))
 
 	// Set up all the soft switches we'll need
 	c.defineSoftSwitches()

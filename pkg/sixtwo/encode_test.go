@@ -89,7 +89,7 @@ func (s *sixtwoSuite) TestEncodeWriteTrack() {
 	assert.Equal(s.T(), s.physTrack, enc.ps)
 }
 
-func (s *sixtwoSuite) TestEncodeWriteDisk() {
+func (s *sixtwoSuite) TestEncode() {
 	ps, err := Encode(s.imageType, s.logDisk)
 
 	assert.NoError(s.T(), err)

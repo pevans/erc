@@ -1,7 +1,7 @@
 package a2
 
 import (
-	"github.com/pevans/erc/pkg/mach"
+	"github.com/pevans/erc/pkg/data"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -9,9 +9,9 @@ import (
 // different cases. Hence the rather large table of test cases.
 func (s *a2Suite) TestPCROMAddr() {
 	cases := []struct {
-		addr   mach.DByte
+		addr   data.DByte
 		pcMode int
-		want   mach.DByte
+		want   data.DByte
 	}{
 		{0xC000, 0, 0},
 		{0xC000, PCExpROM, 0},
@@ -38,8 +38,8 @@ func (s *a2Suite) TestPCROMAddr() {
 
 func (s *a2Suite) TestPCRead() {
 	cases := []struct {
-		addr mach.DByte
-		want mach.Byte
+		addr data.DByte
+		want data.Byte
 	}{
 		{0xC111, 123},
 		{0xC222, 223},
@@ -53,8 +53,8 @@ func (s *a2Suite) TestPCRead() {
 
 func (s *a2Suite) TestPCWrite() {
 	cases := []struct {
-		addr mach.DByte
-		want mach.Byte
+		addr data.DByte
+		want data.Byte
 	}{
 		{0xC111, 123},
 		{0xC222, 223},

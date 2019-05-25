@@ -1,7 +1,7 @@
 package a2
 
 import (
-	"github.com/pevans/erc/pkg/mach"
+	"github.com/pevans/erc/pkg/data"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -24,8 +24,8 @@ func (s *a2Suite) TestDisplaySetMode() {
 func (s *a2Suite) TestDisplayAuxSegment() {
 	cases := []struct {
 		memMode int
-		addr    mach.DByte
-		want    *mach.Segment
+		addr    data.DByte
+		want    *data.Segment
 	}{
 		{0, 0x444, nil},
 		{Mem80Store, 0x444, nil},
@@ -45,9 +45,9 @@ func (s *a2Suite) TestDisplayAuxSegment() {
 func (s *a2Suite) TestDisplayRead() {
 	cases := []struct {
 		memMode int
-		addr    mach.DByte
-		seg     *mach.Segment
-		want    mach.Byte
+		addr    data.DByte
+		seg     *data.Segment
+		want    data.Byte
 	}{
 		{0, 0x444, s.comp.Main, 111},
 		{Mem80Store | MemHires, 0x445, s.comp.Aux, 111},
@@ -66,9 +66,9 @@ func (s *a2Suite) TestDisplayRead() {
 func (s *a2Suite) TestDisplayWrite() {
 	cases := []struct {
 		memMode int
-		addr    mach.DByte
-		seg     *mach.Segment
-		want    mach.Byte
+		addr    data.DByte
+		seg     *data.Segment
+		want    data.Byte
 	}{
 		{0, 0x444, s.comp.Main, 111},
 		{Mem80Store | MemHires, 0x445, s.comp.Aux, 111},

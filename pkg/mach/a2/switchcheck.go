@@ -1,6 +1,6 @@
 package a2
 
-import "github.com/pevans/erc/pkg/mach"
+import "github.com/pevans/erc/pkg/data"
 
 // SwitchCheck is a collection of functions which return and set a
 // mode in a computer, and is used to produce setters, unsetters,
@@ -13,21 +13,21 @@ type SwitchCheck struct {
 // IsSetter returns a read map function that checks if a given flag is
 // set in our mode.
 func (s *SwitchCheck) IsSetter(flag int) ReadMapFn {
-	return func(c *Computer, addr mach.Addressor) mach.Byte {
+	return func(c *Computer, addr data.Addressor) data.Byte {
 		if s.mode(c)&flag > 0 {
-			return mach.Byte(0x80)
+			return data.Byte(0x80)
 		}
 
-		return mach.Byte(0x0)
+		return data.Byte(0x0)
 	}
 }
 
 // SetterR returns a read map function which sets a flag directly to our
 // mode and returns a positive byte signal.
 func (s *SwitchCheck) SetterR(flag int) ReadMapFn {
-	return func(c *Computer, addr mach.Addressor) mach.Byte {
+	return func(c *Computer, addr data.Addressor) data.Byte {
 		s.setMode(c, flag)
-		return mach.Byte(0x80)
+		return data.Byte(0x80)
 	}
 }
 
@@ -35,24 +35,24 @@ func (s *SwitchCheck) SetterR(flag int) ReadMapFn {
 // existing flags (using bitwise-OR logic) and returns a positive byte
 // signal.
 func (s *SwitchCheck) ReSetterR(flag int) ReadMapFn {
-	return func(c *Computer, addr mach.Addressor) mach.Byte {
+	return func(c *Computer, addr data.Addressor) data.Byte {
 		s.setMode(c, s.mode(c)|flag)
-		return mach.Byte(0x80)
+		return data.Byte(0x80)
 	}
 }
 
 // UnSetterR returns a read map function which unsets a flag and
 // preserves existing flags and returns a negative byte signal.
 func (s *SwitchCheck) UnSetterR(flag int) ReadMapFn {
-	return func(c *Computer, addr mach.Addressor) mach.Byte {
+	return func(c *Computer, addr data.Addressor) data.Byte {
 		s.setMode(c, s.mode(c) & ^flag)
-		return mach.Byte(0x0)
+		return data.Byte(0x0)
 	}
 }
 
 // SetterW returns a write map function which sets a flag directly.
 func (s *SwitchCheck) SetterW(flag int) WriteMapFn {
-	return func(c *Computer, addr mach.Addressor, val mach.Byte) {
+	return func(c *Computer, addr data.Addressor, val data.Byte) {
 		s.setMode(c, flag)
 	}
 }
@@ -60,7 +60,7 @@ func (s *SwitchCheck) SetterW(flag int) WriteMapFn {
 // ReSetterW returns a write map function which sets a flag and
 // preserves existing flags alongside it.
 func (s *SwitchCheck) ReSetterW(flag int) WriteMapFn {
-	return func(c *Computer, addr mach.Addressor, val mach.Byte) {
+	return func(c *Computer, addr data.Addressor, val data.Byte) {
 		s.setMode(c, s.mode(c)|flag)
 	}
 }
@@ -68,7 +68,7 @@ func (s *SwitchCheck) ReSetterW(flag int) WriteMapFn {
 // UnSetterW returns a write map function which unsets a flag but
 // preserves existing flags alongside it.
 func (s *SwitchCheck) UnSetterW(flag int) WriteMapFn {
-	return func(c *Computer, addr mach.Addressor, val mach.Byte) {
+	return func(c *Computer, addr data.Addressor, val data.Byte) {
 		s.setMode(c, s.mode(c) & ^flag)
 	}
 }

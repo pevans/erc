@@ -1,5 +1,7 @@
 package nibble
 
+import "github.com/pevans/erc/pkg/data"
+
 func Decode(src *data.Segment) (*data.Segment, error) {
 	dst := data.NewSegment(src.Size())
 

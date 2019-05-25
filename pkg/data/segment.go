@@ -28,7 +28,7 @@ func NewSegment(size int) *Segment {
 	return s
 }
 
-// ByteSlice returns a slice of mach.Byte from a given regular set of
+// ByteSlice returns a slice of data.Byte from a given regular set of
 // bytes
 func ByteSlice(b []byte) []Byte {
 	bytes := make([]Byte, len(b))

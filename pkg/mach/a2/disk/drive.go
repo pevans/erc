@@ -6,7 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/pevans/erc/pkg/mach"
+	"github.com/pevans/erc/pkg/data"
+	"github.com/pevans/erc/pkg/sixtwo"
 	"github.com/pkg/errors"
 )
 
@@ -30,11 +31,11 @@ const (
 // A Drive represents the state of a virtual Disk II drive.
 type Drive struct {
 	Phase        int
-	Latch        mach.Byte
+	Latch        data.Byte
 	TrackPos     int
 	SectorPos    int
-	Data         *mach.Segment
-	Image        *mach.Segment
+	Data         *data.Segment
+	Image        *data.Segment
 	ImageType    int
 	Stream       *os.File
 	Online       bool
@@ -48,7 +49,7 @@ func NewDrive() *Drive {
 	drive := new(Drive)
 
 	drive.Mode = ReadMode
-	drive.ImageType = DOS33
+	drive.ImageType = sixtwo.DOS33
 
 	return drive
 }
@@ -60,7 +61,7 @@ func (d *Drive) Position() int {
 		return 0
 	}
 
-	return ((d.TrackPos / 2) * PhysTrackLen) + d.SectorPos
+	return ((d.TrackPos / 2) * sixtwo.PhysTrackLen) + d.SectorPos
 }
 
 // Shift moves the sector position forward, or backward, depending on
@@ -74,7 +75,7 @@ func (d *Drive) Shift(offset int) {
 
 	d.SectorPos += offset
 
-	if d.SectorPos >= PhysTrackLen || d.SectorPos < 0 {
+	if d.SectorPos >= sixtwo.PhysTrackLen || d.SectorPos < 0 {
 		d.SectorPos = 0
 	}
 }
@@ -87,8 +88,8 @@ func (d *Drive) Step(offset int) {
 	d.TrackPos += offset
 
 	switch {
-	case d.TrackPos > MaxSteps:
-		d.TrackPos = MaxSteps
+	case d.TrackPos > sixtwo.MaxSteps:
+		d.TrackPos = sixtwo.MaxSteps
 	case d.TrackPos < 0:
 		d.TrackPos = 0
 	}
@@ -98,7 +99,7 @@ func (d *Drive) Step(offset int) {
 }
 
 // Phase returns the motor phase based upon the given address.
-func Phase(addr mach.DByte) int {
+func Phase(addr data.DByte) int {
 	phase := -1
 
 	switch addr & 0xF {
@@ -126,7 +127,7 @@ var phaseTransitions = []int{
 
 // StepPhase will step the drive head forward or backward based upon the
 // given address (from which we decipher the motor phase).
-func (d *Drive) StepPhase(addr mach.DByte) {
+func (d *Drive) StepPhase(addr data.DByte) {
 	phase := Phase(addr)
 
 	if phase < 0 || phase > 4 {
@@ -146,11 +147,11 @@ func ImageType(file string) (int, error) {
 
 	switch {
 	case strings.HasSuffix(lower, ".do"), strings.HasSuffix(lower, ".img"):
-		return DOS33, nil
+		return sixtwo.DOS33, nil
 	case strings.HasSuffix(lower, ".nib"):
 		return Nibble, nil
 	case strings.HasSuffix(lower, ".po"):
-		return ProDOS, nil
+		return sixtwo.ProDOS, nil
 	}
 
 	return -1, fmt.Errorf("Unrecognized suffix for file %s", file)
@@ -175,16 +176,15 @@ func (d *Drive) Load(file string) error {
 	}
 
 	// Copy directly into the image segment
-	d.Image = mach.NewSegment(len(bytes))
-	_, err = d.Image.CopySlice(0, mach.ByteSlice(bytes))
+	d.Image = data.NewSegment(len(bytes))
+	_, err = d.Image.CopySlice(0, data.ByteSlice(bytes))
 	if err != nil {
 		d.Image = nil
 		return errors.Wrapf(err, "Failed to copy bytes into image segment")
 	}
 
 	// Decode into the data segment
-	dec := NewDecoder(d.ImageType, d.Image)
-	d.Data, err = dec.Decode()
+	d.Data, err = sixtwo.Encode(d.ImageType, d.Image)
 	if err != nil {
 		d.Image = nil
 		return errors.Wrapf(err, "Failed to decode image")

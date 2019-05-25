@@ -1,6 +1,6 @@
 package a2
 
-import "github.com/pevans/erc/pkg/mach"
+import "github.com/pevans/erc/pkg/data"
 
 const (
 	// PCExpROM allows access to expansion ROM. When this is on, memory
@@ -20,7 +20,7 @@ const (
 // memory modes. Generally we're looking at addresses in the CX00 range
 // and trying to pull that data from where we actually store it in our
 // memory segments.
-func pcROMAddr(addr mach.DByte, mode int) mach.DByte {
+func pcROMAddr(addr data.DByte, mode int) data.DByte {
 	romAddr := addr - 0xC000
 
 	if (mode&PCExpROM) > 0 && romAddr >= 0x0800 && romAddr < 0x1000 {
@@ -38,12 +38,12 @@ func pcROMAddr(addr mach.DByte, mode int) mach.DByte {
 	return romAddr
 }
 
-func pcRead(c *Computer, addr mach.Addressor) mach.Byte {
-	dbyte := mach.DByte(addr.Addr())
+func pcRead(c *Computer, addr data.Addressor) data.Byte {
+	dbyte := data.DByte(addr.Addr())
 	return c.ROM.Get(pcROMAddr(dbyte, c.MemMode))
 }
 
-func pcWrite(c *Computer, addr mach.Addressor, val mach.Byte) {
+func pcWrite(c *Computer, addr data.Addressor, val data.Byte) {
 	// Do nothing
 }
 

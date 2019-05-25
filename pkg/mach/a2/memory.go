@@ -1,7 +1,7 @@
 package a2
 
 import (
-	"github.com/pevans/erc/pkg/mach"
+	"github.com/pevans/erc/pkg/data"
 )
 
 const (
@@ -34,7 +34,7 @@ const (
 
 // Get will return the byte at addr, or will execute a read switch if
 // one is present at the given address.
-func (c *Computer) Get(addr mach.Addressor) mach.Byte {
+func (c *Computer) Get(addr data.Addressor) data.Byte {
 	if fn, ok := c.RMap[addr.Addr()]; ok {
 		return fn(c, addr)
 	}
@@ -44,7 +44,7 @@ func (c *Computer) Get(addr mach.Addressor) mach.Byte {
 
 // Set will set the byte at addr to val, or will execute a write switch
 // if one is present at the given address.
-func (c *Computer) Set(addr mach.Addressor, val mach.Byte) {
+func (c *Computer) Set(addr data.Addressor, val data.Byte) {
 	if fn, ok := c.WMap[addr.Addr()]; ok {
 		fn(c, addr, val)
 		return
@@ -64,7 +64,7 @@ func (c *Computer) MapRange(from, to int, rfn ReadMapFn, wfn WriteMapFn) {
 
 // ReadSegment returns the segment that should be used for general
 // reads, according to our current memory mode.
-func (c *Computer) ReadSegment() *mach.Segment {
+func (c *Computer) ReadSegment() *data.Segment {
 	if c.MemMode&MemReadAux > 0 {
 		return c.Aux
 	}
@@ -74,7 +74,7 @@ func (c *Computer) ReadSegment() *mach.Segment {
 
 // WriteSegment returns the segment that should be used for general
 // writes, according to our current memory mode.
-func (c *Computer) WriteSegment() *mach.Segment {
+func (c *Computer) WriteSegment() *data.Segment {
 	if c.MemMode&MemWriteAux > 0 {
 		return c.Aux
 	}

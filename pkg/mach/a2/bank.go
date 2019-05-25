@@ -1,7 +1,7 @@
 package a2
 
 import (
-	"github.com/pevans/erc/pkg/mach"
+	"github.com/pevans/erc/pkg/data"
 )
 
 const (
@@ -38,25 +38,25 @@ func bankSetMode(c *Computer, mode int) {
 	c.BankMode = mode
 }
 
-func bankRead(c *Computer, addr mach.Addressor) mach.Byte {
+func bankRead(c *Computer, addr data.Addressor) data.Byte {
 	if ^c.BankMode&BankRAM > 0 {
-		return c.ROM.Get(mach.Plus(addr, -SysRomOffset))
+		return c.ROM.Get(data.Plus(addr, -SysRomOffset))
 	}
 
 	if addr.Addr() < 0xE000 && c.BankMode&BankRAM2 > 0 {
-		return c.ReadSegment().Get(mach.Plus(addr, 0x3000))
+		return c.ReadSegment().Get(data.Plus(addr, 0x3000))
 	}
 
 	return c.ReadSegment().Get(addr)
 }
 
-func bankWrite(c *Computer, addr mach.Addressor, val mach.Byte) {
+func bankWrite(c *Computer, addr data.Addressor, val data.Byte) {
 	if ^c.BankMode&BankWrite > 0 {
 		return
 	}
 
 	if addr.Addr() < 0xE000 && c.BankMode&BankRAM2 > 0 {
-		c.WriteSegment().Set(mach.Plus(addr, 0x3000), val)
+		c.WriteSegment().Set(data.Plus(addr, 0x3000), val)
 		return
 	}
 
