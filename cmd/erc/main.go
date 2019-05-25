@@ -34,7 +34,7 @@ func main() {
 	}
 
 	if len(os.Args) < 2 {
-		fmt.Printf("you must pass the name of a file to load")
+		fmt.Println("you must pass the name of a file to load")
 		os.Exit(1)
 	}
 

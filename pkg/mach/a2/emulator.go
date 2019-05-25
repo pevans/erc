@@ -9,6 +9,7 @@ func NewEmulator() *mach.Emulator {
 
 	emu := &mach.Emulator{
 		Booter:    comp,
+		Drawer:    comp,
 		Loader:    comp,
 		Ender:     comp,
 		Processor: comp,

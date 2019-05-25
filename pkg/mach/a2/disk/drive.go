@@ -146,7 +146,7 @@ func ImageType(file string) (int, error) {
 	lower := strings.ToLower(file)
 
 	switch {
-	case strings.HasSuffix(lower, ".do"), strings.HasSuffix(lower, ".img"):
+	case strings.HasSuffix(lower, ".do"), strings.HasSuffix(lower, ".dsk"):
 		return sixtwo.DOS33, nil
 	case strings.HasSuffix(lower, ".nib"):
 		return Nibble, nil
