@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/hajimehoshi/ebiten"
+	"github.com/pevans/erc/pkg/gfx"
 	"github.com/pevans/erc/pkg/mach/a2"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -57,8 +58,14 @@ func main() {
 		width, height = emu.Drawer.Dimensions()
 
 		loop = func(screen *ebiten.Image) error {
+			gfx.SetImage(screen)
+
 			if err := emu.Processor.Process(); err != nil {
-				log.Error(errors.Wrapf(err, "received error from processor"))
+				log.Error(errors.Wrap(err, "main loop received error from processor"))
+			}
+
+			if err := emu.Drawer.Draw(); err != nil {
+				log.Error(errors.Wrap(err, "main loop received error from drawer"))
 			}
 
 			return nil
