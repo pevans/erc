@@ -13,7 +13,6 @@ import (
 	"github.com/golang/freetype/truetype"
 	"github.com/pevans/erc/pkg/data"
 	"github.com/pevans/erc/pkg/font"
-	"github.com/pevans/erc/pkg/gfx"
 	"github.com/pevans/erc/pkg/mach/a2/disk"
 	"github.com/pevans/erc/pkg/proc/mos65c02"
 )
@@ -30,8 +29,6 @@ type WriteMapFn func(*Computer, data.Addressor, data.Byte)
 type Computer struct {
 	// The CPU of the Apple //e was an MOS 65C02 processor.
 	CPU *mos65c02.CPU
-
-	screen *gfx.Screen
 
 	// col40 is the font for our 40-column text display
 	col40 *truetype.Font
@@ -98,7 +95,6 @@ func NewComputer() *Computer {
 	var err error
 
 	comp := &Computer{}
-	comp.screen = new(gfx.Screen)
 
 	comp.col40, err = truetype.Parse(font.Apple40Col)
 	if err != nil {

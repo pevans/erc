@@ -1,15 +1,16 @@
 package a2
 
 import (
+	"image"
 	"image/color"
 
 	"github.com/pevans/erc/pkg/gfx"
 )
 
-func (c *Computer) Draw() error {
+func (c *Computer) Draw(screen gfx.DotDrawer) error {
 	for i := 0; i < 10; i++ {
-		gfx.Scr.DrawDot(
-			gfx.Point{X: 50 + i, Y: 50 + i},
+		screen.DrawDot(
+			image.Point{X: 50 + i, Y: 50 + i},
 			color.RGBA{R: 0, G: 0xFF, B: 0, A: 0},
 		)
 	}

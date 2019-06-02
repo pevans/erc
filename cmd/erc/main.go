@@ -4,16 +4,14 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hajimehoshi/ebiten"
-	"github.com/pevans/erc/pkg/gfx"
+	"github.com/pevans/erc/pkg/mach"
 	"github.com/pevans/erc/pkg/mach/a2"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 )
 
-const (
-	ConfigFile = `.erc/config.toml`
-)
+const ConfigFile = `.erc/config.toml`
+
+var emulator *mach.Emulator
 
 func main() {
 	var (
@@ -40,75 +38,27 @@ func main() {
 	}
 
 	// Right now, there's only one machine to emulate.
-	emu := a2.NewEmulator()
+	emulator = a2.NewEmulator()
 
 	// At this stage, we need to decide what we should be loading.
-	if err := emu.Loader.Load(os.Args[1]); err != nil {
+	if err := emulator.Loader.Load(os.Args[1]); err != nil {
 		fmt.Println(errors.Wrapf(err, "could not load file %s", os.Args[1]))
 		os.Exit(1)
 	}
 
 	// Attempt a cold boot
-	if err := emu.Booter.Boot(); err != nil {
+	if err := emulator.Booter.Boot(); err != nil {
 		fmt.Println(errors.Wrapf(err, "could not boot emulator"))
 		os.Exit(1)
 	}
 
-	var (
-		width, height = emu.Drawer.Dimensions()
-
-		loop = func(screen *ebiten.Image) error {
-			gfx.SetImage(screen)
-
-			if err := emu.Processor.Process(); err != nil {
-				log.Error(errors.Wrap(err, "main loop received error from processor"))
-			}
-
-			if err := emu.Drawer.Draw(); err != nil {
-				log.Error(errors.Wrap(err, "main loop received error from drawer"))
-			}
-
-			return nil
-		}
-	)
-
-	if err := ebiten.Run(loop, width, height, 3, "erc"); err != nil {
+	if err := gameLoop(); err != nil {
 		fmt.Println(errors.Wrap(err, "run loop failed"))
 	}
 
 	// Shutdown
-	if err := emu.Ender.End(); err != nil {
+	if err := emulator.Ender.End(); err != nil {
 		fmt.Println(errors.Wrapf(err, "could not properly shut down emulator"))
 		os.Exit(1)
 	}
-}
-
-// setLogging attempts to set the file name and level for logging within
-// logrus, and returns an error if it was unable to do so.
-func setLogging(fileName, levelName string) error {
-	// No logging is necessary!
-	if fileName == "" {
-		return nil
-	}
-
-	// If a file was given, but no level, then assume they want error
-	// logging
-	if levelName == "" {
-		levelName = "error"
-	}
-
-	file, err := os.OpenFile(fileName, os.O_WRONLY, 0755)
-	if err != nil {
-		return errors.Wrapf(err, "could not open file %s for logging", fileName)
-	}
-
-	level, err := log.ParseLevel(levelName)
-	if err != nil {
-		return errors.Wrapf(err, "could not recognize level %s for logging", levelName)
-	}
-
-	log.SetOutput(file)
-	log.SetLevel(level)
-
-	return nil
 }

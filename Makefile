@@ -1,5 +1,5 @@
 test:
-	go test ./...
+	if [ "$(PKG)" ]; then go test ./$(PKG); else go test ./...; fi
 
 lint:
 	golint ./...
