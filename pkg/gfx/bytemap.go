@@ -3,6 +3,7 @@ package gfx
 import (
 	"image"
 	"image/color"
+	"log"
 
 	"github.com/pevans/erc/pkg/data"
 )
@@ -15,6 +16,7 @@ type Bytemap struct {
 // Valid returns true if the number of dots a Bytemap contains is equal
 // to the product of its width and height.
 func (b *Bytemap) Valid() bool {
+	log.Printf("valid len=%d w=%d h=%d", len(b.Dots), b.Width, b.Height)
 	return len(b.Dots) == b.Width*b.Height
 }
 
@@ -28,7 +30,7 @@ func (b *Bytemap) Draw(screen DotDrawer, from image.Point, color color.RGBA) {
 	var offset image.Point
 
 	for i := 0; offset.Y < b.Height; offset.Y++ {
-		for ; offset.X < b.Width; offset.X++ {
+		for offset.X = 0; offset.X < b.Width; offset.X++ {
 			var useColor = Black
 
 			// We only render the given color if the dot at our position
