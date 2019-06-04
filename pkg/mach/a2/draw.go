@@ -18,6 +18,9 @@ func (c *Computer) Draw(screen gfx.DotDrawer) error {
 	return nil
 }
 
+func (c *Computer) DrawHires(screen gfx.DotDrawer) {
+}
+
 func (c *Computer) Dimensions() (width, height int) {
 	return 280, 192
 }

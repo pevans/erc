@@ -1,6 +1,12 @@
 package mos65c02
 
 import (
+	"reflect"
+	"runtime"
+	"strings"
+
+	log "github.com/sirupsen/logrus"
+
 	"github.com/pevans/erc/pkg/data"
 )
 
@@ -188,6 +194,24 @@ var cycles = [256]data.Byte{
 	2, 5, 5, 1, 4, 4, 6, 1, 2, 4, 4, 1, 4, 4, 7, 1, // Fx
 }
 
+func (i Instruction) String() string {
+	var (
+		funcName = runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
+		parts    = strings.Split(funcName, ".")
+	)
+
+	return strings.ToUpper(parts[len(parts)-1])
+}
+
+func (m AddrMode) String() string {
+	var (
+		funcName = runtime.FuncForPC(reflect.ValueOf(m).Pointer()).Name()
+		parts    = strings.Split(funcName, ".")
+	)
+
+	return strings.ToUpper(parts[len(parts)-1])
+}
+
 // ApplyStatus will make a status update for the given flag based upon
 // cond being true or not.
 func (c *CPU) ApplyStatus(cond bool, flag data.Byte) {
@@ -283,6 +307,8 @@ func (c *CPU) Execute() error {
 
 	// Now execute the instruction
 	inst(c)
+
+	log.Printf("PC:%04x %02x        %v %v EFFADDR:$%04x EFFVAL:%02x", c.PC, opcode, mode, inst, c.EffAddr, c.EffVal)
 
 	// Adjust the program counter to beyond the expected instruction
 	// sequence (1 byte for the opcode, + N bytes for the operand, based

@@ -12,7 +12,6 @@ package a2
 import (
 	"github.com/golang/freetype/truetype"
 	"github.com/pevans/erc/pkg/data"
-	"github.com/pevans/erc/pkg/font"
 	"github.com/pevans/erc/pkg/mach/a2/disk"
 	"github.com/pevans/erc/pkg/proc/mos65c02"
 )
@@ -92,19 +91,7 @@ const (
 // NewComputer returns an Apple //e computer value, which essentially
 // encompasses all of the things that an Apple II would need to run.
 func NewComputer() *Computer {
-	var err error
-
 	comp := &Computer{}
-
-	comp.col40, err = truetype.Parse(font.Apple40Col)
-	if err != nil {
-		panic(err)
-	}
-
-	comp.col80, err = truetype.Parse(font.Apple80Col)
-	if err != nil {
-		panic(err)
-	}
 
 	comp.Aux = data.NewSegment(AuxMemorySize)
 	comp.Main = data.NewSegment(MainMemorySize)

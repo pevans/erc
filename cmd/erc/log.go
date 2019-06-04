@@ -21,7 +21,7 @@ func setLogging(fileName, levelName string) error {
 		levelName = "error"
 	}
 
-	file, err := os.OpenFile(fileName, os.O_WRONLY, 0755)
+	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0755)
 	if err != nil {
 		return errors.Wrapf(err, "could not open file %s for logging", fileName)
 	}
