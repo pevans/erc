@@ -1,12 +1,12 @@
 package mos65c02
 
 import (
+	"os"
 	"reflect"
 	"runtime"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
-
+	"github.com/pevans/erc/pkg/asmrec/a2rec"
 	"github.com/pevans/erc/pkg/data"
 )
 
@@ -25,6 +25,10 @@ type CPU struct {
 	// The Opcode is the byte which indicates both the instruction and
 	// the address mode of the instruction that we must carry out.
 	Opcode data.Byte
+
+	// The Operand is the one or two bytes which is an argument to the
+	// opcode.
+	Operand data.DByte
 
 	// This is the effective address for the current operation. The
 	// effective address is the one computed by the address mode, taking
@@ -291,11 +295,22 @@ func (c *CPU) Execute() error {
 		inst   Instruction
 		mode   AddrMode
 		opcode data.Byte
+		rec    a2rec.Recorder
 	)
 
 	opcode = c.Get(c.PC)
 	mode = addrModes[opcode]
 	inst = instructions[opcode]
+
+	rec.PC = c.PC
+	rec.Opcode = opcode
+	rec.A = c.A
+	rec.X = c.X
+	rec.Y = c.Y
+	rec.S = c.S
+	rec.P = c.P
+	rec.Inst = inst.String()
+	rec.Mode = mode.String()
 
 	// NOTE: neither the address mode resolver nor the instruction
 	// handler have any error conditions. This is by design: they DO NOT
@@ -305,10 +320,14 @@ func (c *CPU) Execute() error {
 	// mode handler.
 	mode(c)
 
+	rec.Operand = c.Operand
+	rec.EffAddr = c.EffAddr
+	rec.EffVal = c.EffVal
+
 	// Now execute the instruction
 	inst(c)
 
-	log.Printf("PC:%04x %02x        %v %v EFFADDR:$%04x EFFVAL:%02x", c.PC, opcode, mode, inst, c.EffAddr, c.EffVal)
+	rec.Record(os.Stdout)
 
 	// Adjust the program counter to beyond the expected instruction
 	// sequence (1 byte for the opcode, + N bytes for the operand, based
