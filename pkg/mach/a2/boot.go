@@ -27,7 +27,7 @@ const (
 func (c *Computer) Boot() error {
 	// Fetch the slice of bytes for system ROM and for peripheral ROM
 	// (they go to together).
-	rom, err := obj.Slice(0, RomMemorySize)
+	rom, err := obj.Slice(4, RomMemorySize+4)
 	if err != nil {
 		return err
 	}
@@ -59,7 +59,7 @@ func (c *Computer) Reset() {
 	c.CPU.P = mos65c02.NEGATIVE | mos65c02.OVERFLOW | mos65c02.INTERRUPT | mos65c02.ZERO | mos65c02.CARRY
 
 	// Jump to the reset PC address
-	c.CPU.PC = ResetPC
+	c.CPU.PC = c.CPU.Get16(ResetPC)
 
 	// When reset, the stack goes to its top (which is the end of the
 	// stack page).
