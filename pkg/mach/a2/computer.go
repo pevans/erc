@@ -100,8 +100,8 @@ func NewComputer() *Computer {
 	comp.Drive1 = disk.NewDrive()
 
 	comp.CPU = new(mos65c02.CPU)
-	comp.CPU.WMem = comp.Main
-	comp.CPU.RMem = comp.Main
+	comp.CPU.WMem = comp
+	comp.CPU.RMem = comp
 
 	comp.RMap = make(map[int]ReadMapFn)
 	comp.WMap = make(map[int]WriteMapFn)
