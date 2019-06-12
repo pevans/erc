@@ -70,8 +70,8 @@ func By3(c *CPU) {
 // Ex. ADC #$12 adds $12 to the A register
 func Imm(c *CPU) {
 	c.EffAddr = 0
-	c.Operand = 0
 	c.EffVal = c.Get(c.PC + 1)
+	c.Operand = data.DByte(c.EffVal)
 }
 
 // Imp resolves the implied address mode. IMP is used to handle cases
