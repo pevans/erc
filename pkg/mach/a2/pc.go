@@ -40,7 +40,7 @@ func pcROMAddr(addr data.DByte, mode int) data.DByte {
 
 func pcRead(c *Computer, addr data.Addressor) data.Byte {
 	dbyte := data.DByte(addr.Addr())
-	return c.ROM.Get(pcROMAddr(dbyte, c.MemMode))
+	return c.ROM.Get(pcROMAddr(dbyte, c.PCMode))
 }
 
 func pcWrite(c *Computer, addr data.Addressor, val data.Byte) {

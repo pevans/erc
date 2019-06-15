@@ -32,7 +32,8 @@ func (c *Computer) Boot() error {
 		return err
 	}
 
-	// Copy the ROM bytes into the ROM segment.
+	// Copy the ROM bytes into the ROM segment. This copies not only
+	// system ROM; it also copies in peripheral ROM.
 	_, err = c.ROM.CopySlice(0, rom)
 	if err != nil {
 		return err
