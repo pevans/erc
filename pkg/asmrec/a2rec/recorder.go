@@ -65,13 +65,8 @@ func (r *Recorder) Record(w io.Writer) error {
 	// If it's greater than 255, then we have two-byte operand, so print
 	// the MSB now.
 	if r.Operand > 0xFF {
-		str += fmt.Sprintf(` %02X`, r.Operand>>8)
-	}
-
-	// Even if operand is zero, we may still need to print something out
-	// for it. So the next check actually depends on whether we have a
-	// printed operand or not.
-	if operand != "" {
+		str += fmt.Sprintf(` %02X %02X`, r.Operand&0xFF, r.Operand>>8)
+	} else if r.Operand > 0x00 {
 		str += fmt.Sprintf(` %02X`, r.Operand&0xFF)
 	}
 
@@ -81,8 +76,10 @@ func (r *Recorder) Record(w io.Writer) error {
 
 	str += fmt.Sprintf(` %3s %7s`, r.Inst, operand)
 	str += fmt.Sprintf(
-		" ; A=%02X X=%02X Y=%02X S=%02X P=%02X EffAddr=%04X EffVal=%02X\n",
-		r.A, r.X, r.Y, r.S, r.P, r.EffAddr, r.EffVal,
+		" ; A=%02X X=%02X Y=%02X S=%02X P=%02X (n%d o%d u%d b%d d%d i%d z%d c%d) EA=%04X EV=%02X\n",
+		r.A, r.X, r.Y, r.S, r.P,
+		r.P>>7, (r.P>>6)&1, (r.P>>5)&1, (r.P>>4)&1, (r.P>>3)&1, (r.P>>2)&1, (r.P>>1)&1, r.P&1,
+		r.EffAddr, r.EffVal,
 	)
 
 	_, err := fmt.Fprint(w, str)
