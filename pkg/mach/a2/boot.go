@@ -70,4 +70,5 @@ func (c *Computer) Reset() {
 	c.MemMode = MemDefault
 	c.BankMode = BankDefault
 	c.PCMode = PCSlotCxROM
+	c.DisplayMode = DisplayText
 }
