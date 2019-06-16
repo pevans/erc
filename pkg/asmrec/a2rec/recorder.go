@@ -23,6 +23,8 @@ type Recorder struct {
 	EffVal  data.Byte
 }
 
+var counter = 0
+
 func (r *Recorder) FormatOperand() string {
 	switch r.Mode {
 	case "ACC", "IMP", "BY2", "BY3":
@@ -84,10 +86,12 @@ func (r *Recorder) Record(w io.Writer) error {
 
 	str += fmt.Sprintf(` %3s %7s`, r.Inst, operand)
 	str += fmt.Sprintf(
-		" ; A=%02X X=%02X Y=%02X S=%02X P=%02X (%s) EA=%04X EV=%02X\n",
+		" ; A=%02X X=%02X Y=%02X S=%02X P=%02X (%s) EA=%04X EV=%02X +%d\n",
 		r.A, r.X, r.Y, r.S, r.P, string(pstatus),
-		r.EffAddr, r.EffVal,
+		r.EffAddr, r.EffVal, counter,
 	)
+
+	counter++
 
 	_, err := fmt.Fprint(w, str)
 	return err
