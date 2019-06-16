@@ -22,6 +22,16 @@ func (s *SwitchCheck) IsSetter(flag int) ReadMapFn {
 	}
 }
 
+func (s *SwitchCheck) IsOpSetter(flag int) ReadMapFn {
+	return func(c *Computer, addr data.Addressor) data.Byte {
+		if s.mode(c)&flag > 0 {
+			return data.Byte(0x0)
+		}
+
+		return data.Byte(0x80)
+	}
+}
+
 // SetterR returns a read map function which sets a flag directly to our
 // mode and returns a positive byte signal.
 func (s *SwitchCheck) SetterR(flag int) ReadMapFn {

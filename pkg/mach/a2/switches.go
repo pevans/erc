@@ -46,7 +46,7 @@ func (c *Computer) defineSoftSwitches() {
 	c.WMap[0xC009] = bsc.ReSetterW(BankAuxiliary)
 
 	psc := newPCSwitchCheck()
-	c.RMap[0xC015] = psc.IsSetter(PCSlotCxROM)
+	c.RMap[0xC015] = psc.IsOpSetter(PCSlotCxROM)
 	c.RMap[0xC017] = psc.IsSetter(PCSlotC3ROM)
 	c.WMap[0xC006] = psc.ReSetterW(PCSlotCxROM)
 	c.WMap[0xC007] = psc.UnSetterW(PCSlotCxROM)
