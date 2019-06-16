@@ -60,6 +60,7 @@ func (r *Recorder) Record(w io.Writer) error {
 		`%04X %02X`, r.PC, r.Opcode,
 	)
 
+	pstatus := []rune("NV.BDIZC")
 	operand := r.FormatOperand()
 
 	// If it's greater than 255, then we have two-byte operand, so print
@@ -74,11 +75,17 @@ func (r *Recorder) Record(w io.Writer) error {
 		str += strings.Repeat(" ", 13-len(str))
 	}
 
+	for i := 7; i >= 0; i-- {
+		bit := (r.P >> uint(i)) & 1
+		if bit == 0 {
+			pstatus[7-i] = '.'
+		}
+	}
+
 	str += fmt.Sprintf(` %3s %7s`, r.Inst, operand)
 	str += fmt.Sprintf(
-		" ; A=%02X X=%02X Y=%02X S=%02X P=%02X (n%d o%d u%d b%d d%d i%d z%d c%d) EA=%04X EV=%02X\n",
-		r.A, r.X, r.Y, r.S, r.P,
-		r.P>>7, (r.P>>6)&1, (r.P>>5)&1, (r.P>>4)&1, (r.P>>3)&1, (r.P>>2)&1, (r.P>>1)&1, r.P&1,
+		" ; A=%02X X=%02X Y=%02X S=%02X P=%02X (%s) EA=%04X EV=%02X\n",
+		r.A, r.X, r.Y, r.S, r.P, string(pstatus),
 		r.EffAddr, r.EffVal,
 	)
 
