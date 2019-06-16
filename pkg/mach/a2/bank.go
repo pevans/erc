@@ -2,6 +2,7 @@ package a2
 
 import (
 	"github.com/pevans/erc/pkg/data"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -35,7 +36,26 @@ func bankMode(c *Computer) int {
 }
 
 func bankSetMode(c *Computer, mode int) {
+	wasBank := c.BankMode&BankAuxiliary > 0
+	nowBank := mode&BankAuxiliary > 0
+
 	c.BankMode = mode
+
+	// We need to copy the zero page and stack to the Main segment from
+	// the Aux segment, or vice versa
+	switch {
+	case wasBank && !nowBank:
+		_, err := c.Main.CopySlice(0, c.Aux.Mem[0:0x200])
+		if err != nil {
+			panic(errors.Wrap(err, "could not copy aux -> main memory"))
+		}
+
+	case !wasBank && nowBank:
+		_, err := c.Aux.CopySlice(0, c.Main.Mem[0:0x200])
+		if err != nil {
+			panic(errors.Wrap(err, "could not copy main -> aux memory"))
+		}
+	}
 }
 
 func bankRead(c *Computer, addr data.Addressor) data.Byte {
