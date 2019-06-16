@@ -170,7 +170,7 @@ var offsets = [256]data.DByte{
 	0, 2, 2, 1, 2, 2, 2, 1, 1, 3, 1, 1, 0, 3, 3, 1, // 7x
 	0, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1, 1, 3, 3, 3, 1, // 8x
 	0, 2, 2, 1, 2, 2, 2, 1, 1, 3, 1, 1, 3, 3, 3, 1, // 9x
-	2, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1, 1, 3, 3, 3, 1, // Ax
+	2, 2, 2, 1, 2, 2, 2, 1, 1, 2, 1, 1, 3, 3, 3, 1, // Ax
 	0, 2, 2, 1, 2, 2, 2, 1, 1, 3, 1, 1, 3, 3, 3, 1, // Bx
 	2, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1, 1, 3, 3, 3, 1, // Cx
 	0, 2, 2, 1, 3, 2, 2, 1, 1, 3, 1, 1, 4, 3, 3, 1, // Dx
@@ -250,7 +250,7 @@ func Compare(c *CPU, base data.Byte) {
 	res := base - c.EffVal
 
 	c.ApplyNZ(res)
-	c.ApplyStatus(res > 0, CARRY)
+	c.ApplyStatus(base > c.EffVal, CARRY)
 }
 
 // Get will return the byte at a given address.
