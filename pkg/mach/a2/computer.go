@@ -46,7 +46,9 @@ type Computer struct {
 	ROM  *data.Segment
 	Aux  *data.Segment
 
-	Drive1 *disk.Drive
+	Drive1        *disk.Drive
+	Drive2        *disk.Drive
+	SelectedDrive *disk.Drive
 
 	// RMap and WMap are the read and write address maps. These contain
 	// functions which emulate the "soft switches" that Apple IIs used
@@ -102,6 +104,8 @@ func NewComputer() *Computer {
 	comp.ROM = data.NewSegment(RomMemorySize)
 
 	comp.Drive1 = disk.NewDrive()
+	comp.Drive2 = disk.NewDrive()
+	comp.SelectedDrive = comp.Drive1
 
 	comp.CPU = new(mos65c02.CPU)
 	comp.CPU.WMem = comp
