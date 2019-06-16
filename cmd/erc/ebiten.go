@@ -36,10 +36,6 @@ func gameLoop() error {
 func ebitenLoop(image *ebiten.Image) error {
 	scr := screen{image}
 
-	if err := emulator.Processor.Process(); err != nil {
-		log.Error(errors.Wrap(err, "main loop received error from processor"))
-	}
-
 	if err := emulator.Drawer.Draw(scr); err != nil {
 		log.Error(errors.Wrap(err, "main loop received error from drawer"))
 	}

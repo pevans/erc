@@ -52,6 +52,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	go processorLoop()
+
 	if err := gameLoop(); err != nil {
 		fmt.Println(errors.Wrap(err, "run loop failed"))
 	}
