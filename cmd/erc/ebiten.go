@@ -24,6 +24,10 @@ func gameLoop() error {
 		width, height = emulator.Drawer.Dimensions()
 	)
 
+	// We want things to execute even when the window doesn't have
+	// active focus.
+	ebiten.SetRunnableInBackground(true)
+
 	return ebiten.Run(ebitenLoop, width, height, 3, "erc")
 }
 
