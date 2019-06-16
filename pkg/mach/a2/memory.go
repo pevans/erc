@@ -39,6 +39,10 @@ func (c *Computer) Get(addr data.Addressor) data.Byte {
 		return fn(c, addr)
 	}
 
+	if c.MemMode&MemReadAux > 0 {
+		return c.Aux.Get(addr)
+	}
+
 	return c.Main.Get(addr)
 }
 
@@ -47,6 +51,11 @@ func (c *Computer) Get(addr data.Addressor) data.Byte {
 func (c *Computer) Set(addr data.Addressor, val data.Byte) {
 	if fn, ok := c.WMap[addr.Addr()]; ok {
 		fn(c, addr, val)
+		return
+	}
+
+	if c.MemMode&MemWriteAux > 0 {
+		c.Aux.Set(addr, val)
 		return
 	}
 
