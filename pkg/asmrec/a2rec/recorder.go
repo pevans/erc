@@ -60,7 +60,7 @@ func (r *Recorder) Record(w io.Writer) error {
 		`%04X %02X`, r.PC, r.Opcode,
 	)
 
-	pstatus := []rune("NV.BDIZC")
+	pstatus := []rune("NVUBDIZC")
 	operand := r.FormatOperand()
 
 	// If it's greater than 255, then we have two-byte operand, so print
