@@ -35,6 +35,10 @@ type Computer struct {
 	// col80 is the font when our text display is 80-column
 	col80 *truetype.Font
 
+	// reDraw is set to true when a screen redraw is necessary, and set
+	// to false the redraw is done.
+	reDraw bool
+
 	// There are three primary segments of memory in an Apple //e; main
 	// memory, read-only memory, and auxiliary memory. Each are
 	// accessible through a mechanism called bank-switching.
