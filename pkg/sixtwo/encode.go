@@ -56,6 +56,8 @@ func Encode(imageType int, src *data.Segment) (*data.Segment, error) {
 		enc.writeTrack(track)
 	}
 
+	enc.ps.WriteFile("/tmp/encoded.out")
+
 	return enc.ps, nil
 }
 
@@ -152,11 +154,11 @@ func (e *encoder) writeSector(track, sect int) {
 	// built from parts of all of the bytes in the sector.
 	for i := 0; i < 0x56; i++ {
 		var (
-			offac = data.DByte(i + 0xAC)
-			off56 = data.DByte(i + 0x56)
-			vac   = e.ls.Get((data.DByte(e.loff) + offac) % 256)
-			v56   = e.ls.Get(data.DByte(e.loff) + off56)
-			v00   = e.ls.Get(data.DByte(e.loff + i))
+			offac = data.Int(i + 0xAC)
+			off56 = data.Int(i + 0x56)
+			vac   = e.ls.Get((data.Int(e.loff) + offac) % 256)
+			v56   = e.ls.Get(data.Int(e.loff) + off56)
+			v00   = e.ls.Get(data.Int(e.loff + i))
 			v     data.Byte
 		)
 
@@ -176,7 +178,7 @@ func (e *encoder) writeSector(track, sect int) {
 	// note we are writing from 0x56 onward, since we already wrote the
 	// bytes before 0x56 in the block above.
 	for i := 0; i < 0x100; i++ {
-		init[i+0x56] = e.ls.Get(data.DByte(e.loff + i))
+		init[i+0x56] = e.ls.Get(data.Int(e.loff + i))
 	}
 
 	// Here we XOR each byte with each other byte.
