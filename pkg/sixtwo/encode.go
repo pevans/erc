@@ -62,14 +62,15 @@ func Encode(imageType int, src *data.Segment) (*data.Segment, error) {
 // Write will write a set of bytes into the destination segment at the
 // current offset.
 func (e *encoder) write(bytes []data.Byte) {
-	leng, _ := e.ps.CopySlice(e.poff, bytes)
-	e.poff += leng
+	for _, b := range bytes {
+		e.writeByte(b)
+	}
 }
 
 // writeByte simply writes a single byte into the physical segment
 // without having to deal with passing around a slice
 func (e *encoder) writeByte(byt data.Byte) {
-	e.ps.Set(data.DByte(e.poff), byt)
+	e.ps.Set(data.Int(e.poff), byt)
 	e.poff++
 }
 
