@@ -29,7 +29,7 @@ const (
 
 	// PhysTrackLen is the length of a physical track, consisting of 16
 	// physical sectors.
-	PhysTrackLen = 0x1A30
+	PhysTrackLen = 0x1A00
 
 	// PhysTrackHeader is the length of a track header.
 	PhysTrackHeader = 0x30
@@ -49,7 +49,7 @@ const (
 	// NibSize is the capacity of the segment we will create for
 	// nibblized data, whether from 140k logical data or just any-old
 	// NIB file.
-	NibSize = 234640
+	NibSize = 232960
 )
 
 const (

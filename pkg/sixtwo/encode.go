@@ -4,6 +4,11 @@ import (
 	"github.com/pevans/erc/pkg/data"
 )
 
+const (
+	SixBlock uint = 0x100
+	TwoBlock uint = 0x56
+)
+
 // This is the table that holds the bytes that represent 6-and-2 encoded
 // data. Note the table goes from $00..$3F; that is the amount of values
 // that six bits can hold. Each of those six-bit combinations maps to a
@@ -53,6 +58,7 @@ func Encode(imageType int, src *data.Segment) (*data.Segment, error) {
 	}
 
 	for track := 0; track < NumTracks; track++ {
+		enc.poff = PhysTrackLen * track
 		enc.writeTrack(track)
 	}
 
@@ -79,21 +85,9 @@ func (e *encoder) writeByte(byt data.Byte) {
 // encodeTrack will write a physically encoded track into the
 // destination segment based on a logically encoded source.
 func (e *encoder) writeTrack(track int) {
-	// This is the offset where we can find the logical track that we
-	// are looking to write out
 	logTrackOffset := LogTrackLen * track
+	physTrackOffset := PhysTrackLen * track
 
-	// Whereas, this is where we should begin writing.
-	e.poff = PhysTrackLen * track
-
-	// Write the track header
-	e.write([]data.Byte{
-		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-	})
-
-	orig := e.poff
 	for sect := 0; sect < NumSectors; sect++ {
 		var (
 			logSect  = logicalSector(e.imageType, sect)
@@ -106,7 +100,7 @@ func (e *encoder) writeTrack(track int) {
 
 		// However, the physical offset is based on the physical sector,
 		// which may need to be encoded in a different order
-		e.poff = orig + (PhysSectorLen * physSect)
+		e.poff = physTrackOffset + (PhysSectorLen * physSect)
 
 		e.writeSector(track, sect)
 	}
@@ -124,8 +118,15 @@ func (e *encoder) write4n4(val data.Byte) {
 // encodeSector writes a physically encoded sector into the destination
 // segment based on the logically encoded source segment.
 func (e *encoder) writeSector(track, sect int) {
-	// Write the sector header prologue
+	six := make([]data.Byte, SixBlock)
+	two := make([]data.Byte, TwoBlock)
+
+	// Write the initial padding and sector header prologue
 	e.write([]data.Byte{
+		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+
 		0xD5, 0xAA, 0x96,
 	})
 
@@ -135,80 +136,55 @@ func (e *encoder) writeSector(track, sect int) {
 	e.write4n4(data.Byte(sect))
 	e.write4n4(data.Byte(VolumeMarker ^ track ^ sect))
 
-	// Write the sector header epilogue
+	// Write the sector header epilogue, plus some padding, plus the
+	// data marker
 	e.write([]data.Byte{
 		0xDE, 0xAA, 0xEB,
+
 		0xFF, 0xFF, 0xFF,
 		0xFF, 0xFF,
-	})
 
-	// This is the initial preparation of data to be encoded. It's
-	// written in an intermediate form, which is used to build the xor
-	// table and ultimately to pass through the GCR table.
-	var (
-		init = make([]data.Byte, 0x156)
-		xor  = make([]data.Byte, 0x157)
-	)
-
-	// This is a bit hard to explain, but the first 86 bytes (0x56) are
-	// built from parts of all of the bytes in the sector.
-	for i := 0; i < 0x56; i++ {
-		var (
-			offac = data.Int(i + 0xAC)
-			off56 = data.Int(i + 0x56)
-			vac   = e.ls.Get((data.Int(e.loff) + offac) % 256)
-			v56   = e.ls.Get(data.Int(e.loff) + off56)
-			v00   = e.ls.Get(data.Int(e.loff + i))
-			v     data.Byte
-		)
-
-		v = (v << 2) | ((vac & 0x1) << 1) | ((vac & 0x2) >> 1)
-		v = (v << 2) | ((v56 & 0x1) << 1) | ((v56 & 0x2) >> 1)
-		v = (v << 2) | ((v00 & 0x1) << 1) | ((v00 & 0x2) >> 1)
-
-		init[i] = v << 2
-	}
-
-	// The last two bytes we wrote can't contain more than 6 bits of
-	// 1s, so we AND them with 0x3F.
-	init[0x54] &= 0x3F
-	init[0x55] &= 0x3F
-
-	// The rest of init is filled in with the src bytes unmodified. But
-	// note we are writing from 0x56 onward, since we already wrote the
-	// bytes before 0x56 in the block above.
-	for i := 0; i < 0x100; i++ {
-		init[i+0x56] = e.ls.Get(data.Int(e.loff + i))
-	}
-
-	// Here we XOR each byte with each other byte.
-	var last data.Byte
-	for i := 0; i < 0x156; i++ {
-		xor[i] = init[i] ^ last
-		last = init[i]
-	}
-
-	// One more...
-	xor[0x156] = last
-
-	// Write out the marker that begins our sector data block
-	e.write([]data.Byte{
 		0xD5, 0xAA, 0xAD,
 	})
 
-	// Now we copy everything we XOR'd into the destination segment,
-	// except that the bytes must be passed through the GCR table.
-	for i := 0; i < 0x157; i++ {
-		e.writeByte(encGCR62[xor[i]>>2])
+	// Loop on the logical sector data block and build up the six-block
+	// and two-block buffers
+	for i := uint(0); i < 0x100; i++ {
+		byt := e.ls.Get(data.Int(uint(e.loff) + i))
+
+		// These are the final two bits, but their order is reversed
+		rev := ((byt & 2) >> 1) | ((byt & 1) << 1)
+
+		// The "first" six bits, which are the most significant bits
+		six[i] = byt >> 2
+
+		// And then we encode the "last" two bits by OR-ing them with
+		// other two-bit segments we've seen.
+		two[i%TwoBlock] |= rev << ((i / TwoBlock) * 2)
 	}
 
-	// Finally, we write the end marker for sector data, plus 48 bytes
-	// (0x30) of padding. Note the offset is doff + 0x157, given that
-	// we'd just written those 0x157 bytes above.
+	// As we write out the physical sector data block, we must XOR each
+	// byte with each other byte. But the first byte is written
+	// unmodified.
+	e.writeByte(encGCR62[two[0]])
+	for i := uint(1); i < TwoBlock; i++ {
+		e.writeByte(encGCR62[two[i]^two[i-1]])
+	}
+
+	// A similar strategy is employed while writing the six-block
+	// buffer, with the note that we must XOR the final two-block byte
+	// with the initial six-block one.
+	e.writeByte(encGCR62[six[0]^two[TwoBlock-1]])
+	for i := uint(1); i < SixBlock; i++ {
+		e.writeByte(encGCR62[six[i]^six[i-1]])
+	}
+
+	// We still need to write out the last byte of the six-block buffer,
+	// but here, there's no need to XOR since there's no other byte.
+	e.writeByte(encGCR62[six[SixBlock-1]])
+
+	// Finally, we write the end marker for sector data.
 	e.write([]data.Byte{
 		0xDE, 0xAA, 0xEB,
-		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
 	})
 }
