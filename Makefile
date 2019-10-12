@@ -1,11 +1,11 @@
 test:
-	if [ "$(PKG)" ]; then go test ./$(PKG); else go test ./...; fi
+	./bin/test $(T)
 
 lint:
-	golint ./...
+	./bin/lint $(T)
 
 coverage:
-	go test -cover ./...
+	COVERAGE=1 ./bin/test $(T)
 
 build:
 	go build ./cmd/erc

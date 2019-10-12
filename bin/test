@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -e
+
+testcmd="gotestsum"
+testpath="$1"
+
+if ! which "$testcmd" >/dev/null; then
+    testcmd="go test"
+fi
+
+if [ ! "$testpath" ]; then
+    testpath="./..."
+fi
+
+testcmd="$testcmd $testpath"
+
+if [ "$COVERAGE" ]; then
+    testcmd="$testcmd -- -cover"
+fi
+
+$testcmd

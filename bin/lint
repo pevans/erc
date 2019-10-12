@@ -1,0 +1,15 @@
+#!/bin/bash
+
+lintcmd="golint"
+lintpath="$1"
+
+if ! which "$lintcmd" >/dev/null; then
+    echo "missing lint command $lintcmd"
+    exit 1
+fi
+
+if [ ! "$lintpath" ]; then
+    lintpath="./..."
+fi
+
+$lintcmd "$lintpath"
