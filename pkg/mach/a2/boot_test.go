@@ -12,7 +12,7 @@ import (
 func TestBoot(t *testing.T) {
 	c := NewComputer()
 
-	rom, err := obj.Slice(0, RomMemorySize)
+	rom, err := obj.Slice(4, RomMemorySize+4)
 	assert.Equal(t, nil, err)
 
 	// Boot up
@@ -39,7 +39,7 @@ func TestReset(t *testing.T) {
 	c.Reset()
 
 	assert.Equal(t, defp, c.CPU.P)
-	assert.Equal(t, ResetPC, c.CPU.PC)
+	assert.Equal(t, c.CPU.Get16(ResetPC), c.CPU.PC)
 	assert.Equal(t, data.Byte(0xFF), c.CPU.S)
 	assert.Equal(t, MemDefault, c.MemMode)
 	assert.Equal(t, BankDefault, c.BankMode)

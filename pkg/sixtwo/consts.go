@@ -49,7 +49,7 @@ const (
 	// NibSize is the capacity of the segment we will create for
 	// nibblized data, whether from 140k logical data or just any-old
 	// NIB file.
-	NibSize = 232960
+	NibSize = 234640
 )
 
 const (

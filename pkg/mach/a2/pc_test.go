@@ -45,6 +45,8 @@ func (s *a2Suite) TestPCRead() {
 		{0xC222, 223},
 	}
 
+	s.comp.PCMode = 0
+
 	for _, c := range cases {
 		s.comp.ROM.Set(c.addr-0xC000, c.want)
 		assert.Equal(s.T(), c.want, pcRead(s.comp, c.addr))

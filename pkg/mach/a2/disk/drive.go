@@ -3,6 +3,7 @@ package disk
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"strings"
 
@@ -56,12 +57,14 @@ func NewDrive() *Drive {
 
 // Position returns the segment position that the drive is currently at,
 // based upon track and sector position.
-func (d *Drive) Position() int {
+func (d *Drive) Position() data.Int {
 	if d.Data == nil {
 		return 0
 	}
 
-	return ((d.TrackPos / 2) * sixtwo.PhysTrackLen) + d.SectorPos
+	pos := data.Int(((d.TrackPos / 2) * sixtwo.PhysTrackLen) + d.SectorPos)
+
+	return pos
 }
 
 // Shift moves the sector position forward, or backward, depending on
@@ -128,16 +131,30 @@ var phaseTransitions = []int{
 // StepPhase will step the drive head forward or backward based upon the
 // given address (from which we decipher the motor phase).
 func (d *Drive) StepPhase(addr data.DByte) {
-	phase := Phase(addr)
+	newPhase := Phase(addr)
+	curPhase := d.Phase
+	offset := 0
 
-	if phase < 0 || phase > 4 {
+	if newPhase < 1 || newPhase > 4 {
 		return
 	}
 
-	offset := phaseTransitions[(d.Phase*5)+phase]
-	d.Step(offset)
+	switch {
+	case newPhase == 1 && curPhase == 4:
+		offset = 1
+	case newPhase == 4 && curPhase == 1:
+		offset = -1
 
-	d.Phase = phase
+	case newPhase > curPhase:
+		offset = 1
+	case newPhase < curPhase:
+		offset = -1
+	}
+
+	d.Step(offset)
+	d.Phase = newPhase
+
+	log.Printf("step phase: new=%d, cur=%d, off=%d, phase=%d", newPhase, curPhase, offset, d.Phase)
 }
 
 // ImageType returns the type of image that is suggested by the suffix
@@ -191,4 +208,23 @@ func (d *Drive) Load(file string) error {
 	}
 
 	return nil
+}
+
+func (d *Drive) Read() data.Byte {
+	// Set the latch value to the byte at our current position, then
+	// shift our position by one place
+	d.Latch = d.Data.Get(d.Position())
+	log.Printf("Reading position %x byte %x", d.Position(), d.Latch)
+
+	d.Shift(1)
+
+	return d.Latch
+}
+
+func (d *Drive) Write() {
+	// We can only write our latch value if the high-bit is set
+	if d.Latch&0x80 > 0 {
+		d.Data.Set(d.Position(), d.Latch)
+		d.Shift(1)
+	}
 }

@@ -14,6 +14,6 @@ func processorLoop() {
 			return
 		}
 
-		time.Sleep(time.Microsecond)
+		time.Sleep(100 * time.Nanosecond)
 	}
 }

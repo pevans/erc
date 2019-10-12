@@ -12,6 +12,8 @@ import (
 
 // A CPU is an implementation of an MOS 65c02 processor.
 type CPU struct {
+	RecFile *os.File
+
 	// RMem and WMem are the segments from which we will read or write
 	// whenever it is necessary.
 	RMem data.Getter
@@ -250,7 +252,7 @@ func Compare(c *CPU, base data.Byte) {
 	res := base - c.EffVal
 
 	c.ApplyNZ(res)
-	c.ApplyStatus(base > c.EffVal, CARRY)
+	c.ApplyStatus(res > 0, CARRY)
 }
 
 // Get will return the byte at a given address.
@@ -327,7 +329,7 @@ func (c *CPU) Execute() error {
 	// Now execute the instruction
 	inst(c)
 
-	rec.Record(os.Stdout)
+	rec.Record(c.RecFile)
 
 	// Adjust the program counter to beyond the expected instruction
 	// sequence (1 byte for the opcode, + N bytes for the operand, based

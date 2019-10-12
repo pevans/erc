@@ -14,8 +14,8 @@ func diskReadWrite(c *Computer, addr data.DByte, val *data.Byte) {
 
 	switch nib {
 	case 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7:
-		// Set the Drive phase
-		drive.Phase = disk.Phase(nib)
+		// Set the drive phase, thus adjusting the track position
+		drive.StepPhase(nib)
 
 	case 0x8:
 		// Turn both drives on
@@ -35,9 +35,18 @@ func diskReadWrite(c *Computer, addr data.DByte, val *data.Byte) {
 		c.SelectedDrive = c.Drive2
 
 	case 0xC:
-		// read or write
+		if drive.Mode == disk.ReadMode || drive.WriteProtect {
+			*val = drive.Read()
+		} else if drive.Mode == disk.WriteMode {
+			// Write the value currently in the latch
+			drive.Write()
+		}
+
 	case 0xD:
-		// set latch
+		// Set the latch value (for writes) to val
+		if drive.Mode == disk.WriteMode {
+			drive.Latch = *val
+		}
 
 	case 0xE:
 		// Set the selected drive mode to read
@@ -50,15 +59,13 @@ func diskReadWrite(c *Computer, addr data.DByte, val *data.Byte) {
 }
 
 func diskRead(c *Computer, addr data.Addressor) data.Byte {
-	// Since we won't be in a WriteMode situation, we simply pass a
-	// dummy value to readWrite.
+	// With reads, we pass a byte value for the ReadWrite function to
+	// modify.
 	val := data.Byte(0)
 
 	diskReadWrite(c, data.DByte(addr.Addr()), &val)
 
-	// A random number could/should be returned here, but for now, we
-	// hard-code something
-	return 0xFF
+	return val
 }
 
 func diskWrite(c *Computer, addr data.Addressor, val data.Byte) {

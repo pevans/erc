@@ -33,8 +33,8 @@ func (s *sixtwoSuite) SetupSuite() {
 
 	s.imageType = DOS33
 	s.physDisk = data.NewSegment(NibSize)
-	s.physTrack = data.NewSegment(PhysTrackLen)
-	s.physSector = data.NewSegment(PhysSectorLen)
+	s.physTrack = data.NewSegment(PhysTrackLen + PhysTrackHeader)
+	s.physSector = data.NewSegment(PhysSectorLen + PhysSectorHeader)
 	s.logDisk = data.NewSegment(DosSize)
 	s.logTrack = data.NewSegment(LogTrackLen)
 	s.logSector = data.NewSegment(LogSectorLen)
