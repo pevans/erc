@@ -35,3 +35,26 @@ func (s *sixtwoSuite) TestDecode() {
 	assert.NoError(s.T(), err)
 	assert.Equal(s.T(), s.logDisk, ls)
 }
+
+func (s *sixtwoSuite) TestNewDecodeMap() {
+	assert.NotNil(s.T(), newDecodeMap())
+}
+
+func (s *sixtwoSuite) TestLogByte() {
+	dec := decoder{
+		decMap: newDecodeMap(),
+	}
+
+	assert.Equal(s.T(), data.Byte(0x3F), dec.logByte(data.Byte(0xFF)))
+}
+
+func (s *sixtwoSuite) TestDecodeWriteByte() {
+	byt := data.Byte(123)
+	dec := decoder{
+		ls:        data.NewSegment(LogSectorLen),
+		imageType: s.imageType,
+	}
+
+	dec.writeByte(byt)
+	assert.Equal(s.T(), byt, dec.ls.Get(data.Int(0)))
+}
