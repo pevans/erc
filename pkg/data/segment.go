@@ -95,6 +95,8 @@ func (s *Segment) WriteFile(path string) error {
 	return ioutil.WriteFile(path, bytes, 0644)
 }
 
+// ReadFile will read the contents of a given file into the segment
+// receiver.
 func (s *Segment) ReadFile(path string) error {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {

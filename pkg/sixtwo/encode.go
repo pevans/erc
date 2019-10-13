@@ -5,7 +5,11 @@ import (
 )
 
 const (
+	// SixBlock is the length of a data block that is the "six" of
+	// six-and-two encoding.
 	SixBlock uint = 0x100
+
+	// TwoBlock is, vice-versa, the length of the "two" data block.
 	TwoBlock uint = 0x56
 )
 
@@ -48,8 +52,9 @@ func newEncoder(logSize, physSize int) *encoder {
 	}
 }
 
-// EncodeDOS returns a segment that is dos-encoded based on the given
-// encoder struct.
+// Encode returns a segment that is the six-and-two encoded form of the
+// input segment, essentially translating from a logical to a physical
+// structure.
 func Encode(imageType int, src *data.Segment) (*data.Segment, error) {
 	enc := &encoder{
 		ps:        data.NewSegment(NibSize),

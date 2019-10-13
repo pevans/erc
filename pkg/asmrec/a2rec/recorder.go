@@ -8,6 +8,8 @@ import (
 	"github.com/pevans/erc/pkg/data"
 )
 
+// A Recorder is an object which satisfies the asmrec.Recorder interface
+// and allows us to record assembly instructions for the Apple 2.
 type Recorder struct {
 	PC      data.DByte
 	Opcode  data.Byte
@@ -25,6 +27,8 @@ type Recorder struct {
 
 var counter = 0
 
+// FormatOperand will produce a formatted string that represents an
+// operand to an instruction.
 func (r *Recorder) FormatOperand() string {
 	switch r.Mode {
 	case "ACC", "IMP", "BY2", "BY3":
@@ -57,6 +61,8 @@ func (r *Recorder) FormatOperand() string {
 	return ""
 }
 
+// Record will print out the idealized form of an opcode-operand
+// sequence as an assembly instruction.
 func (r *Recorder) Record(w io.Writer) error {
 	str := fmt.Sprintf(
 		`%04X %02X`, r.PC, r.Opcode,

@@ -29,6 +29,9 @@ var conv6bit = []data.Byte{
 	0xFF, 0xFF, 0xCC, 0xD0, 0xD4, 0xD8, 0xDC, 0xE0, 0xFF, 0xE4, 0xE8, 0xEC, 0xF0, 0xF4, 0xF8, 0xFC, // 70
 }
 
+// Decode returns a new segment that is the six-and-two decoded form
+// (translating a physical to a logical data structure), based on a kind
+// of input image and segment.
 func Decode(imageType int, src *data.Segment) (*data.Segment, error) {
 	dec := &decoder{
 		ps:        src,

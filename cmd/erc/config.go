@@ -7,6 +7,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+// A Config is simply a record of things that we allow the user to
+// configure for run-time.
 type Config struct {
 	Log struct {
 		File  string
@@ -14,6 +16,9 @@ type Config struct {
 	}
 }
 
+// NewConfig returns a new configuration object based on the given
+// config file. Note that it's ok if that file doesn't exist--in that
+// event, we will assume a default configuration.
 func NewConfig(file string) (*Config, error) {
 	conf := Config{}
 
@@ -29,6 +34,8 @@ func NewConfig(file string) (*Config, error) {
 	return &conf, nil
 }
 
+// DefaultConfig simply returns the basic, default configuration that we
+// can work with.
 func DefaultConfig() *Config {
 	return &Config{}
 }

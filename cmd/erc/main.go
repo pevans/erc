@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ConfigFile is the default (relative) location of our configuration file.
 const ConfigFile = `.erc/config.toml`
 
 var emulator *mach.Emulator
