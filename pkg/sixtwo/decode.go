@@ -45,16 +45,22 @@ func Decode(imageType int, src *data.Segment) (*data.Segment, error) {
 }
 
 func (d *decoder) writeTrack(track int) {
-	trackOff := (track * PhysTrackLen) + PhysTrackHeader
+	logTrackOffset := LogTrackLen * track
+	physTrackOffset := PhysTrackLen * track
 
 	for sect := 0; sect < NumSectors; sect++ {
 		var (
-			physSect = encPhysOrder[sect]
 			logSect  = logicalSector(d.imageType, sect)
+			physSect = encPhysOrder[sect]
 		)
 
-		d.loff = (track * LogTrackLen) + (logSect * LogSectorLen)
-		d.poff = trackOff + (physSect * PhysSectorLen)
+		// The logical offset is based on logTrackOffset, with the
+		// sector length times the logical sector we should be copying
+		d.loff = logTrackOffset + (LogSectorLen * logSect)
+
+		// However, the physical offset is based on the physical sector,
+		// which may need to be encoded in a different order
+		d.poff = physTrackOffset + (PhysSectorLen * physSect)
 
 		d.writeSector(track, sect)
 	}
