@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# See if we have the utility we use to generate our font files.
+if ! which file2byteslice >/dev/null; then
+    echo "Please install file2byteslice: go get github.com/hajimehoshi/file2byteslice"
+    exit 1
+fi
+
+font_file=
+package_name=
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --font=*)
+            font_file="${1#*=}";;
+        --package=*)
+            package_name="${1#*=}";;
+    esac
+    shift
+done
+
+if [ ! "$font_file" -o ! "$package_name" ]; then
+    echo "usage: $0 [--font=FONT] [--package=PKG]"
+    echo "  Output the specifed font graphic file (FONT) for package PKG as a Go file."
+    echo "  This script does not itself write anything; it only outputs the Go program code."
+    exit 1
+fi
+
+# font_name will be the name of the font file excluding the dot-extension.
+font_base="$(basename "$font_file")"
+font_name="${font_base%.*}"
+
+file2byteslice \
+    -input "$font_file" \
+    -package "$package_name" \
+    -var "${font_name}Font"
