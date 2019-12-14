@@ -26,6 +26,10 @@ func TestNewDrive(t *testing.T) {
 	assert.Equal(t, sixtwo.DOS33, drive.ImageType)
 }
 
+func TestDiskSuite(t *testing.T) {
+	suite.Run(t, new(diskSuite))
+}
+
 func (s *diskSuite) TestPosition() {
 	// When there is no valid segment in s.drive.Data, the position
 	// should be zero.
