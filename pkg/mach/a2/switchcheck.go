@@ -22,6 +22,9 @@ func (s *SwitchCheck) IsSetter(flag int) ReadMapFn {
 	}
 }
 
+// IsOpSetter will return a read map function that checks if a given
+// flag is set, but unlike IsSetter, its behavior is to return the
+// _opposite_ value (0x80 for unset; 0x0 for set).
 func (s *SwitchCheck) IsOpSetter(flag int) ReadMapFn {
 	return func(c *Computer, addr data.Addressor) data.Byte {
 		if s.mode(c)&flag > 0 {

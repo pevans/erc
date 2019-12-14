@@ -33,13 +33,13 @@ func TestDiskSuite(t *testing.T) {
 func (s *diskSuite) TestPosition() {
 	// When there is no valid segment in s.drive.Data, the position
 	// should be zero.
-	assert.Equal(s.T(), 0, s.drive.Position())
+	assert.Equal(s.T(), data.Int(0), s.drive.Position())
 
 	s.drive.Data = data.NewSegment(sixtwo.PhysTrackLen * 2)
 	cases := []struct {
 		tpos int
 		spos int
-		want int
+		want data.Int
 	}{
 		{0, 0, 0},
 		{1, 0, 0},

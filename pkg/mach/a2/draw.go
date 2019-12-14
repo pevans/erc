@@ -7,6 +7,7 @@ import (
 	"github.com/pevans/erc/pkg/gfx"
 )
 
+// Draw will figure out what to render on-screen at any given moment.
 func (c *Computer) Draw(screen gfx.DotDrawer) error {
 	if !c.reDraw {
 		return nil
@@ -23,9 +24,7 @@ func (c *Computer) Draw(screen gfx.DotDrawer) error {
 	return nil
 }
 
-func (c *Computer) DrawHires(screen gfx.DotDrawer) {
-}
-
+// Dimensions returns the screen dimensions of an Apple II.
 func (c *Computer) Dimensions() (width, height int) {
 	return 280, 192
 }

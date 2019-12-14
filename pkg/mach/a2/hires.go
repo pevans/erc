@@ -9,22 +9,22 @@ import (
 )
 
 var (
-	HiresGreen      = color.RGBA{R: 0x2F, G: 0xBC, B: 0x1A}
-	HiresPurple     = color.RGBA{R: 0xD0, G: 0x43, B: 0xE5}
-	HiresOrange     = color.RGBA{R: 0xD0, G: 0x6A, B: 0x1A}
-	HiresBlue       = color.RGBA{R: 0x2F, G: 0x95, B: 0xE5}
-	HiresBlack      = color.RGBA{R: 0x00, G: 0x00, B: 0x00}
-	HiresWhite      = color.RGBA{R: 0xFF, G: 0xFF, B: 0xFF}
-	HiresColorTable = []color.RGBA{
-		HiresGreen,
-		HiresPurple,
-		HiresOrange,
-		HiresBlue,
+	hiresGreen      = color.RGBA{R: 0x2F, G: 0xBC, B: 0x1A}
+	hiresPurple     = color.RGBA{R: 0xD0, G: 0x43, B: 0xE5}
+	hiresOrange     = color.RGBA{R: 0xD0, G: 0x6A, B: 0x1A}
+	hiresBlue       = color.RGBA{R: 0x2F, G: 0x95, B: 0xE5}
+	hiresBlack      = color.RGBA{R: 0x00, G: 0x00, B: 0x00}
+	hiresWhite      = color.RGBA{R: 0xFF, G: 0xFF, B: 0xFF}
+	hiresColorTable = []color.RGBA{
+		hiresGreen,
+		hiresPurple,
+		hiresOrange,
+		hiresBlue,
 	}
 
 	// This table maps a row number to a base address in the hires graphics
 	// buffer. From there, (base + i) maps to column i in that row.
-	HiresAddresses = []data.DByte{
+	hiresAddresses = []data.DByte{
 		//   0       1       2       3       4       5       6       7
 		0x2000, 0x2400, 0x2800, 0x2C00, 0x3000, 0x3400, 0x3800, 0x3C00, // 0-7
 		0x2080, 0x2480, 0x2880, 0x2C80, 0x3080, 0x3480, 0x3880, 0x3C80, // 8-15
@@ -53,8 +53,10 @@ var (
 	}
 )
 
-func (c *Computer) HiresRowDots(row int) []data.Byte {
-	addr := HiresAddresses[row%192]
+// hiresRowDots returns all the dots that would be shown for a given
+// hi-resolution row.
+func (c *Computer) hiresRowDots(row int) []data.Byte {
+	addr := hiresAddresses[row%192]
 	dots := make([]data.Byte, 280)
 
 	i := 0
@@ -78,11 +80,11 @@ func (c *Computer) HiresRowDots(row int) []data.Byte {
 
 func hiresColor(curr, next data.Byte, pos int) color.RGBA {
 	if curr > 0 && next > 0 {
-		return HiresWhite
+		return hiresWhite
 	}
 
 	if curr == 0 && next == 0 {
-		return HiresBlack
+		return hiresBlack
 	}
 
 	fn := func(dot data.Byte, pos int) color.RGBA {
@@ -96,7 +98,7 @@ func hiresColor(curr, next data.Byte, pos int) color.RGBA {
 			cindex += 2
 		}
 
-		return HiresColorTable[cindex]
+		return hiresColorTable[cindex]
 	}
 
 	if next > 0 {
@@ -106,13 +108,14 @@ func hiresColor(curr, next data.Byte, pos int) color.RGBA {
 	return fn(curr, pos)
 }
 
+// DrawHiresRow will draw a row in hi-resolution graphics.
 func (c *Computer) DrawHiresRow(screen gfx.DotDrawer, row int) {
 	var (
 		curr, next data.Byte
 		useColor   color.RGBA
 	)
 
-	dots := c.HiresRowDots(row)
+	dots := c.hiresRowDots(row)
 
 	for i := 0; i < 279; i++ {
 		curr = dots[i] & 1
