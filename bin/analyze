@@ -1,0 +1,23 @@
+#!/bin/bash
+
+cmd="$1"
+path="$2"
+
+# We allow people to pass flags for the command, but we want to execute
+# some logic based on just the command itself; so this will extract the
+# very first 'word' from the $cmd var.
+cmd_itself="${cmd%% *}"
+
+if ! which "$cmd_itself" >/dev/null; then
+    echo "missing analysis command $cmd_itself"
+    exit 1
+fi
+
+# In Go, "dir/..." is a general mnemonic for 'recursive within dir'. So
+# if we want to include everything, we can simply say './...' to include
+# all subdirs.
+if [ ! "$path" ]; then
+    path="./..."
+fi
+
+$cmd "$path"
