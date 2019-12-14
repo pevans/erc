@@ -2,7 +2,6 @@ package sixtwo
 
 import (
 	"io/ioutil"
-	"log"
 	"os"
 	"testing"
 
@@ -62,27 +61,4 @@ func loadFile(seg *data.Segment, path string) error {
 	}
 
 	return nil
-}
-
-func fileMatches(seg *data.Segment, path string) bool {
-	fseg := data.NewSegment(len(seg.Mem))
-	err := loadFile(fseg, path)
-	if err != nil {
-		log.Printf("Couldn't complete fileMatches: file doesn't exist: %v\n", path)
-		return false
-	}
-
-	if len(seg.Mem) != len(fseg.Mem) {
-		log.Printf("Seg mem size (%v) mismatches fseg mem size (%v)\n", len(seg.Mem), len(fseg.Mem))
-		return false
-	}
-
-	for i, b := range seg.Mem {
-		if b != fseg.Mem[i] {
-			log.Printf("seg byte %x (%x) mismatches fseg byte (%x)\n", i, b, fseg.Mem[i])
-			return false
-		}
-	}
-
-	return true
 }
