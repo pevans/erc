@@ -119,15 +119,6 @@ func Phase(addr data.DByte) int {
 	return phase
 }
 
-//  0  1  2  3  4     phase transition
-var phaseTransitions = []int{
-	0, 0, 0, 0, 0, // no phases
-	0, 0, 1, 0, -1, // phase 1
-	0, -1, 0, 1, 0, // phase 2
-	0, 0, -1, 0, 1, // phase 3
-	0, 1, 0, -1, 0, // phase 4
-}
-
 // StepPhase will step the drive head forward or backward based upon the
 // given address (from which we decipher the motor phase).
 func (d *Drive) StepPhase(addr data.DByte) {
@@ -171,7 +162,7 @@ func ImageType(file string) (int, error) {
 		return sixtwo.ProDOS, nil
 	}
 
-	return -1, fmt.Errorf("Unrecognized suffix for file %s", file)
+	return -1, fmt.Errorf("unrecognized suffix for file %s", file)
 }
 
 // Load will read a file from the filesystem and set its contents as the
@@ -183,13 +174,13 @@ func (d *Drive) Load(file string) error {
 	// See if we can figure out what type of image this is
 	d.ImageType, err = ImageType(file)
 	if err != nil {
-		return errors.Wrapf(err, "Failed to understand image type")
+		return errors.Wrapf(err, "failed to understand image type")
 	}
 
 	// Read the bytes from the file into a buffer
 	bytes, err := ioutil.ReadFile(file)
 	if err != nil {
-		return errors.Wrapf(err, "Failed to read file %s", file)
+		return errors.Wrapf(err, "failed to read file %s", file)
 	}
 
 	// Copy directly into the image segment
@@ -197,14 +188,14 @@ func (d *Drive) Load(file string) error {
 	_, err = d.Image.CopySlice(0, data.ByteSlice(bytes))
 	if err != nil {
 		d.Image = nil
-		return errors.Wrapf(err, "Failed to copy bytes into image segment")
+		return errors.Wrapf(err, "failed to copy bytes into image segment")
 	}
 
 	// Decode into the data segment
 	d.Data, err = sixtwo.Encode(d.ImageType, d.Image)
 	if err != nil {
 		d.Image = nil
-		return errors.Wrapf(err, "Failed to decode image")
+		return errors.Wrapf(err, "failed to decode image")
 	}
 
 	return nil
