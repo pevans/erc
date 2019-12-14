@@ -51,7 +51,7 @@ func (s *Segment) CopySlice(start int, bytes []Byte) (int, error) {
 	end := start + toWrite
 
 	if start < 0 || end > len(s.Mem) {
-		return 0, fmt.Errorf("Destination slice is out of bounds: %v, %v", start, end)
+		return 0, fmt.Errorf("destination slice is out of bounds: %v, %v", start, end)
 	}
 
 	_ = copy(s.Mem[start:end], bytes)
