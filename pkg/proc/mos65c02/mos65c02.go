@@ -329,7 +329,9 @@ func (c *CPU) Execute() error {
 	// Now execute the instruction
 	inst(c)
 
-	rec.Record(c.RecFile)
+	// Record the operation, but let the rest of the func complete even
+	// if this errors
+	err := rec.Record(c.RecFile)
 
 	// Adjust the program counter to beyond the expected instruction
 	// sequence (1 byte for the opcode, + N bytes for the operand, based
@@ -340,5 +342,5 @@ func (c *CPU) Execute() error {
 	// observance for how other emulators have handled this step.
 	c.P |= UNUSED | BREAK
 
-	return nil
+	return err
 }
