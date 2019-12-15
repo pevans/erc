@@ -1,7 +1,9 @@
 package mos65c02
 
-import "github.com/pevans/erc/pkg/data"
-import "github.com/stretchr/testify/assert"
+import (
+	"github.com/pevans/erc/pkg/data"
+	"github.com/stretchr/testify/assert"
+)
 
 const (
 	execAddr = data.DByte(0x4444)
