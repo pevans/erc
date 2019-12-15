@@ -67,8 +67,6 @@ func Encode(imageType int, src *data.Segment) (*data.Segment, error) {
 		enc.writeTrack(track)
 	}
 
-	enc.ps.WriteFile("/tmp/encoded.out")
-
 	return enc.ps, nil
 }
 
