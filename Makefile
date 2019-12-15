@@ -1,4 +1,16 @@
-LINT = golangci-lint -E golint run
+LINT = golangci-lint \
+	   --enable=gocognit \
+	   --enable=goconst \
+	   --enable=gocritic \
+	   --enable=gocyclo \
+	   --enable=gofmt \
+	   --enable=goimports \
+	   --enable=gosec \
+	   --enable=misspell \
+	   --enable=stylecheck \
+	   --enable=unconvert \
+	   --enable=unparam \
+	   run
 
 all: test
 
