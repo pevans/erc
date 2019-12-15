@@ -106,7 +106,7 @@ func Iny(c *CPU) {
 	c.ApplyNZ(c.Y)
 }
 
-// Sbc implements the SBC (substract with carry) instruction. SBC
+// Sbc implements the SBC (subtract with carry) instruction. SBC
 // subtracts from the A register. If the carry flag is NOT set, then an
 // additional one is subtracted from the result.
 func Sbc(c *CPU) {

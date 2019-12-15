@@ -176,7 +176,7 @@ func Rel(c *CPU) {
 	addr := c.PC + c.Operand + 2
 
 	// Because negative numbers in the MOS 6502 are encoded with
-	// twos-complement, if change has its eigth bit set to 1, then we
+	// twos-complement, if change has its eighth bit set to 1, then we
 	// need to perform a subtraction to get the desired value.
 	if c.Operand > 127 {
 		addr -= 256
@@ -187,7 +187,7 @@ func Rel(c *CPU) {
 	c.AddrMode = amRel
 }
 
-// Zpg resolves the zero page address mode. This is most analagous to ABS,
+// Zpg resolves the zero page address mode. This is most analogous to ABS,
 // except that instead of a two-byte operand, it takes a one-byte
 // operand that can only be in the zero page.
 //
@@ -199,7 +199,7 @@ func Zpg(c *CPU) {
 	c.AddrMode = amZpg
 }
 
-// Zpx resolves the zero page x address mode. This is analagous to ABX,
+// Zpx resolves the zero page x address mode. This is analogous to ABX,
 // except it takes a one-byte operand.
 //
 // Ex. INC $12,X increments the byte at $12 + X by one.
@@ -211,7 +211,7 @@ func Zpx(c *CPU) {
 	c.AddrMode = amZpx
 }
 
-// Zpy resolves the zero page y address mode. This is analagous to ABY,
+// Zpy resolves the zero page y address mode. This is analogous to ABY,
 // except it takes a one-byte operand.
 //
 // Ex. INC $12,Y increments the byte at $12 + Y by one.

@@ -16,7 +16,7 @@ const (
 	ResetPC = data.DByte(0xFFFC)
 
 	// BootVector is the location in memory that the operating system
-	// is designed to jump to after the intial boot sequence occurs.
+	// is designed to jump to after the initial boot sequence occurs.
 	BootVector = data.DByte(0x03F2)
 )
 
