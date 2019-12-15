@@ -1,3 +1,5 @@
+LINT = golangci-lint -E golint run
+
 all: test
 
 build:
@@ -9,8 +11,7 @@ coverage:
 	COVERAGE=1 ./bin/test $(T)
 
 lint:
-	./bin/analyze 'golint -set_exit_status' $(T)
-	./bin/analyze staticcheck $(T)
+	./bin/analyze "$(LINT)" $(T)
 
 test:
 	./bin/test $(T)
