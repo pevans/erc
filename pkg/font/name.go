@@ -36,13 +36,13 @@ const (
 // Each font const is keyed to a slice of bytes that represents the
 // font.
 var fontNames = map[Name]info{
-	A2System: info{
+	A2System: {
 		byts: a2sFont,
 		size: image.Point{X: 8, Y: 9},
 		mask: 0x7F,
 	},
 
-	A2Inverted: info{
+	A2Inverted: {
 		byts: a2iFont,
 		size: image.Point{X: 8, Y: 9},
 		mask: 0x7F,

@@ -13,12 +13,12 @@ func TestNewBitmap(t *testing.T) {
 	}
 
 	cases := map[string]test{
-		"a known font": test{
+		"a known font": {
 			fn:    A2System,
 			errFn: assert.NoError,
 		},
 
-		"an unknown font": test{
+		"an unknown font": {
 			fn:    maxFontName,
 			errFn: assert.Error,
 		},

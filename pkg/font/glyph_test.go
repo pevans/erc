@@ -21,13 +21,13 @@ func TestGlyph(t *testing.T) {
 	_ = bad.img.Dispose()
 
 	cases := map[string]test{
-		"a character we have": test{
+		"a character we have": {
 			ch:    '@',
 			bm:    bmp,
 			errFn: assert.NoError,
 		},
 
-		"a character we don't": test{
+		"a character we don't": {
 			ch:    '🍔',
 			bm:    bmp,
 			errFn: assert.Error,
@@ -36,7 +36,7 @@ func TestGlyph(t *testing.T) {
 		// Really the only way to get ebiten's SubImage method to return
 		// something resembling an error is to destroy the image
 		// beforehand.
-		"a disposed bitmap": test{
+		"a disposed bitmap": {
 			ch:    'h',
 			bm:    bad,
 			errFn: assert.Error,
