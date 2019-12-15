@@ -96,7 +96,7 @@ const (
 
 // While here we define the address modes that we can work with.
 const (
-	amNoa = iota // no address mode
+	_     = iota // no address mode
 	amAcc        // accumulator
 	amAbs        // absolute
 	amAbx        // absolute x-index
@@ -180,6 +180,7 @@ var offsets = [256]data.DByte{
 	0, 2, 2, 1, 3, 2, 2, 1, 1, 3, 1, 1, 4, 3, 3, 1, // Fx
 }
 
+/*
 //  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
 var cycles = [256]data.Byte{
 	7, 6, 2, 1, 5, 3, 5, 1, 3, 2, 2, 1, 6, 4, 6, 1, // 0x
@@ -199,6 +200,7 @@ var cycles = [256]data.Byte{
 	2, 6, 2, 1, 3, 3, 5, 1, 2, 2, 2, 1, 4, 4, 6, 1, // Ex
 	2, 5, 5, 1, 4, 4, 6, 1, 2, 4, 4, 1, 4, 4, 7, 1, // Fx
 }
+*/
 
 func (i Instruction) String() string {
 	var (
