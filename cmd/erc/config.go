@@ -14,6 +14,10 @@ type Config struct {
 		File  string
 		Level string
 	}
+
+	InstructionLog struct {
+		File string
+	} `toml:"instruction_log"`
 }
 
 // NewConfig returns a new configuration object based on the given

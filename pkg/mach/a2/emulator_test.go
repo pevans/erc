@@ -7,7 +7,7 @@ import (
 )
 
 func TestNewEmulator(t *testing.T) {
-	emu := NewEmulator()
+	emu := NewEmulator(nil)
 
 	assert.NotEqual(t, nil, emu)
 	assert.NotEqual(t, nil, emu.Booter)

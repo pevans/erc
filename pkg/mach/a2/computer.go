@@ -10,8 +10,6 @@
 package a2
 
 import (
-	"os"
-
 	"github.com/pevans/erc/pkg/data"
 	"github.com/pevans/erc/pkg/mach/a2/disk"
 	"github.com/pevans/erc/pkg/proc/mos65c02"
@@ -92,8 +90,6 @@ const (
 // NewComputer returns an Apple //e computer value, which essentially
 // encompasses all of the things that an Apple II would need to run.
 func NewComputer() *Computer {
-	var err error
-
 	comp := &Computer{}
 
 	comp.Aux = data.NewSegment(AuxMemorySize)
@@ -107,11 +103,6 @@ func NewComputer() *Computer {
 	comp.CPU = new(mos65c02.CPU)
 	comp.CPU.WMem = comp
 	comp.CPU.RMem = comp
-
-	comp.CPU.RecFile, err = os.Create("/tmp/cpu.log")
-	if err != nil {
-		panic(err)
-	}
 
 	comp.RMap = make(map[int]ReadMapFn)
 	comp.WMap = make(map[int]WriteMapFn)

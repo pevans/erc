@@ -16,8 +16,9 @@ var emulator *mach.Emulator
 
 func main() {
 	var (
-		homeDir    = os.Getenv("HOME")
-		configFile = fmt.Sprintf("%s/%s", homeDir, ConfigFile)
+		homeDir     = os.Getenv("HOME")
+		configFile  = fmt.Sprintf("%s/%s", homeDir, ConfigFile)
+		instLogFile *os.File
 	)
 
 	// Let's see if we can figure out our config situation
@@ -38,8 +39,15 @@ func main() {
 		os.Exit(1)
 	}
 
+	if conf.InstructionLog.File != "" {
+		instLogFile, err = openLogFile(conf.InstructionLog.File)
+		if err != nil {
+			fmt.Printf("unable to open file for instruction logging: %v", err)
+		}
+	}
+
 	// Right now, there's only one machine to emulate.
-	emulator = a2.NewEmulator()
+	emulator = a2.NewEmulator(instLogFile)
 
 	// At this stage, we need to decide what we should be loading.
 	if err := emulator.Loader.Load(os.Args[1]); err != nil {
