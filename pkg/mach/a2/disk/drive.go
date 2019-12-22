@@ -3,7 +3,6 @@ package disk
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 
@@ -144,8 +143,6 @@ func (d *Drive) StepPhase(addr data.DByte) {
 
 	d.Step(offset)
 	d.Phase = newPhase
-
-	log.Printf("step phase: new=%d, cur=%d, off=%d, phase=%d", newPhase, curPhase, offset, d.Phase)
 }
 
 // ImageType returns the type of image that is suggested by the suffix
@@ -205,7 +202,6 @@ func (d *Drive) Read() data.Byte {
 	// Set the latch value to the byte at our current position, then
 	// shift our position by one place
 	d.Latch = d.Data.Get(d.Position())
-	log.Printf("Reading position %x byte %x", d.Position(), d.Latch)
 
 	d.Shift(1)
 
