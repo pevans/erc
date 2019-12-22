@@ -25,7 +25,10 @@ coverage:
 lint:
 	./bin/analyze "$(LINT)" $(T)
 
+run:
+	$(MAKE) build && ./erc $(DSK)
+
 test:
 	./bin/test $(T)
 
-.PHONY: build coverage lint test
+.PHONY: build coverage lint run test
