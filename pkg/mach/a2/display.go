@@ -78,10 +78,13 @@ func displayRead(c *Computer, addr data.Addressor) data.Byte {
 }
 
 func displayWrite(c *Computer, addr data.Addressor, val data.Byte) {
+	// Let the drawing routines we have know that it's time to re-render
+	// the screen.
 	c.reDraw = true
 
 	if seg := displayAuxSegment(c, data.DByte(addr.Addr())); seg != nil {
 		seg.Set(addr, val)
+		return
 	}
 
 	c.WriteSegment().Set(addr, val)
