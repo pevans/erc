@@ -78,6 +78,8 @@ func displayRead(c *Computer, addr data.Addressor) data.Byte {
 }
 
 func displayWrite(c *Computer, addr data.Addressor, val data.Byte) {
+	c.reDraw = true
+
 	if seg := displayAuxSegment(c, data.DByte(addr.Addr())); seg != nil {
 		seg.Set(addr, val)
 	}

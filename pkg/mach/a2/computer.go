@@ -11,6 +11,7 @@ package a2
 
 import (
 	"github.com/pevans/erc/pkg/data"
+	"github.com/pevans/erc/pkg/gfx"
 	"github.com/pevans/erc/pkg/mach/a2/disk"
 	"github.com/pevans/erc/pkg/proc/mos65c02"
 )
@@ -27,6 +28,8 @@ type WriteMapFn func(*Computer, data.Addressor, data.Byte)
 type Computer struct {
 	// The CPU of the Apple //e was an MOS 65C02 processor.
 	CPU *mos65c02.CPU
+
+	Screen *gfx.Screen
 
 	// reDraw is set to true when a screen redraw is necessary, and set
 	// to false the redraw is done.
@@ -91,6 +94,9 @@ const (
 // encompasses all of the things that an Apple II would need to run.
 func NewComputer() *Computer {
 	comp := &Computer{}
+
+	width, height := comp.Dimensions()
+	comp.Screen = gfx.NewScreen(width, height)
 
 	comp.Aux = data.NewSegment(AuxMemorySize)
 	comp.Main = data.NewSegment(MainMemorySize)
