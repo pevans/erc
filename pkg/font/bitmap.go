@@ -25,6 +25,8 @@ type Bitmap struct {
 	// the mask ensures that there is some limit to what we would
 	// allow.
 	mask int
+
+	submap map[rune]*Glyph
 }
 
 // NewBitmap returns a new font type, from which you can render text on
@@ -49,8 +51,9 @@ func NewBitmap(fn Name) (*Bitmap, error) {
 	}
 
 	return &Bitmap{
-		img:  ebiImage,
-		size: info.size,
-		mask: info.mask,
+		img:    ebiImage,
+		size:   info.size,
+		mask:   info.mask,
+		submap: make(map[rune]*Glyph),
 	}, nil
 }

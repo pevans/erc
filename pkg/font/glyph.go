@@ -3,11 +3,24 @@ package font
 import (
 	"fmt"
 	"image"
+
+	"github.com/hajimehoshi/ebiten"
 )
+
+type Glyph struct {
+	Image image.Image
+}
 
 // Glyph returns an image which is a subset of the total font graphic
 // that contains only the text that is indicated by the given rune.
-func (b *Bitmap) Glyph(ch rune) (image.Image, error) {
+func (b *Bitmap) NewGlyph(ch rune) (*Glyph, error) {
+	// If we already have this glyph in our subimage map, just return
+	// that.
+	g, ok := b.submap[ch]
+	if ok {
+		return g, nil
+	}
+
 	// mask is essentially the integer bitmask of what's allowed; but if
 	// simply compare ch to the mask, we can quickly say that the given
 	// rune is non-renderable.
@@ -37,7 +50,10 @@ func (b *Bitmap) Glyph(ch rune) (image.Image, error) {
 		return nil, fmt.Errorf("unable to acquire SubImage for Glyph: %+v", rect)
 	}
 
-	return img, nil
+	g = &Glyph{Image: img}
+	b.submap[ch] = g
+
+	return g, nil
 }
 
 func row(ch rune) int {
@@ -53,4 +69,14 @@ func (b *Bitmap) offset(ch rune) image.Point {
 		X: col(ch) * b.size.X,
 		Y: row(ch) * b.size.Y,
 	}
+}
+
+func (g *Glyph) Draw(coord image.Point) {
+	var (
+		op ebiten.DrawImageOptions
+		fx = float64(coord.X)
+		fy = float64(coord.Y)
+	)
+
+	op.GeoM.Translate(fx, fy)
 }

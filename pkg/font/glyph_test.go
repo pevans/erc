@@ -45,7 +45,7 @@ func TestGlyph(t *testing.T) {
 
 	for desc, c := range cases {
 		t.Run(desc, func(tt *testing.T) {
-			_, err := c.bm.Glyph(c.ch)
+			_, err := c.bm.NewGlyph(c.ch)
 			c.errFn(tt, err)
 		})
 	}
