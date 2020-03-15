@@ -29,11 +29,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	// And, if we need to be logging, where that goes
-	if err := setLogging(conf.Log.File, conf.Log.Level); err != nil {
-		fmt.Printf("unable to set logging: %v", err)
+	log, err := conf.NewLogger()
+	if err != nil {
+		fmt.Println(errors.Wrap(err, "unable to create logger"))
 		os.Exit(1)
 	}
+
+	log.UseOutput()
 
 	if len(os.Args) < 2 {
 		fmt.Println("you must pass the name of a file to load")
