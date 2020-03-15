@@ -7,17 +7,21 @@ import (
 	"github.com/pkg/errors"
 )
 
+type LogLevel int
+
 type Logger struct {
 	log   *log.Logger
-	Level int
+	Level LogLevel
 }
 
 const (
-	LogError = iota
+	LogError LogLevel = iota
 	LogDebug
 )
 
-func (c *Config) LogLevel() int {
+// LogLevel will return the LogDebug level if the level is specifically
+// "debug"; otherwise it will always return LogError.
+func (c *Config) LogLevel() LogLevel {
 	if c.Log.Level == "debug" {
 		return LogDebug
 	}
@@ -25,8 +29,13 @@ func (c *Config) LogLevel() int {
 	return LogError
 }
 
+// NewLogger will create a new logger from a configuration.
 func (c *Config) NewLogger() (*Logger, error) {
-	l := new(Logger)
+	var (
+		writer = os.Stdout
+		l      = new(Logger)
+	)
+
 	l.Level = c.LogLevel()
 
 	file, err := openLogFile(c.Log.File)
@@ -34,13 +43,41 @@ func (c *Config) NewLogger() (*Logger, error) {
 		return nil, errors.Wrapf(err, "could not open log file %s", c.Log.File)
 	}
 
-	l.log.SetOutput(file)
+	if file != nil {
+		writer = file
+	}
+
+	l.log = log.New(writer, "", log.LstdFlags)
 
 	return l, nil
 }
 
+// UseOutput will tell the main log system to use our writer. This
+// function is intended to be scaffolding until we can convert to a
+// system where your logger is always an instantiation and not a global
+// variable.
 func (l *Logger) UseOutput() {
 	log.SetOutput(l.log.Writer())
+}
+
+// CanLog simply returns true if the log level configured by the logger
+// would allow a given log level to be logged.
+func (l *Logger) CanLog(lvl LogLevel) bool {
+	return lvl <= l.Level
+}
+
+// Error will log an error message (if allowed).
+func (l *Logger) Error(fmt string, vals ...interface{}) {
+	if l.CanLog(LogError) {
+		l.log.Printf("error: "+fmt, vals...)
+	}
+}
+
+// Debug will log a debug message (if allowed).
+func (l *Logger) Debug(fmt string, vals ...interface{}) {
+	if l.CanLog(LogDebug) {
+		l.log.Printf("debug: "+fmt, vals...)
+	}
 }
 
 // openLogFile will attempt to open the given filename for writing log

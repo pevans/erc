@@ -1,6 +1,7 @@
 package boot
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,7 +10,7 @@ import (
 func TestConfigLogLevel(t *testing.T) {
 	type test struct {
 		level string
-		want  int
+		want  LogLevel
 	}
 
 	cases := map[string]test{
@@ -34,8 +35,9 @@ func TestConfigLogLevel(t *testing.T) {
 
 func TestConfigNewLogger(t *testing.T) {
 	type test struct {
-		fileName string
-		errfn    assert.ErrorAssertionFunc
+		fileName     string
+		expectStdout bool
+		errfn        assert.ErrorAssertionFunc
 	}
 
 	cases := map[string]test{
@@ -50,8 +52,9 @@ func TestConfigNewLogger(t *testing.T) {
 		},
 
 		"has no file": {
-			fileName: "",
-			errfn:    assert.NoError,
+			fileName:     "",
+			expectStdout: true,
+			errfn:        assert.NoError,
 		},
 	}
 
@@ -63,9 +66,24 @@ func TestConfigNewLogger(t *testing.T) {
 				},
 			}
 
-			_, err := conf.NewLogger()
+			w, err := conf.NewLogger()
 			c.errfn(t, err)
+
+			if c.expectStdout {
+				assert.Equal(t, os.Stdout, w.log.Writer())
+			}
 		})
 	}
 
+}
+
+func TestLogCanLog(t *testing.T) {
+	e := Logger{Level: LogError}
+	d := Logger{Level: LogDebug}
+
+	assert.True(t, e.CanLog(LogError))
+	assert.False(t, e.CanLog(LogDebug))
+
+	assert.True(t, d.CanLog(LogError))
+	assert.True(t, d.CanLog(LogDebug))
 }
