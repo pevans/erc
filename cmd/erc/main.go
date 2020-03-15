@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/pevans/erc/pkg/boot"
 	"github.com/pevans/erc/pkg/mach"
 	"github.com/pevans/erc/pkg/mach/a2"
 	"github.com/pkg/errors"
@@ -22,7 +23,7 @@ func main() {
 	)
 
 	// Let's see if we can figure out our config situation
-	conf, err := NewConfig(configFile)
+	conf, err := boot.NewConfig(configFile)
 	if err != nil {
 		fmt.Println(errors.Wrapf(err, "unable to read config file %s", configFile))
 		os.Exit(1)
