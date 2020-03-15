@@ -7,17 +7,20 @@ import (
 	"github.com/pkg/errors"
 )
 
+type configLog struct {
+	File  string
+	Level string
+}
+
+type instructionLog struct {
+	File string
+}
+
 // A Config is simply a record of things that we allow the user to
 // configure for run-time.
 type Config struct {
-	Log struct {
-		File  string
-		Level string
-	}
-
-	InstructionLog struct {
-		File string
-	} `toml:"instruction_log"`
+	Log            configLog
+	InstructionLog instructionLog `toml:"instruction_log"`
 }
 
 // NewConfig returns a new configuration object based on the given
