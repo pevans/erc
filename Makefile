@@ -31,4 +31,7 @@ run:
 test:
 	./bin/test $(T)
 
+tools:
+	which golangci-lint >/dev/null || brew install golangci/tap/golangci-lint
+
 .PHONY: build coverage lint run test
