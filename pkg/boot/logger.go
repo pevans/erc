@@ -66,16 +66,28 @@ func (l *Logger) CanLog(lvl LogLevel) bool {
 	return lvl <= l.Level
 }
 
-// Error will log an error message (if allowed).
-func (l *Logger) Error(fmt string, vals ...interface{}) {
+// Errorf will log an error message (if allowed).
+func (l *Logger) Errorf(fmt string, vals ...interface{}) {
 	if l.CanLog(LogError) {
 		l.log.Printf("error: "+fmt, vals...)
 	}
 }
 
-// Debug will log a debug message (if allowed).
-func (l *Logger) Debug(fmt string, vals ...interface{}) {
+func (l *Logger) Error(vals ...interface{}) {
+	if l.CanLog(LogError) {
+		l.log.Println(vals...)
+	}
+}
+
+// Debugf will log a debug message (if allowed).
+func (l *Logger) Debugf(fmt string, vals ...interface{}) {
 	if l.CanLog(LogDebug) {
 		l.log.Printf("debug: "+fmt, vals...)
+	}
+}
+
+func (l *Logger) Debug(vals ...interface{}) {
+	if l.CanLog(LogDebug) {
+		l.log.Println(vals...)
 	}
 }

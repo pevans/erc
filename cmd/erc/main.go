@@ -4,16 +4,14 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/pevans/erc/pkg/a2"
 	"github.com/pevans/erc/pkg/boot"
-	"github.com/pevans/erc/pkg/mach"
-	"github.com/pevans/erc/pkg/mach/a2"
+
 	"github.com/pkg/errors"
 )
 
 // ConfigFile is the default (relative) location of our configuration file.
 const ConfigFile = `.erc/config.toml`
-
-var emulator *mach.Emulator
 
 func main() {
 	var (
@@ -38,41 +36,49 @@ func main() {
 	log.UseOutput()
 
 	if len(os.Args) < 2 {
-		fmt.Println("you must pass the name of a file to load")
+		log.Error("you must pass the name of a file to load")
 		os.Exit(1)
 	}
 
+	inputFile := os.Args[1]
+
 	if conf.InstructionLog.File != "" {
-		instLogFile, err = openLogFile(conf.InstructionLog.File)
+		instLogFile, err = boot.OpenFile(conf.InstructionLog.File)
 		if err != nil {
-			fmt.Printf("unable to open file for instruction logging: %v", err)
+			log.Errorf("unable to open file for instruction logging: %v", err)
 		}
 	}
 
-	// Right now, there's only one machine to emulate.
-	emulator = a2.NewEmulator(instLogFile)
+	comp := a2.NewComputer()
+	comp.SetLogger(log)
+	comp.SetRecorderWriter(instLogFile)
 
-	// At this stage, we need to decide what we should be loading.
-	if err := emulator.Loader.Load(os.Args[1]); err != nil {
-		fmt.Println(errors.Wrapf(err, "could not load file %s", os.Args[1]))
+	data, err := boot.OpenFile(inputFile)
+	if err != nil {
+		log.Error(errors.Wrapf(err, "could not open file %s", inputFile))
+		os.Exit(1)
+	}
+
+	if err := comp.Load(data, inputFile); err != nil {
+		log.Error(errors.Wrapf(err, "could not load file %s", inputFile))
 		os.Exit(1)
 	}
 
 	// Attempt a cold boot
-	if err := emulator.Booter.Boot(); err != nil {
-		fmt.Println(errors.Wrapf(err, "could not boot emulator"))
+	if err := comp.Boot(); err != nil {
+		log.Error(errors.Wrapf(err, "could not boot emulator"))
 		os.Exit(1)
 	}
 
-	go processorLoop()
+	go processorLoop(comp, log)
 
-	if err := gameLoop(); err != nil {
-		fmt.Println(errors.Wrap(err, "run loop failed"))
+	if err := comp.DrawLoop(); err != nil {
+		log.Error(errors.Wrap(err, "run loop failed"))
 	}
 
 	// Shutdown
-	if err := emulator.Ender.End(); err != nil {
-		fmt.Println(errors.Wrapf(err, "could not properly shut down emulator"))
+	if err := comp.Shutdown(); err != nil {
+		log.Error(errors.Wrapf(err, "could not properly shut down emulator"))
 		os.Exit(1)
 	}
 }
