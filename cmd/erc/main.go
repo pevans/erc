@@ -70,11 +70,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	go processorLoop(comp, log)
+	// In another goroutine, execute the process loop
+	go comp.ProcessLoop()
 
-	if err := comp.DrawLoop(); err != nil {
-		log.Error(errors.Wrap(err, "run loop failed"))
-	}
+	// And in the main thread, execute the draw loop
+	comp.DrawLoop()
 
 	// Shutdown
 	if err := comp.Shutdown(); err != nil {

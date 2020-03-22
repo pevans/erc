@@ -10,9 +10,10 @@ import (
 // ways that we can execute code.
 type Computer interface {
 	Boot() error
-	DrawLoop() error
+	DrawLoop()
 	Load(io.Reader, string) error
 	Process() error
+	ProcessLoop()
 	Shutdown() error
 	SetLogger(*boot.Logger)
 	SetRecorderWriter(io.Writer)
