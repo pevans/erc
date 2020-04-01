@@ -7,26 +7,61 @@ import (
 )
 
 func TestIntAddr(t *testing.T) {
-	i := Int(123)
-
-	assert.Equal(t, 123, i.Addr())
+	assert.Equal(t, 123, Int(123).Addr())
 }
 
 func TestByteAddr(t *testing.T) {
-	b := Byte(123)
+	type test struct {
+		i    int
+		want int
+	}
 
-	assert.Equal(t, 123, b.Addr())
+	cases := map[string]test{
+		"zero":     {i: 0, want: 0},
+		"123":      {i: 123, want: 123},
+		"overflow": {i: 258, want: 2},
+	}
+
+	for desc, c := range cases {
+		t.Run(desc, func(t *testing.T) {
+			assert.Equal(t, c.want, Byte(c.i).Addr())
+		})
+	}
 }
 
 func TestDByteAddr(t *testing.T) {
-	db := DByte(123)
+	type test struct {
+		i    int
+		want int
+	}
 
-	assert.Equal(t, 123, db.Addr())
+	cases := map[string]test{
+		"zero":     {i: 0, want: 0},
+		"123":      {i: 123, want: 123},
+		"256":      {i: 256, want: 256},
+		"overflow": {i: 65537, want: 1},
+	}
+
+	for desc, c := range cases {
+		t.Run(desc, func(t *testing.T) {
+			assert.Equal(t, c.want, DByte(c.i).Addr())
+		})
+	}
 }
 
 func TestPlus(t *testing.T) {
-	a := Int(123)
-	b := Plus(a, 123)
+	var (
+		_257   = 257
+		_65537 = 65537
+	)
 
-	assert.Equal(t, 246, b.Addr())
+	assert.Equal(t, 246, Plus(Int(123), 123).Addr())
+
+	// The interesting thing here is I want to test the behavior around
+	// overflows. But Go is pretty smart -- it knows Byte is uint8, and
+	// if you try Byte(257), it will catch you at compilation time. So
+	// the way around this is to assign 257 to some integer variable,
+	// and do a constructor of that -- Byte(something).
+	assert.Equal(t, 124, Plus(Byte(_257), 123).Addr())
+	assert.Equal(t, 124, Plus(DByte(_65537), 123).Addr())
 }

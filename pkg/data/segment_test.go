@@ -29,16 +29,20 @@ func TestGet(t *testing.T) {
 }
 
 func TestByteSlice(t *testing.T) {
-	cases := []struct {
+	type test struct {
 		want []Byte
 		in   []byte
-	}{
-		{[]Byte{}, []byte{}},
-		{[]Byte{1, 2, 3}, []byte{1, 2, 3}},
 	}
 
-	for _, c := range cases {
-		assert.Equal(t, c.want, ByteSlice(c.in))
+	cases := map[string]test{
+		"empty":    {want: []Byte{}, in: []byte{}},
+		"nonempty": {want: []Byte{1, 2, 3}, in: []byte{1, 2, 3}},
+	}
+
+	for desc, c := range cases {
+		t.Run(desc, func(t *testing.T) {
+			assert.Equal(t, c.want, ByteSlice(c.in))
+		})
 	}
 }
 
@@ -48,28 +52,45 @@ func TestSize(t *testing.T) {
 }
 
 func TestCopySlice(t *testing.T) {
-	cases := []struct {
-		wantWritten int
-		wantError   bool
-		segmentSize int
-		start       int
-		byteSlice   []Byte
-	}{
-		{0, true, 1, -1, []Byte{}},
-		{0, true, 0, 1, ByteSlice([]byte{1, 2})},
-		{3, false, 5, 0, ByteSlice([]byte{1, 2, 3})},
+	type test struct {
+		written   int
+		size      int
+		start     int
+		byteSlice []Byte
+		errfn     assert.ErrorAssertionFunc
 	}
 
-	for _, c := range cases {
-		s := NewSegment(c.segmentSize)
+	cases := map[string]test{
+		"negative start": {
+			written:   0,
+			size:      1,
+			start:     -1,
+			byteSlice: []Byte{},
+			errfn:     assert.Error,
+		},
+		"no size": {
+			written:   0,
+			size:      0,
+			start:     1,
+			byteSlice: ByteSlice([]byte{1, 2}),
+			errfn:     assert.Error,
+		},
+		"normal": {
+			written:   3,
+			size:      5,
+			start:     0,
+			byteSlice: ByteSlice([]byte{1, 2, 3}),
+			errfn:     assert.NoError,
+		},
+	}
 
-		writ, err := s.CopySlice(c.start, c.byteSlice)
-		assert.Equal(t, c.wantWritten, writ)
+	for desc, c := range cases {
+		t.Run(desc, func(t *testing.T) {
+			s := NewSegment(c.size)
 
-		if c.wantError {
-			assert.NotNil(t, err)
-		} else {
-			assert.Nil(t, err)
-		}
+			writ, err := s.CopySlice(c.start, c.byteSlice)
+			assert.Equal(t, c.written, writ)
+			c.errfn(t, err)
+		})
 	}
 }
