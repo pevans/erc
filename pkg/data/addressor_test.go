@@ -51,8 +51,8 @@ func TestDByteAddr(t *testing.T) {
 
 func TestPlus(t *testing.T) {
 	var (
-		_257   = 257
-		_65537 = 65537
+		n257   = 257
+		n65537 = 65537
 	)
 
 	assert.Equal(t, 246, Plus(Int(123), 123).Addr())
@@ -62,6 +62,6 @@ func TestPlus(t *testing.T) {
 	// if you try Byte(257), it will catch you at compilation time. So
 	// the way around this is to assign 257 to some integer variable,
 	// and do a constructor of that -- Byte(something).
-	assert.Equal(t, 124, Plus(Byte(_257), 123).Addr())
-	assert.Equal(t, 124, Plus(DByte(_65537), 123).Addr())
+	assert.Equal(t, 124, Plus(Byte(n257), 123).Addr())
+	assert.Equal(t, 124, Plus(DByte(n65537), 123).Addr())
 }
