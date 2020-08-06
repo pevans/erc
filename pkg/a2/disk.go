@@ -2,7 +2,6 @@ package a2
 
 import (
 	"github.com/pevans/erc/pkg/data"
-	"github.com/pevans/erc/pkg/mach/a2/disk"
 )
 
 func diskReadWrite(c *Computer, addr data.DByte, val *data.Byte) {
@@ -35,26 +34,26 @@ func diskReadWrite(c *Computer, addr data.DByte, val *data.Byte) {
 		c.SelectedDrive = c.Drive2
 
 	case 0xC:
-		if drive.Mode == disk.ReadMode || drive.WriteProtect {
+		if drive.Mode == ReadMode || drive.WriteProtect {
 			*val = drive.Read()
-		} else if drive.Mode == disk.WriteMode {
+		} else if drive.Mode == WriteMode {
 			// Write the value currently in the latch
 			drive.Write()
 		}
 
 	case 0xD:
 		// Set the latch value (for writes) to val
-		if drive.Mode == disk.WriteMode {
+		if drive.Mode == WriteMode {
 			drive.Latch = *val
 		}
 
 	case 0xE:
 		// Set the selected drive mode to read
-		drive.Mode = disk.ReadMode
+		drive.Mode = ReadMode
 
 	case 0xF:
 		// Set the selected drive mode to write
-		drive.Mode = disk.WriteMode
+		drive.Mode = WriteMode
 	}
 }
 
