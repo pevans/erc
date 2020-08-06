@@ -6,12 +6,8 @@ import "github.com/pevans/erc/pkg/data"
 // that the source segment is already nibblized, this is essentially a
 // straight copy.
 func Encode(src *data.Segment) (*data.Segment, error) {
-	dst := data.NewSegment(src.Size())
-	_, err := dst.CopySlice(0, src.Mem)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return dst, nil
+	// Encode and Decode essentially do the same thing; so while we
+	// expose an API for encoding, we don't really need to do anything
+	// different than what we do in the Decode function.
+	return Decode(src)
 }
