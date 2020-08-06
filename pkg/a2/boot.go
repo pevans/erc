@@ -2,8 +2,8 @@ package a2
 
 import (
 	"github.com/pevans/erc/pkg/data"
+	"github.com/pevans/erc/pkg/mos65c02"
 	"github.com/pevans/erc/pkg/obj"
-	"github.com/pevans/erc/pkg/proc/mos65c02"
 )
 
 const (
