@@ -23,14 +23,23 @@ would not exist.
 
 * The main command (erc) is located in the `cmd/erc` subdirectory.
 * Machine-related code (for running an architecture) is located in
-	`pkg/mach`.
+  `pkg/mach`.
 * Processor-related code (for emulating processor chips) is located in
-	`pkg/proc`.
+  `pkg/proc`.
 * Code that reads static object data (fonts, system roms, etc.) is in
-	`pkg/obj`.
+  `pkg/obj`.
 
-## How can I run it?
+## What can I do here?
 
-At the moment, all you can or would need to do is run `go build
-./cmd/erc`. This will build the _erc_ executable and you can run the
-software from there.
+You can:
+
+- Build the executable `erc` by running `make build`.
+- Run the thing immediately by running `make run DSK=somerom`.
+- Install tools for linting and testing with `make tools`. (Note: the
+  tool installation currently makes an obnoxious assumption that you
+  have access to [brew](https://homebrew.sh), and thereby that you use
+  macOS.)
+- Run various tests, including:
+  - `make lint` for linting
+  - `make test` for unit tests
+  - `make coverage` to see test coverage
