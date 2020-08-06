@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/pevans/erc/pkg/data"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -26,7 +25,7 @@ type sixtwoSuite struct {
 
 func (s *sixtwoSuite) SetupSuite() {
 	dir, err := os.Getwd()
-	assert.NoError(s.T(), err)
+	s.NoError(err)
 
 	s.baseDir = dir + "/../../data"
 
@@ -38,12 +37,12 @@ func (s *sixtwoSuite) SetupSuite() {
 	s.logTrack = data.NewSegment(LogTrackLen)
 	s.logSector = data.NewSegment(LogSectorLen)
 
-	assert.NoError(s.T(), loadFile(s.physDisk, s.baseDir+"/physical.disk"))
-	assert.NoError(s.T(), loadFile(s.physTrack, s.baseDir+"/physical.track"))
-	assert.NoError(s.T(), loadFile(s.physSector, s.baseDir+"/physical.sector"))
-	assert.NoError(s.T(), loadFile(s.logDisk, s.baseDir+"/logical.disk"))
-	assert.NoError(s.T(), loadFile(s.logTrack, s.baseDir+"/logical.track"))
-	assert.NoError(s.T(), loadFile(s.logSector, s.baseDir+"/logical.sector"))
+	s.NoError(loadFile(s.physDisk, s.baseDir+"/physical.disk"))
+	s.NoError(loadFile(s.physTrack, s.baseDir+"/physical.track"))
+	s.NoError(loadFile(s.physSector, s.baseDir+"/physical.sector"))
+	s.NoError(loadFile(s.logDisk, s.baseDir+"/logical.disk"))
+	s.NoError(loadFile(s.logTrack, s.baseDir+"/logical.track"))
+	s.NoError(loadFile(s.logSector, s.baseDir+"/logical.sector"))
 }
 
 func TestSuite(t *testing.T) {

@@ -5,7 +5,6 @@ import (
 
 	"github.com/pevans/erc/pkg/data"
 	log "github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -39,8 +38,8 @@ func (s *mosSuite) TestAcc() {
 		s.cpu.A = c.want
 		Acc(s.cpu)
 
-		assert.Equal(s.T(), data.DByte(0), s.cpu.EffAddr)
-		assert.Equal(s.T(), c.want, s.cpu.EffVal)
+		s.Equal(data.DByte(0), s.cpu.EffAddr)
+		s.Equal(c.want, s.cpu.EffVal)
 	}
 }
 
@@ -60,8 +59,8 @@ func (s *mosSuite) TestAbs() {
 
 		Abs(s.cpu)
 
-		assert.Equal(s.T(), c.oper, s.cpu.EffAddr)
-		assert.Equal(s.T(), c.want, s.cpu.EffVal)
+		s.Equal(c.oper, s.cpu.EffAddr)
+		s.Equal(c.want, s.cpu.EffVal)
 	}
 }
 
@@ -83,8 +82,8 @@ func (s *mosSuite) TestAbx() {
 		s.cpu.X = c.x
 		Abx(s.cpu)
 
-		assert.Equal(s.T(), c.oper+data.DByte(c.x), s.cpu.EffAddr)
-		assert.Equal(s.T(), c.want, s.cpu.EffVal)
+		s.Equal(c.oper+data.DByte(c.x), s.cpu.EffAddr)
+		s.Equal(c.want, s.cpu.EffVal)
 	}
 }
 
@@ -106,8 +105,8 @@ func (s *mosSuite) TestAby() {
 		s.cpu.Y = c.y
 		Aby(s.cpu)
 
-		assert.Equal(s.T(), c.oper+data.DByte(c.y), s.cpu.EffAddr)
-		assert.Equal(s.T(), c.want, s.cpu.EffVal)
+		s.Equal(c.oper+data.DByte(c.y), s.cpu.EffAddr)
+		s.Equal(c.want, s.cpu.EffVal)
 	}
 }
 
@@ -125,8 +124,8 @@ func (s *mosSuite) TestImm() {
 
 		Imm(s.cpu)
 
-		assert.Equal(s.T(), data.DByte(0), s.cpu.EffAddr)
-		assert.Equal(s.T(), c.want, s.cpu.EffVal)
+		s.Equal(data.DByte(0), s.cpu.EffAddr)
+		s.Equal(c.want, s.cpu.EffVal)
 	}
 }
 
@@ -153,8 +152,8 @@ func (s *mosSuite) TestInd() {
 
 		Ind(s.cpu)
 
-		assert.Equal(s.T(), c.addr, s.cpu.EffAddr)
-		assert.Equal(s.T(), c.want, s.cpu.EffVal)
+		s.Equal(c.addr, s.cpu.EffAddr)
+		s.Equal(c.want, s.cpu.EffVal)
 	}
 }
 
@@ -183,8 +182,8 @@ func (s *mosSuite) TestIdx() {
 		s.cpu.X = c.x
 		Idx(s.cpu)
 
-		assert.Equal(s.T(), s.cpu.EffAddr, c.atOper)
-		assert.Equal(s.T(), s.cpu.EffVal, c.want)
+		s.Equal(s.cpu.EffAddr, c.atOper)
+		s.Equal(s.cpu.EffVal, c.want)
 	}
 }
 
@@ -214,23 +213,23 @@ func (s *mosSuite) TestIdy() {
 		s.cpu.Y = c.y
 		Idy(s.cpu)
 
-		assert.Equal(s.T(), c.want, s.cpu.EffVal)
-		assert.Equal(s.T(), addr, s.cpu.EffAddr)
+		s.Equal(c.want, s.cpu.EffVal)
+		s.Equal(addr, s.cpu.EffAddr)
 	}
 }
 
 func (s *mosSuite) TestImp() {
 	Imp(s.cpu)
-	assert.Equal(s.T(), data.Byte(0), s.cpu.EffVal)
-	assert.Equal(s.T(), data.DByte(0), s.cpu.EffAddr)
+	s.Equal(data.Byte(0), s.cpu.EffVal)
+	s.Equal(data.DByte(0), s.cpu.EffAddr)
 
 	By2(s.cpu)
-	assert.Equal(s.T(), data.Byte(0), s.cpu.EffVal)
-	assert.Equal(s.T(), data.DByte(0), s.cpu.EffAddr)
+	s.Equal(data.Byte(0), s.cpu.EffVal)
+	s.Equal(data.DByte(0), s.cpu.EffAddr)
 
 	By3(s.cpu)
-	assert.Equal(s.T(), data.Byte(0), s.cpu.EffVal)
-	assert.Equal(s.T(), data.DByte(0), s.cpu.EffAddr)
+	s.Equal(data.Byte(0), s.cpu.EffVal)
+	s.Equal(data.DByte(0), s.cpu.EffAddr)
 }
 
 func (s *mosSuite) TestRel() {
@@ -249,7 +248,7 @@ func (s *mosSuite) TestRel() {
 		s.cpu.Set(c.pc+1, c.next)
 
 		Rel(s.cpu)
-		assert.Equal(s.T(), c.want, s.cpu.EffAddr)
+		s.Equal(c.want, s.cpu.EffAddr)
 	}
 }
 
@@ -271,8 +270,8 @@ func (s *mosSuite) TestZpg() {
 		s.cpu.Set(data.DByte(c.addr), c.want)
 
 		Zpg(s.cpu)
-		assert.Equal(s.T(), data.DByte(c.addr), s.cpu.EffAddr)
-		assert.Equal(s.T(), c.want, s.cpu.EffVal)
+		s.Equal(data.DByte(c.addr), s.cpu.EffAddr)
+		s.Equal(c.want, s.cpu.EffVal)
 	}
 }
 
@@ -299,8 +298,8 @@ func (s *mosSuite) TestZpx() {
 		s.cpu.X = c.x
 		Zpx(s.cpu)
 
-		assert.Equal(s.T(), addr, s.cpu.EffAddr)
-		assert.Equal(s.T(), c.want, s.cpu.EffVal)
+		s.Equal(addr, s.cpu.EffAddr)
+		s.Equal(c.want, s.cpu.EffVal)
 	}
 }
 
@@ -327,7 +326,7 @@ func (s *mosSuite) TestZpy() {
 		s.cpu.Y = c.y
 		Zpy(s.cpu)
 
-		assert.Equal(s.T(), addr, s.cpu.EffAddr)
-		assert.Equal(s.T(), c.want, s.cpu.EffVal)
+		s.Equal(addr, s.cpu.EffAddr)
+		s.Equal(c.want, s.cpu.EffVal)
 	}
 }
