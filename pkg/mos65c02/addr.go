@@ -1,8 +1,16 @@
 package mos65c02
 
 import (
+	"reflect"
+	"runtime"
+	"strings"
+
 	"github.com/pevans/erc/pkg/data"
 )
+
+// An AddrMode is a function which resolves what the effective address
+// (EffAddr) is given the current state of the CPU.
+type AddrMode func(c *CPU)
 
 // AddrSpace is the total number of addressable values that an MOS 65c02
 // processor can work with. It's possible for a computer to have more
@@ -10,6 +18,84 @@ import (
 // of this--but for that to work, the computer must introduce some kind
 // of bank-switch mechanism that can swap our segments of RAM.
 const AddrSpace = 0x10000
+
+const (
+	_     = iota // no address mode
+	amAcc        // accumulator
+	amAbs        // absolute
+	amAbx        // absolute x-index
+	amAby        // absolute y-index
+	amBy2        // Consume 2 bytes (for NP2)
+	amBy3        // Consume 3 bytes (for NP3)
+	amImm        // immediate
+	amImp        // implied
+	amInd        // indirect
+	amIdx        // x-index indirect
+	amIdy        // indirect y-index
+	amRel        // relative
+	amZpg        // zero page
+	amZpx        // zero page x-index
+	amZpy        // zero page y-index
+)
+
+// Below is an address mode table that maps mode functions to specific
+// opcodes.
+//   00   01   02   03   04   05   06   07   08   09   0A   0B   0C   0D   0E   0F
+var addrModes = [256]AddrMode{
+	Imp, Idx, By2, Imp, Zpg, Zpg, Zpg, Imp, Imp, Imm, Acc, Imp, Abs, Abs, Abs, Imp, // 0x
+	Rel, Idy, Zpg, Imp, Zpg, Zpx, Zpx, Imp, Imp, Aby, Acc, Imp, Abs, Abx, Abx, Imp, // 1x
+	Abs, Idx, By2, Imp, Zpg, Zpg, Zpg, Imp, Imp, Imm, Acc, Imp, Abs, Abs, Abs, Imp, // 2x
+	Rel, Idy, Zpg, Imp, Zpx, Zpx, Zpx, Imp, Imp, Aby, Acc, Imp, Abx, Abx, Abx, Imp, // 3x
+	Imp, Idx, By2, Imp, By2, Zpg, Zpg, Imp, Imp, Imm, Acc, Imp, Abs, Abs, Abs, Imp, // 4x
+	Rel, Idy, Zpg, Imp, By2, Zpx, Zpx, Imp, Imp, Aby, Imp, Imp, By3, Abx, Abx, Imp, // 5x
+	Imp, Idx, By2, Imp, Zpg, Zpg, Zpg, Imp, Imp, Imm, Acc, Imp, Ind, Abs, Abs, Imp, // 6x
+	Rel, Idy, Zpg, Imp, Zpx, Zpx, Zpx, Imp, Imp, Aby, Imp, Imp, Abx, Abx, Abx, Imp, // 7x
+	Rel, Idx, By2, Imp, Zpg, Zpg, Zpg, Imp, Imp, Imm, Imp, Imp, Abs, Abs, Abs, Imp, // 8x
+	Rel, Idy, Zpg, Imp, Zpx, Zpx, Zpy, Imp, Imp, Aby, Imp, Imp, Abs, Abx, Abx, Imp, // 9x
+	Imm, Idx, Imm, Imp, Zpg, Zpg, Zpg, Imp, Imp, Imm, Imp, Imp, Abs, Abs, Abs, Imp, // Ax
+	Rel, Idy, Zpg, Imp, Zpx, Zpx, Zpy, Imp, Imp, Aby, Imp, Imp, Abx, Abx, Aby, Imp, // Bx
+	Imm, Idx, By2, Imp, Zpg, Zpg, Zpg, Imp, Imp, Imm, Imp, Imp, Abs, Abs, Abs, Imp, // Cx
+	Rel, Idy, Zpg, Imp, By2, Zpx, Zpx, Imp, Imp, Aby, Imp, Imp, By3, Abx, Abx, Imp, // Dx
+	Imm, Idx, By2, Imp, Zpg, Zpg, Zpg, Imp, Imp, Imm, Imp, Imp, Abs, Abs, Abs, Imp, // Ex
+	Rel, Idy, Zpg, Imp, By2, Zpx, Zpx, Imp, Imp, Aby, Imp, Imp, By3, Abx, Abx, Imp, // Fx
+}
+
+// The offsets table defines the number of bytes we must increment the
+// PC register after a given instruction. The bytes vary based on
+// address mode, rather than the specific instruction. In cases where
+// the instruction would change the PC due to its defined behavior, the
+// offset is given as zero.
+//
+//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
+var offsets = [256]data.DByte{
+	1, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1, 1, 3, 3, 3, 1, // 0x
+	0, 2, 2, 1, 2, 2, 2, 1, 1, 3, 1, 1, 3, 3, 3, 1, // 1x
+	0, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1, 1, 3, 3, 3, 1, // 2x
+	0, 2, 2, 1, 2, 2, 2, 1, 1, 3, 1, 1, 3, 3, 3, 1, // 3x
+	0, 2, 3, 1, 3, 2, 2, 1, 1, 2, 1, 1, 0, 3, 3, 1, // 4x
+	0, 2, 2, 1, 3, 2, 2, 1, 1, 3, 1, 1, 4, 3, 3, 1, // 5x
+	0, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1, 1, 0, 3, 3, 1, // 6x
+	0, 2, 2, 1, 2, 2, 2, 1, 1, 3, 1, 1, 0, 3, 3, 1, // 7x
+	0, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1, 1, 3, 3, 3, 1, // 8x
+	0, 2, 2, 1, 2, 2, 2, 1, 1, 3, 1, 1, 3, 3, 3, 1, // 9x
+	2, 2, 2, 1, 2, 2, 2, 1, 1, 2, 1, 1, 3, 3, 3, 1, // Ax
+	0, 2, 2, 1, 2, 2, 2, 1, 1, 3, 1, 1, 3, 3, 3, 1, // Bx
+	2, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1, 1, 3, 3, 3, 1, // Cx
+	0, 2, 2, 1, 3, 2, 2, 1, 1, 3, 1, 1, 4, 3, 3, 1, // Dx
+	2, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1, 1, 3, 3, 3, 1, // Ex
+	0, 2, 2, 1, 3, 2, 2, 1, 1, 3, 1, 1, 4, 3, 3, 1, // Fx
+}
+
+// String will figure out what address mode function this is and return
+// it in string form.
+func (m AddrMode) String() string {
+	var (
+		funcName = runtime.FuncForPC(reflect.ValueOf(m).Pointer()).Name()
+		parts    = strings.Split(funcName, ".")
+	)
+
+	return strings.ToUpper(parts[len(parts)-1])
+}
 
 // Acc will resolve the Accumulator address mode, which is very simple:
 // the effective value is the data within the A register.

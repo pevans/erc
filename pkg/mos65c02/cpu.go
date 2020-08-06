@@ -1,0 +1,71 @@
+package mos65c02
+
+import (
+	"os"
+
+	"github.com/pevans/erc/pkg/data"
+)
+
+// A CPU is an implementation of an MOS 65c02 processor.
+type CPU struct {
+	RecFile *os.File
+
+	// RMem and WMem are the segments from which we will read or write
+	// whenever it is necessary.
+	RMem data.Getter
+	WMem data.Setter
+
+	// This is the current address mode that the CPU is operating
+	// within. The address mode affects how the CPU will determine the
+	// effective address for an instruction.
+	AddrMode int
+
+	// The Opcode is the byte which indicates both the instruction and
+	// the address mode of the instruction that we must carry out.
+	Opcode data.Byte
+
+	// The Operand is the one or two bytes which is an argument to the
+	// opcode.
+	Operand data.DByte
+
+	// This is the effective address for the current operation. The
+	// effective address is the one computed by the address mode, taking
+	// into account the current state of the CPU and the current operand
+	// for the instruction.
+	EffAddr data.DByte
+
+	// The effective value is data that the instruction wants after the
+	// effective address is dereferenced. In some cases, the instruction
+	// only cares about an address, and this may be zero; in other
+	// cases, the instruction does not take an address, and EffVal is
+	// all it cares about. In yet other cases, both this and the EffAddr
+	// may be zero because the behavior of the instruction is implied
+	// and cannot be modified by any operand.
+	EffVal data.Byte
+
+	// PC is the Program Counter. It is where the processor
+	// will look to execute its next instruction.
+	PC data.DByte
+
+	// The A register is the Accumulator. You can think of the
+	// accumulator as similar to how old calculators work; arithmetic
+	// operations will add to, subtract from, etc., this register.
+	A data.Byte
+
+	// The X and Y registers are most often treated as indexes for
+	// loops, but can also be treated as general-purpose registers to
+	// hold onto numbers.
+	X, Y data.Byte
+
+	// The P register doesn't seem to have a formal name, but I like to
+	// think of it as the Predicator. Its bits are used to indicate
+	// several statuses the CPU can have; 1 to mean the status is on, 0
+	// to mean it is off.
+	P data.Byte
+
+	// The S register is the Stack pointer. The stack in the MOS 6502
+	// processor is in memory page 1 ($100 - $1FF); the S register
+	// value is treated as an offset from $100. S will begin at $FF and
+	// decrease as the stack depth increases.
+	S data.Byte
+}
