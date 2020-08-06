@@ -21,13 +21,10 @@ would not exist.
 
 ## What's in here?
 
-* The main command (erc) is located in the `cmd/erc` subdirectory.
-* Machine-related code (for running an architecture) is located in
-  `pkg/mach`.
-* Processor-related code (for emulating processor chips) is located in
-  `pkg/proc`.
-* Code that reads static object data (fonts, system roms, etc.) is in
-  `pkg/obj`.
+- The main command (erc) is located in the `cmd/erc` subdirectory.
+- Code for the MOS 65c02 processor is in `pkg/mos65c02`.
+- Code for the Apple II architecture is in `pkg/a2`.
+- There's random other code for things generally within the `pkg` dir.
 
 ## What can I do here?
 
