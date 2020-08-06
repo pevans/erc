@@ -1,7 +1,5 @@
 package a2
 
-import "github.com/stretchr/testify/assert"
-
 func (s *a2Suite) TestDefineSoftSwitches() {
 	var (
 		addr int
@@ -11,36 +9,36 @@ func (s *a2Suite) TestDefineSoftSwitches() {
 	// Testing for BankAuxiliary switches
 	for addr = 0; addr < 0x200; addr++ {
 		_, ok = s.comp.RMap[addr]
-		assert.Equal(s.T(), true, ok)
+		s.Equal(true, ok)
 
 		_, ok = s.comp.WMap[addr]
-		assert.Equal(s.T(), true, ok)
+		s.Equal(true, ok)
 	}
 
 	for addr = 0x400; addr < 0x800; addr++ {
 		_, ok = s.comp.RMap[addr]
-		assert.Equal(s.T(), true, ok)
+		s.Equal(true, ok)
 
 		_, ok = s.comp.WMap[addr]
-		assert.Equal(s.T(), true, ok)
+		s.Equal(true, ok)
 	}
 
 	for addr = 0x2000; addr < 0x4000; addr++ {
 		_, ok = s.comp.RMap[addr]
-		assert.Equal(s.T(), true, ok)
+		s.Equal(true, ok)
 
 		_, ok = s.comp.WMap[addr]
-		assert.Equal(s.T(), true, ok)
+		s.Equal(true, ok)
 	}
 
 	// Testing all cases where ROM or bank-addressable RAM could be
 	// found
 	for addr = 0xD000; addr < 0x10000; addr++ {
 		_, ok = s.comp.RMap[addr]
-		assert.Equal(s.T(), true, ok)
+		s.Equal(true, ok)
 
 		_, ok = s.comp.WMap[addr]
-		assert.Equal(s.T(), true, ok)
+		s.Equal(true, ok)
 	}
 
 	rmapModifiers := []int{
@@ -109,11 +107,11 @@ func (s *a2Suite) TestDefineSoftSwitches() {
 	// which modify something
 	for _, addr = range rmapModifiers {
 		_, ok = s.comp.RMap[addr]
-		assert.Equal(s.T(), true, ok)
+		s.Equal(true, ok)
 	}
 
 	for _, addr = range wmapModifiers {
 		_, ok = s.comp.WMap[addr]
-		assert.Equal(s.T(), true, ok)
+		s.Equal(true, ok)
 	}
 }

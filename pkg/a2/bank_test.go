@@ -2,7 +2,6 @@ package a2
 
 import (
 	"github.com/pevans/erc/pkg/data"
-	"github.com/stretchr/testify/assert"
 )
 
 func (s *a2Suite) TestBankMode() {
@@ -16,7 +15,7 @@ func (s *a2Suite) TestBankMode() {
 
 	for _, c := range cases {
 		s.comp.BankMode = c.bankMode
-		assert.Equal(s.T(), c.want, bankMode(s.comp))
+		s.Equal(c.want, bankMode(s.comp))
 	}
 }
 
@@ -34,7 +33,7 @@ func (s *a2Suite) TestBankSetMode() {
 	for _, c := range cases {
 		s.comp.BankMode = c.bankMode
 		bankSetMode(s.comp, c.newMode)
-		assert.Equal(s.T(), c.want, s.comp.BankMode)
+		s.Equal(c.want, s.comp.BankMode)
 	}
 }
 
@@ -58,6 +57,6 @@ func (s *a2Suite) TestBankRead() {
 		s.comp.ReadSegment().Set(c.addr, c.ram1Set)
 		s.comp.ReadSegment().Set(data.Plus(c.addr, 0x3000), c.ram2Set)
 
-		assert.Equal(s.T(), c.want, bankRead(s.comp, c.addr))
+		s.Equal(c.want, bankRead(s.comp, c.addr))
 	}
 }

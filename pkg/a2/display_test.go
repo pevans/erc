@@ -2,23 +2,22 @@ package a2
 
 import (
 	"github.com/pevans/erc/pkg/data"
-	"github.com/stretchr/testify/assert"
 )
 
 func (s *a2Suite) TestDisplayMode() {
 	s.comp.DisplayMode = 123
-	assert.Equal(s.T(), 123, displayMode(s.comp))
+	s.Equal(123, displayMode(s.comp))
 
 	s.comp.DisplayMode = 124
-	assert.Equal(s.T(), 124, displayMode(s.comp))
+	s.Equal(124, displayMode(s.comp))
 }
 
 func (s *a2Suite) TestDisplaySetMode() {
 	displaySetMode(s.comp, 111)
-	assert.Equal(s.T(), 111, s.comp.DisplayMode)
+	s.Equal(111, s.comp.DisplayMode)
 
 	displaySetMode(s.comp, 222)
-	assert.Equal(s.T(), 222, s.comp.DisplayMode)
+	s.Equal(222, s.comp.DisplayMode)
 }
 
 func (s *a2Suite) TestDisplayAuxSegment() {
@@ -38,7 +37,7 @@ func (s *a2Suite) TestDisplayAuxSegment() {
 
 	for _, c := range cases {
 		s.comp.MemMode = c.memMode
-		assert.Equal(s.T(), c.want, displayAuxSegment(s.comp, c.addr))
+		s.Equal(c.want, displayAuxSegment(s.comp, c.addr))
 	}
 }
 
@@ -59,7 +58,7 @@ func (s *a2Suite) TestDisplayRead() {
 		s.comp.MemMode = c.memMode
 		c.seg.Set(c.addr, c.want)
 
-		assert.Equal(s.T(), c.want, displayRead(s.comp, c.addr))
+		s.Equal(c.want, displayRead(s.comp, c.addr))
 	}
 }
 
@@ -80,6 +79,6 @@ func (s *a2Suite) TestDisplayWrite() {
 		s.comp.MemMode = c.memMode
 		displayWrite(s.comp, c.addr, c.want)
 
-		assert.Equal(s.T(), c.want, c.seg.Get(c.addr))
+		s.Equal(c.want, c.seg.Get(c.addr))
 	}
 }

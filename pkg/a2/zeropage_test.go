@@ -2,7 +2,6 @@ package a2
 
 import (
 	"github.com/pevans/erc/pkg/data"
-	"github.com/stretchr/testify/assert"
 )
 
 func (s *a2Suite) TestZeroPageRead() {
@@ -22,7 +21,7 @@ func (s *a2Suite) TestZeroPageRead() {
 		s.comp.Aux.Set(addr, c.aux)
 		s.comp.BankMode = c.mode
 
-		assert.Equal(s.T(), c.want, s.comp.Get(addr))
+		s.Equal(c.want, s.comp.Get(addr))
 	}
 }
 
@@ -45,7 +44,7 @@ func (s *a2Suite) TestZeroPageWrite() {
 		s.comp.BankMode = c.mode
 		s.comp.Set(addr, c.want)
 
-		assert.Equal(s.T(), c.main, s.comp.Main.Get(addr))
-		assert.Equal(s.T(), c.aux, s.comp.Aux.Get(addr))
+		s.Equal(c.main, s.comp.Main.Get(addr))
+		s.Equal(c.aux, s.comp.Aux.Get(addr))
 	}
 }

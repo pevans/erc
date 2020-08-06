@@ -1,7 +1,5 @@
 package a2
 
-import "github.com/stretchr/testify/assert"
-
 func (s *a2Suite) TestMemoryMode() {
 	cases := []struct {
 		memMode int
@@ -13,7 +11,7 @@ func (s *a2Suite) TestMemoryMode() {
 
 	for _, c := range cases {
 		s.comp.MemMode = c.memMode
-		assert.Equal(s.T(), c.want, memoryMode(s.comp))
+		s.Equal(c.want, memoryMode(s.comp))
 	}
 }
 
@@ -31,6 +29,6 @@ func (s *a2Suite) TestMemorySetMode() {
 	for _, c := range cases {
 		s.comp.MemMode = c.memMode
 		memorySetMode(s.comp, c.newMode)
-		assert.Equal(s.T(), c.want, s.comp.MemMode)
+		s.Equal(c.want, s.comp.MemMode)
 	}
 }

@@ -2,7 +2,6 @@ package a2
 
 import (
 	"github.com/pevans/erc/pkg/data"
-	"github.com/stretchr/testify/assert"
 )
 
 // This is kind of a nasty function, in that it handles a lot of
@@ -32,7 +31,7 @@ func (s *a2Suite) TestPCROMAddr() {
 	}
 
 	for _, c := range cases {
-		assert.Equal(s.T(), c.want, pcROMAddr(c.addr, c.pcMode))
+		s.Equal(c.want, pcROMAddr(c.addr, c.pcMode))
 	}
 }
 
@@ -49,7 +48,7 @@ func (s *a2Suite) TestPCRead() {
 
 	for _, c := range cases {
 		s.comp.ROM.Set(c.addr-0xC000, c.want)
-		assert.Equal(s.T(), c.want, pcRead(s.comp, c.addr))
+		s.Equal(c.want, pcRead(s.comp, c.addr))
 	}
 }
 
@@ -67,26 +66,26 @@ func (s *a2Suite) TestPCWrite() {
 
 		// We test here that the value is NOT equal, because pcWrite()
 		// should prevent any writes to ROM.
-		assert.NotEqual(s.T(), c.want, s.comp.ROM.Get(c.addr-0xC000))
+		s.NotEqual(c.want, s.comp.ROM.Get(c.addr-0xC000))
 	}
 }
 
 func (s *a2Suite) TestNewPCSwitchCheck() {
-	assert.NotEqual(s.T(), nil, newPCSwitchCheck())
+	s.NotEqual(nil, newPCSwitchCheck())
 }
 
 func (s *a2Suite) TestPCMode() {
 	s.comp.PCMode = 123
-	assert.Equal(s.T(), 123, pcMode(s.comp))
+	s.Equal(123, pcMode(s.comp))
 
 	s.comp.PCMode = 124
-	assert.Equal(s.T(), 124, pcMode(s.comp))
+	s.Equal(124, pcMode(s.comp))
 }
 
 func (s *a2Suite) TestPCSetMode() {
 	pcSetMode(s.comp, 123)
-	assert.Equal(s.T(), 123, s.comp.PCMode)
+	s.Equal(123, s.comp.PCMode)
 
 	pcSetMode(s.comp, 124)
-	assert.Equal(s.T(), 124, s.comp.PCMode)
+	s.Equal(124, s.comp.PCMode)
 }
