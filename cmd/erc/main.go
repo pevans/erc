@@ -43,7 +43,11 @@ func main() {
 	inputFile := os.Args[1]
 
 	if conf.InstructionLog.File != "" {
-		instLogFile, err = boot.OpenFile(conf.InstructionLog.File)
+		instLogFile, err = os.OpenFile(
+			conf.InstructionLog.File,
+			os.O_CREATE|os.O_TRUNC|os.O_WRONLY,
+			0755,
+		)
 		if err != nil {
 			log.Errorf("unable to open file for instruction logging: %v", err)
 		}
@@ -53,7 +57,7 @@ func main() {
 	comp.SetLogger(log)
 	comp.SetRecorderWriter(instLogFile)
 
-	data, err := boot.OpenFile(inputFile)
+	data, err := os.OpenFile(inputFile, os.O_RDWR, 0644)
 	if err != nil {
 		log.Error(errors.Wrapf(err, "could not open file %s", inputFile))
 		os.Exit(1)
