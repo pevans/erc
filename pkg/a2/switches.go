@@ -2,7 +2,7 @@ package a2
 
 // Here we set up all the soft switches that we'll use in the computer,
 // which is a lot!
-func (c *Computer) defineSoftSwitches() {
+func (c *Computer) MapSoftSwitches() {
 	c.MapRange(0x0, 0x200, zeroPageRead, zeroPageWrite)
 	c.MapRange(0x0400, 0x0800, displayRead, displayWrite)
 	c.MapRange(0x2000, 0x4000, displayRead, displayWrite)

@@ -44,7 +44,7 @@ func (c *Computer) Boot() error {
 	c.Main.Set(BootVector+1, data.Byte(AppleSoft>>8))
 
 	// Set up all the soft switches we'll need
-	c.defineSoftSwitches()
+	c.MapSoftSwitches()
 
 	// Now run the warm start code.
 	c.Reset()
@@ -59,9 +59,6 @@ func (c *Computer) Reset() {
 	// Set the initial status of the CPU
 	c.CPU.P = mos65c02.NEGATIVE | mos65c02.OVERFLOW | mos65c02.INTERRUPT | mos65c02.ZERO | mos65c02.CARRY
 
-	// Jump to the reset PC address
-	c.CPU.PC = c.CPU.Get16(ResetPC)
-
 	// When reset, the stack goes to its top (which is the end of the
 	// stack page).
 	c.CPU.S = 0xFF
@@ -71,4 +68,9 @@ func (c *Computer) Reset() {
 	c.BankMode = BankDefault
 	c.PCMode = PCSlotCxROM
 	c.DisplayMode = DisplayText
+
+	// Jump to the reset PC address; note this must happen _after_ we
+	// set our modes above, or else we might pull the PC value from the
+	// wrong place in memory.
+	c.CPU.PC = c.CPU.Get16(ResetPC)
 }

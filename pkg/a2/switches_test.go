@@ -1,6 +1,6 @@
 package a2
 
-func (s *a2Suite) TestDefineSoftSwitches() {
+func (s *a2Suite) TestMapSoftSwitches() {
 	var (
 		addr int
 		ok   bool
