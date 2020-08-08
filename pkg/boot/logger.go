@@ -39,7 +39,7 @@ func (c *Config) NewLogger() (*Logger, error) {
 	l.Level = c.LogLevel()
 
 	file, err := os.OpenFile(c.Log.File, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0755)
-	if err != nil {
+	if err != nil && c.Log.File != "" {
 		return nil, errors.Wrapf(err, "could not open log file %s", c.Log.File)
 	}
 
