@@ -37,7 +37,7 @@ func TestRecord(t *testing.T) {
 		}
 	)
 
-	r.Record(w)
+	assert.NoError(t, r.Record(w))
 
 	output := w.String()
 
