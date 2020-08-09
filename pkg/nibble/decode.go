@@ -6,6 +6,10 @@ import "github.com/pevans/erc/pkg/data"
 // in a new copy. (Note that since the source segment is _already_
 // nibblized, this is basically a straight copy.)
 func Decode(src *data.Segment) (*data.Segment, error) {
+	return nibbleCopier(src)
+}
+
+func nibbleCopier(src *data.Segment) (*data.Segment, error) {
 	dst := data.NewSegment(src.Size())
 
 	_, err := dst.CopySlice(0, src.Mem)

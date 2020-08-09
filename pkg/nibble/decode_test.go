@@ -8,8 +8,17 @@ import (
 )
 
 func TestDecode(t *testing.T) {
+	// A funny thing about the encode procedure is it's identical to the
+	// decode procedure, so the decode test should suffice.
+
+	s, err := Decode(data.NewSegment(100))
+	assert.NotNil(t, s)
+	assert.NoError(t, err)
+}
+
+func TestNibbleCopier(t *testing.T) {
 	s := data.NewSegment(100)
-	d, err := Decode(s)
+	d, err := nibbleCopier(s)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, d)
