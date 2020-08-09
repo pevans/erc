@@ -59,13 +59,7 @@ func NewDrive() *Drive {
 // Position returns the segment position that the drive is currently at,
 // based upon track and sector position.
 func (d *Drive) Position() data.Int {
-	if d.Data == nil {
-		return 0
-	}
-
-	pos := data.Int(((d.TrackPos / 2) * sixtwo.PhysTrackLen) + d.SectorPos)
-
-	return pos
+	return data.Int(((d.TrackPos / 2) * sixtwo.PhysTrackLen) + d.SectorPos)
 }
 
 // Shift moves the sector position forward, or backward, depending on
@@ -127,7 +121,7 @@ func (d *Drive) StepPhase(addr data.DByte) {
 	curPhase := d.Phase
 	offset := 0
 
-	if newPhase < 1 || newPhase > 4 {
+	if newPhase < 1 {
 		return
 	}
 
