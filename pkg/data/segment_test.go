@@ -1,6 +1,7 @@
 package data
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,6 +18,14 @@ func TestSet(t *testing.T) {
 
 	s.Set(addr, val)
 	assert.Equal(t, val, s.Mem[addr.Addr()])
+
+	assert.Panics(t, func() {
+		s.Set(Int(-1), val)
+	})
+
+	assert.Panics(t, func() {
+		s.Set(Int(cap(s.Mem)+1), val)
+	})
 }
 
 func TestGet(t *testing.T) {
@@ -26,6 +35,14 @@ func TestGet(t *testing.T) {
 
 	s.Mem[addr.Addr()] = val
 	assert.Equal(t, val, s.Get(addr))
+
+	assert.Panics(t, func() {
+		_ = s.Get(Int(-1))
+	})
+
+	assert.Panics(t, func() {
+		_ = s.Get(Int(cap(s.Mem) + 1))
+	})
 }
 
 func TestByteSlice(t *testing.T) {
@@ -93,4 +110,41 @@ func TestCopySlice(t *testing.T) {
 			c.errfn(t, err)
 		})
 	}
+}
+
+func TestWriteFile(t *testing.T) {
+	const (
+		size  = 1
+		value = 0x33
+		file  = "/tmp/segment.writefile"
+	)
+
+	s := NewSegment(size)
+
+	s.Set(Int(0), value)
+
+	// We should not be able to write a bad file
+	assert.Error(t, s.WriteFile(""))
+
+	// But should be able to write a good file
+	assert.NoError(t, s.WriteFile(file))
+
+	// We should be able to see the file, if we looked...
+	ns := NewSegment(size)
+	assert.NoError(t, ns.ReadFile(file))
+	assert.Equal(t, Byte(value), ns.Get(Int(0)))
+	os.Remove(file)
+}
+
+func TestReadFile(t *testing.T) {
+	s := NewSegment(256)
+
+	// See if we return an error for a bad file of some kind
+	assert.Error(t, s.ReadFile(""))
+
+	// See that we don't return an error for a real file
+	assert.NoError(t, s.ReadFile("../../data/logical.sector"))
+
+	// Make sure we have some real data
+	assert.NotEqual(t, Byte(0), s.Get(Int(0)))
 }
