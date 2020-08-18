@@ -22,6 +22,11 @@ build:
 coverage:
 	COVERAGE=1 ./bin/test $(T)
 
+covreport:
+	go test -coverprofile=/tmp/cover.out $(P)
+	go tool cover -html=/tmp/cover.out -o /tmp/cover.html
+	open -a 'Google Chrome.app' /tmp/cover.html
+
 lint:
 	./bin/analyze "$(LINT)" $(T)
 
@@ -34,4 +39,4 @@ test:
 tools:
 	which golangci-lint >/dev/null || brew install golangci/tap/golangci-lint
 
-.PHONY: build coverage lint run test
+.PHONY: build coverage lint run test covreport
