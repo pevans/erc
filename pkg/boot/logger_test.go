@@ -1,7 +1,9 @@
 package boot
 
 import (
+	"log"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -70,7 +72,7 @@ func TestConfigNewLogger(t *testing.T) {
 			c.errfn(t, err)
 
 			if c.expectStdout {
-				assert.Equal(t, os.Stdout, w.log.Writer())
+				assert.Equal(t, os.Stdout, w.logger.Writer())
 			}
 		})
 	}
@@ -86,4 +88,65 @@ func TestLogCanLog(t *testing.T) {
 
 	assert.True(t, d.CanLog(LogError))
 	assert.True(t, d.CanLog(LogDebug))
+}
+
+func TestLogUseOutput(t *testing.T) {
+	l, _ := DefaultConfig().NewLogger()
+
+	l.UseOutput()
+	assert.Equal(t, os.Stdout, log.Writer())
+}
+
+func testErrLevel(
+	t *testing.T,
+	level LogLevel,
+	s string,
+	fn func(*Logger, string),
+	compar assert.ComparisonAssertionFunc,
+) {
+	// Test with a valid level
+	b := new(strings.Builder)
+	l := &Logger{
+		logger: log.New(b, "", log.LstdFlags),
+		Level:  level,
+	}
+
+	fn(l, s)
+	compar(t, b.String(), s)
+}
+
+func TestLogError(t *testing.T) {
+	fn := func(l *Logger, s string) {
+		l.Error(s)
+	}
+
+	testErrLevel(t, LogError, "hey", fn, assert.Contains)
+	testErrLevel(t, LogNothing, "hey", fn, assert.NotContains)
+}
+
+func TestLogErrorf(t *testing.T) {
+	fn := func(l *Logger, s string) {
+		l.Errorf("%s", s)
+	}
+
+	testErrLevel(t, LogError, "hey", fn, assert.Contains)
+	testErrLevel(t, LogNothing, "hey", fn, assert.NotContains)
+}
+
+func TestLogDebug(t *testing.T) {
+	fn := func(l *Logger, s string) {
+		l.Debug(s)
+	}
+
+	testErrLevel(t, LogDebug, "hey", fn, assert.Contains)
+	testErrLevel(t, LogError, "hey", fn, assert.NotContains)
+}
+
+func TestLogDebugf(t *testing.T) {
+	fn := func(l *Logger, s string) {
+		l.Debugf("%s", s)
+	}
+
+	testErrLevel(t, LogDebug, "hey", fn, assert.Contains)
+	testErrLevel(t, LogError, "hey", fn, assert.NotContains)
 }

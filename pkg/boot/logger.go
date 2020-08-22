@@ -10,12 +10,13 @@ import (
 type LogLevel int
 
 type Logger struct {
-	log   *log.Logger
-	Level LogLevel
+	logger *log.Logger
+	Level  LogLevel
 }
 
 const (
-	LogError LogLevel = iota
+	LogNothing LogLevel = iota
+	LogError
 	LogDebug
 )
 
@@ -47,7 +48,7 @@ func (c *Config) NewLogger() (*Logger, error) {
 		writer = file
 	}
 
-	l.log = log.New(writer, "", log.LstdFlags)
+	l.logger = log.New(writer, "", log.LstdFlags)
 
 	return l, nil
 }
@@ -57,7 +58,7 @@ func (c *Config) NewLogger() (*Logger, error) {
 // system where your logger is always an instantiation and not a global
 // variable.
 func (l *Logger) UseOutput() {
-	log.SetOutput(l.log.Writer())
+	log.SetOutput(l.logger.Writer())
 }
 
 // CanLog simply returns true if the log level configured by the logger
@@ -69,25 +70,25 @@ func (l *Logger) CanLog(lvl LogLevel) bool {
 // Errorf will log an error message (if allowed).
 func (l *Logger) Errorf(fmt string, vals ...interface{}) {
 	if l.CanLog(LogError) {
-		l.log.Printf("error: "+fmt, vals...)
+		l.logger.Printf("error: "+fmt, vals...)
 	}
 }
 
 func (l *Logger) Error(vals ...interface{}) {
 	if l.CanLog(LogError) {
-		l.log.Println(vals...)
+		l.logger.Println(vals...)
 	}
 }
 
 // Debugf will log a debug message (if allowed).
 func (l *Logger) Debugf(fmt string, vals ...interface{}) {
 	if l.CanLog(LogDebug) {
-		l.log.Printf("debug: "+fmt, vals...)
+		l.logger.Printf("debug: "+fmt, vals...)
 	}
 }
 
 func (l *Logger) Debug(vals ...interface{}) {
 	if l.CanLog(LogDebug) {
-		l.log.Println(vals...)
+		l.logger.Println(vals...)
 	}
 }

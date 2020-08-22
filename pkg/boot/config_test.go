@@ -7,18 +7,41 @@ import (
 )
 
 func TestNewConfig(t *testing.T) {
-	cases := []struct {
+	type test struct {
 		file string
-		fn   assert.ErrorAssertionFunc
-	}{
-		{"", assert.NoError},
-		{"/tmp", assert.Error},
-		{"./test.toml", assert.NoError},
+		efn  assert.ErrorAssertionFunc
+		vfn  assert.ValueAssertionFunc
 	}
 
-	for _, c := range cases {
-		_, err := NewConfig(c.file)
-		c.fn(t, err, c.file)
+	cases := map[string]test{
+		"no file, default bevhavior": {
+			file: "",
+			efn:  assert.NoError,
+			vfn:  assert.NotNil,
+		},
+		"not a file": {
+			file: "/tmp",
+			efn:  assert.Error,
+			vfn:  assert.Nil,
+		},
+		"invalid file": {
+			file: "/does/not/exist",
+			efn:  assert.Error,
+			vfn:  assert.Nil,
+		},
+		"valid file": {
+			file: "../../data/config.toml",
+			efn:  assert.NoError,
+			vfn:  assert.NotNil,
+		},
+	}
+
+	for desc, c := range cases {
+		t.Run(desc, func(tt *testing.T) {
+			conf, err := NewConfig(c.file)
+			c.efn(tt, err)
+			c.vfn(tt, conf)
+		})
 	}
 }
 

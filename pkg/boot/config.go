@@ -29,8 +29,12 @@ type Config struct {
 func NewConfig(file string) (*Config, error) {
 	conf := Config{}
 
-	if _, err := os.Stat(file); os.IsNotExist(err) {
+	if file == "" {
 		return DefaultConfig(), nil
+	}
+
+	if _, err := os.Stat(file); os.IsNotExist(err) {
+		return nil, errors.Wrapf(err, "not a valid configuration file: %s", file)
 	}
 
 	_, err := toml.DecodeFile(file, &conf)
