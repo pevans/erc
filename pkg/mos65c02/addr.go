@@ -233,7 +233,7 @@ func Idy(c *CPU) {
 	// And here we account for the `,Y` part; Y is added to the
 	// dereferenced address.
 	c.EffAddr = effAddr + data.DByte(c.Y)
-	c.EffVal = c.RMem.Get(c.EffAddr)
+	c.EffVal = c.Get(c.EffAddr)
 	c.AddrMode = amIdy
 }
 
