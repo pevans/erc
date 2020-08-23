@@ -8,20 +8,38 @@ import (
 )
 
 func TestFormatOperand(t *testing.T) {
-	var r Recorder
+	type test struct {
+		mode string
+		vfn  assert.ValueAssertionFunc
+	}
 
-	// If we don't know what the heck this recorder holds (whether empty
-	// or weird), then we should demonstrate that we return an empty
-	// string
-	assert.Empty(t, r.FormatOperand())
-	r.Mode = "not a real thing"
-	assert.Empty(t, r.FormatOperand())
+	cases := []test{
+		{"", assert.Empty},
+		{"not a real mode", assert.Empty},
+		{"ACC", assert.Empty},
+		{"IMP", assert.Empty},
+		{"BY2", assert.Empty},
+		{"BY3", assert.Empty},
+		{"ABS", assert.NotEmpty},
+		{"ABX", assert.NotEmpty},
+		{"ABY", assert.NotEmpty},
+		{"IDX", assert.NotEmpty},
+		{"IDY", assert.NotEmpty},
+		{"IND", assert.NotEmpty},
+		{"IMM", assert.NotEmpty},
+		{"REL", assert.NotEmpty},
+		{"ABS", assert.NotEmpty},
+		{"ZPG", assert.NotEmpty},
+		{"ZPX", assert.NotEmpty},
+		{"ZPY", assert.NotEmpty},
+	}
 
-	// However, if the mode is a real address mode that an Apple II
-	// understands, then we should be able to get something that looks
-	// nonempty
-	r.Mode = "ABS"
-	assert.NotEmpty(t, r.FormatOperand())
+	for _, c := range cases {
+		t.Run(c.mode, func(tt *testing.T) {
+			r := Recorder{Mode: c.mode}
+			c.vfn(tt, r.FormatOperand())
+		})
+	}
 }
 
 func TestRecord(t *testing.T) {
@@ -51,4 +69,10 @@ func TestRecord(t *testing.T) {
 
 	// We should see the global (yuck) counter incremented by 1
 	assert.Equal(t, counter, oldCounter+1)
+
+	r.Operand = 0x114
+	w.Reset()
+	assert.NoError(t, r.Record(w))
+	output = w.String()
+	assert.Contains(t, output, "14 01")
 }
