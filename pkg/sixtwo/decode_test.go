@@ -41,11 +41,17 @@ func (s *sixtwoSuite) TestNewDecodeMap() {
 }
 
 func (s *sixtwoSuite) TestLogByte() {
+	// Test a decoder with a nominal decode map
 	dec := decoder{
 		decMap: newDecodeMap(),
 	}
+	s.Equal(data.Byte(0x3F), dec.logByte(data.Byte(0xFF)))
 
-	assert.Equal(s.T(), data.Byte(0x3F), dec.logByte(data.Byte(0xFF)))
+	// Test a decoder with no decode map
+	dec = decoder{}
+	s.Panics(func() {
+		dec.logByte(data.Byte(0xFF))
+	})
 }
 
 func (s *sixtwoSuite) TestDecodeWriteByte() {
