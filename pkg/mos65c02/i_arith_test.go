@@ -78,6 +78,13 @@ func (s *mosSuite) TestDexy() {
 		assert.Equal(s.T(), cas.xWant, s.cpu.X)
 		assert.Equal(s.T(), cas.yWant, s.cpu.Y)
 	}
+
+	// We still need to see if we can decrement a spot in memory
+	s.cpu.Set16(s.cpu.PC+1, data.DByte(0x1122))
+	s.cpu.Set(data.DByte(0x1122), data.Byte(0x34))
+	Abs(s.cpu)
+	Dec(s.cpu)
+	s.Equal(data.Byte(0x33), s.cpu.Get(data.DByte(0x1122)))
 }
 
 func (s *mosSuite) TestInxy() {
@@ -115,6 +122,14 @@ func (s *mosSuite) TestInxy() {
 		assert.Equal(s.T(), cas.xWant, s.cpu.X)
 		assert.Equal(s.T(), cas.yWant, s.cpu.Y)
 	}
+
+	// One final test -- we want to test that we can set a value in some
+	// other spot in memory
+	s.cpu.Set16(s.cpu.PC+1, data.DByte(0x1122))
+	s.cpu.Set(data.DByte(0x1122), data.Byte(0x34))
+	Abs(s.cpu)
+	Inc(s.cpu)
+	s.Equal(data.Byte(0x35), s.cpu.Get(data.DByte(0x1122)))
 }
 
 func (s *mosSuite) TestSbc() {
