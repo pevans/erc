@@ -41,21 +41,30 @@ func bankSetMode(c *Computer, mode int) {
 
 	c.BankMode = mode
 
+	var err error
+
 	// We need to copy the zero page and stack to the Main segment from
 	// the Aux segment, or vice versa
 	switch {
 	case wasBank && !nowBank:
-		_, err := c.Main.CopySlice(0, c.Aux.Mem[0:0x200])
-		if err != nil {
-			panic(errors.Wrap(err, "could not copy aux -> main memory"))
-		}
-
+		err = bankSyncPagesFromAux(c)
 	case !wasBank && nowBank:
-		_, err := c.Aux.CopySlice(0, c.Main.Mem[0:0x200])
-		if err != nil {
-			panic(errors.Wrap(err, "could not copy main -> aux memory"))
-		}
+		err = bankSyncPagesToAux(c)
 	}
+
+	if err != nil {
+		panic(errors.Wrap(err, "could not copy bank memory between segments"))
+	}
+}
+
+func bankSyncPagesToAux(c *Computer) error {
+	_, err := c.Aux.CopySlice(0, c.Main.Mem[0:0x200])
+	return err
+}
+
+func bankSyncPagesFromAux(c *Computer) error {
+	_, err := c.Main.CopySlice(0, c.Aux.Mem[0:0x200])
+	return err
 }
 
 func bankRead(c *Computer, addr data.Addressor) data.Byte {
