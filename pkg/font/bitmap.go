@@ -5,7 +5,7 @@ import (
 	"image"
 	"image/png"
 
-	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/pkg/errors"
 )
 
@@ -45,7 +45,7 @@ func NewBitmap(fn Name) (*Bitmap, error) {
 		return nil, errors.Wrapf(err, "font %+v", fn)
 	}
 
-	ebiImage, err := ebiten.NewImageFromImage(pngImage, ebiten.FilterLinear)
+	ebiImage := ebiten.NewImageFromImage(pngImage)
 	if err != nil {
 		return nil, errors.Wrapf(err, "font %+v", fn)
 	}

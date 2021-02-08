@@ -4,7 +4,7 @@ import (
 	"image"
 	"image/color"
 
-	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 // A Screen is a simple abstraction that hides the details of how we
@@ -22,7 +22,7 @@ func NewScreen(width, height int) *Screen {
 		s   = new(Screen)
 	)
 
-	s.Image, err = ebiten.NewImage(width, height, ebiten.FilterLinear)
+	s.Image = ebiten.NewImage(width, height)
 	if err != nil {
 		panic(err)
 	}

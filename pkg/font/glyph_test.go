@@ -18,7 +18,7 @@ func TestGlyph(t *testing.T) {
 
 	// This basically recycles the memory of the "bad" bitmap now. We
 	// don't care if it errors out.
-	_ = bad.img.Dispose()
+	bad.img.Dispose()
 
 	cases := map[string]test{
 		"a character we have": {
