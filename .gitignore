@@ -1,5 +1,6 @@
 # Ignore vim swap files
 *.swp
+*.swo
 
 # Ignore any image files that I might be testing with
 *.dsk
@@ -7,3 +8,6 @@
 
 # Ignore any build of the erc binary
 /erc
+
+# Ignore any IDE stuff
+.idea
