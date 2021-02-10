@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/pevans/erc/pkg/a2"
 	"github.com/pevans/erc/pkg/boot"
 
@@ -74,11 +75,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	// In another goroutine, execute the process loop
-	go comp.ProcessLoop()
+	w, h := comp.Dimensions()
 
-	// And in the main thread, execute the draw loop
-	comp.DrawLoop()
+	ebiten.SetWindowSize(w*3, h*3)
+	ebiten.SetWindowTitle("erc")
+
+	game := &game{comp: comp}
+
+	if err := ebiten.RunGame(game); err != nil {
+		log.Error(errors.Wrapf(err, "could not run emulator"))
+		os.Exit(1)
+	}
 
 	// Shutdown
 	if err := comp.Shutdown(); err != nil {
