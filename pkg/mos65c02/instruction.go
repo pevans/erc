@@ -114,7 +114,7 @@ func (c *CPU) Execute() error {
 
 	// Record the operation, but let the rest of the func complete even
 	// if this errors
-	err := rec.Record(c.RecFile)
+	err := rec.Record(c.RecWriter)
 
 	// Adjust the program counter to beyond the expected instruction
 	// sequence (1 byte for the opcode, + N bytes for the operand, based

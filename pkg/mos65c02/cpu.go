@@ -1,14 +1,14 @@
 package mos65c02
 
 import (
-	"os"
+	"io"
 
 	"github.com/pevans/erc/pkg/data"
 )
 
 // A CPU is an implementation of an MOS 65c02 processor.
 type CPU struct {
-	RecFile *os.File
+	RecWriter io.Writer
 
 	// RMem and WMem are the segments from which we will read or write
 	// whenever it is necessary.

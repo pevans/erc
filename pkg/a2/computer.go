@@ -8,6 +8,7 @@ import (
 	"github.com/pevans/erc/pkg/boot"
 	"github.com/pevans/erc/pkg/data"
 	"github.com/pevans/erc/pkg/emu"
+	"github.com/pevans/erc/pkg/gfx"
 	"github.com/pevans/erc/pkg/mos65c02"
 )
 
@@ -63,10 +64,13 @@ type Computer struct {
 	// (For example, text mode, hires, lores, etc.)
 	DisplayMode int
 
-	log *boot.Logger
+	// FrameBuffer is the frame buffer we're using to manage the logical
+	// graphics state of the computer
+	FrameBuffer *gfx.FrameBuffer
 
-	recWriter io.Writer
+	log       *boot.Logger
 	rec       asmrec.Recorder
+	recWriter io.Writer
 }
 
 const (
@@ -95,6 +99,9 @@ const (
 func NewComputer() *Computer {
 	comp := &Computer{}
 
+	w, h := comp.Dimensions()
+	comp.FrameBuffer = gfx.NewFrameBuffer(uint(w), uint(h))
+
 	comp.Aux = data.NewSegment(AuxMemorySize)
 	comp.Main = data.NewSegment(MainMemorySize)
 	comp.ROM = data.NewSegment(RomMemorySize)
@@ -118,6 +125,7 @@ func (c *Computer) SetLogger(l *boot.Logger) {
 }
 
 func (c *Computer) SetRecorderWriter(w io.Writer) {
+	c.CPU.RecWriter = w
 	c.recWriter = w
 	c.rec = new(a2rec.Recorder)
 }
