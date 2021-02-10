@@ -16,24 +16,24 @@ var (
 
 func TestNewFrameBuffer(t *testing.T) {
 	var (
-		rows uint = 123
-		cols uint = 234
+		width  uint = 123
+		height uint = 234
 	)
 
-	fb := NewFrameBuffer(rows, cols)
+	fb := NewFrameBuffer(width, height)
 	assert.NotNil(t, fb)
 	assert.Equal(t, uint(len(fb.pixels)), fb.pixelsLength)
-	assert.Equal(t, rows, fb.Rows)
-	assert.Equal(t, cols, fb.Cols)
+	assert.Equal(t, width, fb.Width)
+	assert.Equal(t, height, fb.Height)
 }
 
 func TestSetCell(t *testing.T) {
 	var (
-		rows uint = 123
-		cols uint = 222
+		width  uint = 123
+		height uint = 222
 	)
 
-	fb := NewFrameBuffer(rows, cols)
+	fb := NewFrameBuffer(width, height)
 
 	assert.NoError(t, fb.SetCell(0, 0, green))
 	c, _ := fb.getCell(0, 0)
@@ -48,25 +48,25 @@ func TestSetCell(t *testing.T) {
 	assert.Equal(t, red, c)
 
 	// This would be the maximum position
-	assert.NoError(t, fb.SetCell(rows-1, cols-1, green))
-	c, _ = fb.getCell(rows-1, cols-1)
+	assert.NoError(t, fb.SetCell(width-1, height-1, green))
+	c, _ = fb.getCell(width-1, height-1)
 	assert.Equal(t, green, c)
 
 	// This should be out of bounds
-	assert.Error(t, fb.SetCell(rows, cols, blue))
+	assert.Error(t, fb.SetCell(width, height, blue))
 }
 
 func TestClearCells(t *testing.T) {
 	var (
-		rows uint = 111
-		cols uint = 222
+		width  uint = 111
+		height uint = 222
 	)
 
-	fb := NewFrameBuffer(rows, cols)
+	fb := NewFrameBuffer(width, height)
 
 	fb.ClearCells(blue)
 	beg, _ := fb.getCell(0, 0)
-	end, _ := fb.getCell(rows-1, cols-1)
+	end, _ := fb.getCell(width-1, height-1)
 
 	assert.Equal(t, blue, beg)
 	assert.Equal(t, blue, end)
@@ -74,12 +74,12 @@ func TestClearCells(t *testing.T) {
 
 func TestRender(t *testing.T) {
 	var (
-		rows uint = 111
-		cols uint = 222
+		width  uint = 111
+		height uint = 222
 	)
 
-	fb := NewFrameBuffer(rows, cols)
-	img := ebiten.NewImage(int(rows), int(cols))
+	fb := NewFrameBuffer(width, height)
+	img := ebiten.NewImage(int(width), int(height))
 
 	// This probably doesn't matter, but 🤷‍♂️
 	fb.ClearCells(red)

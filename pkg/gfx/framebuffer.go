@@ -12,20 +12,20 @@ type FrameBuffer struct {
 	pixels       []byte
 	pixelsLength uint
 
-	Rows uint
-	Cols uint
+	Width  uint
+	Height uint
 }
 
 // NewFrameBuffer returns a new frame buffer that contains a set of
 // logical rows and columns. These rows and columns should match
 // whatever system you are emulating, as opposed to what might
 // necessarily be shown on screen.
-func NewFrameBuffer(rows, cols uint) *FrameBuffer {
+func NewFrameBuffer(width, height uint) *FrameBuffer {
 	fb := new(FrameBuffer)
 
-	fb.Rows = rows
-	fb.Cols = cols
-	fb.pixelsLength = rows * cols * 4
+	fb.Width = width
+	fb.Height = height
+	fb.pixelsLength = width * height * 4
 	fb.pixels = make([]byte, fb.pixelsLength)
 
 	return fb
@@ -34,18 +34,18 @@ func NewFrameBuffer(rows, cols uint) *FrameBuffer {
 // cell returns the index of a cell within the Cells slice. In essence,
 // given X rows and Y columns, you can think of the slice of cells as Y
 // cells in a single row, followed another row, and another row...
-func (fb *FrameBuffer) cell(row, col uint) uint {
-	return (row * fb.Cols * 4) + (col * 4)
+func (fb *FrameBuffer) cell(x, y uint) uint {
+	return (y * fb.Height * 4) + (x * 4)
 }
 
 // getCell returns a cell's color, if one exists, or an error if not. This
 // essentially translates the underlying cell structure into something similar
 // to what gets passed in with SetCell.
-func (fb *FrameBuffer) getCell(row, col uint) (color.RGBA, error) {
-	i := fb.cell(row, col)
+func (fb *FrameBuffer) getCell(x, y uint) (color.RGBA, error) {
+	i := fb.cell(x, y)
 
 	if i > fb.pixelsLength {
-		return color.RGBA{}, fmt.Errorf("out of bounds: (row %d, col %d)", row, col)
+		return color.RGBA{}, fmt.Errorf("out of bounds: (x %d, y %d)", x, y)
 	}
 
 	return color.RGBA{
@@ -57,11 +57,11 @@ func (fb *FrameBuffer) getCell(row, col uint) (color.RGBA, error) {
 }
 
 // SetCell will assign the color of a single cell
-func (fb *FrameBuffer) SetCell(row, col uint, clr color.RGBA) error {
-	cellIndex := fb.cell(row, col)
+func (fb *FrameBuffer) SetCell(x, y uint, clr color.RGBA) error {
+	cellIndex := fb.cell(x, y)
 
 	if cellIndex > fb.pixelsLength {
-		return fmt.Errorf("out of bounds: (row %d, col %d)", row, col)
+		return fmt.Errorf("out of bounds: (x %d, y %d)", x, y)
 	}
 
 	fb.pixels[cellIndex+0] = byte(clr.R)
