@@ -37,8 +37,7 @@ func main() {
 	log.UseOutput()
 
 	if len(os.Args) < 2 {
-		log.Error("you must pass the name of a file to load")
-		os.Exit(1)
+		log.Fatal("you must pass the name of a file to load")
 	}
 
 	inputFile := os.Args[1]
@@ -60,19 +59,16 @@ func main() {
 
 	data, err := os.OpenFile(inputFile, os.O_RDWR, 0644)
 	if err != nil {
-		log.Error(errors.Wrapf(err, "could not open file %s", inputFile))
-		os.Exit(1)
+		log.Fatal(errors.Wrapf(err, "could not open file %s", inputFile))
 	}
 
 	if err := comp.Load(data, inputFile); err != nil {
-		log.Error(errors.Wrapf(err, "could not load file %s", inputFile))
-		os.Exit(1)
+		log.Fatal(errors.Wrapf(err, "could not load file %s", inputFile))
 	}
 
 	// Attempt a cold boot
 	if err := comp.Boot(); err != nil {
-		log.Error(errors.Wrapf(err, "could not boot emulator"))
-		os.Exit(1)
+		log.Fatal(errors.Wrapf(err, "could not boot emulator"))
 	}
 
 	w, h := comp.Dimensions()
@@ -83,13 +79,11 @@ func main() {
 	game := &game{comp: comp, log: log}
 
 	if err := ebiten.RunGame(game); err != nil {
-		log.Error(errors.Wrapf(err, "could not run emulator"))
-		os.Exit(1)
+		log.Fatal(errors.Wrapf(err, "could not run emulator"))
 	}
 
 	// Shutdown
 	if err := comp.Shutdown(); err != nil {
-		log.Error(errors.Wrapf(err, "could not properly shut down emulator"))
-		os.Exit(1)
+		log.Fatal(errors.Wrapf(err, "could not properly shut down emulator"))
 	}
 }
