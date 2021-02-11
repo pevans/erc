@@ -80,7 +80,7 @@ func main() {
 	ebiten.SetWindowSize(w*3, h*3)
 	ebiten.SetWindowTitle("erc")
 
-	game := &game{comp: comp}
+	game := &game{comp: comp, log: log}
 
 	if err := ebiten.RunGame(game); err != nil {
 		log.Error(errors.Wrapf(err, "could not run emulator"))
