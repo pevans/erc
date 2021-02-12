@@ -120,8 +120,8 @@ func TestLogError(t *testing.T) {
 		l.Error(s)
 	}
 
-	testErrLevel(t, LogError, "hey", fn, assert.Contains)
-	testErrLevel(t, LogNothing, "hey", fn, assert.NotContains)
+	testErrLevel(t, LogError, "heyf", fn, assert.Contains)
+	testErrLevel(t, LogNothing, "heyg", fn, assert.NotContains)
 }
 
 func TestLogErrorf(t *testing.T) {
@@ -129,8 +129,8 @@ func TestLogErrorf(t *testing.T) {
 		l.Errorf("%s", s)
 	}
 
-	testErrLevel(t, LogError, "hey", fn, assert.Contains)
-	testErrLevel(t, LogNothing, "hey", fn, assert.NotContains)
+	testErrLevel(t, LogError, "heyf", fn, assert.Contains)
+	testErrLevel(t, LogNothing, "heyg", fn, assert.NotContains)
 }
 
 func TestLogDebug(t *testing.T) {
@@ -138,8 +138,8 @@ func TestLogDebug(t *testing.T) {
 		l.Debug(s)
 	}
 
-	testErrLevel(t, LogDebug, "hey", fn, assert.Contains)
-	testErrLevel(t, LogError, "hey", fn, assert.NotContains)
+	testErrLevel(t, LogDebug, "heyf", fn, assert.Contains)
+	testErrLevel(t, LogError, "heyg", fn, assert.NotContains)
 }
 
 func TestLogDebugf(t *testing.T) {
@@ -147,6 +147,6 @@ func TestLogDebugf(t *testing.T) {
 		l.Debugf("%s", s)
 	}
 
-	testErrLevel(t, LogDebug, "hey", fn, assert.Contains)
-	testErrLevel(t, LogError, "hey", fn, assert.NotContains)
+	testErrLevel(t, LogDebug, "heyf", fn, assert.Contains)
+	testErrLevel(t, LogError, "heyg", fn, assert.NotContains)
 }
