@@ -4,7 +4,6 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -70,19 +69,4 @@ func TestClearCells(t *testing.T) {
 
 	assert.Equal(t, blue, beg)
 	assert.Equal(t, blue, end)
-}
-
-func TestRender(t *testing.T) {
-	var (
-		width  uint = 111
-		height uint = 222
-	)
-
-	fb := NewFrameBuffer(width, height)
-	img := ebiten.NewImage(int(width), int(height))
-
-	// This probably doesn't matter, but 🤷‍♂️
-	fb.ClearCells(red)
-
-	assert.NoError(t, fb.Render(img))
 }
