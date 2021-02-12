@@ -58,16 +58,16 @@ func (fb *FrameBuffer) getCell(x, y uint) (color.RGBA, error) {
 
 // SetCell will assign the color of a single cell
 func (fb *FrameBuffer) SetCell(x, y uint, clr color.RGBA) error {
-	cellIndex := fb.cell(x, y)
+	i := fb.cell(x, y)
 
-	if cellIndex > fb.pixelsLength {
+	if i > fb.pixelsLength {
 		return fmt.Errorf("out of bounds: (x %d, y %d)", x, y)
 	}
 
-	fb.pixels[cellIndex+0] = byte(clr.R)
-	fb.pixels[cellIndex+1] = byte(clr.G)
-	fb.pixels[cellIndex+2] = byte(clr.B)
-	fb.pixels[cellIndex+3] = byte(clr.A)
+	fb.pixels[i+0] = clr.R
+	fb.pixels[i+1] = clr.G
+	fb.pixels[i+2] = clr.B
+	fb.pixels[i+3] = clr.A
 
 	return nil
 }
@@ -75,10 +75,10 @@ func (fb *FrameBuffer) SetCell(x, y uint, clr color.RGBA) error {
 // ClearCells will set a color on every cell of the frame buffer
 func (fb *FrameBuffer) ClearCells(clr color.RGBA) {
 	for i := uint(0); i < fb.pixelsLength; i += 4 {
-		fb.pixels[i+0] = byte(clr.R)
-		fb.pixels[i+1] = byte(clr.G)
-		fb.pixels[i+2] = byte(clr.B)
-		fb.pixels[i+3] = byte(clr.A)
+		fb.pixels[i+0] = clr.R
+		fb.pixels[i+1] = clr.G
+		fb.pixels[i+2] = clr.B
+		fb.pixels[i+3] = clr.A
 	}
 }
 
