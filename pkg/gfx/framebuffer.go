@@ -35,7 +35,7 @@ func NewFrameBuffer(width, height uint) *FrameBuffer {
 // given X rows and Y columns, you can think of the slice of cells as Y
 // cells in a single row, followed another row, and another row...
 func (fb *FrameBuffer) cell(x, y uint) uint {
-	return (y * fb.Height * 4) + (x * 4)
+	return 4 * ((y * fb.Width) + x)
 }
 
 // getCell returns a cell's color, if one exists, or an error if not. This
