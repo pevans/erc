@@ -88,3 +88,50 @@ func (fb *FrameBuffer) Render(img *ebiten.Image) error {
 	img.ReplacePixels(fb.pixels)
 	return nil
 }
+
+// Blit will essentially copy the entire source framebuffer into the receiver,
+// starting from a specific point.
+func (fb *FrameBuffer) Blit(x, y uint, src *FrameBuffer) error {
+	for sy := uint(0); sy < src.Height; sy++ {
+		if err := fb.blitFromY(x, y+sy, sy, src); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// blitFromY is a helper method for blit; basically it encapsulates the logic of
+// blitting a single row.
+func (fb *FrameBuffer) blitFromY(x, y, sy uint, src *FrameBuffer) error {
+	// Where we're writing to
+	di := fb.cell(x, y)
+
+	// Where we're writing from
+	si := src.cell(0, sy)
+
+	writeLength := src.Width * 4
+
+	if fb.pixelsLength-di < writeLength {
+		return fmt.Errorf(
+			"destination out of bounds (pl[%d]-di[%d] < wl[%d]",
+			fb.pixelsLength, di, writeLength,
+		)
+	}
+
+	if src.pixelsLength-si < writeLength {
+		return fmt.Errorf(
+			"source out of bounds (pl[%d]-si[%d] < wl[%d]",
+			src.pixelsLength, si, writeLength,
+		)
+	}
+
+	// Remember that there are 4 pixels for every "cell" we need to copy!
+	for slen := src.Width * 4; slen > 0; slen-- {
+		fb.pixels[di] = src.pixels[si]
+		di++
+		si++
+	}
+
+	return nil
+}

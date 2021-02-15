@@ -70,3 +70,44 @@ func TestClearCells(t *testing.T) {
 	assert.Equal(t, blue, beg)
 	assert.Equal(t, blue, end)
 }
+
+func TestBlit(t *testing.T) {
+	var (
+		srcWidth  uint = 111
+		srcHeight uint = 222
+		red            = color.RGBA{R: 240}
+		black          = color.RGBA{}
+		src            = NewFrameBuffer(srcWidth, srcHeight)
+	)
+
+	src.ClearCells(red)
+
+	t.Run("copy src into an equal size fb", func(t *testing.T) {
+		fb := NewFrameBuffer(srcWidth, srcHeight)
+		assert.NoError(t, fb.Blit(0, 0, src))
+	})
+
+	t.Run("copy into portion of dest", func(t *testing.T) {
+		fb := NewFrameBuffer(srcWidth, srcHeight+1)
+
+		// Skip the first row in the copy
+		assert.NoError(t, fb.Blit(0, 1, src))
+
+		// Make sure that first row is still the default color, but the second
+		// should be red
+		cb, _ := fb.getCell(0, 0)
+		cr, _ := fb.getCell(1, 1)
+		assert.Equal(t, black, cb)
+		assert.Equal(t, red, cr)
+	})
+
+	t.Run("can't copy beyond boundaries", func(t *testing.T) {
+		var (
+			w uint = 1
+			h uint = 1
+		)
+
+		fb := NewFrameBuffer(w, h)
+		assert.Error(t, fb.Blit(0, 0, src))
+	})
+}
