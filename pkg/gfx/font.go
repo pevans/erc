@@ -16,7 +16,7 @@ type Font struct {
 	GlyphHeight uint
 
 	defaultGlyph *FrameBuffer
-	glyphMap     map[rune]*FrameBuffer
+	glyphMap     map[int]*FrameBuffer
 }
 
 // NewFont returns a new font in which each glyph will have dimensions based on
@@ -27,14 +27,14 @@ func NewFont(width, height uint) *Font {
 	f.GlyphWidth = width
 	f.GlyphHeight = height
 	f.defaultGlyph = NewFrameBuffer(f.GlyphWidth, f.GlyphHeight)
-	f.glyphMap = make(map[rune]*FrameBuffer)
+	f.glyphMap = make(map[int]*FrameBuffer)
 
 	return f
 }
 
-// Glyph returns a glyph for a given rune. If no such rune exists in our font,
+// Glyph returns a glyph for a given int. If no such int exists in our font,
 // we will return the font's _default glyph_, rather than an error.
-func (f *Font) Glyph(ch rune) *FrameBuffer {
+func (f *Font) Glyph(ch int) *FrameBuffer {
 	fb, ok := f.glyphMap[ch]
 	if !ok {
 		return f.defaultGlyph
@@ -44,12 +44,12 @@ func (f *Font) Glyph(ch rune) *FrameBuffer {
 }
 
 // DefineGlyph will define a new glyph in the font, or replace an existing
-// glyph, for a given rune. Points deserves special attention: it's expected to
+// glyph, for a given int. Points deserves special attention: it's expected to
 // be a sequence of zeroes and ones, where zero indicates a point in the bitmap
 // font that should not be drawn, and one indicates a point that should be
 // drawn. The length of points should be equal to the product of width x height
 // and, if it isn't, DefineGlyph will panic.
-func (f *Font) DefineGlyph(ch rune, points []byte) {
+func (f *Font) DefineGlyph(ch int, points []byte) {
 	if len(points) != int(f.GlyphWidth)*int(f.GlyphHeight) {
 		panic(fmt.Sprintf(
 			"invalid points length for font (pl[%d] != w[%d] x h[%d]",
