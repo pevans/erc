@@ -54,6 +54,7 @@ func main() {
 	}
 
 	comp := a2.NewComputer()
+	comp.SetFont(a2.SystemFont())
 	comp.SetLogger(log)
 	comp.SetRecorderWriter(instLogFile)
 

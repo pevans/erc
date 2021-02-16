@@ -68,6 +68,9 @@ type Computer struct {
 	// graphics state of the computer
 	FrameBuffer *gfx.FrameBuffer
 
+	// SysFont is the system font for the Apple II
+	SysFont *gfx.Font
+
 	log       *boot.Logger
 	rec       asmrec.Recorder
 	recWriter io.Writer
@@ -118,6 +121,11 @@ func NewComputer() *Computer {
 	comp.WMap = make(map[int]WriteMapFn)
 
 	return comp
+}
+
+// SetFont will take the accepted font and treat it as our system font
+func (c *Computer) SetFont(f *gfx.Font) {
+	c.SysFont = f
 }
 
 func (c *Computer) SetLogger(l *boot.Logger) {
