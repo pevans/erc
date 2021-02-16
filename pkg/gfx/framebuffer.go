@@ -31,6 +31,23 @@ func NewFrameBuffer(width, height uint) *FrameBuffer {
 	return fb
 }
 
+// Invert returns a framebuffer that is the opposite (or inverted) version of
+// the receiver. This is useful for cases where you might want an inverse video
+// effect.
+func (fb *FrameBuffer) Invert() *FrameBuffer {
+	inv := NewFrameBuffer(fb.Width, fb.Height)
+
+	for i, px := range fb.pixels {
+		if (i+1)%4 == 0 {
+			continue
+		}
+
+		inv.pixels[i] = px ^ 0xff
+	}
+
+	return inv
+}
+
 // cell returns the index of a cell within the Cells slice. In essence,
 // given X rows and Y columns, you can think of the slice of cells as Y
 // cells in a single row, followed another row, and another row...

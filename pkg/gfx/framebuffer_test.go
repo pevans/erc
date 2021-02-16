@@ -26,6 +26,20 @@ func TestNewFrameBuffer(t *testing.T) {
 	assert.Equal(t, height, fb.Height)
 }
 
+func TestFrameBufferInvert(t *testing.T) {
+	t.Run("invert returns a frame buffer with inverted colors", func(t *testing.T) {
+		fb := NewFrameBuffer(1, 1)
+		red := color.RGBA{R: 255}
+		blueGreen := color.RGBA{G: 255, B: 255}
+
+		fb.ClearCells(red)
+		inv := fb.Invert()
+
+		cbg, _ := inv.getCell(0, 0)
+		assert.Equal(t, blueGreen, cbg)
+	})
+}
+
 func TestSetCell(t *testing.T) {
 	var (
 		width  uint = 123

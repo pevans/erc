@@ -81,3 +81,17 @@ func gcolor(b byte) color.RGBA {
 
 	return color.RGBA{R: 255, G: 255, B: 255}
 }
+
+// DefineGlyphAsBuffer will take a fully formed framebuffer as its glyph. If
+// the given framebuffer does not have the same dimension as our font, this
+// method will panic.
+func (f *Font) DefineGlyphAsBuffer(ch int, fb *FrameBuffer) {
+	if fb.Width != f.GlyphWidth || fb.Height != f.GlyphHeight {
+		panic(fmt.Sprintf(
+			"fb width[%d] or height[%d] mismatches font width[%d] or height[%d]",
+			fb.Width, fb.Height, f.GlyphWidth, f.GlyphHeight,
+		))
+	}
+
+	f.glyphMap[ch] = fb
+}
