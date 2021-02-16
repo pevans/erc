@@ -15,21 +15,10 @@ func SystemFont() *gfx.Font {
 		sysFontHeight,
 	)
 
+	font00(f)
 	font20(f)
 	font40(f)
+	font60(f)
 
 	return f
-}
-
-func fontAlphaLower(f *gfx.Font) {
-	f.DefineGlyph('a', []byte{
-		0, 0, 0, 0, 0, 0, 0,
-		0, 0, 0, 0, 0, 0, 0,
-		0, 0, 1, 1, 1, 0, 0,
-		0, 0, 0, 0, 0, 1, 0,
-		0, 0, 1, 1, 1, 1, 0,
-		0, 1, 0, 0, 0, 1, 0,
-		0, 0, 1, 1, 1, 1, 0,
-		0, 0, 0, 0, 0, 0, 0,
-	})
 }
