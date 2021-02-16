@@ -125,10 +125,13 @@ func (c *Computer) SetFont(f *gfx.Font) {
 	c.SysFont = f
 }
 
+// SetLogger will tell the computer which logger to use for any log messages
 func (c *Computer) SetLogger(l *boot.Logger) {
 	c.log = l
 }
 
+// SetRecorderWriter accepts a writer that we'll use to output any records of
+// the instructions we record.
 func (c *Computer) SetRecorderWriter(w io.Writer) {
 	c.CPU.RecWriter = w
 	c.recWriter = w

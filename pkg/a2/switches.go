@@ -1,7 +1,7 @@
 package a2
 
-// Here we set up all the soft switches that we'll use in the computer,
-// which is a lot!
+// MapSoftSwitches will add several mappings for the soft switches that our
+// computer uses.
 func (c *Computer) MapSoftSwitches() {
 	c.MapRange(0x0, 0x200, zeroPageRead, zeroPageWrite)
 	c.MapRange(0x0400, 0x0800, displayRead, displayWrite)
