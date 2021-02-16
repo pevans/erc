@@ -7,7 +7,6 @@ import (
 	"github.com/pevans/erc/pkg/asmrec/a2rec"
 	"github.com/pevans/erc/pkg/boot"
 	"github.com/pevans/erc/pkg/data"
-	"github.com/pevans/erc/pkg/emu"
 	"github.com/pevans/erc/pkg/gfx"
 	"github.com/pevans/erc/pkg/mos65c02"
 )
@@ -22,8 +21,6 @@ type WriteMapFn func(*Computer, data.Addressor, data.Byte)
 
 // A Computer is our abstraction of an Apple //e ("enhanced") computer.
 type Computer struct {
-	drawer emu.Drawer
-
 	// The CPU of the Apple //e was an MOS 65C02 processor.
 	CPU *mos65c02.CPU
 
