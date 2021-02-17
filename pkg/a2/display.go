@@ -17,28 +17,39 @@ const (
 	// unchanged.
 	Display80Col = 0x2
 
+	// Display80Store is an "enabling" switch for DisplayPage2 and DisplayHires
+	// below. If this bit is not on, then those two other bits don't do
+	// anything, and all aux memory access is governed by DisplayWriteAux and
+	// DisplayReadAux above.
+	Display80Store = 0x4
+
+	// DisplayPage2 allows access to auxiliary memory for the display page,
+	// which is $0400..$07FF. This switch only works if Display80Store is
+	// also enabled.
+	DisplayPage2 = 0x8
+
 	// DisplayText tells us to render the display buffer in text mode,
 	// which means we should interpret the data there as text symbols
 	// and not (for example) graphic cells.
-	DisplayText = 0x4
+	DisplayText = 0x10
 
 	// DisplayMixed tells us to show both lores graphics and text. (It
 	// is not possible to show hires graphics and text.) In this mode,
 	// text is rendered at the bottom several rows; lores graphics,
 	// above.
-	DisplayMixed = 0x8
+	DisplayMixed = 0x20
 
 	// DisplayHires directs us to show high resolution graphics, rather
 	// than low-resolution. The number of colors we can show decreases,
 	// but the number of dots per inch increases.
-	DisplayHires = 0x10
+	DisplayHires = 0x40
 
 	// DisplayIOU enables IOU access for $C058 - $C05F.
-	DisplayIOU = 0x20
+	DisplayIOU = 0x80
 
 	// DisplayDHires indicates that we will show double high-resolution
 	// graphics. This mode requires the use of auxiliary memory.
-	DisplayDHires = 0x40
+	DisplayDHires = 0x100
 )
 
 func newDisplaySwitchCheck() *SwitchCheck {
@@ -54,9 +65,9 @@ func displaySetMode(c *Computer, mode int) {
 }
 
 func displayAuxSegment(c *Computer, addr data.DByte) *data.Segment {
-	is80 := c.MemMode&Mem80Store > 0
-	isHi := c.MemMode&MemHires > 0
-	isP2 := c.MemMode&MemPage2 > 0
+	is80 := c.DisplayMode&Display80Store > 0
+	isHi := c.DisplayMode&DisplayHires > 0
+	isP2 := c.DisplayMode&DisplayPage2 > 0
 
 	if is80 {
 		if addr >= 0x0400 && addr < 0x0800 && isHi {

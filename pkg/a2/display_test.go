@@ -22,40 +22,40 @@ func (s *a2Suite) TestDisplaySetMode() {
 
 func (s *a2Suite) TestDisplayAuxSegment() {
 	cases := []struct {
-		memMode int
-		addr    data.DByte
-		want    *data.Segment
+		displayMode int
+		addr        data.DByte
+		want        *data.Segment
 	}{
 		{0, 0x444, nil},
-		{Mem80Store, 0x444, nil},
-		{Mem80Store | MemHires, 0x444, s.comp.Aux},
+		{Display80Store, 0x444, nil},
+		{Display80Store | DisplayHires, 0x444, s.comp.Aux},
 		{0, 0x2444, nil},
-		{Mem80Store, 0x2444, nil},
-		{Mem80Store | MemHires, 0x2444, nil},
-		{Mem80Store | MemHires | MemPage2, 0x2444, s.comp.Aux},
+		{Display80Store, 0x2444, nil},
+		{Display80Store | DisplayHires, 0x2444, nil},
+		{Display80Store | DisplayHires | DisplayPage2, 0x2444, s.comp.Aux},
 	}
 
 	for _, c := range cases {
-		s.comp.MemMode = c.memMode
+		s.comp.DisplayMode = c.displayMode
 		s.Equal(c.want, displayAuxSegment(s.comp, c.addr))
 	}
 }
 
 func (s *a2Suite) TestDisplayRead() {
 	cases := []struct {
-		memMode int
-		addr    data.DByte
-		seg     *data.Segment
-		want    data.Byte
+		displayMode int
+		addr        data.DByte
+		seg         *data.Segment
+		want        data.Byte
 	}{
 		{0, 0x444, s.comp.Main, 111},
-		{Mem80Store | MemHires, 0x445, s.comp.Aux, 111},
+		{Display80Store | DisplayHires, 0x445, s.comp.Aux, 111},
 		{0, 0x2444, s.comp.Main, 111},
-		{Mem80Store | MemHires | MemPage2, 0x2445, s.comp.Aux, 111},
+		{Display80Store | DisplayHires | DisplayPage2, 0x2445, s.comp.Aux, 111},
 	}
 
 	for _, c := range cases {
-		s.comp.MemMode = c.memMode
+		s.comp.DisplayMode = c.displayMode
 		c.seg.Set(c.addr, c.want)
 
 		s.Equal(c.want, displayRead(s.comp, c.addr))
@@ -70,9 +70,9 @@ func (s *a2Suite) TestDisplayWrite() {
 		want    data.Byte
 	}{
 		{0, 0x444, s.comp.Main, 111},
-		{Mem80Store | MemHires, 0x445, s.comp.Aux, 111},
+		{Display80Store | DisplayHires, 0x445, s.comp.Aux, 111},
 		{0, 0x2444, s.comp.Main, 111},
-		{Mem80Store | MemHires | MemPage2, 0x2445, s.comp.Aux, 111},
+		{Display80Store | DisplayHires | DisplayPage2, 0x2445, s.comp.Aux, 111},
 	}
 
 	for _, c := range cases {

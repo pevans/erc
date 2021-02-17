@@ -15,21 +15,6 @@ const (
 	// MemWriteAux is the switch that tells us write to auxiliary memory
 	// in the core 48k memory range.
 	MemWriteAux = 0x02
-
-	// Mem80Store is an "enabling" switch for MemPage2 and MemHires
-	// below.  If this bit is not on, then those two other bits don't do
-	// anything, and all aux memory access is governed by MemWriteAux
-	// and MemReadAux above.
-	Mem80Store = 0x04
-
-	// MemPage2 allows access to auxiliary memory for the display page,
-	// which is $0400..$07FF. This switch only works if Mem80Store is
-	// also enabled.
-	MemPage2 = 0x08
-
-	// MemHires allows auxiliary memory access for $2000..$3FFF, as long
-	// as MemPage2 and Mem80Store are also enabled.
-	MemHires = 0x10
 )
 
 // Get will return the byte at addr, or will execute a read switch if
