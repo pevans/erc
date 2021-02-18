@@ -25,6 +25,5 @@ func (g *game) Draw(screen *ebiten.Image) {
 }
 
 func (g *game) Update() error {
-	err := g.comp.Process()
-	return err
+	return nil
 }

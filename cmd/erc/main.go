@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/pevans/erc/pkg/a2"
@@ -78,6 +79,14 @@ func main() {
 	ebiten.SetWindowTitle("erc")
 
 	game := &game{comp: comp, log: log}
+
+	go func() {
+		for {
+			_ = comp.Process()
+
+			time.Sleep(100)
+		}
+	}()
 
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(errors.Wrapf(err, "could not run emulator"))
