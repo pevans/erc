@@ -5,7 +5,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/pevans/erc/pkg/a2"
 	"github.com/pevans/erc/pkg/boot"
 
@@ -41,7 +40,9 @@ func main() {
 		log.Fatal("you must pass the name of a file to load")
 	}
 
-	inputFile := os.Args[1]
+	comp := a2.NewComputer()
+	comp.SetFont(a2.SystemFont())
+	comp.SetLogger(log)
 
 	if conf.InstructionLog.File != "" {
 		instLogFile, err = os.OpenFile(
@@ -52,13 +53,11 @@ func main() {
 		if err != nil {
 			log.Errorf("unable to open file for instruction logging: %v", err)
 		}
+
+		comp.SetRecorderWriter(instLogFile)
 	}
 
-	comp := a2.NewComputer()
-	comp.SetFont(a2.SystemFont())
-	comp.SetLogger(log)
-	comp.SetRecorderWriter(instLogFile)
-
+	inputFile := os.Args[1]
 	data, err := os.OpenFile(inputFile, os.O_RDWR, 0644)
 	if err != nil {
 		log.Fatal(errors.Wrapf(err, "could not open file %s", inputFile))
@@ -73,23 +72,11 @@ func main() {
 		log.Fatal(errors.Wrapf(err, "could not boot emulator"))
 	}
 
-	w, h := comp.Dimensions()
+	delay := 10 * time.Nanosecond
+	go processLoop(comp, log, delay)
 
-	ebiten.SetWindowSize(w*3, h*3)
-	ebiten.SetWindowTitle("erc")
-
-	game := &game{comp: comp, log: log}
-
-	go func() {
-		for {
-			_ = comp.Process()
-
-			time.Sleep(100)
-		}
-	}()
-
-	if err := ebiten.RunGame(game); err != nil {
-		log.Fatal(errors.Wrapf(err, "could not run emulator"))
+	if err := drawLoop(comp, log); err != nil {
+		log.Fatal(errors.Wrap(err, "failed to execute draw loop"))
 	}
 
 	// Shutdown
