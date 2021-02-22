@@ -51,5 +51,5 @@ func Compare(c *CPU, base data.Byte) {
 	res := base - c.EffVal
 
 	c.ApplyNZ(res)
-	c.ApplyStatus(res > 0, CARRY)
+	c.ApplyStatus(base >= c.EffVal, CARRY)
 }
