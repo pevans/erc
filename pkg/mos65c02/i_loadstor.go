@@ -50,6 +50,7 @@ func Phy(c *CPU) {
 // the stack and saves that value in the A register.
 func Pla(c *CPU) {
 	c.A = c.PopStack()
+	c.ApplyNZ(c.A)
 }
 
 // Plp implements the PLP (pull P) instruction, which pops the top of
@@ -62,12 +63,14 @@ func Plp(c *CPU) {
 // the stack and saves that value in the X register.
 func Plx(c *CPU) {
 	c.X = c.PopStack()
+	c.ApplyNZ(c.X)
 }
 
 // Ply implements the PLY (pull Y) instruction, which pops the top of
 // the stack and saves that value in the Y register.
 func Ply(c *CPU) {
 	c.Y = c.PopStack()
+	c.ApplyNZ(c.Y)
 }
 
 // Sta implements the STA (store A) instruction, which saves the current
