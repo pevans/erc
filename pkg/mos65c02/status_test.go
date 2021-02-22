@@ -82,9 +82,9 @@ func TestCompare(t *testing.T) {
 	cases := []struct {
 		a, oper, pWant data.Byte
 	}{
-		{1, 3, NEGATIVE | CARRY},
+		{1, 3, NEGATIVE},
 		{3, 1, CARRY},
-		{3, 3, ZERO},
+		{3, 3, ZERO | CARRY},
 	}
 
 	for _, cas := range cases {
