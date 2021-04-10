@@ -107,17 +107,29 @@ func (c *Computer) Render() {
 		return
 	}
 
-	var (
-		page1Start data.Int = 0x400
-		page1End   data.Int = 0x800
-	)
-
 	// if it's text, do one thing
 	// if it's lores, do another thing
 	// if it's mixed, we need to do text + lores
 	// if it's hires, do the hires thing
 	// we also need to account for double text/lores/hires/mixed
-	c.textRender(page1Start, page1End)
+	switch {
+	case c.DisplayMode&DisplayText != 0:
+		var (
+			start data.Int = 0x400
+			end   data.Int = 0x800
+		)
+
+		c.textRender(start, end)
+	case c.DisplayMode&DisplayHires != 0:
+		var (
+			start data.Int = 0x2000
+			end   data.Int = 0x4000
+		)
+
+		c.hiresRender(start, end)
+	default:
+		c.log.Debugf("i'm getting called with display mode %x", c.DisplayMode)
+	}
 
 	c.reDraw = false
 }
