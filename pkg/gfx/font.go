@@ -95,3 +95,19 @@ func (f *Font) DefineGlyphAsBuffer(ch int, fb *FrameBuffer) {
 
 	f.glyphMap[ch] = fb
 }
+
+// Write will write a message out to a framebuffer at some given position.
+func (f *Font) Write(message string, x, y uint, fb *FrameBuffer) error {
+	cursor := x
+
+	for _, c := range message {
+		err := fb.Blit(cursor, y, f.glyphMap[int(c)])
+		if err != nil {
+			return err
+		}
+
+		cursor += f.GlyphWidth
+	}
+
+	return nil
+}
