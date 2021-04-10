@@ -72,7 +72,7 @@ func main() {
 		log.Fatal(errors.Wrapf(err, "could not boot emulator"))
 	}
 
-	delay := 10 * time.Nanosecond
+	delay := 10000 * time.Nanosecond
 	go processLoop(comp, log, delay)
 
 	if err := drawLoop(comp, log); err != nil {
