@@ -48,5 +48,6 @@ func (g *game) Draw(screen *ebiten.Image) {
 // logic, but it will run as often as the frames on screen will update--this
 // ends up being too infrequently for us to make use of it.
 func (g *game) Update() error {
+	g.comp.Render()
 	return nil
 }
