@@ -2,8 +2,17 @@ package a2
 
 import "github.com/pevans/erc/pkg/gfx"
 
-func font60(f *gfx.Font) {
-	f.DefineGlyph(0x60, []byte{ // `
+func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
+	defg := func(b []byte) {
+		if mask != nil {
+			b = mask(b)
+		}
+
+		f.DefineGlyph(offset, b)
+		offset++
+	}
+
+	defg([]byte{ // `
 		0, 1, 0, 0, 0, 0, 0,
 		0, 0, 1, 0, 0, 0, 0,
 		0, 0, 0, 1, 0, 0, 0,
@@ -14,7 +23,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x61, []byte{ // a
+	defg([]byte{ // a
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 1, 1, 1, 0, 0,
@@ -25,7 +34,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x62, []byte{ // b
+	defg([]byte{ // b
 		0, 1, 0, 0, 0, 0, 0,
 		0, 1, 0, 0, 0, 0, 0,
 		0, 1, 1, 1, 1, 0, 0,
@@ -36,7 +45,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x63, []byte{ // c
+	defg([]byte{ // c
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 1, 1, 1, 1, 0,
@@ -47,7 +56,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x64, []byte{ // d
+	defg([]byte{ // d
 		0, 0, 0, 0, 0, 1, 0,
 		0, 0, 0, 0, 0, 1, 0,
 		0, 0, 1, 1, 1, 1, 0,
@@ -58,7 +67,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x65, []byte{ // e
+	defg([]byte{ // e
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 1, 1, 1, 0, 0,
@@ -69,7 +78,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x66, []byte{ // f
+	defg([]byte{ // f
 		0, 0, 0, 1, 1, 0, 0,
 		0, 0, 1, 0, 0, 1, 0,
 		0, 0, 1, 0, 0, 0, 0,
@@ -80,7 +89,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x67, []byte{ // g
+	defg([]byte{ // g
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 1, 1, 1, 0, 0,
@@ -91,7 +100,7 @@ func font60(f *gfx.Font) {
 		0, 0, 1, 1, 1, 0, 0,
 	})
 
-	f.DefineGlyph(0x68, []byte{ // h
+	defg([]byte{ // h
 		0, 1, 0, 0, 0, 0, 0,
 		0, 1, 0, 0, 0, 0, 0,
 		0, 1, 1, 1, 1, 0, 0,
@@ -102,7 +111,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x69, []byte{ // i
+	defg([]byte{ // i
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 1, 1, 0, 0, 0,
@@ -113,7 +122,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x6a, []byte{ // j
+	defg([]byte{ // j
 		0, 0, 0, 0, 1, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 1, 0, 0,
@@ -124,7 +133,7 @@ func font60(f *gfx.Font) {
 		0, 0, 1, 1, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x6b, []byte{ // k
+	defg([]byte{ // k
 		0, 1, 0, 0, 0, 0, 0,
 		0, 1, 0, 0, 0, 0, 0,
 		0, 1, 0, 0, 0, 1, 0,
@@ -135,7 +144,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x6c, []byte{ // l
+	defg([]byte{ // l
 		0, 0, 1, 1, 0, 0, 0,
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 1, 0, 0, 0,
@@ -146,7 +155,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x6d, []byte{ // m
+	defg([]byte{ // m
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 1, 1, 0, 1, 1, 0,
@@ -157,7 +166,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x6e, []byte{ // n
+	defg([]byte{ // n
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 1, 1, 1, 1, 0, 0,
@@ -168,7 +177,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x6f, []byte{ // o
+	defg([]byte{ // o
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 1, 1, 1, 0, 0,
@@ -179,7 +188,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x70, []byte{ // p
+	defg([]byte{ // p
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 1, 1, 1, 1, 0, 0,
@@ -190,7 +199,7 @@ func font60(f *gfx.Font) {
 		0, 1, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x71, []byte{ // q
+	defg([]byte{ // q
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 1, 1, 1, 1, 0,
@@ -201,7 +210,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 1, 0,
 	})
 
-	f.DefineGlyph(0x72, []byte{ // r
+	defg([]byte{ // r
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 1, 0, 1, 1, 1, 0,
@@ -212,7 +221,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x73, []byte{ // s
+	defg([]byte{ // s
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 1, 1, 1, 1, 0,
@@ -223,7 +232,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x74, []byte{ // t
+	defg([]byte{ // t
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 1, 0, 0, 0, 0,
 		0, 1, 1, 1, 1, 0, 0,
@@ -234,7 +243,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x75, []byte{ // u
+	defg([]byte{ // u
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 1, 0, 0, 0, 1, 0,
@@ -245,7 +254,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x76, []byte{ // v
+	defg([]byte{ // v
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 1, 0, 0, 0, 1, 0,
@@ -256,7 +265,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x77, []byte{ // w
+	defg([]byte{ // w
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 1, 0, 0, 0, 1, 0,
@@ -267,7 +276,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x78, []byte{ // x
+	defg([]byte{ // x
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 1, 0, 0, 0, 1, 0,
@@ -278,7 +287,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x79, []byte{ // y
+	defg([]byte{ // y
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 1, 0, 0, 0, 1, 0,
@@ -289,7 +298,7 @@ func font60(f *gfx.Font) {
 		0, 0, 1, 1, 1, 0, 0,
 	})
 
-	f.DefineGlyph(0x7a, []byte{ // z
+	defg([]byte{ // z
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 1, 1, 1, 1, 1, 0,
@@ -300,7 +309,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x7b, []byte{ // {
+	defg([]byte{ // {
 		0, 0, 1, 1, 1, 0, 0,
 		0, 1, 1, 0, 0, 0, 0,
 		0, 1, 1, 0, 0, 0, 0,
@@ -311,7 +320,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x7c, []byte{ // |
+	defg([]byte{ // |
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 1, 0, 0, 0,
@@ -322,7 +331,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 1, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x7d, []byte{ // }
+	defg([]byte{ // }
 		0, 0, 1, 1, 1, 0, 0,
 		0, 0, 0, 0, 1, 1, 0,
 		0, 0, 0, 0, 1, 1, 0,
@@ -333,7 +342,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x7e, []byte{ // ~
+	defg([]byte{ // ~
 		0, 0, 1, 1, 0, 1, 0,
 		0, 1, 0, 1, 1, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
@@ -344,7 +353,7 @@ func font60(f *gfx.Font) {
 		0, 0, 0, 0, 0, 0, 0,
 	})
 
-	f.DefineGlyph(0x7f, []byte{ // DEL
+	defg([]byte{ // DEL
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,

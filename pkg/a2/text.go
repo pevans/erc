@@ -140,17 +140,11 @@ var textAddressCols = []int{
 
 // DrawText will render all the text we know of to the framebuffer
 func (c *Computer) DrawText() {
-	// 0x400 is the start of Page 1's address space
-	start := 0x400
-	end := 0x800
+}
 
-	// If the computer has Page2 turned on, we have to select from the next 1k
-	// block up
-	if c.DisplayMode&DisplayPage2 > 0 {
-		start = 0x800
-		end = 0xBFF
-	}
-
+// textRender will draw text in the framebuffer starting from a specific memory
+// range, and ending at a specific memory range.
+func (c *Computer) textRender(start, end data.Int) {
 	for addr := start; addr < end; addr++ {
 		// Try to figure out where the text should be displayed
 		row := textAddressRows[addr-start]

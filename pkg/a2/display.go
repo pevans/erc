@@ -100,3 +100,24 @@ func displayWrite(c *Computer, addr data.Addressor, val data.Byte) {
 
 	c.WriteSegment().Set(addr, val)
 }
+
+// Render will draw an updated picture of our graphics to the local framebuffer
+func (c *Computer) Render() {
+	if !c.reDraw {
+		return
+	}
+
+	var (
+		page1Start data.Int = 0x400
+		page1End   data.Int = 0x800
+	)
+
+	// if it's text, do one thing
+	// if it's lores, do another thing
+	// if it's mixed, we need to do text + lores
+	// if it's hires, do the hires thing
+	// we also need to account for double text/lores/hires/mixed
+	c.textRender(page1Start, page1End)
+
+	c.reDraw = false
+}
