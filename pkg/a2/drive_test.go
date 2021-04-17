@@ -102,6 +102,7 @@ func (s *a2Suite) TestDrivePhase() {
 	}
 }
 
+/*
 func (s *a2Suite) TestDriveStepPhase() {
 	d := NewDrive()
 
@@ -134,6 +135,7 @@ func (s *a2Suite) TestDriveStepPhase() {
 	s.Equal(5, d.TrackPos)
 	s.Equal(1, d.Phase)
 }
+*/
 
 func (s *a2Suite) TestImageType() {
 	type test struct {

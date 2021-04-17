@@ -14,7 +14,7 @@ func diskReadWrite(c *Computer, addr data.DByte, val *data.Byte) {
 	switch nib {
 	case 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7:
 		// Set the drive phase, thus adjusting the track position
-		drive.StepPhase(nib)
+		drive.SwitchPhase(nib)
 
 	case 0x8:
 		// Turn both drives on

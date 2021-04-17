@@ -114,31 +114,53 @@ func Phase(addr data.DByte) int {
 	return phase
 }
 
-// StepPhase will step the drive head forward or backward based upon the
-// given address (from which we decipher the motor phase).
-func (d *Drive) StepPhase(addr data.DByte) {
-	newPhase := Phase(addr)
-	curPhase := d.Phase
-	offset := 0
+// SwitchPhase will figure out what phase we should be moving to based on a
+// given address.
+func (d *Drive) SwitchPhase(addr data.DByte) {
+	phase := -1
 
-	if newPhase < 1 {
+	switch addr & 0xf {
+	case 0x1:
+		phase = 1
+	case 0x3:
+		phase = 2
+	case 0x5:
+		phase = 3
+	case 0x7:
+		phase = 4
+	}
+
+	d.PhaseTransition(phase)
+}
+
+// phaseTable is a really small set of state transitions we can make when
+// accounting for the current phase (which is the row in the table) and the new
+// phase (which is a column in that row). The 0 column and 0 row are not used
+// since there is no 0 phase. We could refactor this a bit by removing those and
+// subtracting 1 from the phase when mapping into this table.
+var phaseTable = []int{
+	0, 0, 0, 0, 0,
+	0, 0, 1, 0, -1,
+	0, -1, 0, 1, 0,
+	0, 0, -1, 0, 1,
+	0, 1, 0, -1, 0,
+}
+
+// PhaseTransition will make use of a given drive phase to step the drive
+// forward or backward by some number of tracks. This is always going to be -1
+// (step backward); 1 (step forward); or 0 (no change).
+func (d *Drive) PhaseTransition(phase int) {
+	if phase < 0 || phase > 4 {
 		return
 	}
 
-	switch {
-	case newPhase == 1 && curPhase == 4:
-		offset = 1
-	case newPhase == 4 && curPhase == 1:
-		offset = -1
+	// Because of the above check, we can assert that the formula we use for the
+	// phase transition ((curPhase * 5) + phase) will match something, so we
+	// step immediately.
+	d.Step(phaseTable[(d.Phase*5)+phase])
 
-	case newPhase > curPhase:
-		offset = 1
-	case newPhase < curPhase:
-		offset = -1
-	}
-
-	d.Step(offset)
-	d.Phase = newPhase
+	// We also have to update our current phase
+	d.Phase = phase
 }
 
 // ImageType returns the type of image that is suggested by the suffix
@@ -198,6 +220,8 @@ func (d *Drive) Read() data.Byte {
 	// Set the latch value to the byte at our current position, then
 	// shift our position by one place
 	d.Latch = d.Data.Get(d.Position())
+
+	fmt.Printf("reading data=%x from pos=%x\n", d.Latch, d.Position())
 
 	d.Shift(1)
 
