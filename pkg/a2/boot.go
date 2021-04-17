@@ -57,7 +57,8 @@ func (c *Computer) Boot() error {
 // powered off.
 func (c *Computer) Reset() {
 	// Set the initial status of the CPU
-	c.CPU.P = mos65c02.NEGATIVE | mos65c02.OVERFLOW | mos65c02.INTERRUPT | mos65c02.ZERO | mos65c02.CARRY
+	//c.CPU.P = mos65c02.NEGATIVE | mos65c02.OVERFLOW | mos65c02.INTERRUPT | mos65c02.ZERO | mos65c02.CARRY
+	c.CPU.P = mos65c02.INTERRUPT | mos65c02.BREAK | mos65c02.UNUSED
 
 	// When reset, the stack goes to its top (which is the end of the
 	// stack page).

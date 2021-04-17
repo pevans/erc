@@ -25,7 +25,7 @@ func (s *a2Suite) TestReset() {
 	c.Reset()
 
 	s.Equal(
-		mos65c02.NEGATIVE|mos65c02.OVERFLOW|mos65c02.INTERRUPT|mos65c02.ZERO|mos65c02.CARRY,
+		mos65c02.INTERRUPT|mos65c02.BREAK|mos65c02.UNUSED,
 		c.CPU.P,
 	)
 	s.Equal(c.CPU.Get16(ResetPC), c.CPU.PC)
