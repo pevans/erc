@@ -6,11 +6,16 @@ import "github.com/pevans/erc/pkg/data"
 // add integers to the accumulator; if the carry flag is set, then the
 // result is further incremented by one.
 func Adc(c *CPU) {
+	accum := c.A
+
 	// It's useful to make an accounting of how the result looks in a
 	// 16-bit context (to determine if the C bit should be set)
 	res16 := data.DByte(c.A)
 	res16 += data.DByte(c.EffVal)
 	res16 += data.DByte(c.P & CARRY)
+
+	// TODO: it's possible for ADC to be executed in decimal, rather than
+	// binary, mode; but our current code only handles the latter.
 
 	// But we mostly care about the 8-bit result, even if the unsigned
 	// 8-bit value overflows
@@ -23,7 +28,8 @@ func Adc(c *CPU) {
 	// the value went from positive to negative, or from negative to
 	// positive.
 	c.ApplyStatus(
-		(c.A^c.EffVal)&0x80 > 0 && (c.A^res8)&0x80 > 0,
+		(accum < 0x80 && res8 >= 0x80) ||
+			(accum >= 0x80 && res8 < 0x80),
 		OVERFLOW,
 	)
 

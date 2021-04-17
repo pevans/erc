@@ -6,23 +6,62 @@ import (
 )
 
 func (s *mosSuite) TestAdc() {
-	cases := []struct {
-		a, oper, p, aWant, pWant data.Byte
-	}{
-		{0, 1, 0, 1, 0},
-		{80, 80, CARRY, 161, NEGATIVE},
-		{160, 160, 0, (160 + 160 - 256), CARRY},
-	}
+	var (
+		d10    data.Byte = 10
+		d250   data.Byte = 250
+		d127   data.Byte = 127
+		offset data.Byte = 10
+		one    data.Byte = 1
+	)
 
-	for _, cas := range cases {
-		s.cpu.A = cas.a
-		s.cpu.EffVal = cas.oper
-		s.cpu.P = cas.p
+	s.Run("result is A + EffVal when carry isn't set", func() {
+		s.cpu.A = d10
+		s.cpu.EffVal = offset
+		s.cpu.P = 0
+		Adc(s.cpu)
+
+		s.Equal(d10+offset, s.cpu.A)
+	})
+
+	s.Run("result is A + EffVal + 1 when carry is set", func() {
+		s.cpu.A = d10
+		s.cpu.EffVal = offset
+		s.cpu.P = CARRY
+		Adc(s.cpu)
+
+		s.Equal(d10+offset+one, s.cpu.A)
+	})
+
+	s.Run("carry is set when result is larger than 255", func() {
+		s.cpu.A = d250
+		s.cpu.EffVal = offset
+		s.cpu.P = 0
 
 		Adc(s.cpu)
-		assert.Equal(s.T(), cas.aWant, s.cpu.A)
-		assert.Equal(s.T(), cas.pWant, s.cpu.P)
-	}
+		s.Equal(d250+offset, s.cpu.A)
+		s.Equal(CARRY, s.cpu.P&CARRY)
+	})
+
+	s.Run("overflow is set when going from positive to negative", func() {
+		// Test going from positive to negative sets OVERFLOW
+		s.cpu.A = d127
+		s.cpu.EffVal = offset
+		s.cpu.P = 0
+		Adc(s.cpu)
+
+		s.Equal(d127+offset, s.cpu.A)
+		s.Equal(OVERFLOW, s.cpu.P&OVERFLOW)
+	})
+
+	s.Run("overflow is set when going from negative to positive", func() {
+		s.cpu.A = d250
+		s.cpu.EffVal = offset
+		s.cpu.P = 0
+		Adc(s.cpu)
+
+		s.Equal(d250+offset, s.cpu.A)
+		s.Equal(OVERFLOW, s.cpu.P&OVERFLOW)
+	})
 }
 
 func (s *mosSuite) TestCmp() {
