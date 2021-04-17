@@ -44,9 +44,9 @@ func main() {
 	comp.SetFont(a2.SystemFont())
 	comp.SetLogger(log)
 
-	if conf.InstructionLog.File != "" {
+	if instLog := os.Getenv("INST_LOG"); instLog != "" {
 		instLogFile, err = os.OpenFile(
-			conf.InstructionLog.File,
+			instLog,
 			os.O_CREATE|os.O_TRUNC|os.O_WRONLY,
 			0755,
 		)
@@ -72,7 +72,7 @@ func main() {
 		log.Fatal(errors.Wrapf(err, "could not boot emulator"))
 	}
 
-	delay := 10000 * time.Nanosecond
+	delay := 10 * time.Nanosecond
 	go processLoop(comp, log, delay)
 
 	if err := drawLoop(comp, log); err != nil {
