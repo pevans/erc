@@ -116,6 +116,8 @@ func Iny(c *CPU) {
 // subtracts from the A register. If the carry flag is NOT set, then an
 // additional one is subtracted from the result.
 func Sbc(c *CPU) {
+	accum := c.A
+
 	res := int(c.A)
 	res -= int(c.EffVal)
 
@@ -129,7 +131,8 @@ func Sbc(c *CPU) {
 	c.ApplyStatus(res < 0, NEGATIVE)
 	c.ApplyStatus(res >= 0, CARRY)
 	c.ApplyStatus(
-		(c.A^c.EffVal)&0x80 > 0 && (c.A^res8)&0x80 > 0,
+		(accum < 0x80 && res8 >= 0x80) ||
+			(accum >= 0x80 && res8 < 0x80),
 		OVERFLOW,
 	)
 

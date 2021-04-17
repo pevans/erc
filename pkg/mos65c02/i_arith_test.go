@@ -1,8 +1,9 @@
 package mos65c02
 
 import (
+	"fmt"
+
 	"github.com/pevans/erc/pkg/data"
-	"github.com/stretchr/testify/assert"
 )
 
 func (s *mosSuite) TestAdc() {
@@ -65,129 +66,255 @@ func (s *mosSuite) TestAdc() {
 }
 
 func (s *mosSuite) TestCmp() {
-	cases := []struct {
-		a, x, y data.Byte
-		fn      func(c *CPU)
-	}{
-		{5, 0, 0, Cmp},
-		{0, 5, 0, Cpx},
-		{0, 0, 5, Cpy},
-	}
+	var (
+		d10 data.Byte = 10
+		d20 data.Byte = 20
+	)
 
-	for _, cas := range cases {
-		s.cpu.A, s.cpu.X, s.cpu.Y = cas.a, cas.x, cas.y
-		s.cpu.EffVal = 3
+	s.Run("zero is set when given equal values", func() {
+		s.cpu.A = d10
+		s.cpu.EffVal = d10
+		Cmp(s.cpu)
+
+		s.Equal(ZERO, s.cpu.P&ZERO)
+	})
+
+	s.Run("negative is set when effval > accum", func() {
+		s.cpu.A = d10
+		s.cpu.EffVal = d20
+		Cmp(s.cpu)
+
+		s.Equal(NEGATIVE, s.cpu.P&NEGATIVE)
+	})
+
+	s.Run("carry is set when accum >= effval", func() {
+		s.cpu.A = d20
+		s.cpu.EffVal = d10
+		Cmp(s.cpu)
+
+		s.Equal(CARRY, s.cpu.P&CARRY)
+
+		s.cpu.A = d10
 		s.cpu.P = 0
-
-		cas.fn(s.cpu)
-		assert.Equal(s.T(), CARRY, s.cpu.P)
-	}
+		Cmp(s.cpu)
+		s.Equal(CARRY, s.cpu.P&CARRY)
+	})
 }
 
-func (s *mosSuite) TestDexy() {
-	cases := []struct {
-		fn       func(c *CPU)
-		a, aWant data.Byte
-		x, xWant data.Byte
-		y, yWant data.Byte
-		pWant    data.Byte
-	}{
-		{Dec, 3, 2, 0, 0, 0, 0, 0},
-		{Dec, 1, 0, 0, 0, 0, 0, ZERO},
-		{Dec, 0, 0xFF, 0, 0, 0, 0, NEGATIVE},
-		{Dex, 0, 0, 3, 2, 0, 0, 0},
-		{Dex, 0, 0, 1, 0, 0, 0, ZERO},
-		{Dex, 0, 0, 0, 255, 0, 0, NEGATIVE},
-		{Dey, 0, 0, 0, 0, 3, 2, 0},
-		{Dey, 0, 0, 0, 0, 1, 0, ZERO},
-		{Dey, 0, 0, 0, 0, 0, 255, NEGATIVE},
-	}
+func (s *mosSuite) testDecrement(
+	funcName string,
+	setVal func(*CPU, data.Byte),
+	getVal func(*CPU) data.Byte,
+	fn func(*CPU),
+) {
+	var (
+		d1 data.Byte = 1
+		d0 data.Byte = 0
+	)
 
-	s.cpu.AddrMode = amAcc
+	runVal := fmt.Sprintf("%s decrements by one", funcName)
+	runNegative := fmt.Sprintf("%s sets negative flag when flipping sign", funcName)
+	runZero := fmt.Sprintf("%s sets zero flag when result is zero", funcName)
 
-	for _, cas := range cases {
-		s.cpu.A = cas.a
-		s.cpu.X = cas.x
-		s.cpu.Y = cas.y
+	s.Run(runVal, func() {
+		setVal(s.cpu, d1)
+		fn(s.cpu)
 
-		Acc(s.cpu)
-		cas.fn(s.cpu)
+		s.Equal(d0, getVal(s.cpu))
+	})
 
-		assert.Equal(s.T(), cas.aWant, s.cpu.A)
-		assert.Equal(s.T(), cas.xWant, s.cpu.X)
-		assert.Equal(s.T(), cas.yWant, s.cpu.Y)
-	}
+	s.Run(runNegative, func() {
+		setVal(s.cpu, d0)
+		fn(s.cpu)
 
-	// We still need to see if we can decrement a spot in memory
-	s.cpu.Set16(s.cpu.PC+1, data.DByte(0x1122))
-	s.cpu.Set(data.DByte(0x1122), data.Byte(0x34))
-	Abs(s.cpu)
-	Dec(s.cpu)
-	s.Equal(data.Byte(0x33), s.cpu.Get(data.DByte(0x1122)))
+		s.Equal(NEGATIVE, s.cpu.P&NEGATIVE)
+	})
+
+	s.Run(runZero, func() {
+		setVal(s.cpu, d1)
+		fn(s.cpu)
+
+		s.Equal(ZERO, s.cpu.P&ZERO)
+	})
 }
 
-func (s *mosSuite) TestInxy() {
-	cases := []struct {
-		fn       func(c *CPU)
-		a, aWant data.Byte
-		x, xWant data.Byte
-		y, yWant data.Byte
-		pWant    data.Byte
-	}{
-		{Inc, 11, 12, 2, 2, 0, 0, 0},
-		{Inc, 0xFF, 0, 2, 2, 0, 0, ZERO},
-		{Inc, 0x7F, 0x80, 2, 2, 0, 0, NEGATIVE},
-		{Inx, 0, 0, 2, 3, 0, 0, 0},
-		{Inx, 0, 0, 255, 0, 0, 0, ZERO},
-		{Inx, 0, 0, 127, 128, 0, 0, NEGATIVE},
-		{Iny, 0, 0, 0, 0, 2, 3, 0},
-		{Iny, 0, 0, 0, 0, 255, 0, ZERO},
-		{Iny, 0, 0, 0, 0, 127, 128, NEGATIVE},
-	}
+func (s *mosSuite) TestDex() {
+	s.testDecrement("DEX",
+		func(c *CPU, b data.Byte) { c.X = b },
+		func(c *CPU) data.Byte { return c.X },
+		Dex,
+	)
+}
 
+func (s *mosSuite) TestDey() {
+	s.testDecrement("DEY",
+		func(c *CPU, b data.Byte) { c.Y = b },
+		func(c *CPU) data.Byte { return c.Y },
+		Dey,
+	)
+}
+
+// TestDec is a bit tricky, because DEC does two very different things based on
+// its address mode.
+func (s *mosSuite) TestDec() {
 	s.cpu.AddrMode = amAcc
+	s.testDecrement("DEC (accumulator)",
+		func(c *CPU, b data.Byte) { c.A = b; c.EffVal = b },
+		func(c *CPU) data.Byte { return c.A },
+		Dec,
+	)
 
-	for _, cas := range cases {
-		s.cpu.X = cas.x
-		s.cpu.Y = cas.y
-		s.cpu.A = cas.a
+	var (
+		addr data.DByte = 1
+	)
 
-		// This is a bit janky, but INC needs to know that the A
-		// register is loaded into EffVal for INC with amAcc to work.
-		Acc(s.cpu)
-		cas.fn(s.cpu)
+	s.cpu.AddrMode = amAbs
+	s.testDecrement("DEC (memory)",
+		func(c *CPU, b data.Byte) { c.Set(addr, b); c.EffAddr = addr; c.EffVal = b },
+		func(c *CPU) data.Byte { return c.Get(addr) },
+		Dec,
+	)
+}
 
-		assert.Equal(s.T(), cas.aWant, s.cpu.A)
-		assert.Equal(s.T(), cas.xWant, s.cpu.X)
-		assert.Equal(s.T(), cas.yWant, s.cpu.Y)
-	}
+func (s *mosSuite) testIncrement(
+	funcName string,
+	setVal func(*CPU, data.Byte),
+	getVal func(*CPU) data.Byte,
+	fn func(*CPU),
+) {
+	var (
+		d1   data.Byte = 1
+		d0   data.Byte = 0
+		d127 data.Byte = 127
+		d255 data.Byte = 255
+	)
 
-	// One final test -- we want to test that we can set a value in some
-	// other spot in memory
-	s.cpu.Set16(s.cpu.PC+1, data.DByte(0x1122))
-	s.cpu.Set(data.DByte(0x1122), data.Byte(0x34))
-	Abs(s.cpu)
-	Inc(s.cpu)
-	s.Equal(data.Byte(0x35), s.cpu.Get(data.DByte(0x1122)))
+	runVal := fmt.Sprintf("%s increments by one", funcName)
+	runNegative := fmt.Sprintf("%s sets negative flag when flipping sign", funcName)
+	runZero := fmt.Sprintf("%s sets zero flag when result is zero", funcName)
+
+	s.Run(runVal, func() {
+		setVal(s.cpu, d0)
+		fn(s.cpu)
+
+		s.Equal(d1, getVal(s.cpu))
+	})
+
+	s.Run(runNegative, func() {
+		setVal(s.cpu, d127)
+		fn(s.cpu)
+
+		s.Equal(NEGATIVE, s.cpu.P&NEGATIVE)
+	})
+
+	s.Run(runZero, func() {
+		setVal(s.cpu, d255)
+		fn(s.cpu)
+
+		s.Equal(ZERO, s.cpu.P&ZERO)
+	})
+}
+
+func (s *mosSuite) TestInx() {
+	s.testIncrement("INX",
+		func(c *CPU, b data.Byte) { c.X = b },
+		func(c *CPU) data.Byte { return c.X },
+		Inx,
+	)
+}
+
+func (s *mosSuite) TestIny() {
+	s.testIncrement("INY",
+		func(c *CPU, b data.Byte) { c.Y = b },
+		func(c *CPU) data.Byte { return c.Y },
+		Iny,
+	)
+}
+
+// Same deal as TestDec above -- the INC instruction does some very different
+// things based on address mode.
+func (s *mosSuite) TestInc() {
+	s.cpu.AddrMode = amAcc
+	s.testIncrement("INC",
+		func(c *CPU, b data.Byte) { c.A = b; c.EffVal = b },
+		func(c *CPU) data.Byte { return c.A },
+		Inc,
+	)
+
+	var (
+		addr data.DByte = 1
+	)
+
+	s.cpu.AddrMode = amAbs
+	s.testIncrement("INC",
+		func(c *CPU, b data.Byte) { c.Set(addr, b); c.EffAddr = addr; c.EffVal = b },
+		func(c *CPU) data.Byte { return c.Get(addr) },
+		Inc,
+	)
 }
 
 func (s *mosSuite) TestSbc() {
-	cases := []struct {
-		a, oper, aWant, p, pWant data.Byte
-	}{
-		{3, 2, 1, CARRY, CARRY},
-		{3, 2, 0, 0, CARRY | ZERO},
-		{3, 3, 0, CARRY, CARRY | ZERO},
-		{3, 4, 255, CARRY, NEGATIVE},
-	}
+	var (
+		d10    data.Byte = 10
+		d127   data.Byte = 127
+		offset data.Byte = 20
+		one    data.Byte = 1
+		d0     data.Byte = 0
+	)
 
-	for _, cas := range cases {
-		s.cpu.A = cas.a
-		s.cpu.P = cas.p
-		s.cpu.EffVal = cas.oper
-
+	s.Run("subtracting with carry set results in A = A - EV", func() {
+		s.cpu.A = d127
+		s.cpu.EffVal = offset
+		s.cpu.P = CARRY
 		Sbc(s.cpu)
-		assert.Equal(s.T(), cas.aWant, s.cpu.A)
-		assert.Equal(s.T(), cas.pWant, s.cpu.P)
-	}
+
+		s.Equal(d127-offset, s.cpu.A)
+	})
+
+	s.Run("subtraction with nonzero result sets carry", func() {
+		s.Equal(CARRY, s.cpu.P&CARRY)
+	})
+
+	s.Run("subtracting without carry sets results in A = A - EV - 1", func() {
+		s.cpu.A = d127
+		s.cpu.EffVal = offset
+		s.cpu.P = 0
+		Sbc(s.cpu)
+
+		s.Equal(d127-offset-one, s.cpu.A)
+	})
+
+	s.Run("subtracting a larger from a smaller number sets negative", func() {
+		s.cpu.A = d10
+		s.cpu.EffVal = offset
+		s.cpu.P = CARRY
+		Sbc(s.cpu)
+
+		s.Equal(d10-offset, s.cpu.A)
+		s.Equal(NEGATIVE, s.cpu.P&NEGATIVE)
+	})
+
+	s.Run("subtracting that flips the sign positive to negative sets overflow", func() {
+		s.Equal(OVERFLOW, s.cpu.P&OVERFLOW)
+	})
+
+	s.Run("subtracting that flips the sign negative to positve sets overflow", func() {
+		s.cpu.A = d127 + offset
+		s.cpu.EffVal = offset
+		s.cpu.P = CARRY
+		Sbc(s.cpu)
+
+		s.Equal(d127, s.cpu.A)
+		s.Equal(OVERFLOW, s.cpu.P&OVERFLOW)
+	})
+
+	s.Run("subtracting that results in zero sets zero", func() {
+		s.cpu.A = d127
+		s.cpu.EffVal = d127
+		s.cpu.P = CARRY
+		Sbc(s.cpu)
+
+		s.Equal(d0, s.cpu.A)
+		s.Equal(ZERO, s.cpu.P&ZERO)
+	})
 }
