@@ -2,256 +2,459 @@ package mos65c02
 
 import (
 	"github.com/pevans/erc/pkg/data"
-	"github.com/stretchr/testify/assert"
 )
-
-func (s *mosSuite) TestSaveResult() {
-	cases := []struct {
-		mode int
-		addr data.DByte
-		want data.Byte
-	}{
-		{amAcc, 0x1234, 0x12},
-		{amAbs, 0x1234, 0x34},
-	}
-
-	for _, c := range cases {
-		s.cpu.AddrMode = c.mode
-		s.cpu.EffAddr = c.addr
-
-		s.cpu.A = 0
-		s.cpu.Set(s.cpu.EffAddr, 0)
-		s.cpu.saveResult(c.want)
-
-		switch c.mode {
-		case amAcc:
-			assert.Equal(s.T(), c.want, s.cpu.A)
-		case amAbs:
-			assert.Equal(s.T(), c.want, s.cpu.Get(s.cpu.EffAddr))
-		}
-	}
-}
-
-type bitCase struct {
-	a     data.Byte
-	in    data.Byte
-	want  data.Byte
-	initp data.Byte
-	p     data.Byte
-}
 
 // And implements the AND instruction, which performs a bitwise-and on A
 // and the effective value and saves the result there.
 func (s *mosSuite) TestAnd() {
-	cases := []bitCase{
-		{0x4, 0x7, 0x4, 0, 0},
-		{0x80, 0x81, 0x80, 0, NEGATIVE},
-		{0x80, 0x7F, 0x0, 0, ZERO},
-	}
+	var (
+		d127 data.Byte = 127
+		d63  data.Byte = 63
+		d255 data.Byte = 255
+		d0   data.Byte = 0
+	)
 
-	for _, c := range cases {
-		s.cpu.A = c.a
-		s.cpu.EffVal = c.in
+	and := func(a, val data.Byte) {
+		s.cpu.A = a
+		s.cpu.EffVal = val
 		s.cpu.P = 0
-
 		And(s.cpu)
-		assert.Equal(s.T(), c.want, s.cpu.A)
-		assert.Equal(s.T(), c.p, s.cpu.P)
 	}
+
+	s.Run("two equal values result in said values", func() {
+		and(d127, d127)
+		s.Equal(d127, s.cpu.A)
+	})
+
+	s.Run("different values with binary overlaps result with the smaller subset", func() {
+		and(d127, d63)
+		s.Equal(d63, s.cpu.A)
+	})
+
+	s.Run("result >= 0x80 sets the negative flag", func() {
+		and(d255, d255)
+		s.Equal(NEGATIVE, s.cpu.P&NEGATIVE)
+	})
+
+	s.Run("result = 0 sets the zero flag", func() {
+		and(d255, d0)
+		s.Equal(ZERO, s.cpu.P&ZERO)
+	})
 }
 
 func (s *mosSuite) TestAsl() {
-	cases := []bitCase{
-		{0x0, 0x4, 0x8, 0, 0},
-		{0x0, 0x40, 0x80, 0, NEGATIVE},
-		{0x0, 0x0, 0x0, 0, ZERO},
-		{0x0, 0x80, 0x0, 0, ZERO | CARRY},
-	}
+	var (
+		d0   data.Byte  = 0
+		d64  data.Byte  = 64
+		d128 data.Byte  = 128
+		addr data.DByte = 1
+	)
 
-	for _, c := range cases {
-		s.cpu.EffVal = c.in
+	aslacc := func(a, val data.Byte) {
 		s.cpu.AddrMode = amAcc
+		s.cpu.A = a
+		s.cpu.EffVal = val
 		s.cpu.P = 0
-
 		Asl(s.cpu)
-		assert.Equal(s.T(), c.want, s.cpu.A)
-		assert.Equal(s.T(), c.p, s.cpu.P)
 	}
+
+	s.Run("result is shifted left by one bit position", func() {
+		aslacc(d0, d64)
+		s.Equal(d128, s.cpu.A)
+	})
+
+	s.Run("result >= 0x80 sets the negative flag", func() {
+		s.Equal(NEGATIVE, s.cpu.P&NEGATIVE)
+	})
+
+	s.Run("result of zero sets zero flag", func() {
+		aslacc(d0, d128)
+		s.Equal(d0, s.cpu.A)
+		s.Equal(ZERO, s.cpu.P&ZERO)
+	})
+
+	s.Run("when bit 7 is high, the carry flag should be set", func() {
+		s.Equal(CARRY, s.cpu.P&CARRY)
+	})
+
+	s.cpu.AddrMode = amAbs
+	s.Run("absolute address mode sets the value in the right place", func() {
+		s.cpu.EffVal = d64
+		s.cpu.EffAddr = addr
+		s.cpu.Set(addr, d0)
+		Asl(s.cpu)
+
+		s.Equal(d128, s.cpu.Get(addr))
+	})
 }
 
 func (s *mosSuite) TestBit() {
-	cases := []bitCase{
-		{0x1, 0x3, 0, 0, 0},
-		{0x1, 0x2, 0, 0, ZERO},
-		{0x0, 0x84, 0, 0, ZERO | NEGATIVE},
-		{0x4, 0x84, 0, 0, NEGATIVE},
-		{0x4, 0x44, 0, 0, OVERFLOW},
-		{0x4, 0xC4, 0, 0, NEGATIVE | OVERFLOW},
-	}
+	var (
+		d63  data.Byte = 63
+		d127 data.Byte = 127
+		d128 data.Byte = 128
+	)
 
-	for _, c := range cases {
-		s.cpu.A = c.a
-		s.cpu.EffVal = c.in
-		s.cpu.P = c.initp
-
+	bit := func(a, val data.Byte) {
+		s.cpu.A = a
+		s.cpu.EffVal = val
+		s.cpu.P = 0
 		Bit(s.cpu)
-		assert.Equal(s.T(), c.p, s.cpu.P)
 	}
+
+	s.Run("sets zero flag when there are no overlapping bits", func() {
+		bit(d127, d128)
+		s.Equal(ZERO, s.cpu.P&ZERO)
+	})
+
+	s.Run("sets negative flag when bit 7 is high", func() {
+		s.Equal(NEGATIVE, s.cpu.P&NEGATIVE)
+	})
+
+	s.Run("sets overflow flag when bit 6 is high", func() {
+		bit(0, d127)
+		s.Equal(OVERFLOW, s.cpu.P&OVERFLOW)
+	})
+
+	s.Run("does not set overflow if bit 6 is low", func() {
+		bit(0, d63)
+		s.NotEqual(OVERFLOW, s.cpu.P&OVERFLOW)
+	})
+
+	s.Run("does not set a zero flag when there are overlapping bits", func() {
+		bit(d127, d127)
+		s.NotEqual(ZERO, s.cpu.P&ZERO)
+	})
+
+	s.Run("does not set the negative flag if bit 7 is low", func() {
+		s.NotEqual(NEGATIVE, s.cpu.P&NEGATIVE)
+	})
 }
 
 func (s *mosSuite) TestBim() {
-	cases := []bitCase{
-		{0x1, 0x3, 0, 0, 0},
-		{0x1, 0x2, 0, 0, ZERO},
-	}
+	var (
+		d1 data.Byte = 1
+		d2 data.Byte = 2
+	)
 
-	for _, c := range cases {
-		s.cpu.A = c.a
-		s.cpu.EffVal = c.in
-		s.cpu.P = c.initp
-
+	bim := func(a, val data.Byte) {
+		s.cpu.A = a
+		s.cpu.EffVal = val
+		s.cpu.P = 0
 		Bim(s.cpu)
-		assert.Equal(s.T(), c.p, s.cpu.P)
 	}
+
+	s.Run("sets zero flag when a&val has zero result", func() {
+		bim(d1, d2)
+		s.Equal(ZERO, s.cpu.P&ZERO)
+	})
+
+	s.Run("does not set zero flag when a&val has nonzero result", func() {
+		bim(d1, d1)
+		s.NotEqual(ZERO, s.cpu.P&ZERO)
+	})
 }
 
 func (s *mosSuite) TestEor() {
-	cases := []bitCase{
-		{0x4, 0x7, 0x3, 0, 0},
-		{0x81, 0x1, 0x80, 0, NEGATIVE},
-		{0x00, 0x00, 0x00, 0, ZERO},
-	}
+	var (
+		d0   data.Byte = 0
+		d3   data.Byte = 3
+		d4   data.Byte = 4
+		d7   data.Byte = 7
+		d128 data.Byte = 128
+	)
 
-	for _, c := range cases {
-		s.cpu.A = c.a
-		s.cpu.EffVal = c.in
+	eor := func(a, val data.Byte) {
+		s.cpu.A = a
+		s.cpu.EffVal = val
 		s.cpu.P = 0
-
 		Eor(s.cpu)
-		assert.Equal(s.T(), c.want, s.cpu.A)
-		assert.Equal(s.T(), c.p, s.cpu.P)
 	}
+
+	s.Run("exclusive-ors two values", func() {
+		eor(d4, d7)
+		s.Equal(d3, s.cpu.A)
+	})
+
+	s.Run("does not set zero flag when there is a nonzero result", func() {
+		s.NotEqual(ZERO, s.cpu.P&ZERO)
+	})
+
+	s.Run("sets zero flag when result is zero", func() {
+		eor(d4, d4)
+		s.Equal(d0, s.cpu.A)
+		s.Equal(ZERO, s.cpu.P&ZERO)
+	})
+
+	s.Run("does not set negative flag when there is a non-negative result", func() {
+		s.NotEqual(NEGATIVE, s.cpu.P&NEGATIVE)
+	})
+
+	s.Run("sets negative flag when there is a negative result", func() {
+		eor(d3, d128)
+		s.Equal(NEGATIVE, s.cpu.P&NEGATIVE)
+	})
 }
 
 func (s *mosSuite) TestLsr() {
-	// There aren't so many cases here; you might ask "what about
-	// negative"? But it's impossible to set the N status with LSR,
-	// because there is no form of LSR which can result in a negative
-	// number: the eighth bit is always set to zero.
-	cases := []bitCase{
-		{0x0, 0x4, 0x2, 0, 0},
-		{0x0, 0x1, 0x0, 0, ZERO | CARRY},
-	}
+	var (
+		d0 data.Byte = 0
+		d1 data.Byte = 1
+		d2 data.Byte = 2
+	)
 
-	for _, c := range cases {
-		s.cpu.EffVal = c.in
+	lsracc := func(val data.Byte) {
 		s.cpu.AddrMode = amAcc
+		s.cpu.EffVal = val
 		s.cpu.P = 0
-
 		Lsr(s.cpu)
-		assert.Equal(s.T(), c.want, s.cpu.A)
-		assert.Equal(s.T(), c.p, s.cpu.P)
 	}
+
+	s.Run("shifts value right by one bit position", func() {
+		lsracc(d2)
+		s.Equal(d1, s.cpu.A)
+	})
+
+	s.Run("does not set negative flag", func() {
+		s.NotEqual(NEGATIVE, s.cpu.P&NEGATIVE)
+	})
+
+	s.Run("does not set zero flag when result is not zero", func() {
+		s.NotEqual(ZERO, s.cpu.P&ZERO)
+	})
+
+	s.Run("does not set carry flag when bit 0 is low", func() {
+		s.NotEqual(CARRY, s.cpu.P&CARRY)
+	})
+
+	s.Run("sets zero flag when result is zero", func() {
+		lsracc(d1)
+		s.Equal(d0, s.cpu.A)
+		s.Equal(ZERO, s.cpu.P&ZERO)
+	})
+
+	s.Run("sets carry flag when result has bit 0 hi", func() {
+		s.Equal(CARRY, s.cpu.P&CARRY)
+	})
+
+	s.cpu.AddrMode = amAbs
+	s.Run("sets value in memory when not in accumulator addr mode", func() {
+		addr := data.DByte(1)
+		s.cpu.EffVal = d2
+		s.cpu.EffAddr = addr
+		s.cpu.P = 0
+		Lsr(s.cpu)
+
+		s.Equal(d1, s.cpu.Get(addr))
+	})
 }
 
 func (s *mosSuite) TestOra() {
-	cases := []bitCase{
-		{0x4, 0x7, 0x7, 0, 0},
-		{0x80, 0x81, 0x81, 0, NEGATIVE},
-		{0x00, 0x00, 0x00, 0, ZERO},
-	}
+	var (
+		d0   data.Byte = 0
+		d1   data.Byte = 1
+		d2   data.Byte = 2
+		d3   data.Byte = 3
+		d128 data.Byte = 128
+	)
 
-	for _, c := range cases {
-		s.cpu.A = c.a
-		s.cpu.EffVal = c.in
+	ora := func(a, val data.Byte) {
+		s.cpu.A = a
+		s.cpu.EffVal = val
 		s.cpu.P = 0
-
 		Ora(s.cpu)
-		assert.Equal(s.T(), c.want, s.cpu.A)
-		assert.Equal(s.T(), c.p, s.cpu.P)
 	}
+
+	s.Run("does a bitwise or of a and effval", func() {
+		ora(d1, d2)
+		s.Equal(d3, s.cpu.A)
+	})
+
+	s.Run("does not set zero flag when result is nonzero", func() {
+		s.NotEqual(ZERO, s.cpu.P&ZERO)
+	})
+
+	s.Run("does not set negative flag when result is non-negative", func() {
+		s.NotEqual(NEGATIVE, s.cpu.P&NEGATIVE)
+	})
+
+	s.Run("sets negative flag when result is negative", func() {
+		ora(d1, d128)
+		s.Equal(NEGATIVE, s.cpu.P&NEGATIVE)
+	})
+
+	s.Run("sets zero flag when result is zero", func() {
+		ora(d0, d0)
+		s.Equal(ZERO, s.cpu.P&ZERO)
+	})
 }
 
 func (s *mosSuite) TestRol() {
-	cases := []bitCase{
-		{0x0, 0x4, 0x8, 0, 0},
-		{0x0, 0x4, 0x9, CARRY, 0},
-		{0x0, 0x84, 0x8, 0, CARRY},
-		{0x0, 0x80, 0x0, 0, ZERO | CARRY},
-		{0x0, 0x0, 0x0, 0, ZERO},
-		{0x0, 0x40, 0x80, 0, NEGATIVE},
-	}
+	var (
+		d1           data.Byte = 1
+		d2           data.Byte = 2
+		d3           data.Byte = 3
+		d64          data.Byte = 64
+		d128         data.Byte = 128
+		withCarry    data.Byte = CARRY
+		withoutCarry data.Byte = 0
+	)
 
-	for _, c := range cases {
-		s.cpu.A = c.a
-		s.cpu.P = c.initp
-		s.cpu.EffVal = c.in
+	rolacc := func(val, p data.Byte) {
+		s.cpu.A = 0
+		s.cpu.P = p
+		s.cpu.EffVal = val
 		s.cpu.AddrMode = amAcc
-
 		Rol(s.cpu)
-		assert.Equal(s.T(), c.want, s.cpu.A)
-		assert.Equal(s.T(), c.p, s.cpu.P)
 	}
+
+	s.Run("rotate performs 9-bit rotation", func() {
+		rolacc(d1, withoutCarry)
+		s.Equal(d2, s.cpu.A)
+		s.NotEqual(CARRY, s.cpu.P&CARRY)
+
+		rolacc(d1, withCarry)
+		s.Equal(d3, s.cpu.A)
+		s.NotEqual(CARRY, s.cpu.P&CARRY)
+
+		rolacc(d128, withCarry)
+		s.Equal(d1, s.cpu.A)
+		s.Equal(CARRY, s.cpu.P&CARRY)
+	})
+
+	s.Run("sets negative flag when result is negative", func() {
+		rolacc(d64, withCarry)
+		s.Equal(NEGATIVE, s.cpu.P&NEGATIVE)
+	})
+
+	s.Run("sets zero flag when result is zero", func() {
+		rolacc(d128, withoutCarry)
+		s.Equal(ZERO, s.cpu.P&ZERO)
+	})
+
+	s.Run("sets result in memory when not in accumulator mode", func() {
+		addr := data.DByte(1)
+		s.cpu.AddrMode = amAbs
+		s.cpu.EffAddr = addr
+		s.cpu.EffVal = d1
+		s.cpu.P = 0
+		Rol(s.cpu)
+		s.Equal(d2, s.cpu.Get(addr))
+	})
 }
 
 func (s *mosSuite) TestRor() {
-	cases := []bitCase{
-		{0x0, 0x4, 0x2, 0, 0},
-		{0x0, 0x81, 0x40, 0, CARRY},
-		{0x0, 0x1, 0x0, 0, ZERO | CARRY},
-		{0x0, 0x0, 0x0, 0, ZERO},
-		// Note that there is no scenario in which a pre-existing CARRY
-		// status does not cause us to then set the NEGATIVE flag after
-		// an ROR
-		{0x0, 0x2, 0x81, CARRY, NEGATIVE},
-	}
+	var (
+		d1 data.Byte = 1
+		d2 data.Byte = 2
+		//d3           data.Byte = 3
+		d64          data.Byte = 64
+		d128         data.Byte = 128
+		d192         data.Byte = 192
+		withCarry    data.Byte = CARRY
+		withoutCarry data.Byte = 0
+	)
 
-	for _, c := range cases {
-		s.cpu.A = c.a
-		s.cpu.P = c.initp
-		s.cpu.EffVal = c.in
+	roracc := func(val, p data.Byte) {
+		s.cpu.A = 0
+		s.cpu.P = p
+		s.cpu.EffVal = val
 		s.cpu.AddrMode = amAcc
-
 		Ror(s.cpu)
-		assert.Equal(s.T(), c.want, s.cpu.A)
-		assert.Equal(s.T(), c.p, s.cpu.P)
 	}
+
+	s.Run("rotate performs 9-bit rotation", func() {
+		roracc(d2, withoutCarry)
+		s.Equal(d1, s.cpu.A)
+		s.NotEqual(CARRY, s.cpu.P&CARRY)
+
+		roracc(d1, withCarry)
+		s.Equal(d128, s.cpu.A)
+		s.Equal(CARRY, s.cpu.P&CARRY)
+
+		roracc(d128, withCarry)
+		s.Equal(d192, s.cpu.A)
+		s.NotEqual(CARRY, s.cpu.P&CARRY)
+	})
+
+	s.Run("sets negative flag when result is negative", func() {
+		roracc(d64, withCarry)
+		s.Equal(NEGATIVE, s.cpu.P&NEGATIVE)
+	})
+
+	s.Run("sets zero flag when result is zero", func() {
+		roracc(d1, withoutCarry)
+		s.Equal(ZERO, s.cpu.P&ZERO)
+	})
+
+	s.Run("sets result in memory when not in accumulator mode", func() {
+		addr := data.DByte(1)
+		s.cpu.AddrMode = amAbs
+		s.cpu.EffAddr = addr
+		s.cpu.EffVal = d2
+		s.cpu.P = 0
+		Ror(s.cpu)
+		s.Equal(d1, s.cpu.Get(addr))
+	})
 }
 
 func (s *mosSuite) TestTrb() {
-	addr := data.DByte(0x1234)
-	cases := []bitCase{
-		{0x1, 0x3, 0, 0, 0},
-		{0x1, 0x2, 0, 0, ZERO},
-	}
+	var (
+		d4   data.Byte  = 4
+		d3   data.Byte  = 3
+		d2   data.Byte  = 2
+		addr data.DByte = 1
+	)
 
-	for _, c := range cases {
-		s.cpu.A = c.a
-		s.cpu.EffVal = c.in
+	trb := func(a, val data.Byte, addr data.DByte) {
+		s.cpu.A = a
+		s.cpu.EffVal = val
 		s.cpu.EffAddr = addr
-		s.cpu.P = c.initp
-
+		s.cpu.P = 0
 		Trb(s.cpu)
-		assert.Equal(s.T(), c.p, s.cpu.P)
-		assert.Equal(s.T(), s.cpu.Get(addr), (s.cpu.A^0xFF)&s.cpu.EffVal)
 	}
+
+	s.Run("a&val result is stored as zero flag", func() {
+		trb(d4, d2, addr)
+		s.Equal(ZERO, s.cpu.P&ZERO)
+
+		trb(d3, d2, addr)
+		s.NotEqual(ZERO, s.cpu.P&ZERO)
+	})
+
+	s.Run("the result of (a^$FF)&val is saved in addr", func() {
+		trb(d4, d2, addr)
+		s.Equal(d2, s.cpu.Get(addr))
+	})
 }
 
 func (s *mosSuite) TestTsb() {
-	addr := data.DByte(0x1234)
-	cases := []bitCase{
-		{0x1, 0x3, 0, 0, 0},
-		{0x1, 0x2, 0, 0, ZERO},
-	}
+	var (
+		d6   data.Byte  = 6
+		d4   data.Byte  = 4
+		d3   data.Byte  = 3
+		d2   data.Byte  = 2
+		addr data.DByte = 1
+	)
 
-	for _, c := range cases {
-		s.cpu.A = c.a
-		s.cpu.EffVal = c.in
+	tsb := func(a, val data.Byte, addr data.DByte) {
+		s.cpu.A = a
+		s.cpu.EffVal = val
 		s.cpu.EffAddr = addr
-		s.cpu.P = c.initp
-
+		s.cpu.P = 0
 		Tsb(s.cpu)
-		assert.Equal(s.T(), c.p, s.cpu.P)
-		assert.Equal(s.T(), s.cpu.Get(addr), s.cpu.A|s.cpu.EffVal)
 	}
+
+	s.Run("a&val result is stored as zero flag", func() {
+		tsb(d4, d2, addr)
+		s.Equal(ZERO, s.cpu.P&ZERO)
+
+		tsb(d3, d2, addr)
+		s.NotEqual(ZERO, s.cpu.P&ZERO)
+	})
+
+	s.Run("the result of a|val is saved in addr", func() {
+		tsb(d4, d2, addr)
+		s.Equal(d6, s.cpu.Get(addr))
+	})
 }

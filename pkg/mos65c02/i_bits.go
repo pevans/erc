@@ -1,6 +1,8 @@
 package mos65c02
 
-import "github.com/pevans/erc/pkg/data"
+import (
+	"github.com/pevans/erc/pkg/data"
+)
 
 // saveResult makes a decision on the instruction level where to save
 // the result of an operation. If we're in accumulator mode, then we

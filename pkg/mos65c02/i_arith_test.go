@@ -65,40 +65,52 @@ func (s *mosSuite) TestAdc() {
 	})
 }
 
-func (s *mosSuite) TestCmp() {
+func (s *mosSuite) testCompare(val *data.Byte, fn func(*CPU)) {
 	var (
 		d10 data.Byte = 10
 		d20 data.Byte = 20
 	)
 
 	s.Run("zero is set when given equal values", func() {
-		s.cpu.A = d10
+		*val = d10
 		s.cpu.EffVal = d10
-		Cmp(s.cpu)
+		fn(s.cpu)
 
 		s.Equal(ZERO, s.cpu.P&ZERO)
 	})
 
 	s.Run("negative is set when effval > accum", func() {
-		s.cpu.A = d10
+		*val = d10
 		s.cpu.EffVal = d20
-		Cmp(s.cpu)
+		fn(s.cpu)
 
 		s.Equal(NEGATIVE, s.cpu.P&NEGATIVE)
 	})
 
 	s.Run("carry is set when accum >= effval", func() {
-		s.cpu.A = d20
+		*val = d20
 		s.cpu.EffVal = d10
-		Cmp(s.cpu)
+		fn(s.cpu)
 
 		s.Equal(CARRY, s.cpu.P&CARRY)
 
-		s.cpu.A = d10
+		*val = d10
 		s.cpu.P = 0
-		Cmp(s.cpu)
+		fn(s.cpu)
 		s.Equal(CARRY, s.cpu.P&CARRY)
 	})
+}
+
+func (s *mosSuite) TestCmp() {
+	s.testCompare(&s.cpu.A, Cmp)
+}
+
+func (s *mosSuite) TestCpx() {
+	s.testCompare(&s.cpu.X, Cpx)
+}
+
+func (s *mosSuite) TestCpy() {
+	s.testCompare(&s.cpu.Y, Cpy)
 }
 
 func (s *mosSuite) testDecrement(
