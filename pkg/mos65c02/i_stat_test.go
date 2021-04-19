@@ -1,55 +1,36 @@
 package mos65c02
 
-import (
-	"github.com/pevans/erc/pkg/data"
-	"github.com/stretchr/testify/assert"
-)
-
 func (s *mosSuite) TestClc() {
-	s.cpu.P = CARRY
-	Clc(s.cpu)
-
-	assert.Equal(s.T(), data.Byte(0), s.cpu.P)
+	s.op(Clc, with{p: CARRY})
+	s.NotEqual(CARRY, s.cpu.P&CARRY)
 }
 
 func (s *mosSuite) TestCld() {
-	s.cpu.P = DECIMAL
-	Cld(s.cpu)
-
-	assert.Equal(s.T(), data.Byte(0), s.cpu.P)
+	s.op(Cld, with{p: DECIMAL})
+	s.NotEqual(DECIMAL, s.cpu.P&DECIMAL)
 }
 
 func (s *mosSuite) TestCli() {
-	s.cpu.P = INTERRUPT
-	Cli(s.cpu)
-
-	assert.Equal(s.T(), data.Byte(0), s.cpu.P)
+	s.op(Cli, with{p: INTERRUPT})
+	s.NotEqual(INTERRUPT, s.cpu.P&INTERRUPT)
 }
 
 func (s *mosSuite) TestClv() {
-	s.cpu.P = OVERFLOW
-	Clv(s.cpu)
-
-	assert.Equal(s.T(), data.Byte(0), s.cpu.P)
+	s.op(Clv, with{p: OVERFLOW})
+	s.NotEqual(OVERFLOW, s.cpu.P&OVERFLOW)
 }
 
 func (s *mosSuite) TestSec() {
-	s.cpu.P = 0
-	Sec(s.cpu)
-
-	assert.Equal(s.T(), CARRY, s.cpu.P)
+	s.op(Sec, with{})
+	s.Equal(CARRY, s.cpu.P&CARRY)
 }
 
 func (s *mosSuite) TestSed() {
-	s.cpu.P = 0
-	Sed(s.cpu)
-
-	assert.Equal(s.T(), DECIMAL, s.cpu.P)
+	s.op(Sed, with{})
+	s.Equal(DECIMAL, s.cpu.P&DECIMAL)
 }
 
 func (s *mosSuite) TestSei() {
-	s.cpu.P = 0
-	Sei(s.cpu)
-
-	assert.Equal(s.T(), INTERRUPT, s.cpu.P)
+	s.op(Sei, with{})
+	s.Equal(INTERRUPT, s.cpu.P&INTERRUPT)
 }
