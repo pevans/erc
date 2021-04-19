@@ -2,7 +2,6 @@ package mos65c02
 
 import (
 	"github.com/pevans/erc/pkg/data"
-	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -12,71 +11,76 @@ const (
 )
 
 func (s *mosSuite) TestBrk() {
-	s.cpu.PC, s.cpu.P = execPC, execP
-	Brk(s.cpu)
+	s.Run("sets interrupt flag", func() {
+		s.op(Brk, with{pc: execPC, p: execP})
+		s.Equal(INTERRUPT, s.cpu.P&INTERRUPT)
+	})
 
-	assert.Equal(s.T(), INTERRUPT, s.cpu.P&INTERRUPT)
-	assert.Equal(s.T(), execPC+2, s.cpu.PC)
+	s.Run("sets PC register to new PC + 2", func() {
+		s.Equal(execPC+2, s.cpu.PC)
+	})
 
-	assert.Equal(s.T(), execP, s.cpu.PopStack())
+	s.Run("new p register value is on the stack", func() {
+		s.Equal(execP, s.cpu.PopStack())
+	})
 
-	lsb := data.DByte(s.cpu.PopStack())
-	msb := data.DByte(s.cpu.PopStack())
+	s.Run("new PC is on the stack", func() {
+		lsb := data.DByte(s.cpu.PopStack())
+		msb := data.DByte(s.cpu.PopStack())
 
-	assert.Equal(s.T(), execPC, (msb<<8)|lsb)
+		s.Equal(execPC, (msb<<8)|lsb)
+	})
 }
 
 func (s *mosSuite) TestJmp() {
-	s.cpu.EffAddr = execAddr
-	s.cpu.PC = execPC
-	Jmp(s.cpu)
-
-	assert.Equal(s.T(), execAddr, s.cpu.PC)
+	s.Run("moves PC register to the new location", func() {
+		s.op(Jmp, with{pc: execPC, addr: execAddr})
+		s.Equal(execAddr, s.cpu.PC)
+	})
 }
 
 func (s *mosSuite) TestJsr() {
-	s.cpu.PC = execPC
-	s.cpu.EffAddr = execAddr
-	Jsr(s.cpu)
+	s.Run("moves PC register to the new location", func() {
+		s.op(Jsr, with{pc: execPC, addr: execAddr})
+		s.Equal(execAddr, s.cpu.PC)
+	})
 
-	assert.Equal(s.T(), execAddr, s.cpu.PC)
+	s.Run("adds original PC + 2 to the stack", func() {
+		lsb := data.DByte(s.cpu.PopStack())
+		msb := data.DByte(s.cpu.PopStack())
 
-	lsb := data.DByte(s.cpu.PopStack())
-	msb := data.DByte(s.cpu.PopStack())
-
-	assert.Equal(s.T(), execPC+2, (msb<<8)|lsb)
-}
-
-func (s *mosSuite) TestNops() {
-	// These functions do nothing, and this test also does nothing.
-	Nop(s.cpu)
-	Np2(s.cpu)
-	Np3(s.cpu)
+		s.Equal(execPC+2, (msb<<8)|lsb)
+	})
 }
 
 func (s *mosSuite) TestRti() {
-	msb := data.Byte(execPC >> 8)
-	lsb := data.Byte(execPC & 0xFF)
+	s.Run("sets P and PC registers to values from the stack", func() {
+		msb := data.Byte(execPC >> 8)
+		lsb := data.Byte(execPC & 0xFF)
 
-	s.cpu.PushStack(msb)
-	s.cpu.PushStack(lsb)
-	s.cpu.PushStack(execP)
+		s.cpu.PushStack(msb)
+		s.cpu.PushStack(lsb)
+		s.cpu.PushStack(execP)
 
-	Rti(s.cpu)
+		// Have to pass s: s.cpu.S, or else s.op will overwrite the s register
+		// value
+		s.op(Rti, with{s: s.cpu.S})
 
-	assert.Equal(s.T(), execP, s.cpu.P)
-	assert.Equal(s.T(), execPC, s.cpu.PC)
+		s.Equal(execP, s.cpu.P)
+		s.Equal(execPC, s.cpu.PC)
+	})
 }
 
 func (s *mosSuite) TestRts() {
-	pc := execPC + 2
-	msb := data.Byte(pc >> 8)
-	lsb := data.Byte(pc & 0xFF)
+	s.Run("sets the PC register value to the one from the stack", func() {
+		pc := execPC + 2
+		msb := data.Byte(pc >> 8)
+		lsb := data.Byte(pc & 0xFF)
 
-	s.cpu.PushStack(msb)
-	s.cpu.PushStack(lsb)
+		s.cpu.PushStack(msb)
+		s.cpu.PushStack(lsb)
 
-	Rts(s.cpu)
-
-	assert.Equal(s.T(), pc+1, s.cpu.PC)
+		s.op(Rts, with{s: s.cpu.S})
+		s.Equal(pc+1, s.cpu.PC)
+	})
 }
