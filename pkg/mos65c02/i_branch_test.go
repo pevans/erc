@@ -5,26 +5,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *mosSuite) TestJumpIf() {
-	cases := []struct {
-		in   data.Byte
-		pc   data.DByte
-		addr data.DByte
-		want data.DByte
-	}{
-		{0, 0x1111, 0x2222, 0x1113},
-		{1, 0x1111, 0x2222, 0x2222},
-	}
-
-	for _, c := range cases {
-		s.cpu.PC = c.pc
-		s.cpu.EffAddr = c.addr
-		s.cpu.jumpIf(c.in)
-
-		assert.Equal(s.T(), c.want, s.cpu.PC)
-	}
-}
-
 var branchCases = []struct {
 	on   bool
 	pc   data.DByte
