@@ -48,8 +48,15 @@ func (r *Recorder) FormatOperand() string {
 	case "IMM":
 		return fmt.Sprintf("#$%02X", r.Operand)
 	case "REL":
-		rel := int8(r.Operand)
-		return fmt.Sprintf("%d", rel)
+		newAddr := r.PC + r.Operand + 2
+
+		// It's signed, so the effect of the operand should be negative w/r/t
+		// two's complement.
+		if r.Operand >= 0x80 {
+			newAddr -= 256
+		}
+
+		return fmt.Sprintf("$%04X", newAddr)
 	case "ZPG":
 		return fmt.Sprintf("$%02X", r.Operand)
 	case "ZPX":
@@ -92,8 +99,8 @@ func (r *Recorder) Record(w io.Writer) error {
 
 	str += fmt.Sprintf(` %3s %7s`, r.Inst, operand)
 	str += fmt.Sprintf(
-		" ; A=%02X X=%02X Y=%02X S=%02X P=%02X (%s) EA=%04X EV=%02X +%d\n",
-		r.A, r.X, r.Y, r.S, r.P, string(pstatus),
+		" ; A=%02X X=%02X Y=%02X P=%02X S=%02X (%s) EA=%04X EV=%02X +%d\n",
+		r.A, r.X, r.Y, r.P, r.S, string(pstatus),
 		r.EffAddr, r.EffVal, counter,
 	)
 
