@@ -4,18 +4,62 @@ import (
 	"github.com/pevans/erc/pkg/data"
 )
 
+type memSwitcher struct {
+	read  int
+	write int
+}
+
 const (
-	// MemDefault tells us to read and write only to main memory.
-	MemDefault = 0x00
-
-	// MemReadAux will tell us to read the core first 48k memory from
-	// auxiliary memory.
-	MemReadAux = 0x01
-
-	// MemWriteAux is the switch that tells us write to auxiliary memory
-	// in the core 48k memory range.
-	MemWriteAux = 0x02
+	memMain = iota
+	memAux
 )
+
+func (ms *memSwitcher) UseDefaults() {
+	ms.read = memMain
+	ms.write = memMain
+}
+
+func (ms *memSwitcher) SwitchRead(c *Computer, addr data.Addressor) data.Byte {
+	var (
+		hi data.Byte = 0x80
+		lo data.Byte = 0x00
+	)
+
+	switch addr.Addr() {
+	case 0xC013:
+		if ms.read == memAux {
+			return hi
+		}
+
+	case 0xC014:
+		if ms.write == memAux {
+			return hi
+		}
+	}
+
+	return lo
+}
+
+func (ms *memSwitcher) SwitchWrite(c *Computer, addr data.Addressor, val data.Byte) {
+	switch addr.Addr() {
+	case 0xC003:
+		ms.read = memAux
+	case 0xC002:
+		ms.read = memMain
+	case 0xC005:
+		ms.write = memAux
+	case 0xC004:
+		ms.write = memMain
+	}
+}
+
+func memSwitchRead(c *Computer, addr data.Addressor) data.Byte {
+	return c.mem.SwitchRead(c, addr)
+}
+
+func memSwitchWrite(c *Computer, addr data.Addressor, val data.Byte) {
+	c.mem.SwitchWrite(c, addr, val)
+}
 
 // Get will return the byte at addr, or will execute a read switch if
 // one is present at the given address.
@@ -24,11 +68,7 @@ func (c *Computer) Get(addr data.Addressor) data.Byte {
 		return fn(c, addr)
 	}
 
-	if c.MemMode&MemReadAux > 0 {
-		return c.Aux.Get(addr)
-	}
-
-	return c.Main.Get(addr)
+	return c.ReadSegment().Get(addr)
 }
 
 // Set will set the byte at addr to val, or will execute a write switch
@@ -39,12 +79,7 @@ func (c *Computer) Set(addr data.Addressor, val data.Byte) {
 		return
 	}
 
-	if c.MemMode&MemWriteAux > 0 {
-		c.Aux.Set(addr, val)
-		return
-	}
-
-	c.Main.Set(addr, val)
+	c.WriteSegment().Set(addr, val)
 }
 
 // MapRange will, given a range of addresses (from..to), set the read
@@ -59,7 +94,7 @@ func (c *Computer) MapRange(from, to int, rfn ReadMapFn, wfn WriteMapFn) {
 // ReadSegment returns the segment that should be used for general
 // reads, according to our current memory mode.
 func (c *Computer) ReadSegment() *data.Segment {
-	if c.MemMode&MemReadAux > 0 {
+	if c.mem.read == memAux {
 		return c.Aux
 	}
 
@@ -69,21 +104,9 @@ func (c *Computer) ReadSegment() *data.Segment {
 // WriteSegment returns the segment that should be used for general
 // writes, according to our current memory mode.
 func (c *Computer) WriteSegment() *data.Segment {
-	if c.MemMode&MemWriteAux > 0 {
+	if c.mem.write == memAux {
 		return c.Aux
 	}
 
 	return c.Main
-}
-
-func newMemorySwitchCheck() *SwitchCheck {
-	return &SwitchCheck{mode: memoryMode, setMode: memorySetMode}
-}
-
-func memoryMode(c *Computer) int {
-	return c.MemMode
-}
-
-func memorySetMode(c *Computer, mode int) {
-	c.MemMode = mode
 }

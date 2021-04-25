@@ -65,7 +65,7 @@ func (c *Computer) Reset() {
 	c.CPU.S = 0xFF
 
 	// Set our initial memory mode
-	c.MemMode = MemDefault
+	c.mem.UseDefaults()
 	c.bank.UseDefaults()
 	c.PCMode = PCSlotCxROM
 	c.DisplayMode = DisplayText

@@ -38,13 +38,13 @@ func (c *Computer) MapSoftSwitches() {
 	c.MapRange(0xC100, 0xD000, pcRead, pcWrite)
 	c.MapRange(0xD000, 0x10000, BankDFRead, BankDFWrite)
 
-	msc := newMemorySwitchCheck()
-	c.RMap[0xC013] = msc.IsSetter(MemReadAux)
-	c.RMap[0xC014] = msc.IsSetter(MemWriteAux)
-	c.WMap[0xC002] = msc.UnSetterW(MemReadAux)
-	c.WMap[0xC003] = msc.ReSetterW(MemReadAux)
-	c.WMap[0xC004] = msc.UnSetterW(MemWriteAux)
-	c.WMap[0xC005] = msc.ReSetterW(MemWriteAux)
+	for _, addr := range []int{0xC013, 0xC014} {
+		c.RMap[addr] = memSwitchRead
+	}
+
+	for _, addr := range []int{0xC002, 0xC003, 0xC004, 0xC005} {
+		c.WMap[addr] = memSwitchWrite
+	}
 
 	for _, addr := range bankReadSwitches {
 		c.RMap[addr] = bankSwitchRead

@@ -1,9 +1,14 @@
 package a2
 
-import (
-	"github.com/pevans/erc/pkg/data"
-)
+func (s *a2Suite) TestMemSwitcherUseDefaults() {
+	mem := memSwitcher{}
+	mem.UseDefaults()
 
+	s.Equal(memMain, mem.read)
+	s.Equal(memMain, mem.write)
+}
+
+/*
 func (s *a2Suite) TestMemoryMode() {
 	cases := []struct {
 		memMode int
@@ -100,3 +105,4 @@ func (s *a2Suite) TestWriteSegment() {
 	s.comp.MemMode = MemWriteAux
 	s.Equal(s.comp.Aux, s.comp.WriteSegment())
 }
+*/

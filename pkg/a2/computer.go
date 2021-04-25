@@ -49,6 +49,7 @@ type Computer struct {
 	// memory we have.
 	MemMode int
 
+	mem  memSwitcher
 	bank bankSwitcher
 
 	// PCMode is the peripheral card mode we have for memory, which
