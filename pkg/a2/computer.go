@@ -49,10 +49,6 @@ type Computer struct {
 	// memory we have.
 	MemMode int
 
-	// BankMode is the set of bit flags which are the memory banks that
-	// we are accessing right now.
-	BankMode int
-
 	bank bankSwitcher
 
 	// PCMode is the peripheral card mode we have for memory, which
