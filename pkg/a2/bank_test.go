@@ -141,17 +141,22 @@ func (s *a2Suite) TestBankDFRead() {
 		x1000  data.Int  = 0x1000
 		x2000  data.Int  = 0x2000
 		x10000 data.Int  = 0x10000
-		d123   data.Byte = 123
-		d111   data.Byte = 111
+		val1   data.Byte = 124
+		val2   data.Byte = 112
 	)
 
-	s.comp.WriteSegment().Set(xd000, d123)
-	s.comp.WriteSegment().Set(xe000, d123)
-	s.comp.WriteSegment().Set(x10000, d111)
+	s.comp.WriteSegment().Set(xd000, val1)
+	s.comp.WriteSegment().Set(xe000, val1)
+	s.comp.WriteSegment().Set(x10000, val2)
 
 	s.Run("read from rom", func() {
 		s.comp.bank.read = bankROM
+		s.comp.bank.dfBlock = bank1
 		s.Equal(s.comp.Get(xd000), s.comp.ROM.Get(x1000))
+		s.Equal(s.comp.Get(xe000), s.comp.ROM.Get(x2000))
+
+		s.comp.bank.dfBlock = bank2
+		s.NotEqual(s.comp.Get(xd000), s.comp.ROM.Get(x1000))
 		s.Equal(s.comp.Get(xe000), s.comp.ROM.Get(x2000))
 	})
 
@@ -174,8 +179,8 @@ func (s *a2Suite) TestBankDFWrite() {
 	var (
 		dfaddr data.Int  = 0xD011
 		efaddr data.Int  = 0xE011
-		val1   data.Byte = 123
-		val2   data.Byte = 111
+		val1   data.Byte = 87
+		val2   data.Byte = 89
 	)
 
 	s.Run("writes respect the value of the write mode", func() {
@@ -194,7 +199,7 @@ func (s *a2Suite) TestBankDFWrite() {
 		s.comp.bank.write = bankRAM
 		s.comp.bank.dfBlock = bank2
 		s.comp.Set(dfaddr, val2)
-		s.Equal(val2, s.comp.ReadSegment().Get(data.Int(0x10000)))
+		s.Equal(val2, s.comp.ReadSegment().Get(data.Int(0x10011)))
 
 		s.comp.Set(efaddr, val1)
 		s.Equal(val1, s.comp.ReadSegment().Get(efaddr))

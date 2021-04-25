@@ -157,12 +157,12 @@ func bankSyncPagesFromAux(c *Computer) error {
 // BankDFRead implements logic for reads into the D0...FF pages of memory,
 // taking into account the bank-switched states that the computer currently has.
 func BankDFRead(c *Computer, addr data.Addressor) data.Byte {
-	if c.bank.read == bankROM {
-		return c.ROM.Get(data.Plus(addr, -SysRomOffset))
-	}
-
 	if c.bank.dfBlock == bank2 && addr.Addr() < 0xE000 {
 		return c.ReadSegment().Get(data.Plus(addr, 0x3000))
+	}
+
+	if c.bank.read == bankROM {
+		return c.ROM.Get(data.Plus(addr, -SysRomOffset))
 	}
 
 	return c.ReadSegment().Get(addr)
