@@ -12,14 +12,14 @@ func (s *a2Suite) TestZeroPageRead() {
 		aux  data.Byte
 		want data.Byte
 	}{
-		{BankAuxiliary, 0x1, 0x2, 0x2},
-		{0, 0x3, 0x2, 0x3},
+		{bankAux, 0x1, 0x2, 0x2},
+		{bankMain, 0x3, 0x2, 0x3},
 	}
 
 	for _, c := range cases {
 		s.comp.Main.Set(addr, c.main)
 		s.comp.Aux.Set(addr, c.aux)
-		s.comp.BankMode = c.mode
+		s.comp.bank.sysBlock = c.mode
 
 		s.Equal(c.want, s.comp.Get(addr))
 	}
@@ -33,15 +33,15 @@ func (s *a2Suite) TestZeroPageWrite() {
 		aux  data.Byte
 		want data.Byte
 	}{
-		{BankAuxiliary, 0x0, 0x2, 0x2},
-		{0, 0x3, 0x0, 0x3},
+		{bankAux, 0x0, 0x2, 0x2},
+		{bankMain, 0x3, 0x0, 0x3},
 	}
 
 	for _, c := range cases {
 		s.comp.Main.Set(addr, 0x0)
 		s.comp.Aux.Set(addr, 0x0)
 
-		s.comp.BankMode = c.mode
+		s.comp.bank.sysBlock = c.mode
 		s.comp.Set(addr, c.want)
 
 		s.Equal(c.main, s.comp.Main.Get(addr))

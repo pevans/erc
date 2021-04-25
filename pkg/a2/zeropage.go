@@ -4,7 +4,7 @@ import "github.com/pevans/erc/pkg/data"
 
 func zeroPageRead(c *Computer, addr data.Addressor) data.Byte {
 	seg := c.Main
-	if c.BankMode&BankAuxiliary > 0 {
+	if c.bank.sysBlock == bankAux {
 		seg = c.Aux
 	}
 
@@ -13,7 +13,7 @@ func zeroPageRead(c *Computer, addr data.Addressor) data.Byte {
 
 func zeroPageWrite(c *Computer, addr data.Addressor, val data.Byte) {
 	seg := c.Main
-	if c.BankMode&BankAuxiliary > 0 {
+	if c.bank.sysBlock == bankAux {
 		seg = c.Aux
 	}
 

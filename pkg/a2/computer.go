@@ -53,6 +53,8 @@ type Computer struct {
 	// we are accessing right now.
 	BankMode int
 
+	bank bankSwitcher
+
 	// PCMode is the peripheral card mode we have for memory, which
 	// governs the range of $C100 - $CFFF.
 	PCMode int

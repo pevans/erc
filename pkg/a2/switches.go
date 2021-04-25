@@ -1,5 +1,33 @@
 package a2
 
+import "github.com/pevans/erc/pkg/data"
+
+// A Switcher is a type which provides a way to handle soft switch reads and
+// writes in a relatively generic way.
+type Switcher interface {
+	SwitchRead(c *Computer, addr data.DByte) data.Byte
+	SwitchWrite(c *Computer, addr data.DByte, val data.Byte)
+}
+
+var bankReadSwitches = []int{
+	0xC011,
+	0xC012,
+	0xC016,
+	0xC080,
+	0xC081,
+	0xC082,
+	0xC083,
+	0xC088,
+	0xC089,
+	0xC08A,
+	0xC08B,
+}
+
+var bankWriteSwitches = []int{
+	0xC008,
+	0xC009,
+}
+
 // MapSoftSwitches will add several mappings for the soft switches that our
 // computer uses.
 func (c *Computer) MapSoftSwitches() {
@@ -8,7 +36,7 @@ func (c *Computer) MapSoftSwitches() {
 	c.MapRange(0x2000, 0x4000, displayRead, displayWrite)
 	c.MapRange(0xC0E0, 0xC100, diskRead, diskWrite)
 	c.MapRange(0xC100, 0xD000, pcRead, pcWrite)
-	c.MapRange(0xD000, 0x10000, bankRead, bankWrite)
+	c.MapRange(0xD000, 0x10000, BankDFRead, BankDFWrite)
 
 	msc := newMemorySwitchCheck()
 	c.RMap[0xC013] = msc.IsSetter(MemReadAux)
@@ -18,20 +46,13 @@ func (c *Computer) MapSoftSwitches() {
 	c.WMap[0xC004] = msc.UnSetterW(MemWriteAux)
 	c.WMap[0xC005] = msc.ReSetterW(MemWriteAux)
 
-	bsc := newBankSwitchCheck()
-	c.RMap[0xC011] = bsc.IsSetter(BankRAM2)
-	c.RMap[0xC012] = bsc.IsSetter(BankRAM)
-	c.RMap[0xC016] = bsc.IsSetter(BankAuxiliary)
-	c.RMap[0xC080] = bsc.SetterR(BankRAM | BankRAM2)
-	c.RMap[0xC081] = bsc.SetterR(BankWrite | BankRAM2)
-	c.RMap[0xC082] = bsc.SetterR(BankRAM2)
-	c.RMap[0xC083] = bsc.SetterR(BankRAM | BankWrite | BankRAM2)
-	c.RMap[0xC088] = bsc.SetterR(BankRAM)
-	c.RMap[0xC089] = bsc.SetterR(BankWrite)
-	c.RMap[0xC08A] = bsc.SetterR(BankDefault)
-	c.RMap[0xC08B] = bsc.SetterR(BankRAM | BankWrite)
-	c.WMap[0xC008] = bsc.UnSetterW(BankAuxiliary)
-	c.WMap[0xC009] = bsc.ReSetterW(BankAuxiliary)
+	for _, addr := range bankReadSwitches {
+		c.RMap[addr] = bankSwitchRead
+	}
+
+	for _, addr := range bankWriteSwitches {
+		c.WMap[addr] = bankSwitchWrite
+	}
 
 	psc := newPCSwitchCheck()
 	c.RMap[0xC015] = psc.IsOpSetter(PCSlotCxROM)
