@@ -31,7 +31,7 @@ var bankWriteSwitches = []int{
 // MapSoftSwitches will add several mappings for the soft switches that our
 // computer uses.
 func (c *Computer) MapSoftSwitches() {
-	c.MapRange(0x0, 0x200, zeroPageRead, zeroPageWrite)
+	c.MapRange(0x0, 0x200, BankZPRead, BankZPWrite)
 	c.MapRange(0x0400, 0x0800, displayRead, displayWrite)
 	c.MapRange(0x2000, 0x4000, displayRead, displayWrite)
 	c.MapRange(0xC0E0, 0xC100, diskRead, diskWrite)

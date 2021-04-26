@@ -192,3 +192,11 @@ func BankDFWrite(c *Computer, addr data.Addressor, val data.Byte) {
 
 	c.BankSegment().Set(addr, val)
 }
+
+func BankZPRead(c *Computer, addr data.Addressor) data.Byte {
+	return c.BankSegment().Get(addr)
+}
+
+func BankZPWrite(c *Computer, addr data.Addressor, val data.Byte) {
+	c.BankSegment().Set(addr, val)
+}
