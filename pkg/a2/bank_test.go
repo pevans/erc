@@ -145,34 +145,41 @@ func (s *a2Suite) TestBankDFRead() {
 		val2   data.Byte = 112
 	)
 
-	s.comp.WriteSegment().Set(xd000, val1)
-	s.comp.WriteSegment().Set(xe000, val1)
-	s.comp.WriteSegment().Set(x10000, val2)
+	testFor := func(sblock int) {
+		s.comp.bank.sysBlock = sblock
 
-	s.Run("read from rom", func() {
-		s.comp.bank.read = bankROM
-		s.comp.bank.dfBlock = bank1
-		s.Equal(s.comp.Get(xd000), s.comp.ROM.Get(x1000))
-		s.Equal(s.comp.Get(xe000), s.comp.ROM.Get(x2000))
+		s.comp.BankSegment().Set(xd000, val1)
+		s.comp.BankSegment().Set(xe000, val1)
+		s.comp.BankSegment().Set(x10000, val2)
 
-		s.comp.bank.dfBlock = bank2
-		s.NotEqual(s.comp.Get(xd000), s.comp.ROM.Get(x1000))
-		s.Equal(s.comp.Get(xe000), s.comp.ROM.Get(x2000))
-	})
+		s.Run("read from rom", func() {
+			s.comp.bank.read = bankROM
+			s.comp.bank.dfBlock = bank1
+			s.Equal(s.comp.Get(xd000), s.comp.ROM.Get(x1000))
+			s.Equal(s.comp.Get(xe000), s.comp.ROM.Get(x2000))
 
-	s.Run("read from bank2 ram", func() {
-		s.comp.bank.read = bankRAM
-		s.comp.bank.dfBlock = bank2
-		// The first read should use bank 2, but the second read should not,
-		// since it's in the E0 page.
-		s.Equal(s.comp.Get(xd000), s.comp.ReadSegment().Get(x10000))
-		s.Equal(s.comp.Get(xe000), s.comp.ReadSegment().Get(xe000))
-	})
+			s.comp.bank.dfBlock = bank2
+			s.NotEqual(s.comp.Get(xd000), s.comp.ROM.Get(x1000))
+			s.Equal(s.comp.Get(xe000), s.comp.ROM.Get(x2000))
+		})
 
-	s.Run("read from normal (bank1) ram", func() {
-		s.comp.bank.dfBlock = bank1
-		s.Equal(s.comp.Get(xd000), s.comp.ReadSegment().Get(xd000))
-	})
+		s.Run("read from bank2 ram", func() {
+			s.comp.bank.read = bankRAM
+			s.comp.bank.dfBlock = bank2
+			// The first read should use bank 2, but the second read should not,
+			// since it's in the E0 page.
+			s.Equal(s.comp.Get(xd000), s.comp.BankSegment().Get(x10000))
+			s.Equal(s.comp.Get(xe000), s.comp.BankSegment().Get(xe000))
+		})
+
+		s.Run("read from normal (bank1) ram", func() {
+			s.comp.bank.dfBlock = bank1
+			s.Equal(s.comp.Get(xd000), s.comp.BankSegment().Get(xd000))
+		})
+	}
+
+	testFor(bankMain)
+	testFor(bankAux)
 }
 
 func (s *a2Suite) TestBankDFWrite() {
@@ -183,25 +190,31 @@ func (s *a2Suite) TestBankDFWrite() {
 		val2   data.Byte = 89
 	)
 
-	s.Run("writes respect the value of the write mode", func() {
-		s.comp.bank.read = bankRAM
-		s.comp.bank.write = bankRAM
-		s.comp.bank.dfBlock = bank1
-		s.comp.Set(dfaddr, val1)
-		s.Equal(val1, s.comp.Get(dfaddr))
+	testFor := func(sblock int) {
+		s.comp.bank.sysBlock = sblock
+		s.Run("writes respect the value of the write mode", func() {
+			s.comp.bank.read = bankRAM
+			s.comp.bank.write = bankRAM
+			s.comp.bank.dfBlock = bank1
+			s.comp.Set(dfaddr, val1)
+			s.Equal(val1, s.comp.Get(dfaddr))
 
-		s.comp.bank.write = bankNone
-		s.comp.Set(efaddr, val2)
-		s.NotEqual(val2, s.comp.Get(efaddr))
-	})
+			s.comp.bank.write = bankNone
+			s.comp.Set(efaddr, val2)
+			s.NotEqual(val2, s.comp.Get(efaddr))
+		})
 
-	s.Run("writes use bank2 in the D0-DF page range", func() {
-		s.comp.bank.write = bankRAM
-		s.comp.bank.dfBlock = bank2
-		s.comp.Set(dfaddr, val2)
-		s.Equal(val2, s.comp.ReadSegment().Get(data.Int(0x10011)))
+		s.Run("writes use bank2 in the D0-DF page range", func() {
+			s.comp.bank.write = bankRAM
+			s.comp.bank.dfBlock = bank2
+			s.comp.Set(dfaddr, val2)
+			s.Equal(val2, s.comp.ReadSegment().Get(data.Int(0x10011)))
 
-		s.comp.Set(efaddr, val1)
-		s.Equal(val1, s.comp.ReadSegment().Get(efaddr))
-	})
+			s.comp.Set(efaddr, val1)
+			s.Equal(val1, s.comp.ReadSegment().Get(efaddr))
+		})
+	}
+
+	testFor(bankMain)
+	testFor(bankAux)
 }

@@ -154,18 +154,28 @@ func bankSyncPagesFromAux(c *Computer) error {
 	return err
 }
 
+// BankSegment returns the memory segment that should be used with respect to
+// bank-switched auxiliary memory.
+func (c *Computer) BankSegment() *data.Segment {
+	if c.bank.sysBlock == bankAux {
+		return c.Aux
+	}
+
+	return c.Main
+}
+
 // BankDFRead implements logic for reads into the D0...FF pages of memory,
 // taking into account the bank-switched states that the computer currently has.
 func BankDFRead(c *Computer, addr data.Addressor) data.Byte {
 	if c.bank.dfBlock == bank2 && addr.Addr() < 0xE000 {
-		return c.ReadSegment().Get(data.Plus(addr, 0x3000))
+		return c.BankSegment().Get(data.Plus(addr, 0x3000))
 	}
 
 	if c.bank.read == bankROM {
 		return c.ROM.Get(data.Plus(addr, -SysRomOffset))
 	}
 
-	return c.ReadSegment().Get(addr)
+	return c.BankSegment().Get(addr)
 }
 
 // BankDFWrite implements logic for writes into the D0...FF pages of memory,
@@ -176,9 +186,9 @@ func BankDFWrite(c *Computer, addr data.Addressor, val data.Byte) {
 	}
 
 	if c.bank.dfBlock == bank2 && addr.Addr() < 0xE000 {
-		c.WriteSegment().Set(data.Plus(addr, 0x3000), val)
+		c.BankSegment().Set(data.Plus(addr, 0x3000), val)
 		return
 	}
 
-	c.WriteSegment().Set(addr, val)
+	c.BankSegment().Set(addr, val)
 }

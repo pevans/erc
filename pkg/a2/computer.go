@@ -78,7 +78,7 @@ const (
 	// "language card" installed in the back. Bank-switches let you swap
 	// in and out auxiliary memory for main memory. Note that auxiliary
 	// memory is only 64k bytes large.
-	AuxMemorySize = 0x10000
+	AuxMemorySize = 0x11000
 
 	// MainMemorySize is the length of memory for so-called "main
 	// memory" in an Apple II. It consists of 68k of RAM; although only
