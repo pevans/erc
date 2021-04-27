@@ -34,6 +34,8 @@ func (c *Computer) MapSoftSwitches() {
 	c.MapRange(0x0, 0x200, BankZPRead, BankZPWrite)
 	c.MapRange(0x0400, 0x0800, displayRead, displayWrite)
 	c.MapRange(0x2000, 0x4000, displayRead, displayWrite)
+	// Note that there are other peripheral slots beginning with $C090, all the
+	// way until $C100. We just don't emulate them right now.
 	c.MapRange(0xC0E0, 0xC100, diskRead, diskWrite)
 	c.MapRange(0xC100, 0xD000, pcRead, pcWrite)
 	c.MapRange(0xD000, 0x10000, BankDFRead, BankDFWrite)
