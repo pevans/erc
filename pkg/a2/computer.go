@@ -49,12 +49,9 @@ type Computer struct {
 	// memory we have.
 	MemMode int
 
+	pc   pcSwitcher
 	mem  memSwitcher
 	bank bankSwitcher
-
-	// PCMode is the peripheral card mode we have for memory, which
-	// governs the range of $C100 - $CFFF.
-	PCMode int
 
 	// DisplayMode is the state that our display output is currently in.
 	// (For example, text mode, hires, lores, etc.)

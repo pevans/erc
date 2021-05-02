@@ -37,7 +37,7 @@ func (c *Computer) MapSoftSwitches() {
 	// Note that there are other peripheral slots beginning with $C090, all the
 	// way until $C100. We just don't emulate them right now.
 	c.MapRange(0xC0E0, 0xC100, diskRead, diskWrite)
-	c.MapRange(0xC100, 0xD000, pcRead, pcWrite)
+	c.MapRange(0xC100, 0xD000, PCRead, PCWrite)
 	c.MapRange(0xD000, 0x10000, BankDFRead, BankDFWrite)
 
 	for _, addr := range []int{0xC013, 0xC014} {
@@ -56,13 +56,17 @@ func (c *Computer) MapSoftSwitches() {
 		c.WMap[addr] = bankSwitchWrite
 	}
 
-	psc := newPCSwitchCheck()
-	c.RMap[0xC015] = psc.IsOpSetter(PCSlotCxROM)
-	c.RMap[0xC017] = psc.IsSetter(PCSlotC3ROM)
-	c.WMap[0xC006] = psc.ReSetterW(PCSlotCxROM)
-	c.WMap[0xC007] = psc.UnSetterW(PCSlotCxROM)
-	c.WMap[0xC00A] = psc.UnSetterW(PCSlotC3ROM)
-	c.WMap[0xC00B] = psc.ReSetterW(PCSlotC3ROM)
+	for _, addr := range []int{0xC015, 0xC017} {
+		c.RMap[addr] = func(c *Computer, addr data.Addressor) data.Byte {
+			return c.pc.SwitchRead(c, addr)
+		}
+	}
+
+	for _, addr := range []int{0xC006, 0xC007, 0xC00A, 0xC00B} {
+		c.WMap[addr] = func(c *Computer, addr data.Addressor, val data.Byte) {
+			c.pc.SwitchWrite(c, addr, val)
+		}
+	}
 
 	dsc := newDisplaySwitchCheck()
 	c.RMap[0xC018] = dsc.IsSetter(Display80Store)

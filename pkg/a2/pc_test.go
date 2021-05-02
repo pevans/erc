@@ -1,91 +1,99 @@
 package a2
 
-import (
-	"github.com/pevans/erc/pkg/data"
-)
+import "github.com/pevans/erc/pkg/data"
 
-// This is kind of a nasty function, in that it handles a lot of
-// different cases. Hence the rather large table of test cases.
-func (s *a2Suite) TestPCROMAddr() {
-	cases := []struct {
-		addr   data.DByte
-		pcMode int
-		want   data.DByte
-	}{
-		{0xC000, 0, 0},
-		{0xC000, PCExpROM, 0},
-		{0xC800, PCExpROM, 0x4800},
-		{0xCFFF, PCExpROM, 0x4FFF},
-		{0xC000, PCSlotCxROM, 0},
-		{0xC100, PCSlotCxROM, 0x4100},
-		{0xC7FF, PCSlotCxROM, 0x47FF},
-		{0xC000, PCSlotC3ROM, 0},
-		{0xC300, PCSlotC3ROM, 0x4300},
-		{0xC3FF, PCSlotC3ROM, 0x43FF},
-		{0xC800, PCExpROM | PCSlotCxROM, 0x4800},
-		{0xC800, PCExpROM | PCSlotC3ROM, 0x4800},
-		{0xC100, PCExpROM | PCSlotCxROM, 0x4100},
-		{0xC100, PCExpROM | PCSlotC3ROM, 0x100},
-		{0xC300, PCExpROM | PCSlotCxROM, 0x4300},
-		{0xC300, PCExpROM | PCSlotC3ROM, 0x4300},
-	}
+func (s *a2Suite) TestPCSwitcherUseDefaults() {
+	var ps pcSwitcher
 
-	for _, c := range cases {
-		s.Equal(c.want, pcROMAddr(c.addr, c.pcMode))
-	}
+	ps.UseDefaults()
+	s.Equal(false, ps.expansion)
+	s.Equal(false, ps.slotC3)
+	s.Equal(true, ps.slotCX)
+}
+
+func (s *a2Suite) TestPCSwitcherSwitchWrite() {
+	var ps pcSwitcher
+
+	s.Run("slot c3 rom writes work", func() {
+		ps.slotC3 = false
+		ps.SwitchWrite(s.comp, data.Int(0xC00B), 0x0)
+		s.Equal(true, ps.slotC3)
+
+		ps.SwitchWrite(s.comp, data.Int(0xC00A), 0x0)
+		s.Equal(false, ps.slotC3)
+	})
+
+	s.Run("slot cx rom writes work", func() {
+		ps.slotCX = false
+		ps.slotC3 = false
+		ps.SwitchWrite(s.comp, data.Int(0xC006), 0x0)
+		s.Equal(true, ps.slotCX)
+		s.Equal(true, ps.slotC3)
+
+		ps.SwitchWrite(s.comp, data.Int(0xC007), 0x0)
+		s.Equal(false, ps.slotCX)
+		s.Equal(false, ps.slotC3)
+	})
+}
+
+func (s *a2Suite) TestPCSwitcherSwitchRead() {
+	var (
+		ps pcSwitcher
+		hi data.Byte = 0x80
+		lo data.Byte = 0x00
+	)
+
+	s.Run("read of slotc3 returns hi", func() {
+		ps.slotC3 = true
+		s.Equal(hi, ps.SwitchRead(s.comp, data.Int(0xC017)))
+	})
+
+	s.Run("read of slot cx returns lo", func() {
+		ps.slotCX = true
+		s.Equal(lo, ps.SwitchRead(s.comp, data.Int(0xC016)))
+	})
 }
 
 func (s *a2Suite) TestPCRead() {
-	cases := []struct {
-		addr data.DByte
-		want data.Byte
-	}{
-		{0xC111, 123},
-		{0xC222, 223},
-	}
+	var (
+		c801   = data.Int(0xC801)
+		prc801 = data.Int(pcPROMAddr(c801.Addr()))
+		irc801 = data.Int(pcIROMAddr(c801.Addr()))
+		c301   = data.Int(0xC301)
+		prc301 = data.Int(pcPROMAddr(c301.Addr()))
+		irc301 = data.Int(pcIROMAddr(c301.Addr()))
+		c401   = data.Int(0xC401)
+		prc401 = data.Int(pcPROMAddr(c401.Addr()))
+		irc401 = data.Int(pcIROMAddr(c401.Addr()))
+	)
 
-	s.comp.PCMode = 0
+	s.Run("reads from expansion space", func() {
+		s.comp.pc.expansion = true
+		s.Equal(s.comp.ROM.Get(prc801), PCRead(s.comp, c801))
 
-	for _, c := range cases {
-		s.comp.ROM.Set(c.addr-0xC000, c.want)
-		s.Equal(c.want, pcRead(s.comp, c.addr))
-	}
-}
+		s.comp.pc.expansion = false
+		s.Equal(s.comp.ROM.Get(irc801), PCRead(s.comp, c801))
+	})
 
-func (s *a2Suite) TestPCWrite() {
-	cases := []struct {
-		addr data.DByte
-		want data.Byte
-	}{
-		{0xC111, 123},
-		{0xC222, 223},
-	}
+	s.Run("reads from c3 rom space", func() {
+		s.comp.pc.slotC3 = true
+		s.comp.pc.slotCX = false
+		s.Equal(s.comp.ROM.Get(prc301), PCRead(s.comp, c301))
 
-	for _, c := range cases {
-		pcWrite(s.comp, c.addr, c.want)
+		s.comp.pc.slotC3 = false
+		s.Equal(s.comp.ROM.Get(irc301), PCRead(s.comp, c301))
 
-		// We test here that the value is NOT equal, because pcWrite()
-		// should prevent any writes to ROM.
-		s.NotEqual(c.want, s.comp.ROM.Get(c.addr-0xC000))
-	}
-}
+		// slotCX is a trick; it enables us to read C3 ROM even if C3 ROM is
+		// off.
+		s.comp.pc.slotCX = true
+		s.Equal(s.comp.ROM.Get(prc301), PCRead(s.comp, c301))
+	})
 
-func (s *a2Suite) TestNewPCSwitchCheck() {
-	s.NotEqual(nil, newPCSwitchCheck())
-}
+	s.Run("reads from cx rom space", func() {
+		s.comp.pc.slotCX = true
+		s.Equal(s.comp.ROM.Get(prc401), PCRead(s.comp, c401))
 
-func (s *a2Suite) TestPCMode() {
-	s.comp.PCMode = 123
-	s.Equal(123, pcMode(s.comp))
-
-	s.comp.PCMode = 124
-	s.Equal(124, pcMode(s.comp))
-}
-
-func (s *a2Suite) TestPCSetMode() {
-	pcSetMode(s.comp, 123)
-	s.Equal(123, s.comp.PCMode)
-
-	pcSetMode(s.comp, 124)
-	s.Equal(124, s.comp.PCMode)
+		s.comp.pc.slotCX = false
+		s.Equal(s.comp.ROM.Get(irc401), PCRead(s.comp, c401))
+	})
 }
