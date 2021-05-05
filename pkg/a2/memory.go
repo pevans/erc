@@ -53,14 +53,6 @@ func (ms *memSwitcher) SwitchWrite(c *Computer, addr data.Addressor, val data.By
 	}
 }
 
-func memSwitchRead(c *Computer, addr data.Addressor) data.Byte {
-	return c.mem.SwitchRead(c, addr)
-}
-
-func memSwitchWrite(c *Computer, addr data.Addressor, val data.Byte) {
-	c.mem.SwitchWrite(c, addr, val)
-}
-
 // Get will return the byte at addr, or will execute a read switch if
 // one is present at the given address.
 func (c *Computer) Get(addr data.Addressor) data.Byte {

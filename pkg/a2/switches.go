@@ -41,11 +41,15 @@ func (c *Computer) MapSoftSwitches() {
 	c.MapRange(0xD000, 0x10000, BankDFRead, BankDFWrite)
 
 	for _, addr := range []int{0xC013, 0xC014} {
-		c.RMap[addr] = memSwitchRead
+		c.RMap[addr] = func(c *Computer, addr data.Addressor) data.Byte {
+			return c.mem.SwitchRead(c, addr)
+		}
 	}
 
 	for _, addr := range []int{0xC002, 0xC003, 0xC004, 0xC005} {
-		c.WMap[addr] = memSwitchWrite
+		c.WMap[addr] = func(c *Computer, addr data.Addressor, val data.Byte) {
+			c.mem.SwitchWrite(c, addr, val)
+		}
 	}
 
 	for _, addr := range bankReadSwitches {
