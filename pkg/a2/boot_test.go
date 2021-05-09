@@ -30,5 +30,5 @@ func (s *a2Suite) TestReset() {
 	)
 	s.Equal(c.CPU.Get16(ResetPC), c.CPU.PC)
 	s.Equal(data.Byte(0xFF), c.CPU.S)
-	s.Equal(DisplayText, c.DisplayMode)
+	s.True(c.disp.text)
 }

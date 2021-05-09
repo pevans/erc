@@ -68,7 +68,7 @@ func (c *Computer) Reset() {
 	c.mem.UseDefaults()
 	c.bank.UseDefaults()
 	c.pc.UseDefaults()
-	c.DisplayMode = DisplayText
+	c.disp.UseDefaults()
 
 	// Jump to the reset PC address; note this must happen _after_ we
 	// set our modes above, or else we might pull the PC value from the

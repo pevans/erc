@@ -52,6 +52,7 @@ type Computer struct {
 	pc   pcSwitcher
 	mem  memSwitcher
 	bank bankSwitcher
+	disp displaySwitcher
 
 	// DisplayMode is the state that our display output is currently in.
 	// (For example, text mode, hires, lores, etc.)

@@ -32,8 +32,8 @@ var bankWriteSwitches = []int{
 // computer uses.
 func (c *Computer) MapSoftSwitches() {
 	c.MapRange(0x0, 0x200, BankZPRead, BankZPWrite)
-	c.MapRange(0x0400, 0x0800, displayRead, displayWrite)
-	c.MapRange(0x2000, 0x4000, displayRead, displayWrite)
+	c.MapRange(0x0400, 0x0800, DisplayRead, DisplayWrite)
+	c.MapRange(0x2000, 0x4000, DisplayRead, DisplayWrite)
 	// Note that there are other peripheral slots beginning with $C090, all the
 	// way until $C100. We just don't emulate them right now.
 	c.MapRange(0xC0E0, 0xC100, diskRead, diskWrite)
@@ -72,42 +72,15 @@ func (c *Computer) MapSoftSwitches() {
 		}
 	}
 
-	dsc := newDisplaySwitchCheck()
-	c.RMap[0xC018] = dsc.IsSetter(Display80Store)
-	c.RMap[0xC01A] = dsc.IsSetter(DisplayText)
-	c.RMap[0xC01B] = dsc.IsSetter(DisplayMixed)
-	c.RMap[0xC01C] = dsc.IsSetter(DisplayPage2)
-	c.RMap[0xC01D] = dsc.IsSetter(DisplayHires)
-	c.RMap[0xC01E] = dsc.IsSetter(DisplayAltCharset)
-	c.RMap[0xC01F] = dsc.IsSetter(Display80Col)
-	c.RMap[0xC050] = dsc.UnSetterR(DisplayText)
-	c.RMap[0xC051] = dsc.ReSetterR(DisplayText)
-	c.RMap[0xC052] = dsc.UnSetterR(DisplayMixed)
-	c.RMap[0xC053] = dsc.ReSetterR(DisplayMixed)
-	c.RMap[0xC054] = dsc.UnSetterR(DisplayPage2)
-	c.RMap[0xC055] = dsc.ReSetterR(DisplayPage2)
-	c.RMap[0xC056] = dsc.UnSetterR(DisplayHires)
-	c.RMap[0xC057] = dsc.ReSetterR(DisplayHires)
-	c.RMap[0xC05E] = dsc.ReSetterR(DisplayDHires)
-	c.RMap[0xC05F] = dsc.UnSetterR(DisplayDHires)
-	c.RMap[0xC07E] = dsc.IsSetter(DisplayIOU)
-	c.RMap[0xC07F] = dsc.IsSetter(DisplayDHires)
-	c.WMap[0xC000] = dsc.UnSetterW(Display80Store)
-	c.WMap[0xC001] = dsc.ReSetterW(Display80Store)
-	c.WMap[0xC00C] = dsc.UnSetterW(Display80Col)
-	c.WMap[0xC00D] = dsc.ReSetterW(Display80Col)
-	c.WMap[0xC00E] = dsc.UnSetterW(DisplayAltCharset)
-	c.WMap[0xC00F] = dsc.ReSetterW(DisplayAltCharset)
-	c.WMap[0xC050] = dsc.UnSetterW(DisplayText)
-	c.WMap[0xC051] = dsc.ReSetterW(DisplayText)
-	c.WMap[0xC052] = dsc.UnSetterW(DisplayMixed)
-	c.WMap[0xC053] = dsc.ReSetterW(DisplayMixed)
-	c.WMap[0xC054] = dsc.UnSetterW(DisplayPage2)
-	c.WMap[0xC055] = dsc.ReSetterW(DisplayPage2)
-	c.WMap[0xC056] = dsc.UnSetterW(DisplayHires)
-	c.WMap[0xC057] = dsc.ReSetterW(DisplayHires)
-	c.WMap[0xC05E] = dsc.ReSetterW(DisplayDHires)
-	c.WMap[0xC05F] = dsc.UnSetterW(DisplayDHires)
-	c.WMap[0xC07E] = dsc.ReSetterW(DisplayIOU)
-	c.WMap[0xC07F] = dsc.UnSetterW(DisplayIOU)
+	for _, a := range displayReadSwitches() {
+		c.RMap[a.Addr()] = func(c *Computer, addr data.Addressor) data.Byte {
+			return c.disp.SwitchRead(c, addr)
+		}
+	}
+
+	for _, a := range displayWriteSwitches() {
+		c.WMap[a.Addr()] = func(c *Computer, addr data.Addressor, val data.Byte) {
+			c.disp.SwitchWrite(c, addr, val)
+		}
+	}
 }
