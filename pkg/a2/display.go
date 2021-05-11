@@ -43,37 +43,37 @@ type displaySwitcher struct {
 const (
 	// These are R7 actions, meaning they are switches you read from that return
 	// bit 7 high when the modes are on, and low if not.
-	rdAltChar = data.Int(0xC01E)
 	rd80Col   = data.Int(0xC01F)
 	rd80Store = data.Int(0xC018)
-	rdPage2   = data.Int(0xC01C)
-	rdText    = data.Int(0xC01A)
-	rdMixed   = data.Int(0xC01B)
+	rdAltChar = data.Int(0xC01E)
+	rdDHires  = data.Int(0xC07F)
 	rdHires   = data.Int(0xC01D)
 	rdIOUDis  = data.Int(0xC07E)
-	rdDHires  = data.Int(0xC07F)
+	rdMixed   = data.Int(0xC01B)
+	rdPage2   = data.Int(0xC01C)
+	rdText    = data.Int(0xC01A)
 
 	// These switches turn on modes
-	onAltChar = data.Int(0xC00F) // W
 	on80Col   = data.Int(0xC00D) // W
 	on80Store = data.Int(0xC001) // W
-	onPage2   = data.Int(0xC055) // R/W
-	onText    = data.Int(0xC051) // R/W
-	onMixed   = data.Int(0xC053) // R/W
+	onAltChar = data.Int(0xC00F) // W
+	onDHires  = data.Int(0xC05F) // R/W
 	onHires   = data.Int(0xC057) // R/W
 	onIOUDis  = data.Int(0xC07F) // W
-	onDHires  = data.Int(0xC05F) // R/W
+	onMixed   = data.Int(0xC053) // R/W
+	onPage2   = data.Int(0xC055) // R/W
+	onText    = data.Int(0xC051) // R/W
 
 	// And these switches turn them off.
-	offAltChar = data.Int(0xC00E) // W
 	off80Col   = data.Int(0xC00C) // W
 	off80Store = data.Int(0xC000) // W
-	offPage2   = data.Int(0xC054) // R/W
-	offText    = data.Int(0xC050) // R/W
-	offMixed   = data.Int(0xC052) // R/W
+	offAltChar = data.Int(0xC00E) // W
+	offDHires  = data.Int(0xC05E) // R/W
 	offHires   = data.Int(0xC056) // R/W
 	offIOUDis  = data.Int(0xC07E) // W
-	offDHires  = data.Int(0xC05E) // R/W
+	offMixed   = data.Int(0xC052) // R/W
+	offPage2   = data.Int(0xC054) // R/W
+	offText    = data.Int(0xC050) // R/W
 )
 
 func displayReadSwitches() []data.Addressor {

@@ -107,7 +107,7 @@ func (s *a2Suite) TestMapSoftSwitches() {
 	// which modify something
 	for _, addr = range rmapModifiers {
 		_, ok = s.comp.RMap[addr]
-		s.Equal(true, ok)
+		s.Truef(ok, "addr=%x", addr)
 	}
 
 	for _, addr = range wmapModifiers {

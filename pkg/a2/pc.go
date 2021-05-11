@@ -17,6 +17,33 @@ func (ps *pcSwitcher) UseDefaults() {
 	ps.slotCX = true
 }
 
+const (
+	offExpROM    = data.Int(0xCFFF)
+	offSlotC3ROM = data.Int(0xC00A)
+	offSlotCXROM = data.Int(0xC007)
+	onSlotC3ROM  = data.Int(0xC00B)
+	onSlotCXROM  = data.Int(0xC006)
+	rdSlotC3ROM  = data.Int(0xC017)
+	rdSlotCXROM  = data.Int(0xC015)
+)
+
+func pcReadSwitches() []data.Addressor {
+	return []data.Addressor{
+		offExpROM,
+		rdSlotC3ROM,
+		rdSlotCXROM,
+	}
+}
+
+func pcWriteSwitches() []data.Addressor {
+	return []data.Addressor{
+		offSlotC3ROM,
+		offSlotCXROM,
+		onSlotC3ROM,
+		onSlotCXROM,
+	}
+}
+
 // SwitchRead will return hi on bit 7 if slot c3 or cx is set to use peripheral
 // rom; otherwise lo.
 func (ps *pcSwitcher) SwitchRead(c *Computer, addr data.Addressor) data.Byte {
@@ -26,17 +53,17 @@ func (ps *pcSwitcher) SwitchRead(c *Computer, addr data.Addressor) data.Byte {
 		addrInt           = addr.Addr()
 	)
 
-	switch addrInt {
-	case 0xC017:
+	switch addr {
+	case rdSlotC3ROM:
 		if ps.slotC3 {
 			return hi
 		}
 		// it _seems_ like this should return lo instead of hi...?
-	case 0xC015:
+	case rdSlotCXROM:
 		if ps.slotCX {
 			return lo
 		}
-	case 0xCFFF:
+	case offExpROM:
 		// This is kind of an unusual switch, though, in that calling it
 		// produces a side effect while returning from ROM.
 		val := PCRead(c, addr)
@@ -50,17 +77,29 @@ func (ps *pcSwitcher) SwitchRead(c *Computer, addr data.Addressor) data.Byte {
 		return val
 	}
 
-	if addrInt >= 0xC100 && addrInt <= 0xC7FF {
+	if ps.slotXROM(addrInt) {
 		ps.expSlot = ps.slotFromAddr(addrInt)
 		return PCRead(c, addr)
 	}
 
-	if addrInt >= 0xC800 && addrInt <= 0xCFFF && ps.expSlot > 0 {
+	if ps.expROM(addrInt) && ps.expSlot > 0 {
 		ps.expansion = true
 		return PCRead(c, addr)
 	}
 
 	return lo
+}
+
+func (ps *pcSwitcher) slotXROM(addr int) bool {
+	return addr >= 0xC100 && addr < 0xC800
+}
+
+func (ps *pcSwitcher) expROM(addr int) bool {
+	return addr >= 0xC800 && addr < 0xD000
+}
+
+func (ps *pcSwitcher) slot3ROM(addr int) bool {
+	return addr >= 0xC300 && addr < 0xC400
 }
 
 // slotFromAddr returns the effective slot number from a given CnXX address.
@@ -73,17 +112,17 @@ func (ps *pcSwitcher) slotFromAddr(addr int) int {
 // SwitchWrite will handle soft switch writes that, in our case, will enable or
 // disable slot rom access.
 func (ps *pcSwitcher) SwitchWrite(c *Computer, addr data.Addressor, val data.Byte) {
-	switch addr.Addr() {
-	case 0xC00B:
+	switch addr {
+	case onSlotC3ROM:
 		ps.slotC3 = true
-	case 0xC00A:
+	case offSlotC3ROM:
 		ps.slotC3 = false
-	case 0xC006:
+	case onSlotCXROM:
 		// Note that enabling slotcx rom _also_ enables slotc3 rom, and
 		// disabling does the same.
 		ps.slotCX = true
 		ps.slotC3 = true
-	case 0xC007:
+	case offSlotCXROM:
 		ps.slotCX = false
 		ps.slotC3 = false
 	}
@@ -109,9 +148,9 @@ func PCRead(c *Computer, addr data.Addressor) data.Byte {
 
 	switch {
 	case
-		c.pc.expansion && addrInt >= 0xC800 && addrInt <= 0xCFFF,
-		c.pc.slotC3 && addrInt >= 0xC300 && addrInt <= 0xC3FF,
-		c.pc.slotCX && addrInt >= 0xC100 && addrInt <= 0xC7FF:
+		c.pc.expansion && c.pc.expROM(addrInt),
+		c.pc.slotC3 && c.pc.slot3ROM(addrInt),
+		c.pc.slotCX && c.pc.slotXROM(addrInt):
 		return c.ROM.Get(periphROM)
 	}
 

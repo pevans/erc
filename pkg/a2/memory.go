@@ -14,6 +14,31 @@ const (
 	memAux
 )
 
+const (
+	offMemReadAux  = data.Int(0xC002)
+	offMemWriteAux = data.Int(0xC004)
+	onMemReadAux   = data.Int(0xC003)
+	onMemWriteAux  = data.Int(0xC005)
+	rdMemReadAux   = data.Int(0xC013)
+	rdMemWriteAux  = data.Int(0xC014)
+)
+
+func memReadSwitches() []data.Addressor {
+	return []data.Addressor{
+		rdMemReadAux,
+		rdMemWriteAux,
+	}
+}
+
+func memWriteSwitches() []data.Addressor {
+	return []data.Addressor{
+		offMemReadAux,
+		offMemWriteAux,
+		onMemReadAux,
+		onMemWriteAux,
+	}
+}
+
 func (ms *memSwitcher) UseDefaults() {
 	ms.read = memMain
 	ms.write = memMain
@@ -25,13 +50,13 @@ func (ms *memSwitcher) SwitchRead(c *Computer, addr data.Addressor) data.Byte {
 		lo data.Byte = 0x00
 	)
 
-	switch addr.Addr() {
-	case 0xC013:
+	switch addr {
+	case rdMemReadAux:
 		if ms.read == memAux {
 			return hi
 		}
 
-	case 0xC014:
+	case rdMemWriteAux:
 		if ms.write == memAux {
 			return hi
 		}
@@ -41,14 +66,14 @@ func (ms *memSwitcher) SwitchRead(c *Computer, addr data.Addressor) data.Byte {
 }
 
 func (ms *memSwitcher) SwitchWrite(c *Computer, addr data.Addressor, val data.Byte) {
-	switch addr.Addr() {
-	case 0xC003:
+	switch addr {
+	case onMemReadAux:
 		ms.read = memAux
-	case 0xC002:
+	case offMemReadAux:
 		ms.read = memMain
-	case 0xC005:
+	case onMemWriteAux:
 		ms.write = memAux
-	case 0xC004:
+	case offMemWriteAux:
 		ms.write = memMain
 	}
 }

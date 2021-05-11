@@ -15,6 +15,7 @@ type bankSwitcher struct {
 	writeAttempts int
 }
 
+// This const block defines some modes that our bank switcher can have.
 const (
 	bankRAM = iota
 	bankROM
@@ -25,27 +26,60 @@ const (
 	bankAux
 )
 
+const (
+	offAltZP = data.Int(0xC008)
+	onAltZP  = data.Int(0xC009)
+	rdAltZP  = data.Int(0xC016)
+	rdBnk2   = data.Int(0xC011)
+	rdLCRAM  = data.Int(0xC012)
+)
+
+func bankReadSwitches() []data.Addressor {
+	return []data.Addressor{
+		data.Int(0xC080),
+		data.Int(0xC080),
+		data.Int(0xC081),
+		data.Int(0xC081),
+		data.Int(0xC082),
+		data.Int(0xC083),
+		data.Int(0xC083),
+		data.Int(0xC083),
+		data.Int(0xC088),
+		data.Int(0xC089),
+		data.Int(0xC08A),
+		data.Int(0xC08B),
+		rdAltZP,
+		rdBnk2,
+		rdLCRAM,
+	}
+}
+
+func bankWriteSwitches() []data.Addressor {
+	return []data.Addressor{
+		offAltZP,
+		onAltZP,
+	}
+}
+
 // SwitchRead manages reads from soft switches that mostly have to do with
 // returning the state of bank-switching as well as, paradoxically, allowing
 // callers to _modify_ said state.
 func (bs *bankSwitcher) SwitchRead(c *Computer, addr data.Addressor) data.Byte {
-	addrInt := data.DByte(addr.Addr())
-
 	// In this set of addresses, it's possible that we might need to return a
 	// value with bit 7 "checked" (which is to say, 1).
-	switch addrInt {
-	case 0xC011:
+	switch addr {
+	case rdBnk2:
 		return bs.bit7(bs.dfBlock == bank2)
-	case 0xC012:
+	case rdLCRAM:
 		return bs.bit7(bs.read == bankRAM)
-	case 0xC016:
+	case rdAltZP:
 		return bs.bit7(bs.sysBlock == bankAux)
 	}
 
 	// Otherwise, we farm off the mode checks to other methods.
-	bs.read = bs.readMode(addrInt)
-	bs.write = bs.writeMode(addrInt)
-	bs.dfBlock = bs.dfBlockMode(addrInt)
+	bs.read = bs.readMode(addr.Addr())
+	bs.write = bs.writeMode(addr.Addr())
+	bs.dfBlock = bs.dfBlockMode(addr.Addr())
 
 	return 0x00
 }
@@ -53,13 +87,12 @@ func (bs *bankSwitcher) SwitchRead(c *Computer, addr data.Addressor) data.Byte {
 // SwitchWrite manages writes on soft switches that may modify bank-switch
 // state, specifically that to do with the usage of main vs. auxilliary memory.
 func (bs *bankSwitcher) SwitchWrite(c *Computer, addr data.Addressor, val data.Byte) {
-	addrInt := data.DByte(addr.Addr())
 	origBlock := bs.sysBlock
 
-	switch addrInt {
-	case 0xC008:
+	switch addr {
+	case offAltZP:
 		bs.sysBlock = bankMain
-	case 0xC009:
+	case onAltZP:
 		bs.sysBlock = bankAux
 	}
 
@@ -80,7 +113,7 @@ func (bs *bankSwitcher) bit7(cond bool) data.Byte {
 	return 0x00
 }
 
-func (bs *bankSwitcher) readMode(addr data.DByte) int {
+func (bs *bankSwitcher) readMode(addr int) int {
 	switch addr {
 	case 0xC080, 0xC083, 0xC088, 0xC08B:
 		return bankRAM
@@ -89,7 +122,7 @@ func (bs *bankSwitcher) readMode(addr data.DByte) int {
 	return bankROM
 }
 
-func (bs *bankSwitcher) writeMode(addr data.DByte) int {
+func (bs *bankSwitcher) writeMode(addr int) int {
 	switch addr {
 	case 0xC081, 0xC083, 0xC089, 0xC08B:
 		bs.writeAttempts++
@@ -103,7 +136,7 @@ func (bs *bankSwitcher) writeMode(addr data.DByte) int {
 	return bankNone
 }
 
-func (bs *bankSwitcher) dfBlockMode(addr data.DByte) int {
+func (bs *bankSwitcher) dfBlockMode(addr int) int {
 	switch addr {
 	case 0xC080, 0xC081, 0xC082, 0xC083:
 		return bank2

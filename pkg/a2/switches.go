@@ -5,27 +5,8 @@ import "github.com/pevans/erc/pkg/data"
 // A Switcher is a type which provides a way to handle soft switch reads and
 // writes in a relatively generic way.
 type Switcher interface {
-	SwitchRead(c *Computer, addr data.DByte) data.Byte
-	SwitchWrite(c *Computer, addr data.DByte, val data.Byte)
-}
-
-var bankReadSwitches = []int{
-	0xC011,
-	0xC012,
-	0xC016,
-	0xC080,
-	0xC081,
-	0xC082,
-	0xC083,
-	0xC088,
-	0xC089,
-	0xC08A,
-	0xC08B,
-}
-
-var bankWriteSwitches = []int{
-	0xC008,
-	0xC009,
+	SwitchRead(c *Computer, addr data.Addressor) data.Byte
+	SwitchWrite(c *Computer, addr data.Addressor, val data.Byte)
 }
 
 // MapSoftSwitches will add several mappings for the soft switches that our
@@ -40,47 +21,47 @@ func (c *Computer) MapSoftSwitches() {
 	c.MapRange(0xC100, 0xD000, PCRead, PCWrite)
 	c.MapRange(0xD000, 0x10000, BankDFRead, BankDFWrite)
 
-	for _, addr := range []int{0xC013, 0xC014} {
-		c.RMap[addr] = func(c *Computer, addr data.Addressor) data.Byte {
-			return c.mem.SwitchRead(c, addr)
+	rfn := func(s Switcher) func(*Computer, data.Addressor) data.Byte {
+		return func(c *Computer, addr data.Addressor) data.Byte {
+			return s.SwitchRead(c, addr)
 		}
 	}
 
-	for _, addr := range []int{0xC002, 0xC003, 0xC004, 0xC005} {
-		c.WMap[addr] = func(c *Computer, addr data.Addressor, val data.Byte) {
-			c.mem.SwitchWrite(c, addr, val)
+	wfn := func(s Switcher) func(*Computer, data.Addressor, data.Byte) {
+		return func(c *Computer, addr data.Addressor, val data.Byte) {
+			s.SwitchWrite(c, addr, val)
 		}
 	}
 
-	for _, addr := range bankReadSwitches {
-		c.RMap[addr] = bankSwitchRead
+	for _, a := range memReadSwitches() {
+		c.RMap[a.Addr()] = rfn(&c.mem)
 	}
 
-	for _, addr := range bankWriteSwitches {
-		c.WMap[addr] = bankSwitchWrite
+	for _, a := range memWriteSwitches() {
+		c.WMap[a.Addr()] = wfn(&c.mem)
 	}
 
-	for _, addr := range []int{0xC015, 0xC017} {
-		c.RMap[addr] = func(c *Computer, addr data.Addressor) data.Byte {
-			return c.pc.SwitchRead(c, addr)
-		}
+	for _, addr := range bankReadSwitches() {
+		c.RMap[addr.Addr()] = rfn(&c.bank)
 	}
 
-	for _, addr := range []int{0xC006, 0xC007, 0xC00A, 0xC00B} {
-		c.WMap[addr] = func(c *Computer, addr data.Addressor, val data.Byte) {
-			c.pc.SwitchWrite(c, addr, val)
-		}
+	for _, addr := range bankWriteSwitches() {
+		c.WMap[addr.Addr()] = wfn(&c.bank)
+	}
+
+	for _, a := range pcReadSwitches() {
+		c.RMap[a.Addr()] = rfn(&c.pc)
+	}
+
+	for _, a := range pcWriteSwitches() {
+		c.WMap[a.Addr()] = wfn(&c.pc)
 	}
 
 	for _, a := range displayReadSwitches() {
-		c.RMap[a.Addr()] = func(c *Computer, addr data.Addressor) data.Byte {
-			return c.disp.SwitchRead(c, addr)
-		}
+		c.RMap[a.Addr()] = rfn(&c.disp)
 	}
 
 	for _, a := range displayWriteSwitches() {
-		c.WMap[a.Addr()] = func(c *Computer, addr data.Addressor, val data.Byte) {
-			c.disp.SwitchWrite(c, addr, val)
-		}
+		c.WMap[a.Addr()] = wfn(&c.disp)
 	}
 }
