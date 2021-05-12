@@ -27,27 +27,27 @@ const (
 )
 
 const (
-	offAltZP = data.Int(0xC008)
-	onAltZP  = data.Int(0xC009)
-	rdAltZP  = data.Int(0xC016)
-	rdBnk2   = data.Int(0xC011)
-	rdLCRAM  = data.Int(0xC012)
+	offAltZP = data.DByte(0xC008)
+	onAltZP  = data.DByte(0xC009)
+	rdAltZP  = data.DByte(0xC016)
+	rdBnk2   = data.DByte(0xC011)
+	rdLCRAM  = data.DByte(0xC012)
 )
 
 func bankReadSwitches() []data.Addressor {
 	return []data.Addressor{
-		data.Int(0xC080),
-		data.Int(0xC080),
-		data.Int(0xC081),
-		data.Int(0xC081),
-		data.Int(0xC082),
-		data.Int(0xC083),
-		data.Int(0xC083),
-		data.Int(0xC083),
-		data.Int(0xC088),
-		data.Int(0xC089),
-		data.Int(0xC08A),
-		data.Int(0xC08B),
+		data.DByte(0xC080),
+		data.DByte(0xC080),
+		data.DByte(0xC081),
+		data.DByte(0xC081),
+		data.DByte(0xC082),
+		data.DByte(0xC083),
+		data.DByte(0xC083),
+		data.DByte(0xC083),
+		data.DByte(0xC088),
+		data.DByte(0xC089),
+		data.DByte(0xC08A),
+		data.DByte(0xC08B),
 		rdAltZP,
 		rdBnk2,
 		rdLCRAM,

@@ -144,7 +144,7 @@ func (c *Computer) DrawText() {
 
 // textRender will draw text in the framebuffer starting from a specific memory
 // range, and ending at a specific memory range.
-func (c *Computer) textRender(start, end data.Int) {
+func (c *Computer) textRender(start, end data.DByte) {
 	for addr := start; addr < end; addr++ {
 		// Try to figure out where the text should be displayed
 		row := textAddressRows[addr-start]
@@ -161,7 +161,7 @@ func (c *Computer) textRender(start, end data.Int) {
 		y := uint(row) * c.SysFont.GlyphHeight
 
 		// Figure out what glyph to render
-		char := c.Get(data.Int(addr))
+		char := c.Get(data.DByte(addr))
 		glyph := c.SysFont.Glyph(int(char))
 
 		_ = c.FrameBuffer.Blit(x, y, glyph)

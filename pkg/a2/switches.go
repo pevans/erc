@@ -54,7 +54,9 @@ func (c *Computer) MapSoftSwitches() {
 	}
 
 	for _, a := range pcWriteSwitches() {
-		c.WMap[a.Addr()] = wfn(&c.pc)
+		c.WMap[a.Addr()] = func(c *Computer, a data.Addressor, val data.Byte) {
+			c.pc.SwitchWrite(c, a, val)
+		}
 	}
 
 	for _, a := range displayReadSwitches() {

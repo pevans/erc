@@ -16,21 +16,21 @@ func (s *a2Suite) TestPCSwitcherSwitchWrite() {
 
 	s.Run("slot c3 rom writes work", func() {
 		ps.slotC3 = false
-		ps.SwitchWrite(s.comp, data.Int(0xC00B), 0x0)
+		ps.SwitchWrite(s.comp, data.DByte(0xC00B), 0x0)
 		s.Equal(true, ps.slotC3)
 
-		ps.SwitchWrite(s.comp, data.Int(0xC00A), 0x0)
+		ps.SwitchWrite(s.comp, data.DByte(0xC00A), 0x0)
 		s.Equal(false, ps.slotC3)
 	})
 
 	s.Run("slot cx rom writes work", func() {
 		ps.slotCX = false
 		ps.slotC3 = false
-		ps.SwitchWrite(s.comp, data.Int(0xC006), 0x0)
+		ps.SwitchWrite(s.comp, data.DByte(0xC006), 0x0)
 		s.Equal(true, ps.slotCX)
 		s.Equal(true, ps.slotC3)
 
-		ps.SwitchWrite(s.comp, data.Int(0xC007), 0x0)
+		ps.SwitchWrite(s.comp, data.DByte(0xC007), 0x0)
 		s.Equal(false, ps.slotCX)
 		s.Equal(false, ps.slotC3)
 	})
@@ -45,26 +45,26 @@ func (s *a2Suite) TestPCSwitcherSwitchRead() {
 
 	s.Run("read of slotc3 returns hi", func() {
 		ps.slotC3 = true
-		s.Equal(hi, ps.SwitchRead(s.comp, data.Int(0xC017)))
+		s.Equal(hi, ps.SwitchRead(s.comp, data.DByte(0xC017)))
 	})
 
 	s.Run("read of slot cx returns lo", func() {
 		ps.slotCX = true
-		s.Equal(lo, ps.SwitchRead(s.comp, data.Int(0xC016)))
+		s.Equal(lo, ps.SwitchRead(s.comp, data.DByte(0xC016)))
 	})
 }
 
 func (s *a2Suite) TestPCRead() {
 	var (
-		c801   = data.Int(0xC801)
-		prc801 = data.Int(pcPROMAddr(c801.Addr()))
-		irc801 = data.Int(pcIROMAddr(c801.Addr()))
-		c301   = data.Int(0xC301)
-		prc301 = data.Int(pcPROMAddr(c301.Addr()))
-		irc301 = data.Int(pcIROMAddr(c301.Addr()))
-		c401   = data.Int(0xC401)
-		prc401 = data.Int(pcPROMAddr(c401.Addr()))
-		irc401 = data.Int(pcIROMAddr(c401.Addr()))
+		c801   = data.DByte(0xC801)
+		prc801 = data.DByte(pcPROMAddr(c801.Addr()))
+		irc801 = data.DByte(pcIROMAddr(c801.Addr()))
+		c301   = data.DByte(0xC301)
+		prc301 = data.DByte(pcPROMAddr(c301.Addr()))
+		irc301 = data.DByte(pcIROMAddr(c301.Addr()))
+		c401   = data.DByte(0xC401)
+		prc401 = data.DByte(pcPROMAddr(c401.Addr()))
+		irc401 = data.DByte(pcIROMAddr(c401.Addr()))
 	)
 
 	s.Run("reads from expansion space", func() {

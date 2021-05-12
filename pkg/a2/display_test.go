@@ -155,9 +155,9 @@ func (s *a2Suite) TestDisplaySwitcherSwitchWrite() {
 
 func (s *a2Suite) TestDisplaySegment() {
 	var (
-		p1addr = data.Int(0x401)
-		p2addr = data.Int(0x2001)
-		other  = data.Int(0x301)
+		p1addr = data.DByte(0x401)
+		p2addr = data.DByte(0x2001)
+		other  = data.DByte(0x301)
 		val    = data.Byte(0x12)
 	)
 
@@ -201,7 +201,7 @@ func (s *a2Suite) TestDisplaySegment() {
 
 func (s *a2Suite) TestDisplayRead() {
 	var (
-		addr = data.Int(0x1111)
+		addr = data.DByte(0x1111)
 		val  = data.Byte(0x22)
 	)
 
@@ -211,7 +211,7 @@ func (s *a2Suite) TestDisplayRead() {
 
 func (s *a2Suite) TestDisplayWrite() {
 	var (
-		addr = data.Int(0x1112)
+		addr = data.DByte(0x1112)
 		val  = data.Byte(0x23)
 	)
 

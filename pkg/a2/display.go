@@ -43,37 +43,37 @@ type displaySwitcher struct {
 const (
 	// These are R7 actions, meaning they are switches you read from that return
 	// bit 7 high when the modes are on, and low if not.
-	rd80Col   = data.Int(0xC01F)
-	rd80Store = data.Int(0xC018)
-	rdAltChar = data.Int(0xC01E)
-	rdDHires  = data.Int(0xC07F)
-	rdHires   = data.Int(0xC01D)
-	rdIOUDis  = data.Int(0xC07E)
-	rdMixed   = data.Int(0xC01B)
-	rdPage2   = data.Int(0xC01C)
-	rdText    = data.Int(0xC01A)
+	rd80Col   = data.DByte(0xC01F)
+	rd80Store = data.DByte(0xC018)
+	rdAltChar = data.DByte(0xC01E)
+	rdDHires  = data.DByte(0xC07F)
+	rdHires   = data.DByte(0xC01D)
+	rdIOUDis  = data.DByte(0xC07E)
+	rdMixed   = data.DByte(0xC01B)
+	rdPage2   = data.DByte(0xC01C)
+	rdText    = data.DByte(0xC01A)
 
 	// These switches turn on modes
-	on80Col   = data.Int(0xC00D) // W
-	on80Store = data.Int(0xC001) // W
-	onAltChar = data.Int(0xC00F) // W
-	onDHires  = data.Int(0xC05F) // R/W
-	onHires   = data.Int(0xC057) // R/W
-	onIOUDis  = data.Int(0xC07F) // W
-	onMixed   = data.Int(0xC053) // R/W
-	onPage2   = data.Int(0xC055) // R/W
-	onText    = data.Int(0xC051) // R/W
+	on80Col   = data.DByte(0xC00D) // W
+	on80Store = data.DByte(0xC001) // W
+	onAltChar = data.DByte(0xC00F) // W
+	onDHires  = data.DByte(0xC05F) // R/W
+	onHires   = data.DByte(0xC057) // R/W
+	onIOUDis  = data.DByte(0xC07F) // W
+	onMixed   = data.DByte(0xC053) // R/W
+	onPage2   = data.DByte(0xC055) // R/W
+	onText    = data.DByte(0xC051) // R/W
 
 	// And these switches turn them off.
-	off80Col   = data.Int(0xC00C) // W
-	off80Store = data.Int(0xC000) // W
-	offAltChar = data.Int(0xC00E) // W
-	offDHires  = data.Int(0xC05E) // R/W
-	offHires   = data.Int(0xC056) // R/W
-	offIOUDis  = data.Int(0xC07E) // W
-	offMixed   = data.Int(0xC052) // R/W
-	offPage2   = data.Int(0xC054) // R/W
-	offText    = data.Int(0xC050) // R/W
+	off80Col   = data.DByte(0xC00C) // W
+	off80Store = data.DByte(0xC000) // W
+	offAltChar = data.DByte(0xC00E) // W
+	offDHires  = data.DByte(0xC05E) // R/W
+	offHires   = data.DByte(0xC056) // R/W
+	offIOUDis  = data.DByte(0xC07E) // W
+	offMixed   = data.DByte(0xC052) // R/W
+	offPage2   = data.DByte(0xC054) // R/W
+	offText    = data.DByte(0xC050) // R/W
 )
 
 func displayReadSwitches() []data.Addressor {
@@ -295,15 +295,15 @@ func (c *Computer) Render() {
 	switch {
 	case c.disp.text:
 		var (
-			start data.Int = 0x400
-			end   data.Int = 0x800
+			start data.DByte = 0x400
+			end   data.DByte = 0x800
 		)
 
 		c.textRender(start, end)
 	case c.disp.highRes:
 		var (
-			start data.Int = 0x2000
-			end   data.Int = 0x4000
+			start data.DByte = 0x2000
+			end   data.DByte = 0x4000
 		)
 
 		c.hiresRender(start, end)

@@ -1,6 +1,8 @@
 package a2
 
-import "github.com/pevans/erc/pkg/data"
+import (
+	"github.com/pevans/erc/pkg/data"
+)
 
 type pcSwitcher struct {
 	expansion bool
@@ -9,22 +11,14 @@ type pcSwitcher struct {
 	expSlot   int
 }
 
-// UseDefaults sets the state of the pc switcher to that which it should have
-// after a cold or warm boot.
-func (ps *pcSwitcher) UseDefaults() {
-	ps.expansion = false
-	ps.slotC3 = false
-	ps.slotCX = true
-}
-
 const (
-	offExpROM    = data.Int(0xCFFF)
-	offSlotC3ROM = data.Int(0xC00A)
-	offSlotCXROM = data.Int(0xC007)
-	onSlotC3ROM  = data.Int(0xC00B)
-	onSlotCXROM  = data.Int(0xC006)
-	rdSlotC3ROM  = data.Int(0xC017)
-	rdSlotCXROM  = data.Int(0xC015)
+	offExpROM    = data.DByte(0xCFFF)
+	offSlotC3ROM = data.DByte(0xC00A)
+	offSlotCXROM = data.DByte(0xC007)
+	onSlotC3ROM  = data.DByte(0xC00B)
+	onSlotCXROM  = data.DByte(0xC006)
+	rdSlotC3ROM  = data.DByte(0xC017)
+	rdSlotCXROM  = data.DByte(0xC015)
 )
 
 func pcReadSwitches() []data.Addressor {
@@ -42,6 +36,14 @@ func pcWriteSwitches() []data.Addressor {
 		onSlotC3ROM,
 		onSlotCXROM,
 	}
+}
+
+// UseDefaults sets the state of the pc switcher to that which it should have
+// after a cold or warm boot.
+func (ps *pcSwitcher) UseDefaults() {
+	ps.expansion = false
+	ps.slotC3 = false
+	ps.slotCX = true
 }
 
 // SwitchRead will return hi on bit 7 if slot c3 or cx is set to use peripheral
@@ -123,6 +125,8 @@ func (ps *pcSwitcher) SwitchWrite(c *Computer, addr data.Addressor, val data.Byt
 		ps.slotCX = true
 		ps.slotC3 = true
 	case offSlotCXROM:
+		// FIXME: the problem is that addresses aren't matching the
+		// consts, even though they are equal values
 		ps.slotCX = false
 		ps.slotC3 = false
 	}
@@ -142,8 +146,8 @@ func pcPROMAddr(addr int) int {
 func PCRead(c *Computer, addr data.Addressor) data.Byte {
 	var (
 		addrInt   = addr.Addr()
-		intROM    = data.Int(pcIROMAddr(addrInt))
-		periphROM = data.Int(pcPROMAddr(addrInt))
+		intROM    = data.DByte(pcIROMAddr(addrInt))
+		periphROM = data.DByte(pcPROMAddr(addrInt))
 	)
 
 	switch {

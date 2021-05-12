@@ -15,12 +15,12 @@ const (
 )
 
 const (
-	offMemReadAux  = data.Int(0xC002)
-	offMemWriteAux = data.Int(0xC004)
-	onMemReadAux   = data.Int(0xC003)
-	onMemWriteAux  = data.Int(0xC005)
-	rdMemReadAux   = data.Int(0xC013)
-	rdMemWriteAux  = data.Int(0xC014)
+	offMemReadAux  = data.DByte(0xC002)
+	offMemWriteAux = data.DByte(0xC004)
+	onMemReadAux   = data.DByte(0xC003)
+	onMemWriteAux  = data.DByte(0xC005)
+	rdMemReadAux   = data.DByte(0xC013)
+	rdMemWriteAux  = data.DByte(0xC014)
 )
 
 func memReadSwitches() []data.Addressor {

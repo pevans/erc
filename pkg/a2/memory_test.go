@@ -12,10 +12,10 @@ func (s *a2Suite) TestMemSwitcherUseDefaults() {
 
 func (s *a2Suite) TestMemSwitcherSwitchRead() {
 	var (
-		c013 data.Int  = 0xC013
-		c014 data.Int  = 0xC014
-		hi   data.Byte = 0x80
-		lo   data.Byte = 0x00
+		c013 data.DByte = 0xC013
+		c014 data.DByte = 0xC014
+		hi   data.Byte  = 0x80
+		lo   data.Byte  = 0x00
 		ms   memSwitcher
 	)
 
@@ -38,10 +38,10 @@ func (s *a2Suite) TestMemSwitcherSwitchRead() {
 
 func (s *a2Suite) TestMemSwitcherSwitchWrite() {
 	var (
-		c002 data.Int = 0xC002
-		c003 data.Int = 0xC003
-		c004 data.Int = 0xC004
-		c005 data.Int = 0xC005
+		c002 data.DByte = 0xC002
+		c003 data.DByte = 0xC003
+		c004 data.DByte = 0xC004
+		c005 data.DByte = 0xC005
 		ms   memSwitcher
 	)
 

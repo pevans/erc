@@ -47,17 +47,17 @@ func (s *a2Suite) TestSwitchRead() {
 	}
 
 	rd := func(addr int) int {
-		_ = bank.SwitchRead(s.comp, data.Int(addr))
+		_ = bank.SwitchRead(s.comp, data.DByte(addr))
 		return bank.read
 	}
 
 	wr := func(addr int) int {
-		_ = bank.SwitchRead(s.comp, data.Int(addr))
+		_ = bank.SwitchRead(s.comp, data.DByte(addr))
 		return bank.write
 	}
 
 	df := func(addr int) int {
-		_ = bank.SwitchRead(s.comp, data.Int(addr))
+		_ = bank.SwitchRead(s.comp, data.DByte(addr))
 		return bank.dfBlock
 	}
 
@@ -87,48 +87,48 @@ func (s *a2Suite) TestSwitchRead() {
 		lo7 := data.Byte(0x00)
 
 		bank.dfBlock = bank2
-		s.Equal(hi7, bank.SwitchRead(s.comp, data.Int(0xC011)))
+		s.Equal(hi7, bank.SwitchRead(s.comp, data.DByte(0xC011)))
 		bank.dfBlock = bank1
-		s.Equal(lo7, bank.SwitchRead(s.comp, data.Int(0xC011)))
+		s.Equal(lo7, bank.SwitchRead(s.comp, data.DByte(0xC011)))
 
 		bank.read = bankRAM
-		s.Equal(hi7, bank.SwitchRead(s.comp, data.Int(0xC012)))
+		s.Equal(hi7, bank.SwitchRead(s.comp, data.DByte(0xC012)))
 		bank.read = bankROM
-		s.Equal(lo7, bank.SwitchRead(s.comp, data.Int(0xC012)))
+		s.Equal(lo7, bank.SwitchRead(s.comp, data.DByte(0xC012)))
 
 		bank.sysBlock = bankAux
-		s.Equal(hi7, bank.SwitchRead(s.comp, data.Int(0xC016)))
+		s.Equal(hi7, bank.SwitchRead(s.comp, data.DByte(0xC016)))
 		bank.sysBlock = bankMain
-		s.Equal(lo7, bank.SwitchRead(s.comp, data.Int(0xC016)))
+		s.Equal(lo7, bank.SwitchRead(s.comp, data.DByte(0xC016)))
 	})
 }
 
 func (s *a2Suite) TestSwitchWrite() {
 	var (
 		bank bankSwitcher
-		d123 data.Byte = 123
-		d45  data.Byte = 45
-		addr data.Int  = 0x11
+		d123 data.Byte  = 123
+		d45  data.Byte  = 45
+		addr data.DByte = 0x11
 	)
 
 	s.Run("switching main to aux", func() {
 		s.comp.Main.Mem[addr] = d123
 		bank.sysBlock = bankMain
-		bank.SwitchWrite(s.comp, data.Int(0xC009), d45)
+		bank.SwitchWrite(s.comp, data.DByte(0xC009), d45)
 		s.Equal(bankAux, bank.sysBlock)
 		s.Equal(d123, s.comp.Aux.Mem[addr])
 	})
 
 	s.Run("switching aux to main", func() {
 		s.comp.Aux.Mem[addr] = d45
-		bank.SwitchWrite(s.comp, data.Int(0xC008), d123)
+		bank.SwitchWrite(s.comp, data.DByte(0xC008), d123)
 		s.Equal(bankMain, bank.sysBlock)
 		s.Equal(d45, s.comp.Main.Mem[addr])
 	})
 
 	s.Run("not changing the mode should not copy pages", func() {
 		s.comp.Aux.Mem[addr] = d123
-		bank.SwitchWrite(s.comp, data.Int(0xC008), d123)
+		bank.SwitchWrite(s.comp, data.DByte(0xC008), d123)
 		s.Equal(bankMain, bank.sysBlock)
 		s.Equal(d45, s.comp.Main.Mem[addr])
 	})
@@ -136,13 +136,13 @@ func (s *a2Suite) TestSwitchWrite() {
 
 func (s *a2Suite) TestBankDFRead() {
 	var (
-		xd000  data.Int  = 0xD000
-		xe000  data.Int  = 0xE000
-		x1000  data.Int  = 0x1000
-		x2000  data.Int  = 0x2000
-		x10000 data.Int  = 0x10000
-		val1   data.Byte = 124
-		val2   data.Byte = 112
+		xd000  data.DByte = 0xD000
+		xe000  data.DByte = 0xE000
+		x1000  data.DByte = 0x1000
+		x2000  data.DByte = 0x2000
+		x10000 data.Int   = 0x10000
+		val1   data.Byte  = 124
+		val2   data.Byte  = 112
 	)
 
 	testFor := func(sblock int) {
@@ -184,10 +184,10 @@ func (s *a2Suite) TestBankDFRead() {
 
 func (s *a2Suite) TestBankDFWrite() {
 	var (
-		dfaddr data.Int  = 0xD011
-		efaddr data.Int  = 0xE011
-		val1   data.Byte = 87
-		val2   data.Byte = 89
+		dfaddr data.DByte = 0xD011
+		efaddr data.DByte = 0xE011
+		val1   data.Byte  = 87
+		val2   data.Byte  = 89
 	)
 
 	testFor := func(sblock int) {
