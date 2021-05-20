@@ -49,7 +49,12 @@ func Bit(c *CPU) {
 
 // Bim implements the BIM instruction, which is like the BIT instruction
 // but only executes the zero flag logic. (I don't really know what the
-// "M" stands for.)
+// "M" stands for.) (Update: This might abbreviate for (B)IT in
+// (IM)mediate mode, as that is the only address mode where this
+// instruction is configured. The Apple IIe technical reference doesn't
+// distinguish the instructions; it merely notes that BIT operates
+// differently, in the way that BIM does here, as opcode $89 (which is
+// the code used here).
 func Bim(c *CPU) {
 	c.ApplyStatus((c.A&c.EffVal) == 0, ZERO)
 }
