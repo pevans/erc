@@ -154,10 +154,12 @@ func (d *Drive) PhaseTransition(phase int) {
 		return
 	}
 
+	offset := phaseTable[(d.Phase*5)+phase]
+
 	// Because of the above check, we can assert that the formula we use for the
 	// phase transition ((curPhase * 5) + phase) will match something, so we
 	// step immediately.
-	d.Step(phaseTable[(d.Phase*5)+phase])
+	d.Step(offset)
 
 	// We also have to update our current phase
 	d.Phase = phase
