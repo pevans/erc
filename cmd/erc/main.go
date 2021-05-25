@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/pevans/erc/pkg/a2"
@@ -20,6 +22,9 @@ func main() {
 		configFile  = fmt.Sprintf("%s/%s", homeDir, ConfigFile)
 		instLogFile *os.File
 	)
+
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
 
 	// Let's see if we can figure out our config situation
 	conf, err := boot.NewConfig(configFile)
@@ -43,6 +48,14 @@ func main() {
 	comp := a2.NewComputer()
 	comp.SetFont(a2.SystemFont())
 	comp.SetLogger(log)
+
+	go func() {
+		sig := <-signals
+
+		fmt.Printf("Received signal %v", sig)
+		comp.Shutdown()
+		os.Exit(1)
+	}()
 
 	if instLog := os.Getenv("INST_LOG"); instLog != "" {
 		instLogFile, err = os.OpenFile(
