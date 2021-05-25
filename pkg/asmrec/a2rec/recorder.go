@@ -11,6 +11,8 @@ import (
 // A Recorder is an object which satisfies the asmrec.Recorder interface
 // and allows us to record assembly instructions for the Apple 2.
 type Recorder struct {
+	PrintState bool
+
 	PC      data.DByte
 	Opcode  data.Byte
 	Operand data.DByte
@@ -98,11 +100,16 @@ func (r *Recorder) Record(w io.Writer) error {
 	}
 
 	str += fmt.Sprintf(` %3s %7s`, r.Inst, operand)
-	str += fmt.Sprintf(
-		" ; A=%02X X=%02X Y=%02X P=%02X S=%02X (%s) EA=%04X EV=%02X +%d\n",
-		r.A, r.X, r.Y, r.P, r.S, string(pstatus),
-		r.EffAddr, r.EffVal, counter,
-	)
+
+	if r.PrintState {
+		str += fmt.Sprintf(
+			" ; A=%02X X=%02X Y=%02X P=%02X S=%02X (%s) EA=%04X EV=%02X +%d",
+			r.A, r.X, r.Y, r.P, r.S, string(pstatus),
+			r.EffAddr, r.EffVal, counter,
+		)
+	}
+
+	str += "\n"
 
 	counter++
 

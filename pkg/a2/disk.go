@@ -1,6 +1,8 @@
 package a2
 
 import (
+	"fmt"
+
 	"github.com/pevans/erc/pkg/data"
 )
 
@@ -14,6 +16,7 @@ func diskReadWrite(c *Computer, addr data.DByte, val *data.Byte) {
 	switch nib {
 	case 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7:
 		// Set the drive phase, thus adjusting the track position
+		//fmt.Printf("switch phase on addr %04x\n", addr)
 		drive.SwitchPhase(nib)
 
 	case 0x8:
@@ -26,10 +29,12 @@ func diskReadWrite(c *Computer, addr data.DByte, val *data.Byte) {
 		drive.Online = true
 
 	case 0xA:
+		fmt.Printf("change seldrive=1\n")
 		// Set the selected drive to drive 1
 		c.SelectedDrive = c.Drive1
 
 	case 0xB:
+		fmt.Printf("change seldrive=2\n")
 		// Set the selected drive to drive 2
 		c.SelectedDrive = c.Drive2
 

@@ -2,6 +2,7 @@ package a2
 
 import (
 	"github.com/pevans/erc/pkg/data"
+	"github.com/pevans/erc/pkg/disasm"
 	"github.com/pevans/erc/pkg/mos65c02"
 	"github.com/pevans/erc/pkg/obj"
 )
@@ -25,6 +26,8 @@ const (
 // only when the computer is switched from a powered-off to a powered-on
 // state.
 func (c *Computer) Boot() error {
+	c.CPU.SMap = disasm.NewSourceMap()
+
 	// Fetch the slice of bytes for system ROM and for peripheral ROM
 	// (they go to together).
 	rom, err := obj.Slice(4, RomMemorySize+4)

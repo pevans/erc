@@ -88,6 +88,7 @@ func (c *CPU) Execute() error {
 	inst = instructions[opcode]
 
 	rec.PC = c.PC
+	rec.PrintState = true
 	rec.Opcode = opcode
 	rec.A = c.A
 	rec.X = c.X
@@ -118,6 +119,10 @@ func (c *CPU) Execute() error {
 	if c.RecWriter != nil {
 		err = rec.Record(c.RecWriter)
 	}
+
+	srec := rec
+	srec.PrintState = false
+	_ = c.SMap.Map(int(srec.PC), &srec)
 
 	// Adjust the program counter to beyond the expected instruction
 	// sequence (1 byte for the opcode, + N bytes for the operand, based

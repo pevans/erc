@@ -4,11 +4,13 @@ import (
 	"io"
 
 	"github.com/pevans/erc/pkg/data"
+	"github.com/pevans/erc/pkg/disasm"
 )
 
 // A CPU is an implementation of an MOS 65c02 processor.
 type CPU struct {
 	RecWriter io.Writer
+	SMap      *disasm.SourceMap
 
 	// RMem and WMem are the segments from which we will read or write
 	// whenever it is necessary.
