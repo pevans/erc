@@ -22,8 +22,8 @@ data_len = len(data)
 
 # This just defines the variable name for the store data
 sys.stdout.write("package obj\n\n")
-sys.stdout.write('import "github.com/pevans/erc/pkg/mach"\n\n')
-sys.stdout.write("var storeData = []mach.Byte{\n\t")
+sys.stdout.write('import "github.com/pevans/erc/pkg/data"\n\n')
+sys.stdout.write("var storeData = []data.Byte{\n\t")
 #sys.stdout.write("static unsigned char store_data[] =\n")
 
 # This loop will write out a series of 16 characters given in hexadecimal
