@@ -60,6 +60,10 @@ func diskReadWrite(c *Computer, addr data.DByte, val *data.Byte) {
 		// Set the selected drive mode to write
 		drive.Mode = WriteMode
 	}
+
+	if nib%2 == 0 {
+		*val = drive.Latch
+	}
 }
 
 func diskRead(c *Computer, addr data.Addressor) data.Byte {
