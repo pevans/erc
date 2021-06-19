@@ -287,6 +287,8 @@ func (c *Computer) Render() {
 		return
 	}
 
+    c.log.Debug("rendering...")
+
 	// if it's text, do one thing
 	// if it's lores, do another thing
 	// if it's mixed, we need to do text + lores

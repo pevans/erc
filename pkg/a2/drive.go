@@ -223,8 +223,6 @@ func (d *Drive) Read() data.Byte {
 	// shift our position by one place
 	d.Latch = d.Data.Get(d.Position())
 
-	fmt.Printf("reading data=%x from pos=%x\n", d.Latch, d.Position())
-
 	d.Shift(1)
 
 	return d.Latch
