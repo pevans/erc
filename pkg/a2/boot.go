@@ -25,8 +25,8 @@ const (
 // This may also be called a cold start of the computer, and this occurs
 // only when the computer is switched from a powered-off to a powered-on
 // state.
-func (c *Computer) Boot() error {
-	c.CPU.SMap = disasm.NewSourceMap()
+func (c *Computer) Boot(disFile string) error {
+	c.CPU.SMap = disasm.NewSourceMap(disFile)
 
 	// Fetch the slice of bytes for system ROM and for peripheral ROM
 	// (they go to together).

@@ -7,11 +7,13 @@ import (
 )
 
 type SourceMap struct {
+	file string
 	smap map[int]asmrec.Recorder
 }
 
-func NewSourceMap() *SourceMap {
+func NewSourceMap(file string) *SourceMap {
 	sm := new(SourceMap)
+	sm.file = file
 	sm.smap = make(map[int]asmrec.Recorder)
 
 	return sm
@@ -27,12 +29,11 @@ func (sm *SourceMap) Map(addr int, rec asmrec.Recorder) bool {
 }
 
 func (sm *SourceMap) WriteLog() error {
-	target := os.Getenv("DISASM_LOG")
-	if target == "" {
+	if sm.file == "" {
 		return nil
 	}
 
-	w, err := os.OpenFile(target, os.O_CREATE|os.O_WRONLY, 0755)
+	w, err := os.OpenFile(sm.file, os.O_CREATE|os.O_WRONLY, 0755)
 	if err != nil {
 		return err
 	}

@@ -7,11 +7,20 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/alecthomas/kong"
 	"github.com/pevans/erc/pkg/a2"
 	"github.com/pevans/erc/pkg/boot"
 
 	"github.com/pkg/errors"
+	"github.com/pkg/profile"
 )
+
+type cli struct {
+	ExecTrace   string `help:"Write an execution trace to a file"`
+	Disassembly string `help:"Write disassembled instructions to a file"`
+	Profile     bool   `help:"Write out a profile trace"`
+	Image       string `arg`
+}
 
 // ConfigFile is the default (relative) location of our configuration file.
 const ConfigFile = `.erc/config.toml`
@@ -21,7 +30,14 @@ func main() {
 		homeDir     = os.Getenv("HOME")
 		configFile  = fmt.Sprintf("%s/%s", homeDir, ConfigFile)
 		instLogFile *os.File
+		cli         cli
 	)
+
+	_ = kong.Parse(&cli)
+
+	if cli.Profile {
+		defer profile.Start().Stop()
+	}
 
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
@@ -57,9 +73,9 @@ func main() {
 		os.Exit(1)
 	}()
 
-	if instLog := os.Getenv("INST_LOG"); instLog != "" {
+	if cli.ExecTrace != "" {
 		instLogFile, err = os.OpenFile(
-			instLog,
+			cli.ExecTrace,
 			os.O_CREATE|os.O_TRUNC|os.O_WRONLY,
 			0755,
 		)
@@ -70,7 +86,7 @@ func main() {
 		comp.SetRecorderWriter(instLogFile)
 	}
 
-	inputFile := os.Args[1]
+	inputFile := cli.Image
 	data, err := os.OpenFile(inputFile, os.O_RDWR, 0644)
 	if err != nil {
 		log.Fatal(errors.Wrapf(err, "could not open file %s", inputFile))
@@ -81,7 +97,7 @@ func main() {
 	}
 
 	// Attempt a cold boot
-	if err := comp.Boot(); err != nil {
+	if err := comp.Boot(cli.Disassembly); err != nil {
 		log.Fatal(errors.Wrapf(err, "could not boot emulator"))
 	}
 

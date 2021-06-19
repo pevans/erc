@@ -139,3 +139,7 @@ func (c *Computer) SetRecorderWriter(w io.Writer) {
 func (c *Computer) Dimensions() (width, height int) {
 	return 280, 192
 }
+
+func (c *Computer) NeedsRender() bool {
+    return c.reDraw
+}

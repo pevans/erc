@@ -100,13 +100,13 @@ func (l *Logger) Fatal(vals ...interface{}) {
 // Debugf will log a debug message (if allowed).
 func (l *Logger) Debugf(fmt string, vals ...interface{}) {
 	if l.CanLog(LogDebug) {
-		l.logger.Printf("debug: "+fmt, vals...)
+		l.logger.Printf(fmt, vals...)
 	}
 }
 
 // Debug will log a debug message (if allowed).
 func (l *Logger) Debug(vals ...interface{}) {
 	if l.CanLog(LogDebug) {
-		l.logger.Println(vals...)
+        l.logger.Println(vals...)
 	}
 }
