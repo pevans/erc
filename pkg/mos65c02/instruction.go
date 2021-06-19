@@ -122,7 +122,10 @@ func (c *CPU) Execute() error {
 
 	srec := rec
 	srec.PrintState = false
-	_ = c.SMap.Map(int(srec.PC), &srec)
+
+	if c.SMap != nil {
+		_ = c.SMap.Map(int(srec.PC), &srec)
+	}
 
 	// Adjust the program counter to beyond the expected instruction
 	// sequence (1 byte for the opcode, + N bytes for the operand, based
