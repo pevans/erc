@@ -8,11 +8,11 @@ import (
 
 var (
 	hiresBlack  = color.RGBA{R: 0x00, G: 0x00, B: 0x00}
-	hiresWhite  = color.RGBA{R: 0xFF, G: 0xFF, B: 0xFF}
-	hiresGreen  = color.RGBA{R: 0x00, G: 0xFF, B: 0x00}
-	hiresPurple = color.RGBA{R: 0x00, G: 0xFF, B: 0xFF}
-	hiresBlue   = color.RGBA{R: 0x00, G: 0x00, B: 0xFF}
-	hiresOrange = color.RGBA{R: 0xFF, G: 0xFF, B: 0x00}
+	hiresWhite  = color.RGBA{R: 0xff, G: 0xff, B: 0xff}
+	hiresGreen  = color.RGBA{R: 0x2f, G: 0xbc, B: 0x1a}
+	hiresPurple = color.RGBA{R: 0xd0, G: 0x43, B: 0xe5}
+	hiresBlue   = color.RGBA{R: 0x2f, G: 0x95, B: 0xe5}
+	hiresOrange = color.RGBA{R: 0xd0, G: 0x6a, B: 0x1a}
 )
 
 var hiresPalette0 = []color.RGBA{
@@ -30,24 +30,15 @@ var hiresPalette1 = []color.RGBA{
 }
 
 func (c *Computer) hiresRender(start, end data.DByte) {
-	for addr := start; addr < end; addr++ {
-		// Each byte consists of a set of dots to render
-		byt := c.Get(addr)
+	for y := uint(0); y < 192; y++ {
+		addr := hiresAddrs[y]
 
-		x, y := HiresPoint(addr)
+		for i := 0; i < 40; i++ {
+			dots := HiresDots(c.Get(addr + data.DByte(i)))
 
-		// Turns out this address does not map to a real point on the
-		// screen. Note that there _should_ never be a time when x < y
-		// and y >= 0, or vice versa, but...
-		if x < 0 || y < 0 {
-			continue
-		}
-
-		// Dots are always horizontally contiguous, so whatever range we
-		// get, we want to render them left to right. (Hence the use of
-		// x+i.)
-		for i, clr := range HiresDots(byt) {
-			c.FrameBuffer.SetCell(uint(x+i), uint(y), clr)
+			for x, clr := range dots {
+				c.FrameBuffer.SetCell(uint((i*7)+x), y, clr)
+			}
 		}
 	}
 }
@@ -73,16 +64,4 @@ func HiresDots(b data.Byte) []color.RGBA {
 	}
 
 	return dots
-}
-
-// HiresPoint returns an x,y coordinate (column, row) for a given high
-// resolution address.
-func HiresPoint(a data.DByte) (int, int) {
-	var (
-		off = a - 0x2000
-		x   = hiresCols[off]
-		y   = hiresRows[off]
-	)
-
-	return x, y
 }
