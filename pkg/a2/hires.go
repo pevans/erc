@@ -1,10 +1,17 @@
 package a2
 
 import (
+	"fmt"
 	"image/color"
 
 	"github.com/pevans/erc/pkg/data"
 )
+
+type hiresDot struct {
+	bits    byte
+	palette []color.RGBA
+	clr     color.RGBA
+}
 
 var (
 	hiresBlack  = color.RGBA{R: 0x00, G: 0x00, B: 0x00}
@@ -30,38 +37,52 @@ var hiresPalette1 = []color.RGBA{
 }
 
 func (c *Computer) hiresRender(start, end data.DByte) {
+	dots := make([]hiresDot, 280)
+
 	for y := uint(0); y < 192; y++ {
-		addr := hiresAddrs[y]
-
-		for i := 0; i < 40; i++ {
-			dots := HiresDots(c.Get(addr + data.DByte(i)))
-
-			for x, clr := range dots {
-				c.FrameBuffer.SetCell(uint((i*7)+x), y, clr)
-			}
+		c.HiresDots(y, dots)
+		for x, dot := range dots {
+			c.FrameBuffer.SetCell(uint(x), y, dot.clr)
 		}
 	}
 }
 
-// HiresDots returns a set of colors (representing dots) based on a
-// given byte. These colors only make sense in a single hires context.
-func HiresDots(b data.Byte) []color.RGBA {
-	dots := make([]color.RGBA, 7)
-	pal := hiresPalette0
-
-	if b&0x80 > 0 {
-		pal = hiresPalette1
+// HiresDots fills a slice of dots with color information that indicates
+// how to render a hires graphics row. If the length of dots is not
+// sufficient to contain all the dots in such a row, this function will
+// return an error.
+func (c *Computer) HiresDots(row uint, dots []hiresDot) error {
+	if len(dots) != 280 {
+		return fmt.Errorf("dots slice must contain 280 items")
 	}
 
-	for i := 0; i < 7; i++ {
-		pair := (b >> i) & 0x3
-		dots[i] = pal[pair]
+	addr := hiresAddrs[row]
 
-		if dots[i] == hiresWhite && i < 6 {
-			dots[i+1] = dots[i]
-			i++
+	for i := data.DByte(0); i < 40; i++ {
+		byt := c.Get(addr + i)
+		pal := hiresPalette0
+
+		if byt&0x80 > 0 {
+			pal = hiresPalette1
+		}
+
+		for d := 0; d < 7; d++ {
+			dots[(int(i)*7)+d].bits = byte(byt & 3)
+			dots[(int(i)*7)+d].palette = pal
+			byt >>= 1
 		}
 	}
 
-	return dots
+	evenOffset := 0
+	for i, dot := range dots {
+		palIndex := int(dot.bits)
+		if dot.bits > 0 && dot.bits < 3 {
+			palIndex += evenOffset
+		}
+
+		dots[i].clr = dot.palette[palIndex]
+		evenOffset ^= 1
+	}
+
+	return nil
 }

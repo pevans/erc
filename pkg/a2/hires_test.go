@@ -1,37 +1,23 @@
 package a2
 
 import (
-	"image/color"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
+// TODO: we should do some better tests to show the colors are what we
+// want them to be.
 func TestHiresDots(t *testing.T) {
-	t.Run("all black row", func(_ *testing.T) {
-		assert.Equal(t, []color.RGBA{
-			hiresBlack,
-			hiresBlack,
-			hiresBlack,
-			hiresBlack,
-			hiresBlack,
-			hiresBlack,
-			hiresBlack,
-		}, HiresDots(0x00))
+	c := NewComputer()
+	dots := make([]hiresDot, 280)
+	emptyDots := []hiresDot{}
+
+	t.Run("an insufficient length row of dots will error", func(t *testing.T) {
+		assert.Error(t, c.HiresDots(0, emptyDots))
 	})
 
-	t.Run("all white row", func(_ *testing.T) {
-		assert.Equal(t, []color.RGBA{
-			hiresWhite,
-			hiresWhite,
-			hiresWhite,
-			hiresWhite,
-			hiresWhite,
-			hiresWhite,
-			hiresWhite,
-		}, HiresDots(0xFF))
+	t.Run("a sufficient length row of dots will work", func(t *testing.T) {
+		assert.NoError(t, c.HiresDots(0, dots))
 	})
-
-	// There are some other permutations I can test here, but want to
-	// get the hires visuals done so I can eyeball them
 }
