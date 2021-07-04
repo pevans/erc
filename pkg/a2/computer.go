@@ -13,11 +13,11 @@ import (
 
 // ReadMapFn is a function which can execute a soft switch procedure on
 // read.
-type ReadMapFn func(*Computer, data.Addressor) data.Byte
+type ReadMapFn func(*Computer, data.DByte) data.Byte
 
 // WriteMapFn is a function which can execute a soft switch procedure on
 // write.
-type WriteMapFn func(*Computer, data.Addressor, data.Byte)
+type WriteMapFn func(*Computer, data.DByte, data.Byte)
 
 // A Computer is our abstraction of an Apple //e ("enhanced") computer.
 type Computer struct {

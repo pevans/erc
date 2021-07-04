@@ -13,7 +13,7 @@ func (s *a2Suite) TestBoot() {
 	// We know as part of the boot procedure that we copy in rom, but we
 	// don't necessarily want to test the entirety of that; let's just
 	// test ROM doesn't look empty.
-	s.NotEqual(data.Byte(0), c.ROM.Get(data.DByte(0x100)))
+	s.NotEqual(data.Byte(0), c.ROM.Get(0x100))
 
 	s.Equal(data.Byte(AppleSoft&0xFF), c.Main.Get(BootVector))
 	s.Equal(data.Byte(AppleSoft>>8), c.Main.Get(BootVector+1))

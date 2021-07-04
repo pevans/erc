@@ -57,14 +57,14 @@ func (s *a2Suite) TestPCSwitcherSwitchRead() {
 func (s *a2Suite) TestPCRead() {
 	var (
 		c801   = data.DByte(0xC801)
-		prc801 = data.DByte(pcPROMAddr(c801.Addr()))
-		irc801 = data.DByte(pcIROMAddr(c801.Addr()))
+		prc801 = pcPROMAddr(c801.Int())
+		irc801 = pcIROMAddr(c801.Int())
 		c301   = data.DByte(0xC301)
-		prc301 = data.DByte(pcPROMAddr(c301.Addr()))
-		irc301 = data.DByte(pcIROMAddr(c301.Addr()))
+		prc301 = pcPROMAddr(c301.Int())
+		irc301 = pcIROMAddr(c301.Int())
 		c401   = data.DByte(0xC401)
-		prc401 = data.DByte(pcPROMAddr(c401.Addr()))
-		irc401 = data.DByte(pcIROMAddr(c401.Addr()))
+		prc401 = pcPROMAddr(c401.Int())
+		irc401 = pcIROMAddr(c401.Int())
 	)
 
 	s.Run("reads from expansion space", func() {

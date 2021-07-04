@@ -10,15 +10,15 @@ import (
 const (
 	// AppleSoft holds the address of AppleSoft, which is the BASIC
 	// system that is built into Apple 2.
-	AppleSoft = data.DByte(0xE000)
+	AppleSoft = 0xE000
 
 	// ResetPC is the address that the processor jumps to when it is
 	// reset.
-	ResetPC = data.DByte(0xFFFC)
+	ResetPC = 0xFFFC
 
 	// BootVector is the location in memory that the operating system
 	// is designed to jump to after the initial boot sequence occurs.
-	BootVector = data.DByte(0x03F2)
+	BootVector = 0x03F2
 )
 
 // Boot steps through the boot procedures for the Apple II computer.

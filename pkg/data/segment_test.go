@@ -13,35 +13,35 @@ func TestNewSegment(t *testing.T) {
 
 func TestSet(t *testing.T) {
 	s := NewSegment(100)
-	addr := DByte(1)
+	addr := 1
 	val := Byte(123)
 
 	s.Set(addr, val)
-	assert.Equal(t, val, s.Mem[addr.Addr()])
+	assert.Equal(t, val, s.Mem[addr])
 
 	assert.Panics(t, func() {
-		s.Set(Int(-1), val)
+		s.Set(-1, val)
 	})
 
 	assert.Panics(t, func() {
-		s.Set(Int(cap(s.Mem)+1), val)
+		s.Set(cap(s.Mem)+1, val)
 	})
 }
 
 func TestGet(t *testing.T) {
 	s := NewSegment(100)
-	addr := DByte(1)
+	addr := 1
 	val := Byte(123)
 
-	s.Mem[addr.Addr()] = val
+	s.Mem[addr] = val
 	assert.Equal(t, val, s.Get(addr))
 
 	assert.Panics(t, func() {
-		_ = s.Get(Int(-1))
+		_ = s.Get(-1)
 	})
 
 	assert.Panics(t, func() {
-		_ = s.Get(Int(cap(s.Mem) + 1))
+		_ = s.Get(cap(s.Mem) + 1)
 	})
 }
 
@@ -121,7 +121,7 @@ func TestWriteFile(t *testing.T) {
 
 	s := NewSegment(size)
 
-	s.Set(Int(0), value)
+	s.Set(0, value)
 
 	// We should not be able to write a bad file
 	assert.Error(t, s.WriteFile(""))
@@ -132,7 +132,7 @@ func TestWriteFile(t *testing.T) {
 	// We should be able to see the file, if we looked...
 	ns := NewSegment(size)
 	assert.NoError(t, ns.ReadFile(file))
-	assert.Equal(t, Byte(value), ns.Get(Int(0)))
+	assert.Equal(t, Byte(value), ns.Get(0))
 	os.Remove(file)
 }
 
@@ -146,5 +146,5 @@ func TestReadFile(t *testing.T) {
 	assert.NoError(t, s.ReadFile("../../data/logical.sector"))
 
 	// Make sure we have some real data
-	assert.NotEqual(t, Byte(0), s.Get(Int(0)))
+	assert.NotEqual(t, Byte(0), s.Get(0))
 }

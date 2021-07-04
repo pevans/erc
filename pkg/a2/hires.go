@@ -58,8 +58,8 @@ func (c *Computer) HiresDots(row uint, dots []hiresDot) error {
 
 	addr := hiresAddrs[row]
 
-	for i := data.DByte(0); i < 40; i++ {
-		byt := c.Get(addr + i)
+	for i := 0; i < 40; i++ {
+		byt := c.Get(addr.Int() + i)
 		pal := hiresPalette0
 
 		if byt&0x80 > 0 {

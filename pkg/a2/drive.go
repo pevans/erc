@@ -58,8 +58,8 @@ func NewDrive() *Drive {
 
 // Position returns the segment position that the drive is currently at,
 // based upon track and sector position.
-func (d *Drive) Position() data.Int {
-	return data.Int(((d.TrackPos / 2) * sixtwo.PhysTrackLen) + d.SectorPos)
+func (d *Drive) Position() int {
+	return ((d.TrackPos / 2) * sixtwo.PhysTrackLen) + d.SectorPos
 }
 
 // Shift moves the sector position forward, or backward, depending on

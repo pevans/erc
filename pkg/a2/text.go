@@ -161,7 +161,7 @@ func (c *Computer) textRender(start, end data.DByte) {
 		y := uint(row) * c.SysFont.GlyphHeight
 
 		// Figure out what glyph to render
-		char := c.Get(data.DByte(addr))
+		char := c.Get(addr.Int())
 		glyph := c.SysFont.Glyph(int(char))
 
 		_ = c.FrameBuffer.Blit(x, y, glyph)

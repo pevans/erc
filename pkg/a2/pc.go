@@ -21,16 +21,16 @@ const (
 	rdSlotCXROM  = data.DByte(0xC015)
 )
 
-func pcReadSwitches() []data.Addressor {
-	return []data.Addressor{
+func pcReadSwitches() []data.DByte {
+	return []data.DByte{
 		offExpROM,
 		rdSlotC3ROM,
 		rdSlotCXROM,
 	}
 }
 
-func pcWriteSwitches() []data.Addressor {
-	return []data.Addressor{
+func pcWriteSwitches() []data.DByte {
+	return []data.DByte{
 		offSlotC3ROM,
 		offSlotCXROM,
 		onSlotC3ROM,
@@ -48,11 +48,11 @@ func (ps *pcSwitcher) UseDefaults() {
 
 // SwitchRead will return hi on bit 7 if slot c3 or cx is set to use peripheral
 // rom; otherwise lo.
-func (ps *pcSwitcher) SwitchRead(c *Computer, addr data.Addressor) data.Byte {
+func (ps *pcSwitcher) SwitchRead(c *Computer, addr data.DByte) data.Byte {
 	var (
 		hi      data.Byte = 0x80
 		lo      data.Byte = 0x00
-		addrInt           = addr.Addr()
+		addrInt           = addr.Int()
 	)
 
 	switch addr {
@@ -113,7 +113,7 @@ func (ps *pcSwitcher) slotFromAddr(addr int) int {
 
 // SwitchWrite will handle soft switch writes that, in our case, will enable or
 // disable slot rom access.
-func (ps *pcSwitcher) SwitchWrite(c *Computer, addr data.Addressor, val data.Byte) {
+func (ps *pcSwitcher) SwitchWrite(c *Computer, addr data.DByte, val data.Byte) {
 	switch addr {
 	case onSlotC3ROM:
 		ps.slotC3 = true
@@ -143,9 +143,9 @@ func pcPROMAddr(addr int) int {
 // PCRead returns a byte from ROM within the peripheral card address space
 // ($C1..$CF). Based on the contents of the computer's PC Switcher, this can be
 // from internal ROM or from a dedicated peripheral ROM block.
-func PCRead(c *Computer, addr data.Addressor) data.Byte {
+func PCRead(c *Computer, addr data.DByte) data.Byte {
 	var (
-		addrInt   = addr.Addr()
+		addrInt   = addr.Int()
 		intROM    = data.DByte(pcIROMAddr(addrInt))
 		periphROM = data.DByte(pcPROMAddr(addrInt))
 	)
@@ -155,14 +155,14 @@ func PCRead(c *Computer, addr data.Addressor) data.Byte {
 		c.pc.expansion && c.pc.expROM(addrInt),
 		c.pc.slotC3 && c.pc.slot3ROM(addrInt),
 		c.pc.slotCX && c.pc.slotXROM(addrInt):
-		return c.ROM.Get(periphROM)
+		return c.ROM.Get(periphROM.Int())
 	}
 
-	return c.ROM.Get(intROM)
+	return c.ROM.Get(intROM.Int())
 }
 
 // PCWrite is a stub which does nothing, since it handles writes into an
 // explicitly read-only memory space.
-func PCWrite(c *Computer, addr data.Addressor, val data.Byte) {
+func PCWrite(c *Computer, addr data.DByte, val data.Byte) {
 	// Do nothing
 }

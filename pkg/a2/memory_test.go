@@ -67,7 +67,7 @@ func (s *a2Suite) TestMemSwitcherSwitchWrite() {
 }
 
 func (s *a2Suite) TestComputerGet() {
-	idx := data.DByte(0x1)
+	idx := 0x1
 	val := data.Byte(0x12)
 
 	// test a normal get
@@ -78,7 +78,7 @@ func (s *a2Suite) TestComputerGet() {
 
 	// test a get from rmap
 	s.comp.Main.Mem[idx] = data.Byte(0)
-	s.comp.RMap[int(idx)] = func(c *Computer, addr data.Addressor) data.Byte {
+	s.comp.RMap[int(idx)] = func(c *Computer, addr data.DByte) data.Byte {
 		return val
 	}
 	s.Equal(val, s.comp.Get(idx))
@@ -91,7 +91,7 @@ func (s *a2Suite) TestComputerGet() {
 }
 
 func (s *a2Suite) TestComputerSet() {
-	idx := data.DByte(0x1)
+	idx := 0x1
 	val := data.Byte(0x12)
 
 	// test a normal set
@@ -102,7 +102,7 @@ func (s *a2Suite) TestComputerSet() {
 
 	// test a set from wmap
 	var target data.Byte
-	s.comp.WMap[int(idx)] = func(c *Computer, addr data.Addressor, val data.Byte) {
+	s.comp.WMap[int(idx)] = func(c *Computer, addr data.DByte, val data.Byte) {
 		target = val
 	}
 	s.comp.Set(idx, val)

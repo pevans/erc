@@ -76,8 +76,8 @@ const (
 	offText    = data.DByte(0xC050) // R/W
 )
 
-func displayReadSwitches() []data.Addressor {
-	return []data.Addressor{
+func displayReadSwitches() []data.DByte {
+	return []data.DByte{
 		offDHires,
 		offHires,
 		offMixed,
@@ -100,8 +100,8 @@ func displayReadSwitches() []data.Addressor {
 	}
 }
 
-func displayWriteSwitches() []data.Addressor {
-	return []data.Addressor{
+func displayWriteSwitches() []data.DByte {
+	return []data.DByte{
 		off80Col,
 		off80Store,
 		offAltChar,
@@ -138,7 +138,7 @@ func (ds *displaySwitcher) UseDefaults() {
 	ds.store80 = false
 }
 
-func (ds *displaySwitcher) onOrOffReadWrite(a data.Addressor) bool {
+func (ds *displaySwitcher) onOrOffReadWrite(a data.DByte) bool {
 	switch a {
 	case onPage2:
 		ds.page2 = true
@@ -179,7 +179,7 @@ func (ds *displaySwitcher) onOrOffReadWrite(a data.Addressor) bool {
 	return false
 }
 
-func (ds *displaySwitcher) SwitchRead(c *Computer, a data.Addressor) data.Byte {
+func (ds *displaySwitcher) SwitchRead(c *Computer, a data.DByte) data.Byte {
 	var (
 		hi data.Byte = 0x80
 		lo data.Byte = 0x00
@@ -231,7 +231,7 @@ func (ds *displaySwitcher) SwitchRead(c *Computer, a data.Addressor) data.Byte {
 	return lo
 }
 
-func (ds *displaySwitcher) SwitchWrite(c *Computer, a data.Addressor, val data.Byte) {
+func (ds *displaySwitcher) SwitchWrite(c *Computer, a data.DByte, val data.Byte) {
 	if ds.onOrOffReadWrite(a) {
 		return
 	}
@@ -256,9 +256,7 @@ func (ds *displaySwitcher) SwitchWrite(c *Computer, a data.Addressor, val data.B
 	}
 }
 
-func (c *Computer) DisplaySegment(a data.Addressor) *data.Segment {
-	addr := a.Addr()
-
+func (c *Computer) DisplaySegment(addr data.DByte) *data.Segment {
 	if c.disp.store80 {
 		if addr >= 0x0400 && addr < 0x0800 && c.disp.highRes {
 			return c.Aux
@@ -270,15 +268,15 @@ func (c *Computer) DisplaySegment(a data.Addressor) *data.Segment {
 	return c.ReadSegment()
 }
 
-func DisplayRead(c *Computer, addr data.Addressor) data.Byte {
-	return c.DisplaySegment(addr).Get(addr)
+func DisplayRead(c *Computer, addr data.DByte) data.Byte {
+	return c.DisplaySegment(addr).Get(addr.Int())
 }
 
-func DisplayWrite(c *Computer, addr data.Addressor, val data.Byte) {
+func DisplayWrite(c *Computer, addr data.DByte, val data.Byte) {
 	// Let the drawing routines we have know that it's time to re-render
 	// the screen.
 	c.reDraw = true
-	c.DisplaySegment(addr).Set(addr, val)
+	c.DisplaySegment(addr).Set(addr.Int(), val)
 }
 
 // Render will draw an updated picture of our graphics to the local framebuffer
@@ -287,7 +285,7 @@ func (c *Computer) Render() {
 		return
 	}
 
-    c.log.Debug("rendering...")
+	c.log.Debug("rendering...")
 
 	// if it's text, do one thing
 	// if it's lores, do another thing

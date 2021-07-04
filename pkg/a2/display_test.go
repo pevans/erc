@@ -28,7 +28,7 @@ func (s *a2Suite) TestDisplaySwitcherSwitchRead() {
 	)
 
 	s.Run("high on bit 7", func() {
-		test := func(b *bool, a data.Addressor) {
+		test := func(b *bool, a data.DByte) {
 			*b = true
 			s.Equal(hi, ds.SwitchRead(s.comp, a))
 			*b = false
@@ -47,7 +47,7 @@ func (s *a2Suite) TestDisplaySwitcherSwitchRead() {
 	})
 
 	s.Run("reads turn stuff on", func() {
-		onfn := func(b *bool, a data.Addressor) {
+		onfn := func(b *bool, a data.DByte) {
 			*b = false
 			ds.SwitchRead(s.comp, a)
 			s.True(*b)
@@ -71,7 +71,7 @@ func (s *a2Suite) TestDisplaySwitcherSwitchRead() {
 	})
 
 	s.Run("reads turn stuff off", func() {
-		offfn := func(b *bool, a data.Addressor) {
+		offfn := func(b *bool, a data.DByte) {
 			*b = true
 			ds.SwitchRead(s.comp, a)
 			s.False(*b)
@@ -97,7 +97,7 @@ func (s *a2Suite) TestDisplaySwitcherSwitchWrite() {
 	var ds displaySwitcher
 
 	s.Run("writes turn stuff on", func() {
-		on := func(b *bool, a data.Addressor) {
+		on := func(b *bool, a data.DByte) {
 			*b = false
 			ds.SwitchWrite(s.comp, a, 0x0)
 			s.True(*b)
@@ -125,7 +125,7 @@ func (s *a2Suite) TestDisplaySwitcherSwitchWrite() {
 	})
 
 	s.Run("writes turn stuff off", func() {
-		off := func(b *bool, a data.Addressor) {
+		off := func(b *bool, a data.DByte) {
 			*b = true
 			ds.SwitchWrite(s.comp, a, 0x0)
 			s.False(*b)
@@ -163,39 +163,39 @@ func (s *a2Suite) TestDisplaySegment() {
 
 	s.Run("read from main memory", func() {
 		s.comp.disp.store80 = false
-		s.comp.WriteSegment().Set(p1addr, val)
-		s.comp.WriteSegment().Set(p2addr, val)
-		s.comp.WriteSegment().Set(other, val)
-		s.Equal(val, s.comp.DisplaySegment(p1addr).Get(p1addr))
-		s.Equal(val, s.comp.DisplaySegment(p2addr).Get(p2addr))
-		s.Equal(val, s.comp.DisplaySegment(other).Get(other))
+		s.comp.WriteSegment().Set(p1addr.Int(), val)
+		s.comp.WriteSegment().Set(p2addr.Int(), val)
+		s.comp.WriteSegment().Set(other.Int(), val)
+		s.Equal(val, s.comp.DisplaySegment(p1addr).Get(p1addr.Int()))
+		s.Equal(val, s.comp.DisplaySegment(p2addr).Get(p2addr.Int()))
+		s.Equal(val, s.comp.DisplaySegment(other).Get(other.Int()))
 	})
 
 	s.Run("80store uses aux", func() {
 		s.comp.disp.store80 = true
-		s.comp.WriteSegment().Set(p1addr, val)
-		s.comp.WriteSegment().Set(p2addr, val)
-		s.comp.WriteSegment().Set(other, val)
+		s.comp.WriteSegment().Set(p1addr.Int(), val)
+		s.comp.WriteSegment().Set(p2addr.Int(), val)
+		s.comp.WriteSegment().Set(other.Int(), val)
 
 		// References outside of the display pages should be unaffected
-		s.Equal(val, s.comp.DisplaySegment(other).Get(other))
+		s.Equal(val, s.comp.DisplaySegment(other).Get(other.Int()))
 
 		// We should be able to show that we use a different memory segment if
 		// highRes is on
 		s.comp.disp.highRes = false
-		s.Equal(val, s.comp.DisplaySegment(p1addr).Get(p1addr))
+		s.Equal(val, s.comp.DisplaySegment(p1addr).Get(p1addr.Int()))
 		s.comp.disp.highRes = true
-		s.NotEqual(val, s.comp.DisplaySegment(p1addr).Get(p1addr))
+		s.NotEqual(val, s.comp.DisplaySegment(p1addr).Get(p1addr.Int()))
 
 		// We need both double high resolution _and_ page2 in order to get a
 		// different segment in the page 2 address space.
 		s.comp.disp.doubleHigh = false
 		s.comp.disp.page2 = false
-		s.Equal(val, s.comp.DisplaySegment(p2addr).Get(p2addr))
+		s.Equal(val, s.comp.DisplaySegment(p2addr).Get(p2addr.Int()))
 		s.comp.disp.doubleHigh = true
-		s.Equal(val, s.comp.DisplaySegment(p2addr).Get(p2addr))
+		s.Equal(val, s.comp.DisplaySegment(p2addr).Get(p2addr.Int()))
 		s.comp.disp.page2 = true
-		s.NotEqual(val, s.comp.DisplaySegment(p2addr).Get(p2addr))
+		s.NotEqual(val, s.comp.DisplaySegment(p2addr).Get(p2addr.Int()))
 	})
 }
 
@@ -205,7 +205,7 @@ func (s *a2Suite) TestDisplayRead() {
 		val  = data.Byte(0x22)
 	)
 
-	s.comp.DisplaySegment(addr).Set(addr, val)
+	s.comp.DisplaySegment(addr).Set(addr.Int(), val)
 	s.Equal(val, DisplayRead(s.comp, addr))
 }
 
@@ -217,6 +217,6 @@ func (s *a2Suite) TestDisplayWrite() {
 
 	s.comp.reDraw = false
 	DisplayWrite(s.comp, addr, val)
-	s.Equal(val, s.comp.DisplaySegment(addr).Get(addr))
+	s.Equal(val, s.comp.DisplaySegment(addr).Get(addr.Int()))
 	s.True(s.comp.reDraw)
 }

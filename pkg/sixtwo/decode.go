@@ -77,7 +77,7 @@ func (d *decoder) logByte(b data.Byte) data.Byte {
 }
 
 func (d *decoder) writeByte(b data.Byte) {
-	d.ls.Set(data.Int(d.loff), b)
+	d.ls.Set(d.loff, b)
 	d.loff++
 }
 
@@ -91,33 +91,33 @@ func (d *decoder) writeSector(track, sect int) {
 	// to skip.
 	d.poff += PhysSectorHeader
 
-	checksum := d.logByte(d.ps.Get(data.Int(uint(d.poff))))
+	checksum := d.logByte(d.ps.Get(d.poff))
 	two[0] = checksum
 
-	for i := uint(1); i < TwoBlock; i++ {
-		lb := d.logByte(d.ps.Get(data.Int(uint(d.poff) + i)))
+	for i := 1; i < TwoBlock; i++ {
+		lb := d.logByte(d.ps.Get(d.poff + i))
 
 		checksum ^= lb
 		two[i] = checksum
 	}
 
-	d.poff += int(TwoBlock)
+	d.poff += TwoBlock
 
-	for i := uint(0); i < SixBlock; i++ {
-		lb := d.logByte(d.ps.Get(data.Int(uint(d.poff) + i)))
+	for i := 0; i < SixBlock; i++ {
+		lb := d.logByte(d.ps.Get(d.poff + i))
 
 		checksum ^= lb
 		six[i] = checksum
 	}
 
-	d.poff += int(SixBlock)
+	d.poff += SixBlock
 
-	checksum ^= d.logByte(d.ps.Get(data.Int(uint(d.poff))))
+	checksum ^= d.logByte(d.ps.Get(d.poff))
 	if checksum != 0 {
 		panic(fmt.Errorf("track %d, sector %d: checksum does not match", track, sect))
 	}
 
-	for i := uint(0); i < SixBlock; i++ {
+	for i := 0; i < SixBlock; i++ {
 		var (
 			div = i / TwoBlock
 			rem = i % TwoBlock

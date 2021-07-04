@@ -62,5 +62,5 @@ func (s *sixtwoSuite) TestDecodeWriteByte() {
 	}
 
 	dec.writeByte(byt)
-	assert.Equal(s.T(), byt, dec.ls.Get(data.Int(0)))
+	assert.Equal(s.T(), byt, dec.ls.Get(0))
 }

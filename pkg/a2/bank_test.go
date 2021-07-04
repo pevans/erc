@@ -136,13 +136,13 @@ func (s *a2Suite) TestSwitchWrite() {
 
 func (s *a2Suite) TestBankDFRead() {
 	var (
-		xd000  data.DByte = 0xD000
-		xe000  data.DByte = 0xE000
-		x1000  data.DByte = 0x1000
-		x2000  data.DByte = 0x2000
-		x10000 data.Int   = 0x10000
-		val1   data.Byte  = 124
-		val2   data.Byte  = 112
+		xd000            = 0xD000
+		xe000            = 0xE000
+		x1000            = 0x1000
+		x2000            = 0x2000
+		x10000           = 0x10000
+		val1   data.Byte = 124
+		val2   data.Byte = 112
 	)
 
 	testFor := func(sblock int) {
@@ -184,10 +184,10 @@ func (s *a2Suite) TestBankDFRead() {
 
 func (s *a2Suite) TestBankDFWrite() {
 	var (
-		dfaddr data.DByte = 0xD011
-		efaddr data.DByte = 0xE011
-		val1   data.Byte  = 87
-		val2   data.Byte  = 89
+		dfaddr           = 0xD011
+		efaddr           = 0xE011
+		val1   data.Byte = 87
+		val2   data.Byte = 89
 	)
 
 	testFor := func(sblock int) {
@@ -208,7 +208,7 @@ func (s *a2Suite) TestBankDFWrite() {
 			s.comp.bank.write = bankRAM
 			s.comp.bank.dfBlock = bank2
 			s.comp.Set(dfaddr, val2)
-			s.Equal(val2, s.comp.ReadSegment().Get(data.Int(0x10011)))
+			s.Equal(val2, s.comp.ReadSegment().Get(0x10011))
 
 			s.comp.Set(efaddr, val1)
 			s.Equal(val1, s.comp.ReadSegment().Get(efaddr))
@@ -220,7 +220,7 @@ func (s *a2Suite) TestBankDFWrite() {
 }
 
 func (s *a2Suite) TestBankZPRead() {
-	addr := data.DByte(0x123)
+	addr := 0x123
 	cases := []struct {
 		mode int
 		main data.Byte
@@ -241,7 +241,7 @@ func (s *a2Suite) TestBankZPRead() {
 }
 
 func (s *a2Suite) TestBankZPWrite() {
-	addr := data.DByte(0x123)
+	addr := 0x123
 	cases := []struct {
 		mode int
 		main data.Byte

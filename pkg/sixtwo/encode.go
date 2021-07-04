@@ -7,10 +7,10 @@ import (
 const (
 	// SixBlock is the length of a data block that is the "six" of
 	// six-and-two encoding.
-	SixBlock uint = 0x100
+	SixBlock = 0x100
 
 	// TwoBlock is, vice-versa, the length of the "two" data block.
-	TwoBlock uint = 0x56
+	TwoBlock = 0x56
 )
 
 // This is the table that holds the bytes that represent 6-and-2 encoded
@@ -81,7 +81,7 @@ func (e *encoder) write(bytes []data.Byte) {
 // writeByte simply writes a single byte into the physical segment
 // without having to deal with passing around a slice
 func (e *encoder) writeByte(byt data.Byte) {
-	e.ps.Set(data.Int(e.poff), byt)
+	e.ps.Set(e.poff, byt)
 	e.poff++
 }
 
@@ -152,8 +152,8 @@ func (e *encoder) writeSector(track, sect int) {
 
 	// Loop on the logical sector data block and build up the six-block
 	// and two-block buffers
-	for i := uint(0); i < 0x100; i++ {
-		byt := e.ls.Get(data.Int(uint(e.loff) + i))
+	for i := 0; i < 0x100; i++ {
+		byt := e.ls.Get(e.loff + i)
 
 		// These are the final two bits, but their order is reversed
 		rev := ((byt & 2) >> 1) | ((byt & 1) << 1)

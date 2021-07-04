@@ -23,15 +23,15 @@ const (
 	rdMemWriteAux  = data.DByte(0xC014)
 )
 
-func memReadSwitches() []data.Addressor {
-	return []data.Addressor{
+func memReadSwitches() []data.DByte {
+	return []data.DByte{
 		rdMemReadAux,
 		rdMemWriteAux,
 	}
 }
 
-func memWriteSwitches() []data.Addressor {
-	return []data.Addressor{
+func memWriteSwitches() []data.DByte {
+	return []data.DByte{
 		offMemReadAux,
 		offMemWriteAux,
 		onMemReadAux,
@@ -44,7 +44,7 @@ func (ms *memSwitcher) UseDefaults() {
 	ms.write = memMain
 }
 
-func (ms *memSwitcher) SwitchRead(c *Computer, addr data.Addressor) data.Byte {
+func (ms *memSwitcher) SwitchRead(c *Computer, addr data.DByte) data.Byte {
 	var (
 		hi data.Byte = 0x80
 		lo data.Byte = 0x00
@@ -65,7 +65,7 @@ func (ms *memSwitcher) SwitchRead(c *Computer, addr data.Addressor) data.Byte {
 	return lo
 }
 
-func (ms *memSwitcher) SwitchWrite(c *Computer, addr data.Addressor, val data.Byte) {
+func (ms *memSwitcher) SwitchWrite(c *Computer, addr data.DByte, val data.Byte) {
 	switch addr {
 	case onMemReadAux:
 		ms.read = memAux
@@ -80,9 +80,9 @@ func (ms *memSwitcher) SwitchWrite(c *Computer, addr data.Addressor, val data.By
 
 // Get will return the byte at addr, or will execute a read switch if
 // one is present at the given address.
-func (c *Computer) Get(addr data.Addressor) data.Byte {
-	if fn, ok := c.RMap[addr.Addr()]; ok {
-		return fn(c, addr)
+func (c *Computer) Get(addr int) data.Byte {
+	if fn, ok := c.RMap[addr]; ok {
+		return fn(c, data.DByte(addr))
 	}
 
 	return c.ReadSegment().Get(addr)
@@ -90,9 +90,9 @@ func (c *Computer) Get(addr data.Addressor) data.Byte {
 
 // Set will set the byte at addr to val, or will execute a write switch
 // if one is present at the given address.
-func (c *Computer) Set(addr data.Addressor, val data.Byte) {
-	if fn, ok := c.WMap[addr.Addr()]; ok {
-		fn(c, addr, val)
+func (c *Computer) Set(addr int, val data.Byte) {
+	if fn, ok := c.WMap[addr]; ok {
+		fn(c, data.DByte(addr), val)
 		return
 	}
 

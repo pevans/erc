@@ -20,16 +20,16 @@ func TestNewDrive(t *testing.T) {
 func (s *a2Suite) TestDrivePosition() {
 	d := NewDrive()
 
-	s.Equal(data.Int(0), d.Position())
+	s.Equal(0, d.Position())
 
 	// In a zero track position, the drive position should be equal
 	// exactly to the sector position.
 	d.SectorPos = 123
-	s.Equal(data.Int(d.SectorPos), d.Position())
+	s.Equal(d.SectorPos, d.Position())
 
 	// test track position
 	d.TrackPos = 6
-	s.Equal(data.Int((sixtwo.PhysTrackLen*d.TrackPos/2)+d.SectorPos), d.Position())
+	s.Equal((sixtwo.PhysTrackLen*d.TrackPos/2)+d.SectorPos, d.Position())
 }
 
 func (s *a2Suite) TestDriveShift() {
