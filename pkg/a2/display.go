@@ -43,41 +43,41 @@ type displaySwitcher struct {
 const (
 	// These are R7 actions, meaning they are switches you read from that return
 	// bit 7 high when the modes are on, and low if not.
-	rd80Col   = data.DByte(0xC01F)
-	rd80Store = data.DByte(0xC018)
-	rdAltChar = data.DByte(0xC01E)
-	rdDHires  = data.DByte(0xC07F)
-	rdHires   = data.DByte(0xC01D)
-	rdIOUDis  = data.DByte(0xC07E)
-	rdMixed   = data.DByte(0xC01B)
-	rdPage2   = data.DByte(0xC01C)
-	rdText    = data.DByte(0xC01A)
+	rd80Col   = uint16(0xC01F)
+	rd80Store = uint16(0xC018)
+	rdAltChar = uint16(0xC01E)
+	rdDHires  = uint16(0xC07F)
+	rdHires   = uint16(0xC01D)
+	rdIOUDis  = uint16(0xC07E)
+	rdMixed   = uint16(0xC01B)
+	rdPage2   = uint16(0xC01C)
+	rdText    = uint16(0xC01A)
 
 	// These switches turn on modes
-	on80Col   = data.DByte(0xC00D) // W
-	on80Store = data.DByte(0xC001) // W
-	onAltChar = data.DByte(0xC00F) // W
-	onDHires  = data.DByte(0xC05F) // R/W
-	onHires   = data.DByte(0xC057) // R/W
-	onIOUDis  = data.DByte(0xC07F) // W
-	onMixed   = data.DByte(0xC053) // R/W
-	onPage2   = data.DByte(0xC055) // R/W
-	onText    = data.DByte(0xC051) // R/W
+	on80Col   = uint16(0xC00D) // W
+	on80Store = uint16(0xC001) // W
+	onAltChar = uint16(0xC00F) // W
+	onDHires  = uint16(0xC05F) // R/W
+	onHires   = uint16(0xC057) // R/W
+	onIOUDis  = uint16(0xC07F) // W
+	onMixed   = uint16(0xC053) // R/W
+	onPage2   = uint16(0xC055) // R/W
+	onText    = uint16(0xC051) // R/W
 
 	// And these switches turn them off.
-	off80Col   = data.DByte(0xC00C) // W
-	off80Store = data.DByte(0xC000) // W
-	offAltChar = data.DByte(0xC00E) // W
-	offDHires  = data.DByte(0xC05E) // R/W
-	offHires   = data.DByte(0xC056) // R/W
-	offIOUDis  = data.DByte(0xC07E) // W
-	offMixed   = data.DByte(0xC052) // R/W
-	offPage2   = data.DByte(0xC054) // R/W
-	offText    = data.DByte(0xC050) // R/W
+	off80Col   = uint16(0xC00C) // W
+	off80Store = uint16(0xC000) // W
+	offAltChar = uint16(0xC00E) // W
+	offDHires  = uint16(0xC05E) // R/W
+	offHires   = uint16(0xC056) // R/W
+	offIOUDis  = uint16(0xC07E) // W
+	offMixed   = uint16(0xC052) // R/W
+	offPage2   = uint16(0xC054) // R/W
+	offText    = uint16(0xC050) // R/W
 )
 
-func displayReadSwitches() []data.DByte {
-	return []data.DByte{
+func displayReadSwitches() []uint16 {
+	return []uint16{
 		offDHires,
 		offHires,
 		offMixed,
@@ -100,8 +100,8 @@ func displayReadSwitches() []data.DByte {
 	}
 }
 
-func displayWriteSwitches() []data.DByte {
-	return []data.DByte{
+func displayWriteSwitches() []uint16 {
+	return []uint16{
 		off80Col,
 		off80Store,
 		offAltChar,
@@ -138,7 +138,7 @@ func (ds *displaySwitcher) UseDefaults() {
 	ds.store80 = false
 }
 
-func (ds *displaySwitcher) onOrOffReadWrite(a data.DByte) bool {
+func (ds *displaySwitcher) onOrOffReadWrite(a uint16) bool {
 	switch a {
 	case onPage2:
 		ds.page2 = true
@@ -179,10 +179,10 @@ func (ds *displaySwitcher) onOrOffReadWrite(a data.DByte) bool {
 	return false
 }
 
-func (ds *displaySwitcher) SwitchRead(c *Computer, a data.DByte) data.Byte {
+func (ds *displaySwitcher) SwitchRead(c *Computer, a uint16) uint8 {
 	var (
-		hi data.Byte = 0x80
-		lo data.Byte = 0x00
+		hi uint8 = 0x80
+		lo uint8 = 0x00
 	)
 
 	if ds.onOrOffReadWrite(a) {
@@ -231,7 +231,7 @@ func (ds *displaySwitcher) SwitchRead(c *Computer, a data.DByte) data.Byte {
 	return lo
 }
 
-func (ds *displaySwitcher) SwitchWrite(c *Computer, a data.DByte, val data.Byte) {
+func (ds *displaySwitcher) SwitchWrite(c *Computer, a uint16, val uint8) {
 	if ds.onOrOffReadWrite(a) {
 		return
 	}
@@ -256,7 +256,7 @@ func (ds *displaySwitcher) SwitchWrite(c *Computer, a data.DByte, val data.Byte)
 	}
 }
 
-func (c *Computer) DisplaySegment(addr data.DByte) *data.Segment {
+func (c *Computer) DisplaySegment(addr uint16) *data.Segment {
 	if c.disp.store80 {
 		if addr >= 0x0400 && addr < 0x0800 && c.disp.highRes {
 			return c.Aux
@@ -268,15 +268,15 @@ func (c *Computer) DisplaySegment(addr data.DByte) *data.Segment {
 	return c.ReadSegment()
 }
 
-func DisplayRead(c *Computer, addr data.DByte) data.Byte {
-	return c.DisplaySegment(addr).Get(addr.Int())
+func DisplayRead(c *Computer, addr uint16) uint8 {
+	return c.DisplaySegment(addr).Get(int(addr))
 }
 
-func DisplayWrite(c *Computer, addr data.DByte, val data.Byte) {
+func DisplayWrite(c *Computer, addr uint16, val uint8) {
 	// Let the drawing routines we have know that it's time to re-render
 	// the screen.
 	c.reDraw = true
-	c.DisplaySegment(addr).Set(addr.Int(), val)
+	c.DisplaySegment(addr).Set(int(addr), val)
 }
 
 // Render will draw an updated picture of our graphics to the local framebuffer
@@ -295,15 +295,15 @@ func (c *Computer) Render() {
 	switch {
 	case c.disp.text:
 		var (
-			start data.DByte = 0x400
-			end   data.DByte = 0x800
+			start uint16 = 0x400
+			end   uint16 = 0x800
 		)
 
 		c.textRender(start, end)
 	case c.disp.highRes:
 		var (
-			start data.DByte = 0x2000
-			end   data.DByte = 0x4000
+			start uint16 = 0x2000
+			end   uint16 = 0x4000
 		)
 
 		c.hiresRender(start, end)

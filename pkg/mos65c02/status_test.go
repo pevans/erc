@@ -3,7 +3,6 @@ package mos65c02
 import (
 	"testing"
 
-	"github.com/pevans/erc/pkg/data"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -12,7 +11,7 @@ func TestApplyStatus(t *testing.T) {
 
 	cases := []struct {
 		b        bool
-		in, want data.Byte
+		in, want uint8
 	}{
 		{true, 1, 1},
 		{true, 2, 2},
@@ -31,7 +30,7 @@ func TestApplyN(t *testing.T) {
 	c := CPU{}
 
 	cases := []struct {
-		in, want data.Byte
+		in, want uint8
 	}{
 		{64, 0},
 		{128, NEGATIVE},
@@ -47,7 +46,7 @@ func TestApplyZ(t *testing.T) {
 	c := CPU{}
 
 	cases := []struct {
-		in, want data.Byte
+		in, want uint8
 	}{
 		{0, ZERO},
 		{1, 0},
@@ -63,7 +62,7 @@ func TestApplyNZ(t *testing.T) {
 	c := CPU{}
 
 	cases := []struct {
-		in, want data.Byte
+		in, want uint8
 	}{
 		{0, ZERO},
 		{1, 0},
@@ -80,7 +79,7 @@ func TestCompare(t *testing.T) {
 	c := CPU{}
 
 	cases := []struct {
-		a, oper, pWant data.Byte
+		a, oper, pWant uint8
 	}{
 		{1, 3, NEGATIVE},
 		{3, 1, CARRY},

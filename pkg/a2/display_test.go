@@ -1,9 +1,5 @@
 package a2
 
-import (
-	"github.com/pevans/erc/pkg/data"
-)
-
 func (s *a2Suite) TestDisplaySwitcherUseDefaults() {
 	var ds displaySwitcher
 
@@ -23,12 +19,12 @@ func (s *a2Suite) TestDisplaySwitcherUseDefaults() {
 func (s *a2Suite) TestDisplaySwitcherSwitchRead() {
 	var (
 		ds displaySwitcher
-		hi data.Byte = 0x80
-		lo data.Byte = 0x00
+		hi uint8 = 0x80
+		lo uint8 = 0x00
 	)
 
 	s.Run("high on bit 7", func() {
-		test := func(b *bool, a data.DByte) {
+		test := func(b *bool, a uint16) {
 			*b = true
 			s.Equal(hi, ds.SwitchRead(s.comp, a))
 			*b = false
@@ -47,7 +43,7 @@ func (s *a2Suite) TestDisplaySwitcherSwitchRead() {
 	})
 
 	s.Run("reads turn stuff on", func() {
-		onfn := func(b *bool, a data.DByte) {
+		onfn := func(b *bool, a uint16) {
 			*b = false
 			ds.SwitchRead(s.comp, a)
 			s.True(*b)
@@ -71,7 +67,7 @@ func (s *a2Suite) TestDisplaySwitcherSwitchRead() {
 	})
 
 	s.Run("reads turn stuff off", func() {
-		offfn := func(b *bool, a data.DByte) {
+		offfn := func(b *bool, a uint16) {
 			*b = true
 			ds.SwitchRead(s.comp, a)
 			s.False(*b)
@@ -97,7 +93,7 @@ func (s *a2Suite) TestDisplaySwitcherSwitchWrite() {
 	var ds displaySwitcher
 
 	s.Run("writes turn stuff on", func() {
-		on := func(b *bool, a data.DByte) {
+		on := func(b *bool, a uint16) {
 			*b = false
 			ds.SwitchWrite(s.comp, a, 0x0)
 			s.True(*b)
@@ -125,7 +121,7 @@ func (s *a2Suite) TestDisplaySwitcherSwitchWrite() {
 	})
 
 	s.Run("writes turn stuff off", func() {
-		off := func(b *bool, a data.DByte) {
+		off := func(b *bool, a uint16) {
 			*b = true
 			ds.SwitchWrite(s.comp, a, 0x0)
 			s.False(*b)
@@ -155,68 +151,73 @@ func (s *a2Suite) TestDisplaySwitcherSwitchWrite() {
 
 func (s *a2Suite) TestDisplaySegment() {
 	var (
-		p1addr = data.DByte(0x401)
-		p2addr = data.DByte(0x2001)
-		other  = data.DByte(0x301)
-		val    = data.Byte(0x12)
+		p1addr  = 0x401
+		up1addr = uint16(p1addr)
+		p2addr  = 0x2001
+		up2addr = uint16(p2addr)
+		other   = 0x301
+		uother  = uint16(other)
+		val     = uint8(0x12)
 	)
 
 	s.Run("read from main memory", func() {
 		s.comp.disp.store80 = false
-		s.comp.WriteSegment().Set(p1addr.Int(), val)
-		s.comp.WriteSegment().Set(p2addr.Int(), val)
-		s.comp.WriteSegment().Set(other.Int(), val)
-		s.Equal(val, s.comp.DisplaySegment(p1addr).Get(p1addr.Int()))
-		s.Equal(val, s.comp.DisplaySegment(p2addr).Get(p2addr.Int()))
-		s.Equal(val, s.comp.DisplaySegment(other).Get(other.Int()))
+		s.comp.WriteSegment().Set(p1addr, val)
+		s.comp.WriteSegment().Set(p2addr, val)
+		s.comp.WriteSegment().Set(other, val)
+		s.Equal(val, s.comp.DisplaySegment(up1addr).Get(p1addr))
+		s.Equal(val, s.comp.DisplaySegment(up2addr).Get(p2addr))
+		s.Equal(val, s.comp.DisplaySegment(uother).Get(other))
 	})
 
 	s.Run("80store uses aux", func() {
 		s.comp.disp.store80 = true
-		s.comp.WriteSegment().Set(p1addr.Int(), val)
-		s.comp.WriteSegment().Set(p2addr.Int(), val)
-		s.comp.WriteSegment().Set(other.Int(), val)
+		s.comp.WriteSegment().Set(p1addr, val)
+		s.comp.WriteSegment().Set(p2addr, val)
+		s.comp.WriteSegment().Set(other, val)
 
 		// References outside of the display pages should be unaffected
-		s.Equal(val, s.comp.DisplaySegment(other).Get(other.Int()))
+		s.Equal(val, s.comp.DisplaySegment(uother).Get(other))
 
 		// We should be able to show that we use a different memory segment if
 		// highRes is on
 		s.comp.disp.highRes = false
-		s.Equal(val, s.comp.DisplaySegment(p1addr).Get(p1addr.Int()))
+		s.Equal(val, s.comp.DisplaySegment(up1addr).Get(p1addr))
 		s.comp.disp.highRes = true
-		s.NotEqual(val, s.comp.DisplaySegment(p1addr).Get(p1addr.Int()))
+		s.NotEqual(val, s.comp.DisplaySegment(up1addr).Get(p1addr))
 
 		// We need both double high resolution _and_ page2 in order to get a
 		// different segment in the page 2 address space.
 		s.comp.disp.doubleHigh = false
 		s.comp.disp.page2 = false
-		s.Equal(val, s.comp.DisplaySegment(p2addr).Get(p2addr.Int()))
+		s.Equal(val, s.comp.DisplaySegment(up2addr).Get(p2addr))
 		s.comp.disp.doubleHigh = true
-		s.Equal(val, s.comp.DisplaySegment(p2addr).Get(p2addr.Int()))
+		s.Equal(val, s.comp.DisplaySegment(up2addr).Get(p2addr))
 		s.comp.disp.page2 = true
-		s.NotEqual(val, s.comp.DisplaySegment(p2addr).Get(p2addr.Int()))
+		s.NotEqual(val, s.comp.DisplaySegment(up2addr).Get(p2addr))
 	})
 }
 
 func (s *a2Suite) TestDisplayRead() {
 	var (
-		addr = data.DByte(0x1111)
-		val  = data.Byte(0x22)
+		addr  = 0x1111
+		uaddr = uint16(addr)
+		val   = uint8(0x22)
 	)
 
-	s.comp.DisplaySegment(addr).Set(addr.Int(), val)
-	s.Equal(val, DisplayRead(s.comp, addr))
+	s.comp.DisplaySegment(uaddr).Set(addr, val)
+	s.Equal(val, DisplayRead(s.comp, uaddr))
 }
 
 func (s *a2Suite) TestDisplayWrite() {
 	var (
-		addr = data.DByte(0x1112)
-		val  = data.Byte(0x23)
+		addr  = 0x1112
+		uaddr = uint16(addr)
+		val   = uint8(0x23)
 	)
 
 	s.comp.reDraw = false
-	DisplayWrite(s.comp, addr, val)
-	s.Equal(val, s.comp.DisplaySegment(addr).Get(addr.Int()))
+	DisplayWrite(s.comp, uaddr, val)
+	s.Equal(val, s.comp.DisplaySegment(uaddr).Get(addr))
 	s.True(s.comp.reDraw)
 }

@@ -27,15 +27,15 @@ const (
 )
 
 const (
-	offAltZP = data.DByte(0xC008)
-	onAltZP  = data.DByte(0xC009)
-	rdAltZP  = data.DByte(0xC016)
-	rdBnk2   = data.DByte(0xC011)
-	rdLCRAM  = data.DByte(0xC012)
+	offAltZP = uint16(0xC008)
+	onAltZP  = uint16(0xC009)
+	rdAltZP  = uint16(0xC016)
+	rdBnk2   = uint16(0xC011)
+	rdLCRAM  = uint16(0xC012)
 )
 
-func bankReadSwitches() []data.DByte {
-	return []data.DByte{
+func bankReadSwitches() []uint16 {
+	return []uint16{
 		0xC080,
 		0xC080,
 		0xC081,
@@ -54,8 +54,8 @@ func bankReadSwitches() []data.DByte {
 	}
 }
 
-func bankWriteSwitches() []data.DByte {
-	return []data.DByte{
+func bankWriteSwitches() []uint16 {
+	return []uint16{
 		offAltZP,
 		onAltZP,
 	}
@@ -64,7 +64,7 @@ func bankWriteSwitches() []data.DByte {
 // SwitchRead manages reads from soft switches that mostly have to do with
 // returning the state of bank-switching as well as, paradoxically, allowing
 // callers to _modify_ said state.
-func (bs *bankSwitcher) SwitchRead(c *Computer, addr data.DByte) data.Byte {
+func (bs *bankSwitcher) SwitchRead(c *Computer, addr uint16) uint8 {
 	// In this set of addresses, it's possible that we might need to return a
 	// value with bit 7 "checked" (which is to say, 1).
 	switch addr {
@@ -77,16 +77,16 @@ func (bs *bankSwitcher) SwitchRead(c *Computer, addr data.DByte) data.Byte {
 	}
 
 	// Otherwise, we farm off the mode checks to other methods.
-	bs.read = bs.readMode(addr.Int())
-	bs.write = bs.writeMode(addr.Int())
-	bs.dfBlock = bs.dfBlockMode(addr.Int())
+	bs.read = bs.readMode(int(addr))
+	bs.write = bs.writeMode(int(addr))
+	bs.dfBlock = bs.dfBlockMode(int(addr))
 
 	return 0x00
 }
 
 // SwitchWrite manages writes on soft switches that may modify bank-switch
 // state, specifically that to do with the usage of main vs. auxilliary memory.
-func (bs *bankSwitcher) SwitchWrite(c *Computer, addr data.DByte, val data.Byte) {
+func (bs *bankSwitcher) SwitchWrite(c *Computer, addr uint16, val uint8) {
 	origBlock := bs.sysBlock
 
 	switch addr {
@@ -105,7 +105,7 @@ func (bs *bankSwitcher) SwitchWrite(c *Computer, addr data.DByte, val data.Byte)
 
 // bit7 will return, given some boolean condition that has already been
 // computed, either a value with bit 7 flagged on, or zero.
-func (bs *bankSwitcher) bit7(cond bool) data.Byte {
+func (bs *bankSwitcher) bit7(cond bool) uint8 {
 	if cond {
 		return 0x80
 	}
@@ -157,11 +157,11 @@ func (bs *bankSwitcher) UseDefaults() {
 	bs.sysBlock = bankMain
 }
 
-func bankSwitchRead(c *Computer, addr data.DByte) data.Byte {
+func bankSwitchRead(c *Computer, addr uint16) uint8 {
 	return c.bank.SwitchRead(c, addr)
 }
 
-func bankSwitchWrite(c *Computer, addr data.DByte, val data.Byte) {
+func bankSwitchWrite(c *Computer, addr uint16, val uint8) {
 	c.bank.SwitchWrite(c, addr, val)
 }
 
@@ -199,37 +199,37 @@ func (c *Computer) BankSegment() *data.Segment {
 
 // BankDFRead implements logic for reads into the D0...FF pages of memory,
 // taking into account the bank-switched states that the computer currently has.
-func BankDFRead(c *Computer, addr data.DByte) data.Byte {
+func BankDFRead(c *Computer, addr uint16) uint8 {
 	if c.bank.dfBlock == bank2 && addr < 0xE000 {
-		return c.BankSegment().Get(addr.Int() + 0x3000)
+		return c.BankSegment().Get(int(addr) + 0x3000)
 	}
 
 	if c.bank.read == bankROM {
-		return c.ROM.Get(addr.Int() - SysRomOffset)
+		return c.ROM.Get(int(addr) - SysRomOffset)
 	}
 
-	return c.BankSegment().Get(addr.Int())
+	return c.BankSegment().Get(int(addr))
 }
 
 // BankDFWrite implements logic for writes into the D0...FF pages of memory,
 // taking into account the bank-switched states that the computer currently has.
-func BankDFWrite(c *Computer, addr data.DByte, val data.Byte) {
+func BankDFWrite(c *Computer, addr uint16, val uint8) {
 	if c.bank.write == bankNone {
 		return
 	}
 
 	if c.bank.dfBlock == bank2 && addr < 0xE000 {
-		c.BankSegment().Set(addr.Int()+0x3000, val)
+		c.BankSegment().Set(int(addr)+0x3000, val)
 		return
 	}
 
-	c.BankSegment().Set(addr.Int(), val)
+	c.BankSegment().Set(int(addr), val)
 }
 
-func BankZPRead(c *Computer, addr data.DByte) data.Byte {
-	return c.BankSegment().Get(addr.Int())
+func BankZPRead(c *Computer, addr uint16) uint8 {
+	return c.BankSegment().Get(int(addr))
 }
 
-func BankZPWrite(c *Computer, addr data.DByte, val data.Byte) {
-	c.BankSegment().Set(addr.Int(), val)
+func BankZPWrite(c *Computer, addr uint16, val uint8) {
+	c.BankSegment().Set(int(addr), val)
 }

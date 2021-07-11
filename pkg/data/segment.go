@@ -5,39 +5,33 @@ import (
 	"io/ioutil"
 )
 
-// A Segment is a block of memory divided into Bytes.
+// A Segment is a block of memory divided into uint8s.
 type Segment struct {
-	Mem []Byte
+	Mem []uint8
 }
 
 // A Getter can return a byte from a given address.
 type Getter interface {
-	Get(int) Byte
+	Get(int) uint8
 }
 
 // A Setter can set the value at a given address to a given byte.
 type Setter interface {
-	Set(int, Byte)
+	Set(int, uint8)
 }
 
 // NewSegment will return a new memory segment with for a given size.
 func NewSegment(size int) *Segment {
 	s := new(Segment)
-	s.Mem = make([]Byte, size)
+	s.Mem = make([]uint8, size)
 
 	return s
 }
 
-// ByteSlice returns a slice of data.Byte from a given regular set of
+// ByteSlice returns a slice of uint8 from a given regular set of
 // bytes
-func ByteSlice(b []byte) []Byte {
-	bytes := make([]Byte, len(b))
-
-	for i := range b {
-		bytes[i] = Byte(b[i])
-	}
-
-	return bytes
+func ByteSlice(b []byte) []uint8 {
+	return []uint8(b)
 }
 
 // Size returns the size of the given segment.
@@ -45,8 +39,8 @@ func (s *Segment) Size() int {
 	return len(s.Mem)
 }
 
-// CopySlice copies the contents of a slice of Bytes into a segment.
-func (s *Segment) CopySlice(start int, bytes []Byte) (int, error) {
+// CopySlice copies the contents of a slice of uint8s into a segment.
+func (s *Segment) CopySlice(start int, bytes []uint8) (int, error) {
 	toWrite := len(bytes)
 	end := start + toWrite
 
@@ -61,14 +55,14 @@ func (s *Segment) CopySlice(start int, bytes []Byte) (int, error) {
 
 // Set will set the value at a given cell. If a write function is
 // registered for this cell, then we will call that and exit.
-func (s *Segment) Set(addr int, val Byte) {
+func (s *Segment) Set(addr int, val uint8) {
 	s.Mem[addr] = val
 }
 
 // Get will get the value from a given cell. If a read function is
 // registered, we will return whatever that is; otherwise we will return
 // the value directly.
-func (s *Segment) Get(addr int) Byte {
+func (s *Segment) Get(addr int) uint8 {
 	return s.Mem[addr]
 }
 
@@ -91,9 +85,9 @@ func (s *Segment) ReadFile(path string) error {
 		return err
 	}
 
-	s.Mem = make([]Byte, len(data))
+	s.Mem = make([]uint8, len(data))
 	for i, b := range data {
-		s.Mem[i] = Byte(b)
+		s.Mem[i] = uint8(b)
 	}
 
 	return nil

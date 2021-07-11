@@ -1,13 +1,12 @@
 package mos65c02
 
 import (
-	"github.com/pevans/erc/pkg/data"
 	"github.com/stretchr/testify/assert"
 )
 
 var loadCases = []struct {
-	want data.Byte
-	p    data.Byte
+	want uint8
+	p    uint8
 }{
 	{0x00, ZERO},
 	{0x01, 0},
@@ -48,56 +47,56 @@ func (s *mosSuite) TestPha() {
 	s.cpu.A = 123
 	Pha(s.cpu)
 
-	assert.Equal(s.T(), data.Byte(123), s.cpu.PopStack())
+	assert.Equal(s.T(), uint8(123), s.cpu.PopStack())
 }
 
 func (s *mosSuite) TestPhp() {
 	s.cpu.P = 123
 	Php(s.cpu)
 
-	assert.Equal(s.T(), data.Byte(123), s.cpu.PopStack())
+	assert.Equal(s.T(), uint8(123), s.cpu.PopStack())
 }
 
 func (s *mosSuite) TestPhx() {
 	s.cpu.X = 123
 	Phx(s.cpu)
 
-	assert.Equal(s.T(), data.Byte(123), s.cpu.PopStack())
+	assert.Equal(s.T(), uint8(123), s.cpu.PopStack())
 }
 
 func (s *mosSuite) TestPhy() {
 	s.cpu.Y = 123
 	Phy(s.cpu)
 
-	assert.Equal(s.T(), data.Byte(123), s.cpu.PopStack())
+	assert.Equal(s.T(), uint8(123), s.cpu.PopStack())
 }
 
 func (s *mosSuite) TestPla() {
 	s.cpu.PushStack(123)
 	Pla(s.cpu)
 
-	assert.Equal(s.T(), data.Byte(123), s.cpu.A)
+	assert.Equal(s.T(), uint8(123), s.cpu.A)
 }
 
 func (s *mosSuite) TestPlp() {
 	s.cpu.PushStack(123)
 	Plp(s.cpu)
 
-	assert.Equal(s.T(), data.Byte(123), s.cpu.P)
+	assert.Equal(s.T(), uint8(123), s.cpu.P)
 }
 
 func (s *mosSuite) TestPlx() {
 	s.cpu.PushStack(123)
 	Plx(s.cpu)
 
-	assert.Equal(s.T(), data.Byte(123), s.cpu.X)
+	assert.Equal(s.T(), uint8(123), s.cpu.X)
 }
 
 func (s *mosSuite) TestPly() {
 	s.cpu.PushStack(123)
 	Ply(s.cpu)
 
-	assert.Equal(s.T(), data.Byte(123), s.cpu.Y)
+	assert.Equal(s.T(), uint8(123), s.cpu.Y)
 }
 
 func (s *mosSuite) TestSta() {
@@ -105,7 +104,7 @@ func (s *mosSuite) TestSta() {
 	s.cpu.A = 234
 	Sta(s.cpu)
 
-	assert.Equal(s.T(), data.Byte(234), s.cpu.Get(s.cpu.EffAddr))
+	assert.Equal(s.T(), uint8(234), s.cpu.Get(s.cpu.EffAddr))
 }
 
 func (s *mosSuite) TestStx() {
@@ -113,7 +112,7 @@ func (s *mosSuite) TestStx() {
 	s.cpu.X = 234
 	Stx(s.cpu)
 
-	assert.Equal(s.T(), data.Byte(234), s.cpu.Get(s.cpu.EffAddr))
+	assert.Equal(s.T(), uint8(234), s.cpu.Get(s.cpu.EffAddr))
 }
 
 func (s *mosSuite) TestSty() {
@@ -121,7 +120,7 @@ func (s *mosSuite) TestSty() {
 	s.cpu.Y = 234
 	Sty(s.cpu)
 
-	assert.Equal(s.T(), data.Byte(234), s.cpu.Get(s.cpu.EffAddr))
+	assert.Equal(s.T(), uint8(234), s.cpu.Get(s.cpu.EffAddr))
 }
 
 func (s *mosSuite) TestStz() {
@@ -129,7 +128,7 @@ func (s *mosSuite) TestStz() {
 	s.cpu.Set(s.cpu.EffAddr, 234)
 	Stz(s.cpu)
 
-	assert.Equal(s.T(), data.Byte(0), s.cpu.Get(s.cpu.EffAddr))
+	assert.Equal(s.T(), uint8(0), s.cpu.Get(s.cpu.EffAddr))
 }
 
 func (s *mosSuite) TestTax() {

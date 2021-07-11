@@ -6,7 +6,7 @@ import (
 	"github.com/pevans/erc/pkg/data"
 )
 
-type decodeMap map[data.Byte]data.Byte
+type decodeMap map[uint8]uint8
 
 type decoder struct {
 	ls        *data.Segment
@@ -61,13 +61,13 @@ func newDecodeMap() decodeMap {
 	m := make(decodeMap)
 
 	for i, b := range encGCR62 {
-		m[b] = data.Byte(i)
+		m[b] = uint8(i)
 	}
 
 	return m
 }
 
-func (d *decoder) logByte(b data.Byte) data.Byte {
+func (d *decoder) logByte(b uint8) uint8 {
 	lb, ok := d.decMap[b]
 	if !ok {
 		panic(fmt.Errorf("strange byte in decoding: %x", b))
@@ -76,15 +76,15 @@ func (d *decoder) logByte(b data.Byte) data.Byte {
 	return lb
 }
 
-func (d *decoder) writeByte(b data.Byte) {
+func (d *decoder) writeByte(b uint8) {
 	d.ls.Set(d.loff, b)
 	d.loff++
 }
 
 func (d *decoder) writeSector(track, sect int) {
 	var (
-		six = make([]data.Byte, SixBlock)
-		two = make([]data.Byte, TwoBlock)
+		six = make([]uint8, SixBlock)
+		two = make([]uint8, TwoBlock)
 	)
 
 	// There's going to be some opening metadata bytes that we will want
@@ -121,7 +121,7 @@ func (d *decoder) writeSector(track, sect int) {
 		var (
 			div = i / TwoBlock
 			rem = i % TwoBlock
-			byt data.Byte
+			byt uint8
 		)
 
 		switch div {

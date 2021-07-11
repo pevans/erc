@@ -3,8 +3,6 @@ package a2
 import (
 	"fmt"
 	"image/color"
-
-	"github.com/pevans/erc/pkg/data"
 )
 
 type hiresDot struct {
@@ -36,7 +34,7 @@ var hiresPalette1 = []color.RGBA{
 	hiresWhite,
 }
 
-func (c *Computer) hiresRender(start, end data.DByte) {
+func (c *Computer) hiresRender(start, end uint16) {
 	dots := make([]hiresDot, 280)
 
 	for y := uint(0); y < 192; y++ {
@@ -59,7 +57,7 @@ func (c *Computer) HiresDots(row uint, dots []hiresDot) error {
 	addr := hiresAddrs[row]
 
 	for i := 0; i < 40; i++ {
-		byt := c.Get(addr.Int() + i)
+		byt := c.Get(int(addr) + i)
 		pal := hiresPalette0
 
 		if byt&0x80 > 0 {

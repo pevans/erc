@@ -1,7 +1,5 @@
 package a2
 
-import "github.com/pevans/erc/pkg/data"
-
 func (s *a2Suite) TestUseDefaults() {
 	s.comp.bank.UseDefaults()
 	s.Equal(bankROM, s.comp.bank.read)
@@ -47,17 +45,17 @@ func (s *a2Suite) TestSwitchRead() {
 	}
 
 	rd := func(addr int) int {
-		_ = bank.SwitchRead(s.comp, data.DByte(addr))
+		_ = bank.SwitchRead(s.comp, uint16(addr))
 		return bank.read
 	}
 
 	wr := func(addr int) int {
-		_ = bank.SwitchRead(s.comp, data.DByte(addr))
+		_ = bank.SwitchRead(s.comp, uint16(addr))
 		return bank.write
 	}
 
 	df := func(addr int) int {
-		_ = bank.SwitchRead(s.comp, data.DByte(addr))
+		_ = bank.SwitchRead(s.comp, uint16(addr))
 		return bank.dfBlock
 	}
 
@@ -83,52 +81,52 @@ func (s *a2Suite) TestSwitchRead() {
 	})
 
 	s.Run("bit 7 is high", func() {
-		hi7 := data.Byte(0x80)
-		lo7 := data.Byte(0x00)
+		hi7 := uint8(0x80)
+		lo7 := uint8(0x00)
 
 		bank.dfBlock = bank2
-		s.Equal(hi7, bank.SwitchRead(s.comp, data.DByte(0xC011)))
+		s.Equal(hi7, bank.SwitchRead(s.comp, uint16(0xC011)))
 		bank.dfBlock = bank1
-		s.Equal(lo7, bank.SwitchRead(s.comp, data.DByte(0xC011)))
+		s.Equal(lo7, bank.SwitchRead(s.comp, uint16(0xC011)))
 
 		bank.read = bankRAM
-		s.Equal(hi7, bank.SwitchRead(s.comp, data.DByte(0xC012)))
+		s.Equal(hi7, bank.SwitchRead(s.comp, uint16(0xC012)))
 		bank.read = bankROM
-		s.Equal(lo7, bank.SwitchRead(s.comp, data.DByte(0xC012)))
+		s.Equal(lo7, bank.SwitchRead(s.comp, uint16(0xC012)))
 
 		bank.sysBlock = bankAux
-		s.Equal(hi7, bank.SwitchRead(s.comp, data.DByte(0xC016)))
+		s.Equal(hi7, bank.SwitchRead(s.comp, uint16(0xC016)))
 		bank.sysBlock = bankMain
-		s.Equal(lo7, bank.SwitchRead(s.comp, data.DByte(0xC016)))
+		s.Equal(lo7, bank.SwitchRead(s.comp, uint16(0xC016)))
 	})
 }
 
 func (s *a2Suite) TestSwitchWrite() {
 	var (
 		bank bankSwitcher
-		d123 data.Byte  = 123
-		d45  data.Byte  = 45
-		addr data.DByte = 0x11
+		d123 uint8  = 123
+		d45  uint8  = 45
+		addr uint16 = 0x11
 	)
 
 	s.Run("switching main to aux", func() {
 		s.comp.Main.Mem[addr] = d123
 		bank.sysBlock = bankMain
-		bank.SwitchWrite(s.comp, data.DByte(0xC009), d45)
+		bank.SwitchWrite(s.comp, uint16(0xC009), d45)
 		s.Equal(bankAux, bank.sysBlock)
 		s.Equal(d123, s.comp.Aux.Mem[addr])
 	})
 
 	s.Run("switching aux to main", func() {
 		s.comp.Aux.Mem[addr] = d45
-		bank.SwitchWrite(s.comp, data.DByte(0xC008), d123)
+		bank.SwitchWrite(s.comp, uint16(0xC008), d123)
 		s.Equal(bankMain, bank.sysBlock)
 		s.Equal(d45, s.comp.Main.Mem[addr])
 	})
 
 	s.Run("not changing the mode should not copy pages", func() {
 		s.comp.Aux.Mem[addr] = d123
-		bank.SwitchWrite(s.comp, data.DByte(0xC008), d123)
+		bank.SwitchWrite(s.comp, uint16(0xC008), d123)
 		s.Equal(bankMain, bank.sysBlock)
 		s.Equal(d45, s.comp.Main.Mem[addr])
 	})
@@ -136,13 +134,13 @@ func (s *a2Suite) TestSwitchWrite() {
 
 func (s *a2Suite) TestBankDFRead() {
 	var (
-		xd000            = 0xD000
-		xe000            = 0xE000
-		x1000            = 0x1000
-		x2000            = 0x2000
-		x10000           = 0x10000
-		val1   data.Byte = 124
-		val2   data.Byte = 112
+		xd000        = 0xD000
+		xe000        = 0xE000
+		x1000        = 0x1000
+		x2000        = 0x2000
+		x10000       = 0x10000
+		val1   uint8 = 124
+		val2   uint8 = 112
 	)
 
 	testFor := func(sblock int) {
@@ -184,10 +182,10 @@ func (s *a2Suite) TestBankDFRead() {
 
 func (s *a2Suite) TestBankDFWrite() {
 	var (
-		dfaddr           = 0xD011
-		efaddr           = 0xE011
-		val1   data.Byte = 87
-		val2   data.Byte = 89
+		dfaddr       = 0xD011
+		efaddr       = 0xE011
+		val1   uint8 = 87
+		val2   uint8 = 89
 	)
 
 	testFor := func(sblock int) {
@@ -223,9 +221,9 @@ func (s *a2Suite) TestBankZPRead() {
 	addr := 0x123
 	cases := []struct {
 		mode int
-		main data.Byte
-		aux  data.Byte
-		want data.Byte
+		main uint8
+		aux  uint8
+		want uint8
 	}{
 		{bankAux, 0x1, 0x2, 0x2},
 		{bankMain, 0x3, 0x2, 0x3},
@@ -244,9 +242,9 @@ func (s *a2Suite) TestBankZPWrite() {
 	addr := 0x123
 	cases := []struct {
 		mode int
-		main data.Byte
-		aux  data.Byte
-		want data.Byte
+		main uint8
+		aux  uint8
+		want uint8
 	}{
 		{bankAux, 0x0, 0x2, 0x2},
 		{bankMain, 0x3, 0x0, 0x3},

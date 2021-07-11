@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"io"
 	"strings"
-
-	"github.com/pevans/erc/pkg/data"
 )
 
 // A Recorder is an object which satisfies the asmrec.Recorder interface
@@ -13,18 +11,18 @@ import (
 type Recorder struct {
 	PrintState bool
 
-	PC      data.DByte
-	Opcode  data.Byte
-	Operand data.DByte
+	PC      uint16
+	Opcode  uint8
+	Operand uint16
 	Mode    string
 	Inst    string
-	A       data.Byte
-	X       data.Byte
-	Y       data.Byte
-	S       data.Byte
-	P       data.Byte
-	EffAddr data.DByte
-	EffVal  data.Byte
+	A       uint8
+	X       uint8
+	Y       uint8
+	S       uint8
+	P       uint8
+	EffAddr uint16
+	EffVal  uint8
 }
 
 var counter = 0

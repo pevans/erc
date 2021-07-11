@@ -15,23 +15,23 @@ const (
 )
 
 const (
-	offMemReadAux  = data.DByte(0xC002)
-	offMemWriteAux = data.DByte(0xC004)
-	onMemReadAux   = data.DByte(0xC003)
-	onMemWriteAux  = data.DByte(0xC005)
-	rdMemReadAux   = data.DByte(0xC013)
-	rdMemWriteAux  = data.DByte(0xC014)
+	offMemReadAux  = uint16(0xC002)
+	offMemWriteAux = uint16(0xC004)
+	onMemReadAux   = uint16(0xC003)
+	onMemWriteAux  = uint16(0xC005)
+	rdMemReadAux   = uint16(0xC013)
+	rdMemWriteAux  = uint16(0xC014)
 )
 
-func memReadSwitches() []data.DByte {
-	return []data.DByte{
+func memReadSwitches() []uint16 {
+	return []uint16{
 		rdMemReadAux,
 		rdMemWriteAux,
 	}
 }
 
-func memWriteSwitches() []data.DByte {
-	return []data.DByte{
+func memWriteSwitches() []uint16 {
+	return []uint16{
 		offMemReadAux,
 		offMemWriteAux,
 		onMemReadAux,
@@ -44,10 +44,10 @@ func (ms *memSwitcher) UseDefaults() {
 	ms.write = memMain
 }
 
-func (ms *memSwitcher) SwitchRead(c *Computer, addr data.DByte) data.Byte {
+func (ms *memSwitcher) SwitchRead(c *Computer, addr uint16) uint8 {
 	var (
-		hi data.Byte = 0x80
-		lo data.Byte = 0x00
+		hi uint8 = 0x80
+		lo uint8 = 0x00
 	)
 
 	switch addr {
@@ -65,7 +65,7 @@ func (ms *memSwitcher) SwitchRead(c *Computer, addr data.DByte) data.Byte {
 	return lo
 }
 
-func (ms *memSwitcher) SwitchWrite(c *Computer, addr data.DByte, val data.Byte) {
+func (ms *memSwitcher) SwitchWrite(c *Computer, addr uint16, val uint8) {
 	switch addr {
 	case onMemReadAux:
 		ms.read = memAux
@@ -80,9 +80,10 @@ func (ms *memSwitcher) SwitchWrite(c *Computer, addr data.DByte, val data.Byte) 
 
 // Get will return the byte at addr, or will execute a read switch if
 // one is present at the given address.
-func (c *Computer) Get(addr int) data.Byte {
-	if fn, ok := c.RMap[addr]; ok {
-		return fn(c, data.DByte(addr))
+func (c *Computer) Get(addr int) uint8 {
+	uaddr := uint16(addr)
+	if fn, ok := c.RMap[uaddr]; ok {
+		return fn(c, uaddr)
 	}
 
 	return c.ReadSegment().Get(addr)
@@ -90,9 +91,10 @@ func (c *Computer) Get(addr int) data.Byte {
 
 // Set will set the byte at addr to val, or will execute a write switch
 // if one is present at the given address.
-func (c *Computer) Set(addr int, val data.Byte) {
-	if fn, ok := c.WMap[addr]; ok {
-		fn(c, data.DByte(addr), val)
+func (c *Computer) Set(addr int, val uint8) {
+	uaddr := uint16(addr)
+	if fn, ok := c.WMap[uaddr]; ok {
+		fn(c, uaddr, val)
 		return
 	}
 
@@ -103,8 +105,9 @@ func (c *Computer) Set(addr int, val data.Byte) {
 // and write map functions to those given.
 func (c *Computer) MapRange(from, to int, rfn ReadMapFn, wfn WriteMapFn) {
 	for addr := from; addr < to; addr++ {
-		c.RMap[addr] = rfn
-		c.WMap[addr] = wfn
+		uaddr := uint16(addr)
+		c.RMap[uaddr] = rfn
+		c.WMap[uaddr] = wfn
 	}
 }
 

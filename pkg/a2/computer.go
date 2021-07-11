@@ -13,11 +13,11 @@ import (
 
 // ReadMapFn is a function which can execute a soft switch procedure on
 // read.
-type ReadMapFn func(*Computer, data.DByte) data.Byte
+type ReadMapFn func(*Computer, uint16) uint8
 
 // WriteMapFn is a function which can execute a soft switch procedure on
 // write.
-type WriteMapFn func(*Computer, data.DByte, data.Byte)
+type WriteMapFn func(*Computer, uint16, uint8)
 
 // A Computer is our abstraction of an Apple //e ("enhanced") computer.
 type Computer struct {
@@ -42,8 +42,8 @@ type Computer struct {
 	// RMap and WMap are the read and write address maps. These contain
 	// functions which emulate the "soft switches" that Apple IIs used
 	// to implement special functionality.
-	RMap map[int]ReadMapFn
-	WMap map[int]WriteMapFn
+	RMap map[uint16]ReadMapFn
+	WMap map[uint16]WriteMapFn
 
 	// MemMode is a collection of bit flags which tell us what state of
 	// memory we have.
@@ -112,8 +112,8 @@ func NewComputer() *Computer {
 	comp.CPU.WMem = comp
 	comp.CPU.RMem = comp
 
-	comp.RMap = make(map[int]ReadMapFn)
-	comp.WMap = make(map[int]WriteMapFn)
+	comp.RMap = make(map[uint16]ReadMapFn)
+	comp.WMap = make(map[uint16]WriteMapFn)
 
 	return comp
 }

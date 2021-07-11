@@ -9,20 +9,20 @@ import (
 
 func (s *sixtwoSuite) TestEncodeWrite() {
 	type test struct {
-		bytes     []data.Byte
+		bytes     []uint8
 		startPoff int
 		wantPoff  int
 	}
 
 	cases := map[string]test{
 		"no bytes": {
-			bytes:     []data.Byte{},
+			bytes:     []uint8{},
 			startPoff: 0,
 			wantPoff:  0,
 		},
 
 		"some bytes": {
-			bytes:     []data.Byte{0x23, 0x34, 0x45},
+			bytes:     []uint8{0x23, 0x34, 0x45},
 			startPoff: 5,
 			wantPoff:  8,
 		},
@@ -40,7 +40,7 @@ func (s *sixtwoSuite) TestEncodeWrite() {
 }
 
 func (s *sixtwoSuite) TestWriteByte() {
-	bytes := []data.Byte{0, 1, 2}
+	bytes := []uint8{0, 1, 2}
 
 	enc := newEncoder(0, len(bytes))
 	for i, b := range bytes {
@@ -51,12 +51,12 @@ func (s *sixtwoSuite) TestWriteByte() {
 
 func (s *sixtwoSuite) TestWrite4n4() {
 	cases := []struct {
-		byt  data.Byte
-		want []data.Byte
+		byt  uint8
+		want []uint8
 	}{
-		{0x32, []data.Byte{0xBB, 0xBA}},
-		{0xFE, []data.Byte{0xFF, 0xFE}},
-		{0x45, []data.Byte{0xAA, 0xEF}},
+		{0x32, []uint8{0xBB, 0xBA}},
+		{0xFE, []uint8{0xFF, 0xFE}},
+		{0x45, []uint8{0xAA, 0xEF}},
 	}
 
 	for _, c := range cases {

@@ -4,7 +4,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/pevans/erc/pkg/data"
 	"github.com/pevans/erc/pkg/sixtwo"
 	"github.com/stretchr/testify/assert"
 )
@@ -86,7 +85,7 @@ func (s *a2Suite) TestDriveStep() {
 
 func (s *a2Suite) TestDrivePhase() {
 	for i := 0x0; i < 0x10; i++ {
-		p := Phase(data.DByte(i))
+		p := Phase(uint16(i))
 		switch i {
 		case 0x1:
 			s.Equal(1, p)
@@ -203,8 +202,8 @@ func (s *a2Suite) TestDriveRead() {
 
 	b := d.Read()
 
-	s.Equal(data.Byte(0x11), b)
-	s.Equal(data.Byte(0x11), d.Latch)
+	s.Equal(uint8(0x11), b)
+	s.Equal(uint8(0x11), d.Latch)
 	s.Equal(spos+1, d.SectorPos)
 }
 

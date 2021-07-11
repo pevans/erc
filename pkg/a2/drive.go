@@ -33,7 +33,7 @@ const (
 // A Drive represents the state of a virtual Disk II drive.
 type Drive struct {
 	Phase        int
-	Latch        data.Byte
+	Latch        uint8
 	TrackPos     int
 	SectorPos    int
 	Data         *data.Segment
@@ -97,7 +97,7 @@ func (d *Drive) Step(offset int) {
 }
 
 // Phase returns the motor phase based upon the given address.
-func Phase(addr data.DByte) int {
+func Phase(addr uint16) int {
 	phase := -1
 
 	switch addr & 0xF {
@@ -116,7 +116,7 @@ func Phase(addr data.DByte) int {
 
 // SwitchPhase will figure out what phase we should be moving to based on a
 // given address.
-func (d *Drive) SwitchPhase(addr data.DByte) {
+func (d *Drive) SwitchPhase(addr uint16) {
 	phase := -1
 
 	switch addr & 0xf {
@@ -202,7 +202,7 @@ func (d *Drive) Load(r io.Reader, file string) error {
 
 	// Copy directly into the image segment
 	d.Image = data.NewSegment(len(bytes))
-	_, err = d.Image.CopySlice(0, data.ByteSlice(bytes))
+	_, err = d.Image.CopySlice(0, []uint8(bytes))
 	if err != nil {
 		d.Image = nil
 		return errors.Wrapf(err, "failed to copy bytes into image segment")
@@ -218,7 +218,7 @@ func (d *Drive) Load(r io.Reader, file string) error {
 	return nil
 }
 
-func (d *Drive) Read() data.Byte {
+func (d *Drive) Read() uint8 {
 	// Set the latch value to the byte at our current position, then
 	// shift our position by one place
 	d.Latch = d.Data.Get(d.Position())

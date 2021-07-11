@@ -1,18 +1,14 @@
 package mos65c02
 
-import (
-	"github.com/pevans/erc/pkg/data"
-)
-
 type with struct {
-	a    data.Byte
-	p    data.Byte
-	s    data.Byte
-	x    data.Byte
-	y    data.Byte
-	pc   data.DByte
-	val  data.Byte
-	addr data.DByte
+	a    uint8
+	p    uint8
+	s    uint8
+	x    uint8
+	y    uint8
+	pc   uint16
+	val  uint8
+	addr uint16
 	mode int
 }
 
@@ -33,10 +29,10 @@ func (s *mosSuite) op(fn func(*CPU), c with) {
 // and the effective value and saves the result there.
 func (s *mosSuite) TestAnd() {
 	var (
-		d127 data.Byte = 127
-		d63  data.Byte = 63
-		d255 data.Byte = 255
-		d0   data.Byte = 0
+		d127 uint8 = 127
+		d63  uint8 = 63
+		d255 uint8 = 255
+		d0   uint8 = 0
 	)
 
 	s.Run("two equal values result in said values", func() {
@@ -62,10 +58,10 @@ func (s *mosSuite) TestAnd() {
 
 func (s *mosSuite) TestAsl() {
 	var (
-		d0   data.Byte  = 0
-		d64  data.Byte  = 64
-		d128 data.Byte  = 128
-		addr data.DByte = 1
+		d0   uint8  = 0
+		d64  uint8  = 64
+		d128 uint8  = 128
+		addr uint16 = 1
 	)
 
 	s.Run("result is shifted left by one bit position", func() {
@@ -95,9 +91,9 @@ func (s *mosSuite) TestAsl() {
 
 func (s *mosSuite) TestBit() {
 	var (
-		d63  data.Byte = 63
-		d127 data.Byte = 127
-		d128 data.Byte = 128
+		d63  uint8 = 63
+		d127 uint8 = 127
+		d128 uint8 = 128
 	)
 
 	s.Run("sets zero flag when there are no overlapping bits", func() {
@@ -131,8 +127,8 @@ func (s *mosSuite) TestBit() {
 
 func (s *mosSuite) TestBim() {
 	var (
-		d1 data.Byte = 1
-		d2 data.Byte = 2
+		d1 uint8 = 1
+		d2 uint8 = 2
 	)
 
 	s.Run("sets zero flag when a&val has zero result", func() {
@@ -148,11 +144,11 @@ func (s *mosSuite) TestBim() {
 
 func (s *mosSuite) TestEor() {
 	var (
-		d0   data.Byte = 0
-		d3   data.Byte = 3
-		d4   data.Byte = 4
-		d7   data.Byte = 7
-		d128 data.Byte = 128
+		d0   uint8 = 0
+		d3   uint8 = 3
+		d4   uint8 = 4
+		d7   uint8 = 7
+		d128 uint8 = 128
 	)
 
 	s.Run("exclusive-ors two values", func() {
@@ -182,9 +178,9 @@ func (s *mosSuite) TestEor() {
 
 func (s *mosSuite) TestLsr() {
 	var (
-		d0 data.Byte = 0
-		d1 data.Byte = 1
-		d2 data.Byte = 2
+		d0 uint8 = 0
+		d1 uint8 = 1
+		d2 uint8 = 2
 	)
 
 	s.Run("shifts value right by one bit position", func() {
@@ -215,7 +211,7 @@ func (s *mosSuite) TestLsr() {
 	})
 
 	s.Run("sets value in memory when not in accumulator addr mode", func() {
-		addr := data.DByte(1)
+		addr := uint16(1)
 		s.op(Lsr, with{a: d0, val: d2, addr: addr, mode: amAbs})
 		s.Equal(d1, s.cpu.Get(addr))
 	})
@@ -223,11 +219,11 @@ func (s *mosSuite) TestLsr() {
 
 func (s *mosSuite) TestOra() {
 	var (
-		d0   data.Byte = 0
-		d1   data.Byte = 1
-		d2   data.Byte = 2
-		d3   data.Byte = 3
-		d128 data.Byte = 128
+		d0   uint8 = 0
+		d1   uint8 = 1
+		d2   uint8 = 2
+		d3   uint8 = 3
+		d128 uint8 = 128
 	)
 
 	s.Run("does a bitwise or of a and effval", func() {
@@ -256,11 +252,11 @@ func (s *mosSuite) TestOra() {
 
 func (s *mosSuite) TestRol() {
 	var (
-		d1   data.Byte = 1
-		d2   data.Byte = 2
-		d3   data.Byte = 3
-		d64  data.Byte = 64
-		d128 data.Byte = 128
+		d1   uint8 = 1
+		d2   uint8 = 2
+		d3   uint8 = 3
+		d64  uint8 = 64
+		d128 uint8 = 128
 	)
 
 	s.Run("rotate performs 9-bit rotation", func() {
@@ -288,7 +284,7 @@ func (s *mosSuite) TestRol() {
 	})
 
 	s.Run("sets result in memory when not in accumulator mode", func() {
-		addr := data.DByte(1)
+		addr := uint16(1)
 		s.op(Rol, with{val: d1, addr: addr, mode: amAbs})
 		s.Equal(d2, s.cpu.Get(addr))
 	})
@@ -296,11 +292,11 @@ func (s *mosSuite) TestRol() {
 
 func (s *mosSuite) TestRor() {
 	var (
-		d1   data.Byte = 1
-		d2   data.Byte = 2
-		d64  data.Byte = 64
-		d128 data.Byte = 128
-		d192 data.Byte = 192
+		d1   uint8 = 1
+		d2   uint8 = 2
+		d64  uint8 = 64
+		d128 uint8 = 128
+		d192 uint8 = 192
 	)
 
 	s.Run("rotate performs 9-bit rotation", func() {
@@ -328,7 +324,7 @@ func (s *mosSuite) TestRor() {
 	})
 
 	s.Run("sets result in memory when not in accumulator mode", func() {
-		addr := data.DByte(1)
+		addr := uint16(1)
 		s.op(Ror, with{val: d2, addr: addr, mode: amAbs})
 		s.Equal(d1, s.cpu.Get(addr))
 	})
@@ -336,10 +332,10 @@ func (s *mosSuite) TestRor() {
 
 func (s *mosSuite) TestTrb() {
 	var (
-		d4   data.Byte  = 4
-		d3   data.Byte  = 3
-		d2   data.Byte  = 2
-		addr data.DByte = 1
+		d4   uint8  = 4
+		d3   uint8  = 3
+		d2   uint8  = 2
+		addr uint16 = 1
 	)
 
 	s.Run("a&val result is stored as zero flag", func() {
@@ -358,11 +354,11 @@ func (s *mosSuite) TestTrb() {
 
 func (s *mosSuite) TestTsb() {
 	var (
-		d6   data.Byte  = 6
-		d4   data.Byte  = 4
-		d3   data.Byte  = 3
-		d2   data.Byte  = 2
-		addr data.DByte = 1
+		d6   uint8  = 6
+		d4   uint8  = 4
+		d3   uint8  = 3
+		d2   uint8  = 2
+		addr uint16 = 1
 	)
 
 	s.Run("a&val result is stored as zero flag", func() {

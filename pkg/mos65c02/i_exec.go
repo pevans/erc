@@ -1,15 +1,13 @@
 package mos65c02
 
-import "github.com/pevans/erc/pkg/data"
-
 // Brk implements the BRK instruction, which is a hardware interrupt.
 // This isn't something that normally happens in software, but you might
 // see it in the system monitor (which was a debugger in Apple IIs).
 func Brk(c *CPU) {
 	// This pushes the the current PC register value in little-endian
 	// order.
-	c.PushStack(data.Byte(c.PC >> 8))
-	c.PushStack(data.Byte(c.PC & 0xFF))
+	c.PushStack(uint8(c.PC >> 8))
+	c.PushStack(uint8(c.PC & 0xFF))
 
 	// Also hang onto the status
 	c.PushStack(c.P)
@@ -34,8 +32,8 @@ func Jsr(c *CPU) {
 
 	// We have to save the position that we should jump back to after we
 	// return from subroutine (RTS) in the stack.
-	c.PushStack(data.Byte(nextPos >> 8))
-	c.PushStack(data.Byte(nextPos & 0xFF))
+	c.PushStack(uint8(nextPos >> 8))
+	c.PushStack(uint8(nextPos & 0xFF))
 
 	c.PC = c.EffAddr
 }
@@ -60,16 +58,16 @@ func Rti(c *CPU) {
 
 	// Since we saved the bytes in BRK in order of msb, then lsb, we
 	// need to pop them in the reverse order; lsb, then msb.
-	lsb := data.DByte(c.PopStack())
-	msb := data.DByte(c.PopStack())
+	lsb := uint16(c.PopStack())
+	msb := uint16(c.PopStack())
 	c.PC = (msb << 8) | lsb
 }
 
 // Rts implements the RTS (return from subroutine) instruction, which
 // sets the program counter to the position saved from a previous JSR.
 func Rts(c *CPU) {
-	lsb := data.DByte(c.PopStack())
-	msb := data.DByte(c.PopStack())
+	lsb := uint16(c.PopStack())
+	msb := uint16(c.PopStack())
 
 	c.PC = ((msb << 8) | lsb) + 1
 }

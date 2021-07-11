@@ -22,7 +22,7 @@ const (
 //
 // Also, since I forget: gcr is short for "group coded recording".
 //  00    01    02    03    04    05    06    07    08    09    0a    0b    0c    0d    0e    0f
-var encGCR62 = []data.Byte{
+var encGCR62 = []uint8{
 	0x96, 0x97, 0x9A, 0x9B, 0x9D, 0x9E, 0x9F, 0xA6, 0xA7, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB2, 0xB3, // 00
 	0xB4, 0xB5, 0xB6, 0xB7, 0xB9, 0xBA, 0xBB, 0xBC, 0xBD, 0xBE, 0xBF, 0xCB, 0xCD, 0xCE, 0xCF, 0xD3, // 10
 	0xD6, 0xD7, 0xD9, 0xDA, 0xDB, 0xDC, 0xDD, 0xDE, 0xDF, 0xE5, 0xE6, 0xE7, 0xE9, 0xEA, 0xEB, 0xEC, // 20
@@ -72,7 +72,7 @@ func Encode(imageType int, src *data.Segment) (*data.Segment, error) {
 
 // Write will write a set of bytes into the destination segment at the
 // current offset.
-func (e *encoder) write(bytes []data.Byte) {
+func (e *encoder) write(bytes []uint8) {
 	for _, b := range bytes {
 		e.writeByte(b)
 	}
@@ -80,7 +80,7 @@ func (e *encoder) write(bytes []data.Byte) {
 
 // writeByte simply writes a single byte into the physical segment
 // without having to deal with passing around a slice
-func (e *encoder) writeByte(byt data.Byte) {
+func (e *encoder) writeByte(byt uint8) {
 	e.ps.Set(e.poff, byt)
 	e.poff++
 }
@@ -111,8 +111,8 @@ func (e *encoder) writeTrack(track int) {
 
 // encode4n4 writes the given byte in 4-and-4 encoded form, which is
 // used in sector headers.
-func (e *encoder) write4n4(val data.Byte) {
-	e.write([]data.Byte{
+func (e *encoder) write4n4(val uint8) {
+	e.write([]uint8{
 		((val >> 1) & 0x55) | 0xAA,
 		(val & 0x55) | 0xAA,
 	})
@@ -121,11 +121,11 @@ func (e *encoder) write4n4(val data.Byte) {
 // encodeSector writes a physically encoded sector into the destination
 // segment based on the logically encoded source segment.
 func (e *encoder) writeSector(track, sect int) {
-	six := make([]data.Byte, SixBlock)
-	two := make([]data.Byte, TwoBlock)
+	six := make([]uint8, SixBlock)
+	two := make([]uint8, TwoBlock)
 
 	// Write the initial padding and sector header prologue
-	e.write([]data.Byte{
+	e.write([]uint8{
 		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
 		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
 		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -135,13 +135,13 @@ func (e *encoder) writeSector(track, sect int) {
 
 	// Write the metadata
 	e.write4n4(VolumeMarker)
-	e.write4n4(data.Byte(track))
-	e.write4n4(data.Byte(sect))
-	e.write4n4(data.Byte(VolumeMarker ^ track ^ sect))
+	e.write4n4(uint8(track))
+	e.write4n4(uint8(sect))
+	e.write4n4(uint8(VolumeMarker ^ track ^ sect))
 
 	// Write the sector header epilogue, plus some padding, plus the
 	// data marker
-	e.write([]data.Byte{
+	e.write([]uint8{
 		0xDE, 0xAA, 0xEB,
 
 		0xFF, 0xFF, 0xFF,
@@ -187,7 +187,7 @@ func (e *encoder) writeSector(track, sect int) {
 	e.writeByte(encGCR62[six[SixBlock-1]])
 
 	// Finally, we write the end marker for sector data.
-	e.write([]data.Byte{
+	e.write([]uint8{
 		0xDE, 0xAA, 0xEB,
 	})
 }

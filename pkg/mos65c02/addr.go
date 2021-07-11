@@ -4,8 +4,6 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
-
-	"github.com/pevans/erc/pkg/data"
 )
 
 // An AddrMode is a function which resolves what the effective address
@@ -67,7 +65,7 @@ var addrModes = [256]AddrMode{
 // offset is given as zero.
 //
 //  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-var offsets = [256]data.DByte{
+var offsets = [256]uint16{
 	1, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1, 1, 3, 3, 3, 1, // 0x
 	0, 2, 2, 1, 2, 2, 2, 1, 1, 3, 1, 1, 3, 3, 3, 1, // 1x
 	0, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1, 1, 3, 3, 3, 1, // 2x
@@ -125,7 +123,7 @@ func Abs(c *CPU) {
 // Ex. INC $1234,X increments the byte at $1234 + X
 func Abx(c *CPU) {
 	c.Operand = c.Get16(c.PC + 1)
-	c.EffAddr = c.Operand + data.DByte(c.X)
+	c.EffAddr = c.Operand + uint16(c.X)
 	c.EffVal = c.Get(c.EffAddr)
 	c.AddrMode = amAbx
 }
@@ -135,7 +133,7 @@ func Abx(c *CPU) {
 // Ex. INC $1234,Y increments the byte at $1234 + Y
 func Aby(c *CPU) {
 	c.Operand = c.Get16(c.PC + 1)
-	c.EffAddr = c.Operand + data.DByte(c.Y)
+	c.EffAddr = c.Operand + uint16(c.Y)
 	c.EffVal = c.Get(c.EffAddr)
 	c.AddrMode = amAby
 }
@@ -163,7 +161,7 @@ func By3(c *CPU) {
 func Imm(c *CPU) {
 	c.EffAddr = 0
 	c.EffVal = c.Get(c.PC + 1)
-	c.Operand = data.DByte(c.EffVal)
+	c.Operand = uint16(c.EffVal)
 	c.AddrMode = amImm
 }
 
@@ -205,11 +203,11 @@ func Ind(c *CPU) {
 // and the effective value is the byte at <addr2>.
 func Idx(c *CPU) {
 	operand := c.Get(c.PC + 1)
-	c.Operand = data.DByte(operand)
+	c.Operand = uint16(operand)
 
 	// Our effective address is the dereferenced value found at the base
 	// address.
-	c.EffAddr = c.Get16(data.DByte(operand + c.X))
+	c.EffAddr = c.Get16(uint16(operand + c.X))
 	c.EffVal = c.Get(c.EffAddr)
 	c.AddrMode = amIdx
 }
@@ -224,7 +222,7 @@ func Idx(c *CPU) {
 func Idy(c *CPU) {
 	// The base address for the instruction; the `$NN` part of the
 	// operand.
-	c.Operand = data.DByte(c.Get(c.PC + 1))
+	c.Operand = uint16(c.Get(c.PC + 1))
 
 	// This dereferences the base address, essentially resolving the
 	// `()` part of the operand.
@@ -232,7 +230,7 @@ func Idy(c *CPU) {
 
 	// And here we account for the `,Y` part; Y is added to the
 	// dereferenced address.
-	c.EffAddr = effAddr + data.DByte(c.Y)
+	c.EffAddr = effAddr + uint16(c.Y)
 	c.EffVal = c.Get(c.EffAddr)
 	c.AddrMode = amIdy
 }
@@ -251,7 +249,7 @@ func Idy(c *CPU) {
 func Rel(c *CPU) {
 	// The next byte is the signed offset of where we're going; positive
 	// = forward, negative = backward.
-	c.Operand = data.DByte(c.Get(c.PC + 1))
+	c.Operand = uint16(c.Get(c.PC + 1))
 
 	// But we don't want to convert change (or addr) into a valid
 	// address yet. We want the uint16-ness of addresses in the MOS 6502
@@ -279,7 +277,7 @@ func Rel(c *CPU) {
 //
 // Ex. INC $12 increments the byte at $12 by one.
 func Zpg(c *CPU) {
-	c.Operand = data.DByte(c.Get(c.PC + 1))
+	c.Operand = uint16(c.Get(c.PC + 1))
 	c.EffAddr = c.Operand
 	c.EffVal = c.Get(c.EffAddr)
 	c.AddrMode = amZpg
@@ -291,8 +289,8 @@ func Zpg(c *CPU) {
 // Ex. INC $12,X increments the byte at $12 + X by one.
 func Zpx(c *CPU) {
 	operand := c.Get(c.PC + 1)
-	c.Operand = data.DByte(operand)
-	c.EffAddr = data.DByte(operand + c.X)
+	c.Operand = uint16(operand)
+	c.EffAddr = uint16(operand + c.X)
 	c.EffVal = c.Get(c.EffAddr)
 	c.AddrMode = amZpx
 }
@@ -303,8 +301,8 @@ func Zpx(c *CPU) {
 // Ex. INC $12,Y increments the byte at $12 + Y by one.
 func Zpy(c *CPU) {
 	operand := c.Get(c.PC + 1)
-	c.Operand = data.DByte(operand)
-	c.EffAddr = data.DByte(operand + c.Y)
+	c.Operand = uint16(operand)
+	c.EffAddr = uint16(operand + c.Y)
 	c.EffVal = c.Get(c.EffAddr)
 	c.AddrMode = amZpy
 }

@@ -1,34 +1,30 @@
 package mos65c02
 
-import (
-	"github.com/pevans/erc/pkg/data"
-)
-
 // Get will return the byte at a given address.
-func (c *CPU) Get(addr data.DByte) data.Byte {
-	return c.RMem.Get(addr.Int())
+func (c *CPU) Get(addr uint16) uint8 {
+	return c.RMem.Get(int(addr))
 }
 
 // Set will set the byte at a given address to the given value.
-func (c *CPU) Set(addr data.DByte, val data.Byte) {
-	c.WMem.Set(addr.Int(), val)
+func (c *CPU) Set(addr uint16, val uint8) {
+	c.WMem.Set(int(addr), val)
 }
 
 // Get16 returns a 16-bit value at a given address, which is read in
 // little-endian order.
-func (c *CPU) Get16(addr data.DByte) data.DByte {
-	lsb := c.RMem.Get(addr.Int())
-	msb := c.RMem.Get(addr.Int() + 1)
+func (c *CPU) Get16(addr uint16) uint16 {
+	lsb := c.RMem.Get(int(addr))
+	msb := c.RMem.Get(int(addr) + 1)
 
-	return (data.DByte(msb) << 8) | data.DByte(lsb)
+	return (uint16(msb) << 8) | uint16(lsb)
 }
 
 // Set16 sets the two bytes beginning at the given address to the given
 // value. The bytes are set in little-endian order.
-func (c *CPU) Set16(addr data.DByte, val data.DByte) {
-	lsb := data.Byte(val & 0xFF)
-	msb := data.Byte(val >> 8)
+func (c *CPU) Set16(addr uint16, val uint16) {
+	lsb := uint8(val & 0xFF)
+	msb := uint8(val >> 8)
 
-	c.WMem.Set(addr.Int(), lsb)
-	c.WMem.Set(addr.Int()+1, msb)
+	c.WMem.Set(int(addr), lsb)
+	c.WMem.Set(int(addr)+1, msb)
 }

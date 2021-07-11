@@ -56,7 +56,7 @@ func loadFile(seg *data.Segment, path string) error {
 	}
 
 	for i, b := range bytes {
-		seg.Mem[i] = data.Byte(b)
+		seg.Mem[i] = uint8(b)
 	}
 
 	return nil

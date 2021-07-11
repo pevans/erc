@@ -14,7 +14,7 @@ func TestNewSegment(t *testing.T) {
 func TestSet(t *testing.T) {
 	s := NewSegment(100)
 	addr := 1
-	val := Byte(123)
+	val := uint8(123)
 
 	s.Set(addr, val)
 	assert.Equal(t, val, s.Mem[addr])
@@ -31,7 +31,7 @@ func TestSet(t *testing.T) {
 func TestGet(t *testing.T) {
 	s := NewSegment(100)
 	addr := 1
-	val := Byte(123)
+	val := uint8(123)
 
 	s.Mem[addr] = val
 	assert.Equal(t, val, s.Get(addr))
@@ -47,13 +47,13 @@ func TestGet(t *testing.T) {
 
 func TestByteSlice(t *testing.T) {
 	type test struct {
-		want []Byte
+		want []uint8
 		in   []byte
 	}
 
 	cases := map[string]test{
-		"empty":    {want: []Byte{}, in: []byte{}},
-		"nonempty": {want: []Byte{1, 2, 3}, in: []byte{1, 2, 3}},
+		"empty":    {want: []uint8{}, in: []byte{}},
+		"nonempty": {want: []uint8{1, 2, 3}, in: []byte{1, 2, 3}},
 	}
 
 	for desc, c := range cases {
@@ -73,7 +73,7 @@ func TestCopySlice(t *testing.T) {
 		written   int
 		size      int
 		start     int
-		byteSlice []Byte
+		byteSlice []uint8
 		errfn     assert.ErrorAssertionFunc
 	}
 
@@ -82,7 +82,7 @@ func TestCopySlice(t *testing.T) {
 			written:   0,
 			size:      1,
 			start:     -1,
-			byteSlice: []Byte{},
+			byteSlice: []uint8{},
 			errfn:     assert.Error,
 		},
 		"no size": {
@@ -132,7 +132,7 @@ func TestWriteFile(t *testing.T) {
 	// We should be able to see the file, if we looked...
 	ns := NewSegment(size)
 	assert.NoError(t, ns.ReadFile(file))
-	assert.Equal(t, Byte(value), ns.Get(0))
+	assert.Equal(t, uint8(value), ns.Get(0))
 	os.Remove(file)
 }
 
@@ -146,5 +146,5 @@ func TestReadFile(t *testing.T) {
 	assert.NoError(t, s.ReadFile("../../data/logical.sector"))
 
 	// Make sure we have some real data
-	assert.NotEqual(t, Byte(0), s.Get(0))
+	assert.NotEqual(t, uint8(0), s.Get(0))
 }

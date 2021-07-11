@@ -45,17 +45,17 @@ func (s *sixtwoSuite) TestLogByte() {
 	dec := decoder{
 		decMap: newDecodeMap(),
 	}
-	s.Equal(data.Byte(0x3F), dec.logByte(data.Byte(0xFF)))
+	s.Equal(uint8(0x3F), dec.logByte(uint8(0xFF)))
 
 	// Test a decoder with no decode map
 	dec = decoder{}
 	s.Panics(func() {
-		dec.logByte(data.Byte(0xFF))
+		dec.logByte(uint8(0xFF))
 	})
 }
 
 func (s *sixtwoSuite) TestDecodeWriteByte() {
-	byt := data.Byte(123)
+	byt := uint8(123)
 	dec := decoder{
 		ls:        data.NewSegment(LogSectorLen),
 		imageType: s.imageType,

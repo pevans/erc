@@ -2,17 +2,15 @@ package mos65c02
 
 import (
 	"fmt"
-
-	"github.com/pevans/erc/pkg/data"
 )
 
 func (s *mosSuite) TestAdc() {
 	var (
-		d10    data.Byte = 10
-		d250   data.Byte = 250
-		d127   data.Byte = 127
-		offset data.Byte = 10
-		one    data.Byte = 1
+		d10    uint8 = 10
+		d250   uint8 = 250
+		d127   uint8 = 127
+		offset uint8 = 10
+		one    uint8 = 1
 	)
 
 	s.Run("result is A + EffVal when carry isn't set", func() {
@@ -65,10 +63,10 @@ func (s *mosSuite) TestAdc() {
 	})
 }
 
-func (s *mosSuite) testCompare(val *data.Byte, fn func(*CPU)) {
+func (s *mosSuite) testCompare(val *uint8, fn func(*CPU)) {
 	var (
-		d10 data.Byte = 10
-		d20 data.Byte = 20
+		d10 uint8 = 10
+		d20 uint8 = 20
 	)
 
 	s.Run("zero is set when given equal values", func() {
@@ -115,13 +113,13 @@ func (s *mosSuite) TestCpy() {
 
 func (s *mosSuite) testDecrement(
 	funcName string,
-	setVal func(*CPU, data.Byte),
-	getVal func(*CPU) data.Byte,
+	setVal func(*CPU, uint8),
+	getVal func(*CPU) uint8,
 	fn func(*CPU),
 ) {
 	var (
-		d1 data.Byte = 1
-		d0 data.Byte = 0
+		d1 uint8 = 1
+		d0 uint8 = 0
 	)
 
 	runVal := fmt.Sprintf("%s decrements by one", funcName)
@@ -152,16 +150,16 @@ func (s *mosSuite) testDecrement(
 
 func (s *mosSuite) TestDex() {
 	s.testDecrement("DEX",
-		func(c *CPU, b data.Byte) { c.X = b },
-		func(c *CPU) data.Byte { return c.X },
+		func(c *CPU, b uint8) { c.X = b },
+		func(c *CPU) uint8 { return c.X },
 		Dex,
 	)
 }
 
 func (s *mosSuite) TestDey() {
 	s.testDecrement("DEY",
-		func(c *CPU, b data.Byte) { c.Y = b },
-		func(c *CPU) data.Byte { return c.Y },
+		func(c *CPU, b uint8) { c.Y = b },
+		func(c *CPU) uint8 { return c.Y },
 		Dey,
 	)
 }
@@ -171,34 +169,34 @@ func (s *mosSuite) TestDey() {
 func (s *mosSuite) TestDec() {
 	s.cpu.AddrMode = amAcc
 	s.testDecrement("DEC (accumulator)",
-		func(c *CPU, b data.Byte) { c.A = b; c.EffVal = b },
-		func(c *CPU) data.Byte { return c.A },
+		func(c *CPU, b uint8) { c.A = b; c.EffVal = b },
+		func(c *CPU) uint8 { return c.A },
 		Dec,
 	)
 
 	var (
-		addr data.DByte = 1
+		addr uint16 = 1
 	)
 
 	s.cpu.AddrMode = amAbs
 	s.testDecrement("DEC (memory)",
-		func(c *CPU, b data.Byte) { c.Set(addr, b); c.EffAddr = addr; c.EffVal = b },
-		func(c *CPU) data.Byte { return c.Get(addr) },
+		func(c *CPU, b uint8) { c.Set(addr, b); c.EffAddr = addr; c.EffVal = b },
+		func(c *CPU) uint8 { return c.Get(addr) },
 		Dec,
 	)
 }
 
 func (s *mosSuite) testIncrement(
 	funcName string,
-	setVal func(*CPU, data.Byte),
-	getVal func(*CPU) data.Byte,
+	setVal func(*CPU, uint8),
+	getVal func(*CPU) uint8,
 	fn func(*CPU),
 ) {
 	var (
-		d1   data.Byte = 1
-		d0   data.Byte = 0
-		d127 data.Byte = 127
-		d255 data.Byte = 255
+		d1   uint8 = 1
+		d0   uint8 = 0
+		d127 uint8 = 127
+		d255 uint8 = 255
 	)
 
 	runVal := fmt.Sprintf("%s increments by one", funcName)
@@ -229,16 +227,16 @@ func (s *mosSuite) testIncrement(
 
 func (s *mosSuite) TestInx() {
 	s.testIncrement("INX",
-		func(c *CPU, b data.Byte) { c.X = b },
-		func(c *CPU) data.Byte { return c.X },
+		func(c *CPU, b uint8) { c.X = b },
+		func(c *CPU) uint8 { return c.X },
 		Inx,
 	)
 }
 
 func (s *mosSuite) TestIny() {
 	s.testIncrement("INY",
-		func(c *CPU, b data.Byte) { c.Y = b },
-		func(c *CPU) data.Byte { return c.Y },
+		func(c *CPU, b uint8) { c.Y = b },
+		func(c *CPU) uint8 { return c.Y },
 		Iny,
 	)
 }
@@ -248,30 +246,30 @@ func (s *mosSuite) TestIny() {
 func (s *mosSuite) TestInc() {
 	s.cpu.AddrMode = amAcc
 	s.testIncrement("INC",
-		func(c *CPU, b data.Byte) { c.A = b; c.EffVal = b },
-		func(c *CPU) data.Byte { return c.A },
+		func(c *CPU, b uint8) { c.A = b; c.EffVal = b },
+		func(c *CPU) uint8 { return c.A },
 		Inc,
 	)
 
 	var (
-		addr data.DByte = 1
+		addr uint16 = 1
 	)
 
 	s.cpu.AddrMode = amAbs
 	s.testIncrement("INC",
-		func(c *CPU, b data.Byte) { c.Set(addr, b); c.EffAddr = addr; c.EffVal = b },
-		func(c *CPU) data.Byte { return c.Get(addr) },
+		func(c *CPU, b uint8) { c.Set(addr, b); c.EffAddr = addr; c.EffVal = b },
+		func(c *CPU) uint8 { return c.Get(addr) },
 		Inc,
 	)
 }
 
 func (s *mosSuite) TestSbc() {
 	var (
-		d10    data.Byte = 10
-		d127   data.Byte = 127
-		offset data.Byte = 20
-		one    data.Byte = 1
-		d0     data.Byte = 0
+		d10    uint8 = 10
+		d127   uint8 = 127
+		offset uint8 = 20
+		one    uint8 = 1
+		d0     uint8 = 0
 	)
 
 	s.Run("subtracting with carry set results in A = A - EV", func() {

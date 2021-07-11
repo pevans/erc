@@ -1,7 +1,6 @@
 package a2
 
 import (
-	"github.com/pevans/erc/pkg/data"
 	"github.com/pevans/erc/pkg/mos65c02"
 )
 
@@ -13,10 +12,10 @@ func (s *a2Suite) TestBoot() {
 	// We know as part of the boot procedure that we copy in rom, but we
 	// don't necessarily want to test the entirety of that; let's just
 	// test ROM doesn't look empty.
-	s.NotEqual(data.Byte(0), c.ROM.Get(0x100))
+	s.NotEqual(uint8(0), c.ROM.Get(0x100))
 
-	s.Equal(data.Byte(AppleSoft&0xFF), c.Main.Get(BootVector))
-	s.Equal(data.Byte(AppleSoft>>8), c.Main.Get(BootVector+1))
+	s.Equal(uint8(AppleSoft&0xFF), c.Main.Get(BootVector))
+	s.Equal(uint8(AppleSoft>>8), c.Main.Get(BootVector+1))
 }
 
 func (s *a2Suite) TestReset() {
@@ -29,6 +28,6 @@ func (s *a2Suite) TestReset() {
 		c.CPU.P,
 	)
 	s.Equal(c.CPU.Get16(ResetPC), c.CPU.PC)
-	s.Equal(data.Byte(0xFF), c.CPU.S)
+	s.Equal(uint8(0xFF), c.CPU.S)
 	s.True(c.disp.text)
 }

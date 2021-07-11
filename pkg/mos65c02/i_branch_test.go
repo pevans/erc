@@ -1,15 +1,14 @@
 package mos65c02
 
 import (
-	"github.com/pevans/erc/pkg/data"
 	"github.com/stretchr/testify/assert"
 )
 
 var branchCases = []struct {
 	on   bool
-	pc   data.DByte
-	addr data.DByte
-	want data.DByte
+	pc   uint16
+	addr uint16
+	want uint16
 }{
 	{false, 0x1234, 0x1234 + 0x28, 0x1234 + 2},
 	{true, 0x1234, 0x1234 + 0x28, 0x1234 + 0x28},

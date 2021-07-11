@@ -1,32 +1,30 @@
 package a2
 
-import "github.com/pevans/erc/pkg/data"
-
 type kbSwitcher struct {
-	lastKey data.Byte
-	strobe  data.Byte
-	keyDown data.Byte
+	lastKey uint8
+	strobe  uint8
+	keyDown uint8
 }
 
 const (
-	kbDataAndStrobe data.DByte = 0xC000
-	kbAnyKeyDown    data.DByte = 0xC010
+	kbDataAndStrobe uint16 = 0xC000
+	kbAnyKeyDown    uint16 = 0xC010
 )
 
-func kbReadSwitches() []data.DByte {
-	return []data.DByte{
+func kbReadSwitches() []uint16 {
+	return []uint16{
 		kbDataAndStrobe,
 		kbAnyKeyDown,
 	}
 }
 
-func kbWriteSwitches() []data.DByte {
-	return []data.DByte{
+func kbWriteSwitches() []uint16 {
+	return []uint16{
 		kbAnyKeyDown,
 	}
 }
 
-func (ks *kbSwitcher) SwitchRead(c *Computer, addr data.DByte) data.Byte {
+func (ks *kbSwitcher) SwitchRead(c *Computer, addr uint16) uint8 {
 	switch addr {
 	case kbDataAndStrobe:
 		return ks.lastKey | ks.strobe
@@ -39,7 +37,7 @@ func (ks *kbSwitcher) SwitchRead(c *Computer, addr data.DByte) data.Byte {
 	return 0
 }
 
-func (ks *kbSwitcher) SwitchWrite(c *Computer, addr data.DByte, val data.Byte) {
+func (ks *kbSwitcher) SwitchWrite(c *Computer, addr uint16, val uint8) {
 	if addr == kbAnyKeyDown {
 		ks.strobe = 0
 	}
@@ -51,15 +49,15 @@ func (ks *kbSwitcher) UseDefaults() {
 	ks.strobe = 0
 }
 
-func kbSwitchRead(c *Computer, addr data.DByte) data.Byte {
+func kbSwitchRead(c *Computer, addr uint16) uint8 {
 	return c.kb.SwitchRead(c, addr)
 }
 
-func kbSwitchWrite(c *Computer, addr data.DByte, val data.Byte) {
+func kbSwitchWrite(c *Computer, addr uint16, val uint8) {
 	c.kb.SwitchWrite(c, addr, val)
 }
 
-func (c *Computer) PressKey(key data.Byte) {
+func (c *Computer) PressKey(key uint8) {
 	// There can only be 7-bit ASCII in an Apple II, so we explicitly
 	// take off the high bit.
 	c.kb.lastKey = key & 0x7F

@@ -1,14 +1,13 @@
 package mos65c02
 
 import (
-	"github.com/pevans/erc/pkg/data"
 	"github.com/stretchr/testify/assert"
 )
 
 func (s *mosSuite) TestStackAddr() {
 	cases := []struct {
-		s    data.Byte
-		want data.DByte
+		s    uint8
+		want uint16
 	}{
 		{0, 0x100},
 		{0xFF, 0x1FF},
@@ -23,7 +22,7 @@ func (s *mosSuite) TestStackAddr() {
 
 func (s *mosSuite) TestPushStack() {
 	cases := []struct {
-		want data.Byte
+		want uint8
 	}{
 		{0xFF},
 		{0x00},
@@ -43,7 +42,7 @@ func (s *mosSuite) TestPushStack() {
 
 func (s *mosSuite) TestPopStack() {
 	cases := []struct {
-		want data.Byte
+		want uint8
 	}{
 		{0x00},
 		{0x12},

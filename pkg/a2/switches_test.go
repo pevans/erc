@@ -1,10 +1,8 @@
 package a2
 
-import "github.com/pevans/erc/pkg/data"
-
 func (s *a2Suite) TestMapSoftSwitches() {
 	var (
-		addr int
+		addr uint16
 		ok   bool
 	)
 
@@ -34,8 +32,10 @@ func (s *a2Suite) TestMapSoftSwitches() {
 	}
 
 	// Testing all cases where ROM or bank-addressable RAM could be
-	// found
-	for addr = 0xD000; addr < 0x10000; addr++ {
+	// found. The end condition is addr > 0 because we need to test
+	// through 0xFFFF; adding 1 to that number would overflow us back to
+	// zero, which will kick us out.
+	for addr = 0xD000; addr > 0; addr++ {
 		_, ok = s.comp.RMap[addr]
 		s.Equal(true, ok)
 
@@ -43,7 +43,7 @@ func (s *a2Suite) TestMapSoftSwitches() {
 		s.Equal(true, ok)
 	}
 
-	rmapModifiers := []data.DByte{
+	rmapModifiers := []uint16{
 		kbDataAndStrobe,
 		kbAnyKeyDown,
 		0xC013,
@@ -80,7 +80,7 @@ func (s *a2Suite) TestMapSoftSwitches() {
 		0xC07F,
 	}
 
-	wmapModifiers := []data.DByte{
+	wmapModifiers := []uint16{
 		0xC000,
 		0xC001,
 		0xC002,
@@ -110,12 +110,12 @@ func (s *a2Suite) TestMapSoftSwitches() {
 	// Here we simply test all of the possible RMap and WMap switches
 	// which modify something
 	for _, addr := range rmapModifiers {
-		_, ok = s.comp.RMap[addr.Int()]
+		_, ok = s.comp.RMap[addr]
 		s.Truef(ok, "addr=%x", addr)
 	}
 
 	for _, addr := range wmapModifiers {
-		_, ok = s.comp.WMap[addr.Int()]
+		_, ok = s.comp.WMap[addr]
 		s.Equal(true, ok)
 	}
 }

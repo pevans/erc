@@ -7,7 +7,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/pevans/erc/pkg/a2"
 	"github.com/pevans/erc/pkg/boot"
-	"github.com/pevans/erc/pkg/data"
 	"github.com/pevans/erc/pkg/gfx"
 	"github.com/pkg/errors"
 )
@@ -54,7 +53,7 @@ func (g *game) Update() error {
 	// TODO: call inpututil.PressedKeys()? Get a slice of keys that are
 	// pressed, and send the last one (I suppose) to s.comp.PressKey().
 	for _, k := range inpututil.PressedKeys() {
-		g.comp.PressKey(data.Byte(gfx.KeyToRune(k)))
+		g.comp.PressKey(uint8(gfx.KeyToRune(k)))
 	}
 
 	g.comp.Render()

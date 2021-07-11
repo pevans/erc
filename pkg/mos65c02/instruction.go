@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/pevans/erc/pkg/asmrec/a2rec"
-	"github.com/pevans/erc/pkg/data"
 )
 
 // An Instruction is a function that performs an operation on the CPU.
@@ -36,7 +35,7 @@ var instructions = [256]Instruction{
 
 /*
 //  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-var cycles = [256]data.Byte{
+var cycles = [256]uint8{
 	7, 6, 2, 1, 5, 3, 5, 1, 3, 2, 2, 1, 6, 4, 6, 1, // 0x
 	2, 5, 5, 1, 5, 4, 6, 1, 2, 4, 2, 1, 6, 4, 6, 1, // 1x
 	6, 6, 2, 1, 3, 3, 5, 1, 4, 2, 2, 1, 4, 4, 6, 1, // 2x
@@ -79,7 +78,7 @@ func (c *CPU) Execute() error {
 	var (
 		inst   Instruction
 		mode   AddrMode
-		opcode data.Byte
+		opcode uint8
 		rec    a2rec.Recorder
 	)
 

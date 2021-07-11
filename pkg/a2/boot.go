@@ -1,7 +1,6 @@
 package a2
 
 import (
-	"github.com/pevans/erc/pkg/data"
 	"github.com/pevans/erc/pkg/disasm"
 	"github.com/pevans/erc/pkg/mos65c02"
 	"github.com/pevans/erc/pkg/obj"
@@ -43,8 +42,8 @@ func (c *Computer) Boot(disFile string) error {
 	}
 
 	// Set the initial reset vector to point to the AppleSoft BASIC system.
-	c.Main.Set(BootVector, data.Byte(AppleSoft&0xFF))
-	c.Main.Set(BootVector+1, data.Byte(AppleSoft>>8))
+	c.Main.Set(BootVector, uint8(AppleSoft&0xFF))
+	c.Main.Set(BootVector+1, uint8(AppleSoft>>8))
 
 	// Set up all the soft switches we'll need
 	c.MapSoftSwitches()

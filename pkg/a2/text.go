@@ -1,7 +1,5 @@
 package a2
 
-import "github.com/pevans/erc/pkg/data"
-
 var textAddressRows = []int{
 	//   0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // $400
@@ -144,7 +142,7 @@ func (c *Computer) DrawText() {
 
 // textRender will draw text in the framebuffer starting from a specific memory
 // range, and ending at a specific memory range.
-func (c *Computer) textRender(start, end data.DByte) {
+func (c *Computer) textRender(start, end uint16) {
 	for addr := start; addr < end; addr++ {
 		// Try to figure out where the text should be displayed
 		row := textAddressRows[addr-start]
@@ -161,7 +159,7 @@ func (c *Computer) textRender(start, end data.DByte) {
 		y := uint(row) * c.SysFont.GlyphHeight
 
 		// Figure out what glyph to render
-		char := c.Get(addr.Int())
+		char := c.Get(int(addr))
 		glyph := c.SysFont.Glyph(int(char))
 
 		_ = c.FrameBuffer.Blit(x, y, glyph)

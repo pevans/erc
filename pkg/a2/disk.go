@@ -1,10 +1,6 @@
 package a2
 
-import (
-	"github.com/pevans/erc/pkg/data"
-)
-
-func diskReadWrite(c *Computer, addr data.DByte, val *data.Byte) {
+func diskReadWrite(c *Computer, addr uint16, val *uint8) {
 	var (
 		nib = addr & 0xF
 	)
@@ -66,17 +62,17 @@ func diskReadWrite(c *Computer, addr data.DByte, val *data.Byte) {
 	}
 }
 
-func diskRead(c *Computer, addr data.DByte) data.Byte {
+func diskRead(c *Computer, addr uint16) uint8 {
 	// With reads, we pass a byte value for the ReadWrite function to
 	// modify.
-	val := data.Byte(0)
+	val := uint8(0)
 
 	diskReadWrite(c, addr, &val)
 
 	return val
 }
 
-func diskWrite(c *Computer, addr data.DByte, val data.Byte) {
+func diskWrite(c *Computer, addr uint16, val uint8) {
 	// Compared to Read, we pass the val exactly as it comes in.
 	diskReadWrite(c, addr, &val)
 }
