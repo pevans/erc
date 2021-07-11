@@ -1,5 +1,7 @@
 package a2
 
+import "github.com/pevans/erc/pkg/data"
+
 func (s *a2Suite) TestMapSoftSwitches() {
 	var (
 		addr int
@@ -41,7 +43,9 @@ func (s *a2Suite) TestMapSoftSwitches() {
 		s.Equal(true, ok)
 	}
 
-	rmapModifiers := []int{
+	rmapModifiers := []data.DByte{
+		kbDataAndStrobe,
+		kbAnyKeyDown,
 		0xC013,
 		0xC014,
 		0xC018,
@@ -76,7 +80,7 @@ func (s *a2Suite) TestMapSoftSwitches() {
 		0xC07F,
 	}
 
-	wmapModifiers := []int{
+	wmapModifiers := []data.DByte{
 		0xC000,
 		0xC001,
 		0xC002,
@@ -105,13 +109,13 @@ func (s *a2Suite) TestMapSoftSwitches() {
 
 	// Here we simply test all of the possible RMap and WMap switches
 	// which modify something
-	for _, addr = range rmapModifiers {
-		_, ok = s.comp.RMap[addr]
+	for _, addr := range rmapModifiers {
+		_, ok = s.comp.RMap[addr.Int()]
 		s.Truef(ok, "addr=%x", addr)
 	}
 
-	for _, addr = range wmapModifiers {
-		_, ok = s.comp.WMap[addr]
+	for _, addr := range wmapModifiers {
+		_, ok = s.comp.WMap[addr.Int()]
 		s.Equal(true, ok)
 	}
 }

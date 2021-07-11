@@ -53,6 +53,7 @@ type Computer struct {
 	mem  memSwitcher
 	bank bankSwitcher
 	disp displaySwitcher
+	kb   kbSwitcher
 
 	// DisplayMode is the state that our display output is currently in.
 	// (For example, text mode, hires, lores, etc.)
@@ -141,5 +142,5 @@ func (c *Computer) Dimensions() (width, height int) {
 }
 
 func (c *Computer) NeedsRender() bool {
-    return c.reDraw
+	return c.reDraw
 }

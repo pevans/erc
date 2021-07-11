@@ -4,8 +4,11 @@ import (
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/pevans/erc/pkg/a2"
 	"github.com/pevans/erc/pkg/boot"
+	"github.com/pevans/erc/pkg/data"
+	"github.com/pevans/erc/pkg/gfx"
 	"github.com/pkg/errors"
 )
 
@@ -48,6 +51,12 @@ func (g *game) Draw(screen *ebiten.Image) {
 // logic, but it will run as often as the frames on screen will update--this
 // ends up being too infrequently for us to make use of it.
 func (g *game) Update() error {
+	// TODO: call inpututil.PressedKeys()? Get a slice of keys that are
+	// pressed, and send the last one (I suppose) to s.comp.PressKey().
+	for _, k := range inpututil.PressedKeys() {
+		g.comp.PressKey(data.Byte(gfx.KeyToRune(k)))
+	}
+
 	g.comp.Render()
 	return nil
 }

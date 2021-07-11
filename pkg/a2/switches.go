@@ -33,6 +33,14 @@ func (c *Computer) MapSoftSwitches() {
 		}
 	}
 
+	for _, a := range kbReadSwitches() {
+		c.RMap[a.Int()] = rfn(&c.kb)
+	}
+
+	for _, a := range kbWriteSwitches() {
+		c.WMap[a.Int()] = wfn(&c.kb)
+	}
+
 	for _, a := range memReadSwitches() {
 		c.RMap[a.Int()] = rfn(&c.mem)
 	}
