@@ -28,12 +28,6 @@ func NewSegment(size int) *Segment {
 	return s
 }
 
-// ByteSlice returns a slice of uint8 from a given regular set of
-// bytes
-func ByteSlice(b []byte) []uint8 {
-	return []uint8(b)
-}
-
 // Size returns the size of the given segment.
 func (s *Segment) Size() int {
 	return len(s.Mem)

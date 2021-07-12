@@ -45,24 +45,6 @@ func TestGet(t *testing.T) {
 	})
 }
 
-func TestByteSlice(t *testing.T) {
-	type test struct {
-		want []uint8
-		in   []byte
-	}
-
-	cases := map[string]test{
-		"empty":    {want: []uint8{}, in: []byte{}},
-		"nonempty": {want: []uint8{1, 2, 3}, in: []byte{1, 2, 3}},
-	}
-
-	for desc, c := range cases {
-		t.Run(desc, func(t *testing.T) {
-			assert.Equal(t, c.want, ByteSlice(c.in))
-		})
-	}
-}
-
 func TestSize(t *testing.T) {
 	s := NewSegment(100)
 	assert.Equal(t, 100, s.Size())
@@ -89,14 +71,14 @@ func TestCopySlice(t *testing.T) {
 			written:   0,
 			size:      0,
 			start:     1,
-			byteSlice: ByteSlice([]byte{1, 2}),
+			byteSlice: []uint8{1, 2},
 			errfn:     assert.Error,
 		},
 		"normal": {
 			written:   3,
 			size:      5,
 			start:     0,
-			byteSlice: ByteSlice([]byte{1, 2, 3}),
+			byteSlice: []uint8{1, 2, 3},
 			errfn:     assert.NoError,
 		},
 	}
