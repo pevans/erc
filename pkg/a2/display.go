@@ -43,41 +43,41 @@ type displaySwitcher struct {
 const (
 	// These are R7 actions, meaning they are switches you read from that return
 	// bit 7 high when the modes are on, and low if not.
-	rd80Col   = uint16(0xC01F)
-	rd80Store = uint16(0xC018)
-	rdAltChar = uint16(0xC01E)
-	rdDHires  = uint16(0xC07F)
-	rdHires   = uint16(0xC01D)
-	rdIOUDis  = uint16(0xC07E)
-	rdMixed   = uint16(0xC01B)
-	rdPage2   = uint16(0xC01C)
-	rdText    = uint16(0xC01A)
+	rd80Col   = int(0xC01F)
+	rd80Store = int(0xC018)
+	rdAltChar = int(0xC01E)
+	rdDHires  = int(0xC07F)
+	rdHires   = int(0xC01D)
+	rdIOUDis  = int(0xC07E)
+	rdMixed   = int(0xC01B)
+	rdPage2   = int(0xC01C)
+	rdText    = int(0xC01A)
 
 	// These switches turn on modes
-	on80Col   = uint16(0xC00D) // W
-	on80Store = uint16(0xC001) // W
-	onAltChar = uint16(0xC00F) // W
-	onDHires  = uint16(0xC05F) // R/W
-	onHires   = uint16(0xC057) // R/W
-	onIOUDis  = uint16(0xC07F) // W
-	onMixed   = uint16(0xC053) // R/W
-	onPage2   = uint16(0xC055) // R/W
-	onText    = uint16(0xC051) // R/W
+	on80Col   = int(0xC00D) // W
+	on80Store = int(0xC001) // W
+	onAltChar = int(0xC00F) // W
+	onDHires  = int(0xC05F) // R/W
+	onHires   = int(0xC057) // R/W
+	onIOUDis  = int(0xC07F) // W
+	onMixed   = int(0xC053) // R/W
+	onPage2   = int(0xC055) // R/W
+	onText    = int(0xC051) // R/W
 
 	// And these switches turn them off.
-	off80Col   = uint16(0xC00C) // W
-	off80Store = uint16(0xC000) // W
-	offAltChar = uint16(0xC00E) // W
-	offDHires  = uint16(0xC05E) // R/W
-	offHires   = uint16(0xC056) // R/W
-	offIOUDis  = uint16(0xC07E) // W
-	offMixed   = uint16(0xC052) // R/W
-	offPage2   = uint16(0xC054) // R/W
-	offText    = uint16(0xC050) // R/W
+	off80Col   = int(0xC00C) // W
+	off80Store = int(0xC000) // W
+	offAltChar = int(0xC00E) // W
+	offDHires  = int(0xC05E) // R/W
+	offHires   = int(0xC056) // R/W
+	offIOUDis  = int(0xC07E) // W
+	offMixed   = int(0xC052) // R/W
+	offPage2   = int(0xC054) // R/W
+	offText    = int(0xC050) // R/W
 )
 
-func displayReadSwitches() []uint16 {
-	return []uint16{
+func displayReadSwitches() []int {
+	return []int{
 		offDHires,
 		offHires,
 		offMixed,
@@ -100,8 +100,8 @@ func displayReadSwitches() []uint16 {
 	}
 }
 
-func displayWriteSwitches() []uint16 {
-	return []uint16{
+func displayWriteSwitches() []int {
+	return []int{
 		off80Col,
 		off80Store,
 		offAltChar,
@@ -138,7 +138,7 @@ func (ds *displaySwitcher) UseDefaults() {
 	ds.store80 = false
 }
 
-func (ds *displaySwitcher) onOrOffReadWrite(a uint16) bool {
+func (ds *displaySwitcher) onOrOffReadWrite(a int) bool {
 	switch a {
 	case onPage2:
 		ds.page2 = true
@@ -179,7 +179,7 @@ func (ds *displaySwitcher) onOrOffReadWrite(a uint16) bool {
 	return false
 }
 
-func (ds *displaySwitcher) SwitchRead(c *Computer, a uint16) uint8 {
+func (ds *displaySwitcher) SwitchRead(c *Computer, a int) uint8 {
 	var (
 		hi uint8 = 0x80
 		lo uint8 = 0x00
@@ -231,7 +231,7 @@ func (ds *displaySwitcher) SwitchRead(c *Computer, a uint16) uint8 {
 	return lo
 }
 
-func (ds *displaySwitcher) SwitchWrite(c *Computer, a uint16, val uint8) {
+func (ds *displaySwitcher) SwitchWrite(c *Computer, a int, val uint8) {
 	if ds.onOrOffReadWrite(a) {
 		return
 	}
@@ -256,7 +256,7 @@ func (ds *displaySwitcher) SwitchWrite(c *Computer, a uint16, val uint8) {
 	}
 }
 
-func (c *Computer) DisplaySegment(addr uint16) *data.Segment {
+func (c *Computer) DisplaySegment(addr int) *data.Segment {
 	if c.disp.store80 {
 		if addr >= 0x0400 && addr < 0x0800 && c.disp.highRes {
 			return c.Aux
@@ -268,11 +268,11 @@ func (c *Computer) DisplaySegment(addr uint16) *data.Segment {
 	return c.ReadSegment()
 }
 
-func DisplayRead(c *Computer, addr uint16) uint8 {
+func DisplayRead(c *Computer, addr int) uint8 {
 	return c.DisplaySegment(addr).Get(int(addr))
 }
 
-func DisplayWrite(c *Computer, addr uint16, val uint8) {
+func DisplayWrite(c *Computer, addr int, val uint8) {
 	// Let the drawing routines we have know that it's time to re-render
 	// the screen.
 	c.reDraw = true
@@ -295,15 +295,15 @@ func (c *Computer) Render() {
 	switch {
 	case c.disp.text:
 		var (
-			start uint16 = 0x400
-			end   uint16 = 0x800
+			start int = 0x400
+			end   int = 0x800
 		)
 
 		c.textRender(start, end)
 	case c.disp.highRes:
 		var (
-			start uint16 = 0x2000
-			end   uint16 = 0x4000
+			start int = 0x2000
+			end   int = 0x4000
 		)
 
 		c.hiresRender(start, end)

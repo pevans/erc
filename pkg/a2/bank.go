@@ -27,15 +27,15 @@ const (
 )
 
 const (
-	offAltZP = uint16(0xC008)
-	onAltZP  = uint16(0xC009)
-	rdAltZP  = uint16(0xC016)
-	rdBnk2   = uint16(0xC011)
-	rdLCRAM  = uint16(0xC012)
+	offAltZP = int(0xC008)
+	onAltZP  = int(0xC009)
+	rdAltZP  = int(0xC016)
+	rdBnk2   = int(0xC011)
+	rdLCRAM  = int(0xC012)
 )
 
-func bankReadSwitches() []uint16 {
-	return []uint16{
+func bankReadSwitches() []int {
+	return []int{
 		0xC080,
 		0xC080,
 		0xC081,
@@ -54,8 +54,8 @@ func bankReadSwitches() []uint16 {
 	}
 }
 
-func bankWriteSwitches() []uint16 {
-	return []uint16{
+func bankWriteSwitches() []int {
+	return []int{
 		offAltZP,
 		onAltZP,
 	}
@@ -64,7 +64,7 @@ func bankWriteSwitches() []uint16 {
 // SwitchRead manages reads from soft switches that mostly have to do with
 // returning the state of bank-switching as well as, paradoxically, allowing
 // callers to _modify_ said state.
-func (bs *bankSwitcher) SwitchRead(c *Computer, addr uint16) uint8 {
+func (bs *bankSwitcher) SwitchRead(c *Computer, addr int) uint8 {
 	// In this set of addresses, it's possible that we might need to return a
 	// value with bit 7 "checked" (which is to say, 1).
 	switch addr {
@@ -86,7 +86,7 @@ func (bs *bankSwitcher) SwitchRead(c *Computer, addr uint16) uint8 {
 
 // SwitchWrite manages writes on soft switches that may modify bank-switch
 // state, specifically that to do with the usage of main vs. auxilliary memory.
-func (bs *bankSwitcher) SwitchWrite(c *Computer, addr uint16, val uint8) {
+func (bs *bankSwitcher) SwitchWrite(c *Computer, addr int, val uint8) {
 	origBlock := bs.sysBlock
 
 	switch addr {
@@ -157,11 +157,11 @@ func (bs *bankSwitcher) UseDefaults() {
 	bs.sysBlock = bankMain
 }
 
-func bankSwitchRead(c *Computer, addr uint16) uint8 {
+func bankSwitchRead(c *Computer, addr int) uint8 {
 	return c.bank.SwitchRead(c, addr)
 }
 
-func bankSwitchWrite(c *Computer, addr uint16, val uint8) {
+func bankSwitchWrite(c *Computer, addr int, val uint8) {
 	c.bank.SwitchWrite(c, addr, val)
 }
 
@@ -199,7 +199,7 @@ func (c *Computer) BankSegment() *data.Segment {
 
 // BankDFRead implements logic for reads into the D0...FF pages of memory,
 // taking into account the bank-switched states that the computer currently has.
-func BankDFRead(c *Computer, addr uint16) uint8 {
+func BankDFRead(c *Computer, addr int) uint8 {
 	if c.bank.dfBlock == bank2 && addr < 0xE000 {
 		return c.BankSegment().Get(int(addr) + 0x3000)
 	}
@@ -213,7 +213,7 @@ func BankDFRead(c *Computer, addr uint16) uint8 {
 
 // BankDFWrite implements logic for writes into the D0...FF pages of memory,
 // taking into account the bank-switched states that the computer currently has.
-func BankDFWrite(c *Computer, addr uint16, val uint8) {
+func BankDFWrite(c *Computer, addr int, val uint8) {
 	if c.bank.write == bankNone {
 		return
 	}
@@ -226,10 +226,10 @@ func BankDFWrite(c *Computer, addr uint16, val uint8) {
 	c.BankSegment().Set(int(addr), val)
 }
 
-func BankZPRead(c *Computer, addr uint16) uint8 {
+func BankZPRead(c *Computer, addr int) uint8 {
 	return c.BankSegment().Get(int(addr))
 }
 
-func BankZPWrite(c *Computer, addr uint16, val uint8) {
+func BankZPWrite(c *Computer, addr int, val uint8) {
 	c.BankSegment().Set(int(addr), val)
 }

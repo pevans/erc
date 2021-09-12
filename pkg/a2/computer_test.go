@@ -13,6 +13,7 @@ func (s *a2Suite) TestNewComputer() {
 	s.NotNil(c.Aux)
 	s.NotNil(c.Main)
 	s.NotNil(c.ROM)
+	s.NotNil(c.smap)
 	s.NotNil(c.Drive1)
 	s.NotNil(c.Drive2)
 	s.Equal(c.SelectedDrive, c.Drive1)

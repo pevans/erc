@@ -2,7 +2,7 @@ package a2
 
 func (s *a2Suite) TestMapSoftSwitches() {
 	var (
-		addr uint16
+		addr int
 		ok   bool
 	)
 
@@ -35,7 +35,7 @@ func (s *a2Suite) TestMapSoftSwitches() {
 	// found. The end condition is addr > 0 because we need to test
 	// through 0xFFFF; adding 1 to that number would overflow us back to
 	// zero, which will kick us out.
-	for addr = 0xD000; addr > 0; addr++ {
+	for addr = 0xD000; addr <= 0xFFFF; addr++ {
 		_, ok = s.comp.RMap[addr]
 		s.Equal(true, ok)
 
@@ -43,7 +43,7 @@ func (s *a2Suite) TestMapSoftSwitches() {
 		s.Equal(true, ok)
 	}
 
-	rmapModifiers := []uint16{
+	rmapModifiers := []int{
 		kbDataAndStrobe,
 		kbAnyKeyDown,
 		0xC013,
@@ -80,7 +80,7 @@ func (s *a2Suite) TestMapSoftSwitches() {
 		0xC07F,
 	}
 
-	wmapModifiers := []uint16{
+	wmapModifiers := []int{
 		0xC000,
 		0xC001,
 		0xC002,

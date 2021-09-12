@@ -45,17 +45,17 @@ func (s *a2Suite) TestSwitchRead() {
 	}
 
 	rd := func(addr int) int {
-		_ = bank.SwitchRead(s.comp, uint16(addr))
+		_ = bank.SwitchRead(s.comp, int(addr))
 		return bank.read
 	}
 
 	wr := func(addr int) int {
-		_ = bank.SwitchRead(s.comp, uint16(addr))
+		_ = bank.SwitchRead(s.comp, int(addr))
 		return bank.write
 	}
 
 	df := func(addr int) int {
-		_ = bank.SwitchRead(s.comp, uint16(addr))
+		_ = bank.SwitchRead(s.comp, int(addr))
 		return bank.dfBlock
 	}
 
@@ -85,48 +85,48 @@ func (s *a2Suite) TestSwitchRead() {
 		lo7 := uint8(0x00)
 
 		bank.dfBlock = bank2
-		s.Equal(hi7, bank.SwitchRead(s.comp, uint16(0xC011)))
+		s.Equal(hi7, bank.SwitchRead(s.comp, int(0xC011)))
 		bank.dfBlock = bank1
-		s.Equal(lo7, bank.SwitchRead(s.comp, uint16(0xC011)))
+		s.Equal(lo7, bank.SwitchRead(s.comp, int(0xC011)))
 
 		bank.read = bankRAM
-		s.Equal(hi7, bank.SwitchRead(s.comp, uint16(0xC012)))
+		s.Equal(hi7, bank.SwitchRead(s.comp, int(0xC012)))
 		bank.read = bankROM
-		s.Equal(lo7, bank.SwitchRead(s.comp, uint16(0xC012)))
+		s.Equal(lo7, bank.SwitchRead(s.comp, int(0xC012)))
 
 		bank.sysBlock = bankAux
-		s.Equal(hi7, bank.SwitchRead(s.comp, uint16(0xC016)))
+		s.Equal(hi7, bank.SwitchRead(s.comp, int(0xC016)))
 		bank.sysBlock = bankMain
-		s.Equal(lo7, bank.SwitchRead(s.comp, uint16(0xC016)))
+		s.Equal(lo7, bank.SwitchRead(s.comp, int(0xC016)))
 	})
 }
 
 func (s *a2Suite) TestSwitchWrite() {
 	var (
 		bank bankSwitcher
-		d123 uint8  = 123
-		d45  uint8  = 45
-		addr uint16 = 0x11
+		d123 uint8 = 123
+		d45  uint8 = 45
+		addr int   = 0x11
 	)
 
 	s.Run("switching main to aux", func() {
 		s.comp.Main.Mem[addr] = d123
 		bank.sysBlock = bankMain
-		bank.SwitchWrite(s.comp, uint16(0xC009), d45)
+		bank.SwitchWrite(s.comp, int(0xC009), d45)
 		s.Equal(bankAux, bank.sysBlock)
 		s.Equal(d123, s.comp.Aux.Mem[addr])
 	})
 
 	s.Run("switching aux to main", func() {
 		s.comp.Aux.Mem[addr] = d45
-		bank.SwitchWrite(s.comp, uint16(0xC008), d123)
+		bank.SwitchWrite(s.comp, int(0xC008), d123)
 		s.Equal(bankMain, bank.sysBlock)
 		s.Equal(d45, s.comp.Main.Mem[addr])
 	})
 
 	s.Run("not changing the mode should not copy pages", func() {
 		s.comp.Aux.Mem[addr] = d123
-		bank.SwitchWrite(s.comp, uint16(0xC008), d123)
+		bank.SwitchWrite(s.comp, int(0xC008), d123)
 		s.Equal(bankMain, bank.sysBlock)
 		s.Equal(d45, s.comp.Main.Mem[addr])
 	})

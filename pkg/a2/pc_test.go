@@ -14,21 +14,21 @@ func (s *a2Suite) TestPCSwitcherSwitchWrite() {
 
 	s.Run("slot c3 rom writes work", func() {
 		ps.slotC3 = false
-		ps.SwitchWrite(s.comp, uint16(0xC00B), 0x0)
+		ps.SwitchWrite(s.comp, int(0xC00B), 0x0)
 		s.Equal(true, ps.slotC3)
 
-		ps.SwitchWrite(s.comp, uint16(0xC00A), 0x0)
+		ps.SwitchWrite(s.comp, int(0xC00A), 0x0)
 		s.Equal(false, ps.slotC3)
 	})
 
 	s.Run("slot cx rom writes work", func() {
 		ps.slotCX = false
 		ps.slotC3 = false
-		ps.SwitchWrite(s.comp, uint16(0xC006), 0x0)
+		ps.SwitchWrite(s.comp, int(0xC006), 0x0)
 		s.Equal(true, ps.slotCX)
 		s.Equal(true, ps.slotC3)
 
-		ps.SwitchWrite(s.comp, uint16(0xC007), 0x0)
+		ps.SwitchWrite(s.comp, int(0xC007), 0x0)
 		s.Equal(false, ps.slotCX)
 		s.Equal(false, ps.slotC3)
 	})
@@ -43,27 +43,27 @@ func (s *a2Suite) TestPCSwitcherSwitchRead() {
 
 	s.Run("read of slotc3 returns hi", func() {
 		ps.slotC3 = true
-		s.Equal(hi, ps.SwitchRead(s.comp, uint16(0xC017)))
+		s.Equal(hi, ps.SwitchRead(s.comp, int(0xC017)))
 	})
 
 	s.Run("read of slot cx returns lo", func() {
 		ps.slotCX = true
-		s.Equal(lo, ps.SwitchRead(s.comp, uint16(0xC016)))
+		s.Equal(lo, ps.SwitchRead(s.comp, int(0xC016)))
 	})
 }
 
 func (s *a2Suite) TestPCRead() {
 	var (
 		c801   = 0xC801
-		uc801  = uint16(c801)
+		uc801  = int(c801)
 		prc801 = pcPROMAddr(c801)
 		irc801 = pcIROMAddr(c801)
 		c301   = 0xC301
-		uc301  = uint16(c301)
+		uc301  = int(c301)
 		prc301 = pcPROMAddr(c301)
 		irc301 = pcIROMAddr(c301)
 		c401   = 0xC401
-		uc401  = uint16(c401)
+		uc401  = int(c401)
 		prc401 = pcPROMAddr(c401)
 		irc401 = pcIROMAddr(c401)
 	)

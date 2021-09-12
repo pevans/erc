@@ -116,7 +116,7 @@ func Phase(addr uint16) int {
 
 // SwitchPhase will figure out what phase we should be moving to based on a
 // given address.
-func (d *Drive) SwitchPhase(addr uint16) {
+func (d *Drive) SwitchPhase(addr int) {
 	phase := -1
 
 	switch addr & 0xf {

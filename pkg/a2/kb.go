@@ -7,24 +7,24 @@ type kbSwitcher struct {
 }
 
 const (
-	kbDataAndStrobe uint16 = 0xC000
-	kbAnyKeyDown    uint16 = 0xC010
+	kbDataAndStrobe int = 0xC000
+	kbAnyKeyDown    int = 0xC010
 )
 
-func kbReadSwitches() []uint16 {
-	return []uint16{
+func kbReadSwitches() []int {
+	return []int{
 		kbDataAndStrobe,
 		kbAnyKeyDown,
 	}
 }
 
-func kbWriteSwitches() []uint16 {
-	return []uint16{
+func kbWriteSwitches() []int {
+	return []int{
 		kbAnyKeyDown,
 	}
 }
 
-func (ks *kbSwitcher) SwitchRead(c *Computer, addr uint16) uint8 {
+func (ks *kbSwitcher) SwitchRead(c *Computer, addr int) uint8 {
 	switch addr {
 	case kbDataAndStrobe:
 		return ks.lastKey | ks.strobe
@@ -37,7 +37,7 @@ func (ks *kbSwitcher) SwitchRead(c *Computer, addr uint16) uint8 {
 	return 0
 }
 
-func (ks *kbSwitcher) SwitchWrite(c *Computer, addr uint16, val uint8) {
+func (ks *kbSwitcher) SwitchWrite(c *Computer, addr int, val uint8) {
 	if addr == kbAnyKeyDown {
 		ks.strobe = 0
 	}
@@ -49,11 +49,11 @@ func (ks *kbSwitcher) UseDefaults() {
 	ks.strobe = 0
 }
 
-func kbSwitchRead(c *Computer, addr uint16) uint8 {
+func kbSwitchRead(c *Computer, addr int) uint8 {
 	return c.kb.SwitchRead(c, addr)
 }
 
-func kbSwitchWrite(c *Computer, addr uint16, val uint8) {
+func kbSwitchWrite(c *Computer, addr int, val uint8) {
 	c.kb.SwitchWrite(c, addr, val)
 }
 

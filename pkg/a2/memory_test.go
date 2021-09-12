@@ -10,10 +10,10 @@ func (s *a2Suite) TestMemSwitcherUseDefaults() {
 
 func (s *a2Suite) TestMemSwitcherSwitchRead() {
 	var (
-		c013 uint16 = 0xC013
-		c014 uint16 = 0xC014
-		hi   uint8  = 0x80
-		lo   uint8  = 0x00
+		c013 int   = 0xC013
+		c014 int   = 0xC014
+		hi   uint8 = 0x80
+		lo   uint8 = 0x00
 		ms   memSwitcher
 	)
 
@@ -36,10 +36,10 @@ func (s *a2Suite) TestMemSwitcherSwitchRead() {
 
 func (s *a2Suite) TestMemSwitcherSwitchWrite() {
 	var (
-		c002 uint16 = 0xC002
-		c003 uint16 = 0xC003
-		c004 uint16 = 0xC004
-		c005 uint16 = 0xC005
+		c002 int = 0xC002
+		c003 int = 0xC003
+		c004 int = 0xC004
+		c005 int = 0xC005
 		ms   memSwitcher
 	)
 
@@ -66,7 +66,7 @@ func (s *a2Suite) TestMemSwitcherSwitchWrite() {
 
 func (s *a2Suite) TestComputerGet() {
 	idx := 0x1
-	uidx := uint16(idx)
+	uidx := int(idx)
 	val := uint8(0x12)
 
 	// test a normal get
@@ -77,7 +77,7 @@ func (s *a2Suite) TestComputerGet() {
 
 	// test a get from rmap
 	s.comp.Main.Mem[idx] = uint8(0)
-	s.comp.RMap[uidx] = func(c *Computer, addr uint16) uint8 {
+	s.comp.RMap[uidx] = func(c *Computer, addr int) uint8 {
 		return val
 	}
 	s.Equal(val, s.comp.Get(idx))
@@ -91,7 +91,7 @@ func (s *a2Suite) TestComputerGet() {
 
 func (s *a2Suite) TestComputerSet() {
 	idx := 0x1
-	uidx := uint16(idx)
+	uidx := int(idx)
 	val := uint8(0x12)
 
 	// test a normal set
@@ -102,7 +102,7 @@ func (s *a2Suite) TestComputerSet() {
 
 	// test a set from wmap
 	var target uint8
-	s.comp.WMap[uidx] = func(c *Computer, addr uint16, val uint8) {
+	s.comp.WMap[uidx] = func(c *Computer, addr int, val uint8) {
 		target = val
 	}
 	s.comp.Set(idx, val)

@@ -15,23 +15,23 @@ const (
 )
 
 const (
-	offMemReadAux  = uint16(0xC002)
-	offMemWriteAux = uint16(0xC004)
-	onMemReadAux   = uint16(0xC003)
-	onMemWriteAux  = uint16(0xC005)
-	rdMemReadAux   = uint16(0xC013)
-	rdMemWriteAux  = uint16(0xC014)
+	offMemReadAux  = int(0xC002)
+	offMemWriteAux = int(0xC004)
+	onMemReadAux   = int(0xC003)
+	onMemWriteAux  = int(0xC005)
+	rdMemReadAux   = int(0xC013)
+	rdMemWriteAux  = int(0xC014)
 )
 
-func memReadSwitches() []uint16 {
-	return []uint16{
+func memReadSwitches() []int {
+	return []int{
 		rdMemReadAux,
 		rdMemWriteAux,
 	}
 }
 
-func memWriteSwitches() []uint16 {
-	return []uint16{
+func memWriteSwitches() []int {
+	return []int{
 		offMemReadAux,
 		offMemWriteAux,
 		onMemReadAux,
@@ -44,7 +44,7 @@ func (ms *memSwitcher) UseDefaults() {
 	ms.write = memMain
 }
 
-func (ms *memSwitcher) SwitchRead(c *Computer, addr uint16) uint8 {
+func (ms *memSwitcher) SwitchRead(c *Computer, addr int) uint8 {
 	var (
 		hi uint8 = 0x80
 		lo uint8 = 0x00
@@ -65,7 +65,7 @@ func (ms *memSwitcher) SwitchRead(c *Computer, addr uint16) uint8 {
 	return lo
 }
 
-func (ms *memSwitcher) SwitchWrite(c *Computer, addr uint16, val uint8) {
+func (ms *memSwitcher) SwitchWrite(c *Computer, addr int, val uint8) {
 	switch addr {
 	case onMemReadAux:
 		ms.read = memAux
@@ -81,7 +81,7 @@ func (ms *memSwitcher) SwitchWrite(c *Computer, addr uint16, val uint8) {
 // Get will return the byte at addr, or will execute a read switch if
 // one is present at the given address.
 func (c *Computer) Get(addr int) uint8 {
-	uaddr := uint16(addr)
+	uaddr := int(addr)
 	if fn, ok := c.RMap[uaddr]; ok {
 		return fn(c, uaddr)
 	}
@@ -92,7 +92,7 @@ func (c *Computer) Get(addr int) uint8 {
 // Set will set the byte at addr to val, or will execute a write switch
 // if one is present at the given address.
 func (c *Computer) Set(addr int, val uint8) {
-	uaddr := uint16(addr)
+	uaddr := int(addr)
 	if fn, ok := c.WMap[uaddr]; ok {
 		fn(c, uaddr, val)
 		return
@@ -105,9 +105,8 @@ func (c *Computer) Set(addr int, val uint8) {
 // and write map functions to those given.
 func (c *Computer) MapRange(from, to int, rfn ReadMapFn, wfn WriteMapFn) {
 	for addr := from; addr < to; addr++ {
-		uaddr := uint16(addr)
-		c.RMap[uaddr] = rfn
-		c.WMap[uaddr] = wfn
+		c.RMap[addr] = rfn
+		c.WMap[addr] = wfn
 	}
 }
 

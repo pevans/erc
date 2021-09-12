@@ -1,6 +1,6 @@
 package a2
 
-func diskReadWrite(c *Computer, addr uint16, val *uint8) {
+func diskReadWrite(c *Computer, addr int, val *uint8) {
 	var (
 		nib = addr & 0xF
 	)
@@ -62,7 +62,7 @@ func diskReadWrite(c *Computer, addr uint16, val *uint8) {
 	}
 }
 
-func diskRead(c *Computer, addr uint16) uint8 {
+func diskRead(c *Computer, addr int) uint8 {
 	// With reads, we pass a byte value for the ReadWrite function to
 	// modify.
 	val := uint8(0)
@@ -72,7 +72,7 @@ func diskRead(c *Computer, addr uint16) uint8 {
 	return val
 }
 
-func diskWrite(c *Computer, addr uint16, val uint8) {
+func diskWrite(c *Computer, addr int, val uint8) {
 	// Compared to Read, we pass the val exactly as it comes in.
 	diskReadWrite(c, addr, &val)
 }

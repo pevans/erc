@@ -3,8 +3,8 @@ package a2
 // A Switcher is a type which provides a way to handle soft switch reads and
 // writes in a relatively generic way.
 type Switcher interface {
-	SwitchRead(c *Computer, addr uint16) uint8
-	SwitchWrite(c *Computer, addr uint16, val uint8)
+	SwitchRead(c *Computer, addr int) uint8
+	SwitchWrite(c *Computer, addr int, val uint8)
 }
 
 // MapSoftSwitches will add several mappings for the soft switches that our
@@ -19,14 +19,14 @@ func (c *Computer) MapSoftSwitches() {
 	c.MapRange(0xC100, 0xD000, PCRead, PCWrite)
 	c.MapRange(0xD000, 0x10000, BankDFRead, BankDFWrite)
 
-	rfn := func(s Switcher) func(*Computer, uint16) uint8 {
-		return func(c *Computer, addr uint16) uint8 {
+	rfn := func(s Switcher) func(*Computer, int) uint8 {
+		return func(c *Computer, addr int) uint8 {
 			return s.SwitchRead(c, addr)
 		}
 	}
 
-	wfn := func(s Switcher) func(*Computer, uint16, uint8) {
-		return func(c *Computer, addr uint16, val uint8) {
+	wfn := func(s Switcher) func(*Computer, int, uint8) {
+		return func(c *Computer, addr int, val uint8) {
 			s.SwitchWrite(c, addr, val)
 		}
 	}
@@ -60,7 +60,7 @@ func (c *Computer) MapSoftSwitches() {
 	}
 
 	for _, a := range pcWriteSwitches() {
-		c.WMap[a] = func(c *Computer, a uint16, val uint8) {
+		c.WMap[a] = func(c *Computer, a int, val uint8) {
 			c.pc.SwitchWrite(c, a, val)
 		}
 	}

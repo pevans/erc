@@ -24,7 +24,7 @@ func (s *a2Suite) TestDisplaySwitcherSwitchRead() {
 	)
 
 	s.Run("high on bit 7", func() {
-		test := func(b *bool, a uint16) {
+		test := func(b *bool, a int) {
 			*b = true
 			s.Equal(hi, ds.SwitchRead(s.comp, a))
 			*b = false
@@ -43,7 +43,7 @@ func (s *a2Suite) TestDisplaySwitcherSwitchRead() {
 	})
 
 	s.Run("reads turn stuff on", func() {
-		onfn := func(b *bool, a uint16) {
+		onfn := func(b *bool, a int) {
 			*b = false
 			ds.SwitchRead(s.comp, a)
 			s.True(*b)
@@ -67,7 +67,7 @@ func (s *a2Suite) TestDisplaySwitcherSwitchRead() {
 	})
 
 	s.Run("reads turn stuff off", func() {
-		offfn := func(b *bool, a uint16) {
+		offfn := func(b *bool, a int) {
 			*b = true
 			ds.SwitchRead(s.comp, a)
 			s.False(*b)
@@ -93,7 +93,7 @@ func (s *a2Suite) TestDisplaySwitcherSwitchWrite() {
 	var ds displaySwitcher
 
 	s.Run("writes turn stuff on", func() {
-		on := func(b *bool, a uint16) {
+		on := func(b *bool, a int) {
 			*b = false
 			ds.SwitchWrite(s.comp, a, 0x0)
 			s.True(*b)
@@ -121,7 +121,7 @@ func (s *a2Suite) TestDisplaySwitcherSwitchWrite() {
 	})
 
 	s.Run("writes turn stuff off", func() {
-		off := func(b *bool, a uint16) {
+		off := func(b *bool, a int) {
 			*b = true
 			ds.SwitchWrite(s.comp, a, 0x0)
 			s.False(*b)
@@ -152,11 +152,11 @@ func (s *a2Suite) TestDisplaySwitcherSwitchWrite() {
 func (s *a2Suite) TestDisplaySegment() {
 	var (
 		p1addr  = 0x401
-		up1addr = uint16(p1addr)
+		up1addr = int(p1addr)
 		p2addr  = 0x2001
-		up2addr = uint16(p2addr)
+		up2addr = int(p2addr)
 		other   = 0x301
-		uother  = uint16(other)
+		uother  = int(other)
 		val     = uint8(0x12)
 	)
 
@@ -201,7 +201,7 @@ func (s *a2Suite) TestDisplaySegment() {
 func (s *a2Suite) TestDisplayRead() {
 	var (
 		addr  = 0x1111
-		uaddr = uint16(addr)
+		uaddr = int(addr)
 		val   = uint8(0x22)
 	)
 
@@ -212,7 +212,7 @@ func (s *a2Suite) TestDisplayRead() {
 func (s *a2Suite) TestDisplayWrite() {
 	var (
 		addr  = 0x1112
-		uaddr = uint16(addr)
+		uaddr = int(addr)
 		val   = uint8(0x23)
 	)
 

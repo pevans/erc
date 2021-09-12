@@ -8,25 +8,25 @@ type pcSwitcher struct {
 }
 
 const (
-	offExpROM    = uint16(0xCFFF)
-	offSlotC3ROM = uint16(0xC00A)
-	offSlotCXROM = uint16(0xC007)
-	onSlotC3ROM  = uint16(0xC00B)
-	onSlotCXROM  = uint16(0xC006)
-	rdSlotC3ROM  = uint16(0xC017)
-	rdSlotCXROM  = uint16(0xC015)
+	offExpROM    = int(0xCFFF)
+	offSlotC3ROM = int(0xC00A)
+	offSlotCXROM = int(0xC007)
+	onSlotC3ROM  = int(0xC00B)
+	onSlotCXROM  = int(0xC006)
+	rdSlotC3ROM  = int(0xC017)
+	rdSlotCXROM  = int(0xC015)
 )
 
-func pcReadSwitches() []uint16 {
-	return []uint16{
+func pcReadSwitches() []int {
+	return []int{
 		offExpROM,
 		rdSlotC3ROM,
 		rdSlotCXROM,
 	}
 }
 
-func pcWriteSwitches() []uint16 {
-	return []uint16{
+func pcWriteSwitches() []int {
+	return []int{
 		offSlotC3ROM,
 		offSlotCXROM,
 		onSlotC3ROM,
@@ -44,7 +44,7 @@ func (ps *pcSwitcher) UseDefaults() {
 
 // SwitchRead will return hi on bit 7 if slot c3 or cx is set to use peripheral
 // rom; otherwise lo.
-func (ps *pcSwitcher) SwitchRead(c *Computer, addr uint16) uint8 {
+func (ps *pcSwitcher) SwitchRead(c *Computer, addr int) uint8 {
 	var (
 		hi      uint8 = 0x80
 		lo      uint8 = 0x00
@@ -109,7 +109,7 @@ func (ps *pcSwitcher) slotFromAddr(addr int) int {
 
 // SwitchWrite will handle soft switch writes that, in our case, will enable or
 // disable slot rom access.
-func (ps *pcSwitcher) SwitchWrite(c *Computer, addr uint16, val uint8) {
+func (ps *pcSwitcher) SwitchWrite(c *Computer, addr int, val uint8) {
 	switch addr {
 	case onSlotC3ROM:
 		ps.slotC3 = true
@@ -139,11 +139,11 @@ func pcPROMAddr(addr int) int {
 // PCRead returns a byte from ROM within the peripheral card address space
 // ($C1..$CF). Based on the contents of the computer's PC Switcher, this can be
 // from internal ROM or from a dedicated peripheral ROM block.
-func PCRead(c *Computer, addr uint16) uint8 {
+func PCRead(c *Computer, addr int) uint8 {
 	var (
 		addrInt   = int(addr)
-		intROM    = uint16(pcIROMAddr(addrInt))
-		periphROM = uint16(pcPROMAddr(addrInt))
+		intROM    = int(pcIROMAddr(addrInt))
+		periphROM = int(pcPROMAddr(addrInt))
 	)
 
 	switch {
@@ -159,6 +159,6 @@ func PCRead(c *Computer, addr uint16) uint8 {
 
 // PCWrite is a stub which does nothing, since it handles writes into an
 // explicitly read-only memory space.
-func PCWrite(c *Computer, addr uint16, val uint8) {
+func PCWrite(c *Computer, addr int, val uint8) {
 	// Do nothing
 }

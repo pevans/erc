@@ -142,7 +142,7 @@ func (c *Computer) DrawText() {
 
 // textRender will draw text in the framebuffer starting from a specific memory
 // range, and ending at a specific memory range.
-func (c *Computer) textRender(start, end uint16) {
+func (c *Computer) textRender(start, end int) {
 	for addr := start; addr < end; addr++ {
 		// Try to figure out where the text should be displayed
 		row := textAddressRows[addr-start]

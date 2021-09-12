@@ -34,7 +34,7 @@ var hiresPalette1 = []color.RGBA{
 	hiresWhite,
 }
 
-func (c *Computer) hiresRender(start, end uint16) {
+func (c *Computer) hiresRender(start, end int) {
 	dots := make([]hiresDot, 280)
 
 	for y := uint(0); y < 192; y++ {
