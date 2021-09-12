@@ -7,7 +7,8 @@ import (
 
 // A Segment is a block of memory divided into uint8s.
 type Segment struct {
-	Mem []uint8
+	Mem  []uint8
+	smap *SoftMap
 }
 
 // A Getter can return a byte from a given address.
@@ -26,6 +27,10 @@ func NewSegment(size int) *Segment {
 	s.Mem = make([]uint8, size)
 
 	return s
+}
+
+func (s *Segment) UseSoftMap(sm *SoftMap) {
+	s.smap = sm
 }
 
 // Size returns the size of the given segment.
@@ -50,6 +55,13 @@ func (s *Segment) CopySlice(start int, bytes []uint8) (int, error) {
 // Set will set the value at a given cell. If a write function is
 // registered for this cell, then we will call that and exit.
 func (s *Segment) Set(addr int, val uint8) {
+	if s.smap != nil {
+		ok := s.smap.Write(addr, val)
+		if ok {
+			return
+		}
+	}
+
 	s.Mem[addr] = val
 }
 
@@ -57,6 +69,13 @@ func (s *Segment) Set(addr int, val uint8) {
 // registered, we will return whatever that is; otherwise we will return
 // the value directly.
 func (s *Segment) Get(addr int) uint8 {
+	if s.smap != nil {
+		val, ok := s.smap.Read(addr)
+		if ok {
+			return val
+		}
+	}
+
 	return s.Mem[addr]
 }
 
