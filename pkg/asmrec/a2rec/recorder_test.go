@@ -44,9 +44,8 @@ func TestFormatOperand(t *testing.T) {
 
 func TestRecord(t *testing.T) {
 	var (
-		oldCounter = counter
-		w          = new(strings.Builder)
-		r          = Recorder{
+		w = new(strings.Builder)
+		r = Recorder{
 			PC:      0x12,
 			Opcode:  0x13,
 			Operand: 0x14,
@@ -67,8 +66,7 @@ func TestRecord(t *testing.T) {
 	assert.Contains(t, output, "13")   // opcode
 	assert.Contains(t, output, "14")   // operand
 
-	// We should see the global (yuck) counter incremented by 1
-	assert.Equal(t, counter, oldCounter+1)
+	assert.Equal(t, r.counter, 1)
 
 	r.Operand = 0x114
 	w.Reset()

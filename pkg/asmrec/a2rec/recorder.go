@@ -23,9 +23,9 @@ type Recorder struct {
 	P       uint8
 	EffAddr uint16
 	EffVal  uint8
-}
 
-var counter = 0
+	counter int
+}
 
 // FormatOperand will produce a formatted string that represents an
 // operand to an instruction.
@@ -103,13 +103,13 @@ func (r *Recorder) Record(w io.Writer) error {
 		str += fmt.Sprintf(
 			" ; A=%02X X=%02X Y=%02X P=%02X S=%02X (%s) EA=%04X EV=%02X +%d",
 			r.A, r.X, r.Y, r.P, r.S, string(pstatus),
-			r.EffAddr, r.EffVal, counter,
+			r.EffAddr, r.EffVal, r.counter,
 		)
 	}
 
 	str += "\n"
 
-	counter++
+	r.counter++
 
 	_, err := fmt.Fprint(w, str)
 	return err

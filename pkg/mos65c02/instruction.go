@@ -1,11 +1,13 @@
 package mos65c02
 
 import (
+	"fmt"
 	"reflect"
 	"runtime"
 	"strings"
 
 	"github.com/pevans/erc/pkg/asmrec/a2rec"
+	"github.com/pevans/erc/pkg/trace"
 )
 
 // An Instruction is a function that performs an operation on the CPU.
@@ -76,19 +78,20 @@ func (i Instruction) String() string {
 // 0xFFFF address, it would simply overflow back to the zero page.
 func (c *CPU) Execute() error {
 	var (
-		inst   Instruction
-		mode   AddrMode
-		opcode uint8
-		rec    a2rec.Recorder
+		inst Instruction
+		mode AddrMode
+		rec  a2rec.Recorder
 	)
 
-	opcode = c.Get(c.PC)
-	mode = addrModes[opcode]
-	inst = instructions[opcode]
+	c.counter++
+
+	c.Opcode = c.Get(c.PC)
+	mode = addrModes[c.Opcode]
+	inst = instructions[c.Opcode]
 
 	rec.PC = c.PC
 	rec.PrintState = true
-	rec.Opcode = opcode
+	rec.Opcode = c.Opcode
 	rec.A = c.A
 	rec.X = c.X
 	rec.Y = c.Y
@@ -109,15 +112,10 @@ func (c *CPU) Execute() error {
 	rec.EffAddr = c.EffAddr
 	rec.EffVal = c.EffVal
 
+	saveTrace(c)
+
 	// Now execute the instruction
 	inst(c)
-
-	// Record the operation, but let the rest of the func complete even
-	// if this errors
-	var err error
-	if c.RecWriter != nil {
-		err = rec.Record(c.RecWriter)
-	}
 
 	srec := rec
 	srec.PrintState = false
@@ -129,11 +127,83 @@ func (c *CPU) Execute() error {
 	// Adjust the program counter to beyond the expected instruction
 	// sequence (1 byte for the opcode, + N bytes for the operand, based
 	// on address mode).
-	c.PC += offsets[opcode]
+	c.PC += offsets[c.Opcode]
 
 	// We always apply BREAK and UNUSED after each execution, mostly in
 	// observance for how other emulators have handled this step.
 	c.P |= UNUSED | BREAK
 
-	return err
+	return nil
+}
+
+func saveTrace(c *CPU) {
+	if c.RecWriter == nil {
+		return
+	}
+
+	t := &trace.Trace{
+		Location:    fmt.Sprintf(`%04X`, c.PC),
+		Counter:     c.counter,
+		Instruction: instructions[c.Opcode].String(),
+		Operand:     formatOperand(c.AddrMode, c.Operand, c.PC),
+
+		State: fmt.Sprintf(
+			`A:%02X X:%02X Y:%02X P:%02X S:%02X (%s) EA:%04X EV:%02X`,
+			c.A, c.X, c.Y, c.P, c.S, formatStatus(c.P), c.EffAddr, c.EffVal,
+		),
+	}
+
+	t.Write(c.RecWriter)
+}
+
+func formatOperand(mode int, operand uint16, pc uint16) string {
+	switch mode {
+	case amAcc, amImp, amBy2, amBy3:
+		return ""
+	case amAbs:
+		return fmt.Sprintf("$%04X", operand)
+	case amAbx:
+		return fmt.Sprintf("$%04X,X", operand)
+	case amAby:
+		return fmt.Sprintf("$%04X,Y", operand)
+	case amIdx:
+		return fmt.Sprintf("($%02X,X)", operand)
+	case amIdy:
+		return fmt.Sprintf("($%02X),Y", operand)
+	case amInd:
+		return fmt.Sprintf("($%04X)", operand)
+	case amImm:
+		return fmt.Sprintf("#$%02X", operand)
+	case amRel:
+		newAddr := pc + operand + 2
+
+		// It's signed, so the effect of the operand should be negative w/r/t
+		// two's complement.
+		if operand >= 0x80 {
+			newAddr -= 256
+		}
+
+		return fmt.Sprintf("$%04X", newAddr)
+	case amZpg:
+		return fmt.Sprintf("$%02X", operand)
+	case amZpx:
+		return fmt.Sprintf("$%02X,X", operand)
+	case amZpy:
+		return fmt.Sprintf("$%02X,Y", operand)
+	}
+
+	return ""
+}
+
+func formatStatus(p uint8) string {
+	pstatus := []rune("NVUBDIZC")
+
+	for i := 7; i >= 0; i-- {
+		bit := (p >> uint(i)) & 1
+		if bit == 0 {
+			pstatus[7-i] = '.'
+		}
+	}
+
+	return string(pstatus)
 }

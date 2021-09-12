@@ -70,4 +70,7 @@ type CPU struct {
 	// value is treated as an offset from $100. S will begin at $FF and
 	// decrease as the stack depth increases.
 	S uint8
+
+	// how many instructions we've executed
+	counter int
 }
