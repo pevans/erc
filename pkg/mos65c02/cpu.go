@@ -12,6 +12,8 @@ type CPU struct {
 	RecWriter io.Writer
 	SMap      *disasm.SourceMap
 
+	Memory *data.Segment
+
 	// RMem and WMem are the segments from which we will read or write
 	// whenever it is necessary.
 	RMem data.Getter
@@ -73,4 +75,8 @@ type CPU struct {
 
 	// how many instructions we've executed
 	counter int
+}
+
+func (c *CPU) UseSegment(seg *data.Segment) {
+	c.Memory = seg
 }

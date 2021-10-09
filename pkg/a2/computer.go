@@ -107,6 +107,10 @@ func NewComputer() *Computer {
 	comp.ROM = data.NewSegment(RomMemorySize)
 	comp.smap = data.NewSoftMap()
 
+	comp.Aux.UseSoftMap(comp.smap)
+	comp.Main.UseSoftMap(comp.smap)
+	comp.ROM.UseSoftMap(comp.smap)
+
 	comp.Drive1 = NewDrive()
 	comp.Drive2 = NewDrive()
 	comp.SelectedDrive = comp.Drive1
