@@ -1,40 +1,34 @@
 package a2
 
-import (
-	"testing"
+func (s *a2Suite) TestKBDefaults() {
+	var zero uint8 = 0
 
-	"github.com/stretchr/testify/assert"
-)
-
-func TestKBDefaults(t *testing.T) {
-	var ks kbSwitcher
-
-	ks.UseDefaults()
-	assert.Zero(t, ks.lastKey)
-	assert.Zero(t, ks.strobe)
-	assert.Zero(t, ks.keyDown)
+	s.comp.kb.UseDefaults(s.comp)
+	s.Equal(zero, s.comp.state.Uint8(kbLastKey))
+	s.Equal(zero, s.comp.state.Uint8(kbKeyDown))
+	s.Equal(zero, s.comp.state.Uint8(kbStrobe))
 }
 
 func (s *a2Suite) TestClearKeys() {
-	s.comp.kb.keyDown = 128
+	s.comp.state.SetUint8(kbKeyDown, 128)
 	s.comp.ClearKeys()
-	s.Zero(s.comp.kb.keyDown)
+	s.Zero(s.comp.state.Uint8(kbKeyDown))
 }
 
 func (s *a2Suite) TestPressKey() {
 	s.Run("clears the high bit and saves the low bits", func() {
 		s.comp.PressKey(0xff)
-		s.Equal(uint8(0x7f), s.comp.kb.lastKey)
+		s.Equal(uint8(0x7f), s.comp.state.Uint8(kbLastKey))
 	})
 
 	s.Run("sets the strobe", func() {
 		s.comp.PressKey(0)
-		s.Equal(uint8(0x80), s.comp.kb.strobe)
+		s.Equal(uint8(0x80), s.comp.state.Uint8(kbStrobe))
 	})
 
 	s.Run("sets key down", func() {
 		s.comp.PressKey(0)
-		s.Equal(uint8(0x80), s.comp.kb.keyDown)
+		s.Equal(uint8(0x80), s.comp.state.Uint8(kbKeyDown))
 	})
 }
 
@@ -51,9 +45,9 @@ func (s *a2Suite) TestKBSwitchRead() {
 	})
 
 	s.Run("any key down", func() {
-		s.comp.kb.strobe = hi
+		s.comp.state.SetUint8(kbStrobe, hi)
 		s.Equal(hi, s.comp.kb.SwitchRead(s.comp, kbAnyKeyDown))
-		s.Zero(s.comp.kb.strobe)
+		s.Zero(s.comp.state.Uint8(kbStrobe))
 	})
 }
 
@@ -61,8 +55,8 @@ func (s *a2Suite) TestKBSwitchWrite() {
 	var hi uint8 = 0x80
 
 	s.Run("any key down", func() {
-		s.comp.kb.strobe = hi
+		s.comp.state.SetUint8(kbStrobe, hi)
 		s.comp.kb.SwitchWrite(s.comp, kbAnyKeyDown, 0)
-		s.Zero(s.comp.kb.strobe)
+		s.Zero(s.comp.state.Uint8(kbStrobe))
 	})
 }

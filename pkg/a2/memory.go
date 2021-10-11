@@ -4,10 +4,12 @@ import (
 	"github.com/pevans/erc/pkg/data"
 )
 
-type memSwitcher struct {
-	read  int
-	write int
-}
+type memSwitcher struct{}
+
+const (
+	memRead  = 200
+	memWrite = 201
+)
 
 const (
 	memMain = iota
@@ -39,9 +41,9 @@ func memWriteSwitches() []int {
 	}
 }
 
-func (ms *memSwitcher) UseDefaults() {
-	ms.read = memMain
-	ms.write = memMain
+func (ms *memSwitcher) UseDefaults(c *Computer) {
+	c.state.SetInt(memRead, memMain)
+	c.state.SetInt(memWrite, memMain)
 }
 
 func (ms *memSwitcher) SwitchRead(c *Computer, addr int) uint8 {
@@ -52,12 +54,12 @@ func (ms *memSwitcher) SwitchRead(c *Computer, addr int) uint8 {
 
 	switch addr {
 	case rdMemReadAux:
-		if ms.read == memAux {
+		if c.state.Int(memRead) == memAux {
 			return hi
 		}
 
 	case rdMemWriteAux:
-		if ms.write == memAux {
+		if c.state.Int(memWrite) == memAux {
 			return hi
 		}
 	}
@@ -68,13 +70,13 @@ func (ms *memSwitcher) SwitchRead(c *Computer, addr int) uint8 {
 func (ms *memSwitcher) SwitchWrite(c *Computer, addr int, val uint8) {
 	switch addr {
 	case onMemReadAux:
-		ms.read = memAux
+		c.state.SetInt(memRead, memAux)
 	case offMemReadAux:
-		ms.read = memMain
+		c.state.SetInt(memRead, memMain)
 	case onMemWriteAux:
-		ms.write = memAux
+		c.state.SetInt(memWrite, memAux)
 	case offMemWriteAux:
-		ms.write = memMain
+		c.state.SetInt(memWrite, memMain)
 	}
 }
 
@@ -113,7 +115,7 @@ func (c *Computer) MapRange(from, to int, rfn ReadMapFn, wfn WriteMapFn) {
 // ReadSegment returns the segment that should be used for general
 // reads, according to our current memory mode.
 func (c *Computer) ReadSegment() *data.Segment {
-	if c.mem.read == memAux {
+	if c.state.Int(memRead) == memAux {
 		return c.Aux
 	}
 
@@ -123,7 +125,7 @@ func (c *Computer) ReadSegment() *data.Segment {
 // WriteSegment returns the segment that should be used for general
 // writes, according to our current memory mode.
 func (c *Computer) WriteSegment() *data.Segment {
-	if c.mem.write == memAux {
+	if c.state.Int(memWrite) == memAux {
 		return c.Aux
 	}
 

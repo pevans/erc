@@ -1,10 +1,12 @@
 package a2
 
-type kbSwitcher struct {
-	lastKey uint8
-	strobe  uint8
-	keyDown uint8
-}
+type kbSwitcher struct{}
+
+const (
+	kbLastKey = 100
+	kbStrobe  = 101
+	kbKeyDown = 102
+)
 
 const (
 	kbDataAndStrobe int = 0xC000
@@ -27,10 +29,10 @@ func kbWriteSwitches() []int {
 func (ks *kbSwitcher) SwitchRead(c *Computer, addr int) uint8 {
 	switch addr {
 	case kbDataAndStrobe:
-		return ks.lastKey | ks.strobe
+		return c.state.Uint8(kbLastKey) | c.state.Uint8(kbStrobe)
 	case kbAnyKeyDown:
-		ks.strobe = 0
-		return ks.keyDown
+		c.state.SetUint8(kbStrobe, 0)
+		return c.state.Uint8(kbKeyDown)
 	}
 
 	// Nothing else can really come in here, but if something did...
@@ -39,14 +41,14 @@ func (ks *kbSwitcher) SwitchRead(c *Computer, addr int) uint8 {
 
 func (ks *kbSwitcher) SwitchWrite(c *Computer, addr int, val uint8) {
 	if addr == kbAnyKeyDown {
-		ks.strobe = 0
+		c.state.SetUint8(kbStrobe, 0)
 	}
 }
 
-func (ks *kbSwitcher) UseDefaults() {
-	ks.keyDown = 0
-	ks.lastKey = 0
-	ks.strobe = 0
+func (ks *kbSwitcher) UseDefaults(c *Computer) {
+	c.state.SetUint8(kbLastKey, 0)
+	c.state.SetUint8(kbKeyDown, 0)
+	c.state.SetUint8(kbStrobe, 0)
 }
 
 func kbSwitchRead(c *Computer, addr int) uint8 {
@@ -60,17 +62,17 @@ func kbSwitchWrite(c *Computer, addr int, val uint8) {
 func (c *Computer) PressKey(key uint8) {
 	// There can only be 7-bit ASCII in an Apple II, so we explicitly
 	// take off the high bit.
-	c.kb.lastKey = key & 0x7F
+	c.state.SetUint8(kbLastKey, key&0x7F)
 
 	// We need to set the strobe bit, which (when returned) is always
 	// with the high bit at 1.
-	c.kb.strobe = 0x80
+	c.state.SetUint8(kbStrobe, 0x80)
 
 	// This flag (again with the high bit set to 1) is set _while_ a key
 	// is pressed.
-	c.kb.keyDown = 0x80
+	c.state.SetUint8(kbKeyDown, 0x80)
 }
 
 func (c *Computer) ClearKeys() {
-	c.kb.keyDown = 0
+	c.state.SetUint8(kbKeyDown, 0)
 }

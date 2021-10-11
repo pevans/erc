@@ -45,7 +45,8 @@ type Computer struct {
 	RMap map[int]ReadMapFn
 	WMap map[int]WriteMapFn
 
-	smap *data.SoftMap
+	smap  *data.SoftMap
+	state *data.StateMap
 
 	// MemMode is a collection of bit flags which tell us what state of
 	// memory we have.
@@ -106,6 +107,8 @@ func NewComputer() *Computer {
 	comp.Main = data.NewSegment(MainMemorySize)
 	comp.ROM = data.NewSegment(RomMemorySize)
 	comp.smap = data.NewSoftMap()
+	comp.state = data.NewStateMap()
+	comp.smap.UseState(comp.state)
 
 	comp.Aux.UseSoftMap(comp.smap)
 	comp.Main.UseSoftMap(comp.smap)

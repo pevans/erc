@@ -69,8 +69,8 @@ func (c *Computer) Reset() {
 	// Set our initial memory mode
 	c.bank.UseDefaults()
 	c.disp.UseDefaults()
-	c.kb.UseDefaults()
-	c.mem.UseDefaults()
+	c.kb.UseDefaults(c)
+	c.mem.UseDefaults(c)
 	c.pc.UseDefaults()
 
 	// Jump to the reset PC address; note this must happen _after_ we
