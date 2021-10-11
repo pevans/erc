@@ -14,7 +14,7 @@ const (
 func TestSoftMapRead(t *testing.T) {
 	sm := NewSoftMap()
 	val := softTestVal
-	fn := func(x int) uint8 {
+	fn := func(x int, _ *StateMap) uint8 {
 		return val
 	}
 
@@ -33,7 +33,7 @@ func TestSoftMapWrite(t *testing.T) {
 	var val uint8
 
 	sm := NewSoftMap()
-	fn := func(x int, y uint8) {
+	fn := func(x int, y uint8, _ *StateMap) {
 		val = y
 	}
 

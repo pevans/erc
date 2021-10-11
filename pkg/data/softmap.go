@@ -2,11 +2,11 @@ package data
 
 // SoftRead is a type of function that takes an integer address and
 // returns an 8-bit value.
-type SoftRead func(int) uint8
+type SoftRead func(int, *StateMap) uint8
 
 // SoftWrite is a type of function that takes an integer address and an
 // 8-bit value and returns nothing.
-type SoftWrite func(int, uint8)
+type SoftWrite func(int, uint8, *StateMap)
 
 // A SoftMap is a set of read and write function maps, keyed by address.
 // It is intended to model soft switches in Apple IIs and similar
@@ -14,6 +14,7 @@ type SoftWrite func(int, uint8)
 type SoftMap struct {
 	reads  map[int]SoftRead
 	writes map[int]SoftWrite
+	state  *StateMap
 }
 
 // NewSoftMap returns a newly allocated softmap with valid maps for
@@ -23,6 +24,10 @@ func NewSoftMap() *SoftMap {
 	sm.reads = make(map[int]SoftRead)
 	sm.writes = make(map[int]SoftWrite)
 	return sm
+}
+
+func (sm *SoftMap) UseState(st *StateMap) {
+	sm.state = st
 }
 
 // SetRead will assign a read function to a given address in the
@@ -46,7 +51,7 @@ func (sm *SoftMap) Read(addr int) (uint8, bool) {
 		return 0, false
 	}
 
-	return fn(addr), true
+	return fn(addr, sm.state), true
 }
 
 // Write will execute a write call against the softmap; if no entry for
@@ -57,6 +62,6 @@ func (sm *SoftMap) Write(addr int, val uint8) bool {
 		return false
 	}
 
-	fn(addr, val)
+	fn(addr, val, sm.state)
 	return true
 }

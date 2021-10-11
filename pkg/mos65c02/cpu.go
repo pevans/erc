@@ -13,6 +13,7 @@ type CPU struct {
 	SMap      *disasm.SourceMap
 
 	Memory *data.Segment
+	State  *data.StateMap
 
 	// RMem and WMem are the segments from which we will read or write
 	// whenever it is necessary.
@@ -79,4 +80,8 @@ type CPU struct {
 
 func (c *CPU) UseSegment(seg *data.Segment) {
 	c.Memory = seg
+}
+
+func (c *CPU) UseStateMap(sm *data.StateMap) {
+	c.State = sm
 }
