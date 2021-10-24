@@ -1,11 +1,11 @@
 package a2
 
 func (s *a2Suite) TestUseDefaults() {
-	s.comp.bank.UseDefaults()
-	s.Equal(bankROM, s.comp.bank.read)
-	s.Equal(bankRAM, s.comp.bank.write)
-	s.Equal(bank2, s.comp.bank.dfBlock)
-	s.Equal(bankMain, s.comp.bank.sysBlock)
+	s.comp.bank.UseDefaults(s.comp)
+	s.Equal(bankROM, s.comp.state.Int(bankRead))
+	s.Equal(bankRAM, s.comp.state.Int(bankWrite))
+	s.Equal(bank2, s.comp.state.Int(bankDFBlock))
+	s.Equal(bankMain, s.comp.state.Int(bankSysBlock))
 }
 
 func (s *a2Suite) TestSwitchRead() {
@@ -46,17 +46,17 @@ func (s *a2Suite) TestSwitchRead() {
 
 	rd := func(addr int) int {
 		_ = bank.SwitchRead(s.comp, int(addr))
-		return bank.read
+		return s.comp.state.Int(bankRead)
 	}
 
 	wr := func(addr int) int {
 		_ = bank.SwitchRead(s.comp, int(addr))
-		return bank.write
+		return s.comp.state.Int(bankWrite)
 	}
 
 	df := func(addr int) int {
 		_ = bank.SwitchRead(s.comp, int(addr))
-		return bank.dfBlock
+		return s.comp.state.Int(bankDFBlock)
 	}
 
 	s.Run("read modes are set properly", func() {
@@ -84,19 +84,19 @@ func (s *a2Suite) TestSwitchRead() {
 		hi7 := uint8(0x80)
 		lo7 := uint8(0x00)
 
-		bank.dfBlock = bank2
+		s.comp.state.SetInt(bankDFBlock, bank2)
 		s.Equal(hi7, bank.SwitchRead(s.comp, int(0xC011)))
-		bank.dfBlock = bank1
+		s.comp.state.SetInt(bankDFBlock, bank1)
 		s.Equal(lo7, bank.SwitchRead(s.comp, int(0xC011)))
 
-		bank.read = bankRAM
+		s.comp.state.SetInt(bankRead, bankRAM)
 		s.Equal(hi7, bank.SwitchRead(s.comp, int(0xC012)))
-		bank.read = bankROM
+		s.comp.state.SetInt(bankRead, bankROM)
 		s.Equal(lo7, bank.SwitchRead(s.comp, int(0xC012)))
 
-		bank.sysBlock = bankAux
+		s.comp.state.SetInt(bankSysBlock, bankAux)
 		s.Equal(hi7, bank.SwitchRead(s.comp, int(0xC016)))
-		bank.sysBlock = bankMain
+		s.comp.state.SetInt(bankSysBlock, bankMain)
 		s.Equal(lo7, bank.SwitchRead(s.comp, int(0xC016)))
 	})
 }
@@ -111,23 +111,23 @@ func (s *a2Suite) TestSwitchWrite() {
 
 	s.Run("switching main to aux", func() {
 		s.comp.Main.Mem[addr] = d123
-		bank.sysBlock = bankMain
+		s.comp.state.SetInt(bankSysBlock, bankMain)
 		bank.SwitchWrite(s.comp, int(0xC009), d45)
-		s.Equal(bankAux, bank.sysBlock)
+		s.Equal(bankAux, s.comp.state.Int(bankSysBlock))
 		s.Equal(d123, s.comp.Aux.Mem[addr])
 	})
 
 	s.Run("switching aux to main", func() {
 		s.comp.Aux.Mem[addr] = d45
 		bank.SwitchWrite(s.comp, int(0xC008), d123)
-		s.Equal(bankMain, bank.sysBlock)
+		s.Equal(bankMain, s.comp.state.Int(bankSysBlock))
 		s.Equal(d45, s.comp.Main.Mem[addr])
 	})
 
 	s.Run("not changing the mode should not copy pages", func() {
 		s.comp.Aux.Mem[addr] = d123
 		bank.SwitchWrite(s.comp, int(0xC008), d123)
-		s.Equal(bankMain, bank.sysBlock)
+		s.Equal(bankMain, s.comp.state.Int(bankSysBlock))
 		s.Equal(d45, s.comp.Main.Mem[addr])
 	})
 }
@@ -144,26 +144,26 @@ func (s *a2Suite) TestBankDFRead() {
 	)
 
 	testFor := func(sblock int) {
-		s.comp.bank.sysBlock = sblock
+		s.comp.state.SetInt(bankSysBlock, sblock)
 
 		s.comp.BankSegment().Set(xd000, val1)
 		s.comp.BankSegment().Set(xe000, val1)
 		s.comp.BankSegment().Set(x10000, val2)
 
 		s.Run("read from rom", func() {
-			s.comp.bank.read = bankROM
-			s.comp.bank.dfBlock = bank1
+			s.comp.state.SetInt(bankRead, bankROM)
+			s.comp.state.SetInt(bankDFBlock, bank1)
 			s.Equal(s.comp.Get(xd000), s.comp.ROM.Get(x1000))
 			s.Equal(s.comp.Get(xe000), s.comp.ROM.Get(x2000))
 
-			s.comp.bank.dfBlock = bank2
+			s.comp.state.SetInt(bankDFBlock, bank2)
 			s.NotEqual(s.comp.Get(xd000), s.comp.ROM.Get(x1000))
 			s.Equal(s.comp.Get(xe000), s.comp.ROM.Get(x2000))
 		})
 
 		s.Run("read from bank2 ram", func() {
-			s.comp.bank.read = bankRAM
-			s.comp.bank.dfBlock = bank2
+			s.comp.state.SetInt(bankRead, bankRAM)
+			s.comp.state.SetInt(bankDFBlock, bank2)
 			// The first read should use bank 2, but the second read should not,
 			// since it's in the E0 page.
 			s.Equal(s.comp.Get(xd000), s.comp.BankSegment().Get(x10000))
@@ -171,7 +171,7 @@ func (s *a2Suite) TestBankDFRead() {
 		})
 
 		s.Run("read from normal (bank1) ram", func() {
-			s.comp.bank.dfBlock = bank1
+			s.comp.state.SetInt(bankDFBlock, bank1)
 			s.Equal(s.comp.Get(xd000), s.comp.BankSegment().Get(xd000))
 		})
 	}
@@ -189,22 +189,22 @@ func (s *a2Suite) TestBankDFWrite() {
 	)
 
 	testFor := func(sblock int) {
-		s.comp.bank.sysBlock = sblock
+		s.comp.state.SetInt(bankSysBlock, sblock)
 		s.Run("writes respect the value of the write mode", func() {
-			s.comp.bank.read = bankRAM
-			s.comp.bank.write = bankRAM
-			s.comp.bank.dfBlock = bank1
+			s.comp.state.SetInt(bankRead, bankRAM)
+			s.comp.state.SetInt(bankWrite, bankRAM)
+			s.comp.state.SetInt(bankDFBlock, bank1)
 			s.comp.Set(dfaddr, val1)
 			s.Equal(val1, s.comp.Get(dfaddr))
 
-			s.comp.bank.write = bankNone
+			s.comp.state.SetInt(bankWrite, bankNone)
 			s.comp.Set(efaddr, val2)
 			s.NotEqual(val2, s.comp.Get(efaddr))
 		})
 
 		s.Run("writes use bank2 in the D0-DF page range", func() {
-			s.comp.bank.write = bankRAM
-			s.comp.bank.dfBlock = bank2
+			s.comp.state.SetInt(bankWrite, bankRAM)
+			s.comp.state.SetInt(bankDFBlock, bank2)
 			s.comp.Set(dfaddr, val2)
 			s.Equal(val2, s.comp.ReadSegment().Get(0x10011))
 
@@ -232,7 +232,7 @@ func (s *a2Suite) TestBankZPRead() {
 	for _, c := range cases {
 		s.comp.Main.Set(addr, c.main)
 		s.comp.Aux.Set(addr, c.aux)
-		s.comp.bank.sysBlock = c.mode
+		s.comp.state.SetInt(bankSysBlock, c.mode)
 
 		s.Equal(c.want, s.comp.Get(addr))
 	}
@@ -254,7 +254,7 @@ func (s *a2Suite) TestBankZPWrite() {
 		s.comp.Main.Set(addr, 0x0)
 		s.comp.Aux.Set(addr, 0x0)
 
-		s.comp.bank.sysBlock = c.mode
+		s.comp.state.SetInt(bankSysBlock, c.mode)
 		s.comp.Set(addr, c.want)
 
 		s.Equal(c.main, s.comp.Main.Get(addr))

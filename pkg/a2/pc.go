@@ -1,11 +1,13 @@
 package a2
 
-type pcSwitcher struct {
-	expansion bool
-	slotC3    bool
-	slotCX    bool
-	expSlot   int
-}
+type pcSwitcher struct{}
+
+const (
+	pcExpansion = 300
+	pcSlotC3    = 301
+	pcSlotCX    = 302
+	pcExpSlot   = 303
+)
 
 const (
 	offExpROM    = int(0xCFFF)
@@ -36,10 +38,10 @@ func pcWriteSwitches() []int {
 
 // UseDefaults sets the state of the pc switcher to that which it should have
 // after a cold or warm boot.
-func (ps *pcSwitcher) UseDefaults() {
-	ps.expansion = false
-	ps.slotC3 = false
-	ps.slotCX = true
+func (ps *pcSwitcher) UseDefaults(c *Computer) {
+	c.state.SetBool(pcExpansion, false)
+	c.state.SetBool(pcSlotC3, false)
+	c.state.SetBool(pcSlotCX, true)
 }
 
 // SwitchRead will return hi on bit 7 if slot c3 or cx is set to use peripheral
@@ -53,12 +55,12 @@ func (ps *pcSwitcher) SwitchRead(c *Computer, addr int) uint8 {
 
 	switch addr {
 	case rdSlotC3ROM:
-		if ps.slotC3 {
+		if c.state.Bool(pcSlotC3) {
 			return hi
 		}
 		// it _seems_ like this should return lo instead of hi...?
 	case rdSlotCXROM:
-		if ps.slotCX {
+		if c.state.Bool(pcSlotCX) {
 			return lo
 		}
 	case offExpROM:
@@ -69,19 +71,19 @@ func (ps *pcSwitcher) SwitchRead(c *Computer, addr int) uint8 {
 		// Hitting this address will clear the IO SELECT' and IO STROBE' signals
 		// in the hardware, which essentially means that expansion rom is turned
 		// off. But only after we get the return value.
-		ps.expansion = false
-		ps.expSlot = 0
+		c.state.SetBool(pcExpansion, false)
+		c.state.SetInt(pcExpSlot, 0)
 
 		return val
 	}
 
 	if ps.slotXROM(addrInt) {
-		ps.expSlot = ps.slotFromAddr(addrInt)
+		c.state.SetInt(pcExpSlot, ps.slotFromAddr(addrInt))
 		return PCRead(c, addr)
 	}
 
-	if ps.expROM(addrInt) && ps.expSlot > 0 {
-		ps.expansion = true
+	if ps.expROM(addrInt) && c.state.Int(pcExpSlot) > 0 {
+		c.state.SetBool(pcExpansion, true)
 		return PCRead(c, addr)
 	}
 
@@ -112,19 +114,19 @@ func (ps *pcSwitcher) slotFromAddr(addr int) int {
 func (ps *pcSwitcher) SwitchWrite(c *Computer, addr int, val uint8) {
 	switch addr {
 	case onSlotC3ROM:
-		ps.slotC3 = true
+		c.state.SetBool(pcSlotC3, true)
 	case offSlotC3ROM:
-		ps.slotC3 = false
+		c.state.SetBool(pcSlotC3, false)
 	case onSlotCXROM:
 		// Note that enabling slotcx rom _also_ enables slotc3 rom, and
 		// disabling does the same.
-		ps.slotCX = true
-		ps.slotC3 = true
+		c.state.SetBool(pcSlotCX, true)
+		c.state.SetBool(pcSlotC3, true)
 	case offSlotCXROM:
 		// FIXME: the problem is that addresses aren't matching the
 		// consts, even though they are equal values
-		ps.slotCX = false
-		ps.slotC3 = false
+		c.state.SetBool(pcSlotCX, false)
+		c.state.SetBool(pcSlotC3, false)
 	}
 }
 
@@ -148,9 +150,9 @@ func PCRead(c *Computer, addr int) uint8 {
 
 	switch {
 	case
-		c.pc.expansion && c.pc.expROM(addrInt),
-		c.pc.slotC3 && c.pc.slot3ROM(addrInt),
-		c.pc.slotCX && c.pc.slotXROM(addrInt):
+		c.state.Bool(pcExpansion) && c.pc.expROM(addrInt),
+		c.state.Bool(pcSlotC3) && c.pc.slot3ROM(addrInt),
+		c.state.Bool(pcSlotCX) && c.pc.slotXROM(addrInt):
 		return c.ROM.Get(int(periphROM))
 	}
 

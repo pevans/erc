@@ -67,11 +67,11 @@ func (c *Computer) Reset() {
 	c.CPU.S = 0xFF
 
 	// Set our initial memory mode
-	c.bank.UseDefaults()
-	c.disp.UseDefaults()
+	c.bank.UseDefaults(c)
+	c.disp.UseDefaults(c)
 	c.kb.UseDefaults(c)
 	c.mem.UseDefaults(c)
-	c.pc.UseDefaults()
+	c.pc.UseDefaults(c)
 
 	// Jump to the reset PC address; note this must happen _after_ we
 	// set our modes above, or else we might pull the PC value from the

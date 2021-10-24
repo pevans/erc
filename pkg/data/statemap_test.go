@@ -51,3 +51,16 @@ func TestStateMapUint16(t *testing.T) {
 	sm.SetUint16(k, v)
 	assert.Equal(t, v, sm.Uint16(k))
 }
+
+func TestStateMapBool(t *testing.T) {
+	var (
+		sm       = NewStateMap()
+		k        = 1
+		tru bool = true
+		fal bool = false
+	)
+
+	assert.Equal(t, fal, sm.Bool(k))
+	sm.SetBool(k, tru)
+	assert.Equal(t, tru, sm.Bool(k))
+}

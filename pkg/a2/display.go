@@ -4,41 +4,35 @@ import (
 	"github.com/pevans/erc/pkg/data"
 )
 
-type displaySwitcher struct {
+type displaySwitcher struct{}
+
+const (
 	// Use the alternate character set if this is true (as opposed to the
 	// primary set).
-	altChar bool
-
+	displayAltChar = 500
 	// Text display should show 80 columns, not the default 40
-	col80 bool
-
+	displayCol80 = 501
 	// If this is on, we will store page 2 data in aux memory.
-	store80 bool
-
+	displayStore80 = 502
 	// Page 2 will use that second page for graphics in some circumstances; in
 	// others it might prefer page 1 but in auxiliary memory.
-	page2 bool
-
+	displayPage2 = 503
 	// Text controls whether we show text mode or not. This can be set in
 	// addition to other modes, which is why this is treated as a bool and not a
 	// const/enum for a resolution.
-	text bool
-
+	displayText = 504
 	// Controls whether we show a mix of low resolution and text mode in some situations.
-	mixed bool
-
+	displayMixed = 505
 	// If highRes is true, then we are in some form of high resolution mode;
 	// otherwise we assume a low resolution mode.
-	highRes bool
-
+	displayHires = 506
 	// This enables "IOU" access for certain soft switches in the $C0 page. It
 	// also enables double high resolution to be set.
-	iou bool
-
+	displayIou = 507
 	// When this is true, then high resolution will be rendered as "double high"
 	// resolution.
-	doubleHigh bool
-}
+	displayDoubleHigh = 508
+)
 
 const (
 	// These are R7 actions, meaning they are switches you read from that return
@@ -123,55 +117,55 @@ func displayWriteSwitches() []int {
 	}
 }
 
-func (ds *displaySwitcher) UseDefaults() {
+func (ds *displaySwitcher) UseDefaults(c *Computer) {
 	// Text mode should be enabled
-	ds.text = true
+	c.state.SetBool(displayText, true)
 
 	// All other options should be disabled
-	ds.altChar = false
-	ds.col80 = false
-	ds.doubleHigh = false
-	ds.highRes = false
-	ds.iou = false
-	ds.mixed = false
-	ds.page2 = false
-	ds.store80 = false
+	c.state.SetBool(displayAltChar, false)
+	c.state.SetBool(displayCol80, false)
+	c.state.SetBool(displayDoubleHigh, false)
+	c.state.SetBool(displayHires, false)
+	c.state.SetBool(displayIou, false)
+	c.state.SetBool(displayMixed, false)
+	c.state.SetBool(displayPage2, false)
+	c.state.SetBool(displayStore80, false)
 }
 
-func (ds *displaySwitcher) onOrOffReadWrite(a int) bool {
+func (ds *displaySwitcher) onOrOffReadWrite(c *Computer, a int) bool {
 	switch a {
 	case onPage2:
-		ds.page2 = true
+		c.state.SetBool(displayPage2, true)
 		return true
 	case onText:
-		ds.text = true
+		c.state.SetBool(displayText, true)
 		return true
 	case onMixed:
-		ds.mixed = true
+		c.state.SetBool(displayMixed, true)
 		return true
 	case onHires:
-		ds.highRes = true
+		c.state.SetBool(displayHires, true)
 		return true
 	case onDHires:
-		if ds.iou {
-			ds.doubleHigh = true
+		if c.state.Bool(displayIou) {
+			c.state.SetBool(displayDoubleHigh, true)
 		}
 		return true
 	case offPage2:
-		ds.page2 = false
+		c.state.SetBool(displayPage2, false)
 		return true
 	case offText:
-		ds.text = false
+		c.state.SetBool(displayText, false)
 		return true
 	case offMixed:
-		ds.mixed = false
+		c.state.SetBool(displayMixed, false)
 		return true
 	case offHires:
-		ds.highRes = false
+		c.state.SetBool(displayHires, false)
 		return true
 	case offDHires:
-		if ds.iou {
-			ds.doubleHigh = false
+		if c.state.Bool(displayIou) {
+			c.state.SetBool(displayDoubleHigh, false)
 		}
 		return true
 	}
@@ -185,45 +179,45 @@ func (ds *displaySwitcher) SwitchRead(c *Computer, a int) uint8 {
 		lo uint8 = 0x00
 	)
 
-	if ds.onOrOffReadWrite(a) {
+	if ds.onOrOffReadWrite(c, a) {
 		return lo
 	}
 
 	switch a {
 	case rdAltChar:
-		if ds.altChar {
+		if c.state.Bool(displayAltChar) {
 			return hi
 		}
 	case rd80Col:
-		if ds.col80 {
+		if c.state.Bool(displayCol80) {
 			return hi
 		}
 	case rd80Store:
-		if ds.store80 {
+		if c.state.Bool(displayStore80) {
 			return hi
 		}
 	case rdPage2:
-		if ds.page2 {
+		if c.state.Bool(displayPage2) {
 			return hi
 		}
 	case rdText:
-		if ds.text {
+		if c.state.Bool(displayText) {
 			return hi
 		}
 	case rdMixed:
-		if ds.mixed {
+		if c.state.Bool(displayMixed) {
 			return hi
 		}
 	case rdHires:
-		if ds.highRes {
+		if c.state.Bool(displayHires) {
 			return hi
 		}
 	case rdIOUDis:
-		if ds.iou {
+		if c.state.Bool(displayIou) {
 			return hi
 		}
 	case rdDHires:
-		if ds.doubleHigh {
+		if c.state.Bool(displayDoubleHigh) {
 			return hi
 		}
 	}
@@ -232,35 +226,37 @@ func (ds *displaySwitcher) SwitchRead(c *Computer, a int) uint8 {
 }
 
 func (ds *displaySwitcher) SwitchWrite(c *Computer, a int, val uint8) {
-	if ds.onOrOffReadWrite(a) {
+	if ds.onOrOffReadWrite(c, a) {
 		return
 	}
 
 	switch a {
 	case onAltChar:
-		ds.altChar = true
+		c.state.SetBool(displayAltChar, true)
 	case on80Col:
-		ds.col80 = true
+		c.state.SetBool(displayCol80, true)
 	case on80Store:
-		ds.store80 = true
+		c.state.SetBool(displayStore80, true)
 	case onIOUDis:
-		ds.iou = true
+		c.state.SetBool(displayIou, true)
 	case offAltChar:
-		ds.altChar = false
+		c.state.SetBool(displayAltChar, false)
 	case off80Col:
-		ds.col80 = false
+		c.state.SetBool(displayCol80, false)
 	case off80Store:
-		ds.store80 = false
+		c.state.SetBool(displayStore80, false)
 	case offIOUDis:
-		ds.iou = false
+		c.state.SetBool(displayIou, false)
 	}
 }
 
 func (c *Computer) DisplaySegment(addr int) *data.Segment {
-	if c.disp.store80 {
-		if addr >= 0x0400 && addr < 0x0800 && c.disp.highRes {
+	if c.state.Bool(displayStore80) {
+		if addr >= 0x0400 && addr < 0x0800 && c.state.Bool(displayHires) {
 			return c.Aux
-		} else if addr >= 0x2000 && addr < 0x4000 && c.disp.highRes && c.disp.page2 {
+		} else if addr >= 0x2000 && addr < 0x4000 &&
+			c.state.Bool(displayHires) &&
+			c.state.Bool(displayPage2) {
 			return c.Aux
 		}
 	}
@@ -293,14 +289,14 @@ func (c *Computer) Render() {
 	// if it's hires, do the hires thing
 	// we also need to account for double text/lores/hires/mixed
 	switch {
-	case c.disp.text:
+	case c.state.Bool(displayText):
 		var (
 			start int = 0x400
 			end   int = 0x800
 		)
 
 		c.textRender(start, end)
-	case c.disp.highRes:
+	case c.state.Bool(displayHires):
 		var (
 			start int = 0x2000
 			end   int = 0x4000

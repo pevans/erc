@@ -6,14 +6,17 @@ import (
 )
 
 type bankSwitcher struct {
-	read     int
-	write    int
-	dfBlock  int
-	sysBlock int
-
 	// How many times have we tried to put write into bankRAM mode?
 	writeAttempts int
 }
+
+const (
+	bankRead          = 401
+	bankWrite         = 402
+	bankDFBlock       = 403
+	bankSysBlock      = 404
+	bankWriteAttempts = 405
+)
 
 // This const block defines some modes that our bank switcher can have.
 const (
@@ -69,17 +72,17 @@ func (bs *bankSwitcher) SwitchRead(c *Computer, addr int) uint8 {
 	// value with bit 7 "checked" (which is to say, 1).
 	switch addr {
 	case rdBnk2:
-		return bs.bit7(bs.dfBlock == bank2)
+		return bs.bit7(c.state.Int(bankDFBlock) == bank2)
 	case rdLCRAM:
-		return bs.bit7(bs.read == bankRAM)
+		return bs.bit7(c.state.Int(bankRead) == bankRAM)
 	case rdAltZP:
-		return bs.bit7(bs.sysBlock == bankAux)
+		return bs.bit7(c.state.Int(bankSysBlock) == bankAux)
 	}
 
 	// Otherwise, we farm off the mode checks to other methods.
-	bs.read = bs.readMode(int(addr))
-	bs.write = bs.writeMode(int(addr))
-	bs.dfBlock = bs.dfBlockMode(int(addr))
+	c.state.SetInt(bankRead, bs.readMode(addr))
+	c.state.SetInt(bankWrite, bs.writeMode(addr))
+	c.state.SetInt(bankDFBlock, bs.dfBlockMode(addr))
 
 	return 0x00
 }
@@ -87,17 +90,18 @@ func (bs *bankSwitcher) SwitchRead(c *Computer, addr int) uint8 {
 // SwitchWrite manages writes on soft switches that may modify bank-switch
 // state, specifically that to do with the usage of main vs. auxilliary memory.
 func (bs *bankSwitcher) SwitchWrite(c *Computer, addr int, val uint8) {
-	origBlock := bs.sysBlock
+	origBlock := c.state.Int(bankSysBlock)
 
 	switch addr {
 	case offAltZP:
-		bs.sysBlock = bankMain
+		c.state.SetInt(bankSysBlock, bankMain)
 	case onAltZP:
-		bs.sysBlock = bankAux
+		c.state.SetInt(bankSysBlock, bankAux)
 	}
 
-	if origBlock != bs.sysBlock {
-		if err := bankSyncPages(c, origBlock, bs.sysBlock); err != nil {
+	newBlock := c.state.Int(bankSysBlock)
+	if origBlock != newBlock {
+		if err := bankSyncPages(c, origBlock, newBlock); err != nil {
 			panic(errors.Wrap(err, "could not copy bank memory between segments"))
 		}
 	}
@@ -147,14 +151,14 @@ func (bs *bankSwitcher) dfBlockMode(addr int) int {
 
 // UseDefaults will set the state of the bank switcher to use what the computer
 // would have if you cold- or warm-booted.
-func (bs *bankSwitcher) UseDefaults() {
+func (bs *bankSwitcher) UseDefaults(c *Computer) {
 	// "When you turn power on or reset the Apple IIe, it initializes the bank
 	// switches for reading the ROM and writing the RAM, using the second bank
 	// of RAM."
-	bs.read = bankROM
-	bs.write = bankRAM
-	bs.dfBlock = bank2
-	bs.sysBlock = bankMain
+	c.state.SetInt(bankRead, bankROM)
+	c.state.SetInt(bankWrite, bankRAM)
+	c.state.SetInt(bankDFBlock, bank2)
+	c.state.SetInt(bankSysBlock, bankMain)
 }
 
 func bankSwitchRead(c *Computer, addr int) uint8 {
@@ -190,7 +194,7 @@ func bankSyncPagesFromAux(c *Computer) error {
 // BankSegment returns the memory segment that should be used with respect to
 // bank-switched auxiliary memory.
 func (c *Computer) BankSegment() *data.Segment {
-	if c.bank.sysBlock == bankAux {
+	if c.state.Int(bankSysBlock) == bankAux {
 		return c.Aux
 	}
 
@@ -200,11 +204,11 @@ func (c *Computer) BankSegment() *data.Segment {
 // BankDFRead implements logic for reads into the D0...FF pages of memory,
 // taking into account the bank-switched states that the computer currently has.
 func BankDFRead(c *Computer, addr int) uint8 {
-	if c.bank.dfBlock == bank2 && addr < 0xE000 {
+	if c.state.Int(bankDFBlock) == bank2 && addr < 0xE000 {
 		return c.BankSegment().Get(int(addr) + 0x3000)
 	}
 
-	if c.bank.read == bankROM {
+	if c.state.Int(bankRead) == bankROM {
 		return c.ROM.Get(int(addr) - SysRomOffset)
 	}
 
@@ -214,11 +218,11 @@ func BankDFRead(c *Computer, addr int) uint8 {
 // BankDFWrite implements logic for writes into the D0...FF pages of memory,
 // taking into account the bank-switched states that the computer currently has.
 func BankDFWrite(c *Computer, addr int, val uint8) {
-	if c.bank.write == bankNone {
+	if c.state.Int(bankWrite) == bankNone {
 		return
 	}
 
-	if c.bank.dfBlock == bank2 && addr < 0xE000 {
+	if c.state.Int(bankDFBlock) == bank2 && addr < 0xE000 {
 		c.BankSegment().Set(int(addr)+0x3000, val)
 		return
 	}

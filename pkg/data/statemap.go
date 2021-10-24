@@ -48,3 +48,16 @@ func (sm *StateMap) Uint16(k int) uint16 {
 func (sm *StateMap) SetUint16(k int, v uint16) {
 	sm.m[k] = v
 }
+
+func (sm *StateMap) Bool(k int) bool {
+	v, ok := sm.m[k]
+	if !ok {
+		return false
+	}
+
+	return v.(bool)
+}
+
+func (sm *StateMap) SetBool(k int, v bool) {
+	sm.m[k] = v
+}
