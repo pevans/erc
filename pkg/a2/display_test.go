@@ -162,39 +162,39 @@ func (s *a2Suite) TestDisplaySegment() {
 
 	s.Run("read from main memory", func() {
 		s.comp.state.SetBool(displayStore80, false)
-		s.comp.WriteSegment().Set(p1addr, val)
-		s.comp.WriteSegment().Set(p2addr, val)
-		s.comp.WriteSegment().Set(other, val)
-		s.Equal(val, s.comp.DisplaySegment(up1addr).Get(p1addr))
-		s.Equal(val, s.comp.DisplaySegment(up2addr).Get(p2addr))
-		s.Equal(val, s.comp.DisplaySegment(uother).Get(other))
+		WriteSegment(s.comp.state).Set(p1addr, val)
+		WriteSegment(s.comp.state).Set(p2addr, val)
+		WriteSegment(s.comp.state).Set(other, val)
+		s.Equal(val, DisplaySegment(up1addr, s.comp.state).Get(p1addr))
+		s.Equal(val, DisplaySegment(up2addr, s.comp.state).Get(p2addr))
+		s.Equal(val, DisplaySegment(uother, s.comp.state).Get(other))
 	})
 
 	s.Run("80store uses aux", func() {
 		s.comp.state.SetBool(displayStore80, true)
-		s.comp.WriteSegment().Set(p1addr, val)
-		s.comp.WriteSegment().Set(p2addr, val)
-		s.comp.WriteSegment().Set(other, val)
+		WriteSegment(s.comp.state).Set(p1addr, val)
+		WriteSegment(s.comp.state).Set(p2addr, val)
+		WriteSegment(s.comp.state).Set(other, val)
 
 		// References outside of the display pages should be unaffected
-		s.Equal(val, s.comp.DisplaySegment(uother).Get(other))
+		s.Equal(val, DisplaySegment(uother, s.comp.state).Get(other))
 
 		// We should be able to show that we use a different memory segment if
 		// highRes is on
 		s.comp.state.SetBool(displayHires, false)
-		s.Equal(val, s.comp.DisplaySegment(up1addr).Get(p1addr))
+		s.Equal(val, DisplaySegment(up1addr, s.comp.state).Get(p1addr))
 		s.comp.state.SetBool(displayHires, true)
-		s.NotEqual(val, s.comp.DisplaySegment(up1addr).Get(p1addr))
+		s.NotEqual(val, DisplaySegment(up1addr, s.comp.state).Get(p1addr))
 
 		// We need both double high resolution _and_ page2 in order to get a
 		// different segment in the page 2 address space.
 		s.comp.state.SetBool(displayDoubleHigh, false)
 		s.comp.state.SetBool(displayPage2, false)
-		s.Equal(val, s.comp.DisplaySegment(up2addr).Get(p2addr))
+		s.Equal(val, DisplaySegment(up2addr, s.comp.state).Get(p2addr))
 		s.comp.state.SetBool(displayDoubleHigh, true)
-		s.Equal(val, s.comp.DisplaySegment(up2addr).Get(p2addr))
+		s.Equal(val, DisplaySegment(up2addr, s.comp.state).Get(p2addr))
 		s.comp.state.SetBool(displayPage2, true)
-		s.NotEqual(val, s.comp.DisplaySegment(up2addr).Get(p2addr))
+		s.NotEqual(val, DisplaySegment(up2addr, s.comp.state).Get(p2addr))
 	})
 }
 
@@ -205,8 +205,8 @@ func (s *a2Suite) TestDisplayRead() {
 		val   = uint8(0x22)
 	)
 
-	s.comp.DisplaySegment(uaddr).Set(addr, val)
-	s.Equal(val, DisplayRead(s.comp, uaddr))
+	DisplaySegment(uaddr, s.comp.state).Set(addr, val)
+	s.Equal(val, DisplayRead(uaddr, s.comp.state))
 }
 
 func (s *a2Suite) TestDisplayWrite() {
@@ -216,8 +216,8 @@ func (s *a2Suite) TestDisplayWrite() {
 		val   = uint8(0x23)
 	)
 
-	s.comp.reDraw = false
-	DisplayWrite(s.comp, uaddr, val)
-	s.Equal(val, s.comp.DisplaySegment(uaddr).Get(addr))
-	s.True(s.comp.reDraw)
+	s.comp.state.SetBool(displayRedraw, false)
+	DisplayWrite(uaddr, val, s.comp.state)
+	s.Equal(val, DisplaySegment(uaddr, s.comp.state).Get(addr))
+	s.True(s.comp.state.Bool(displayRedraw))
 }

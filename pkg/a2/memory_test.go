@@ -117,16 +117,16 @@ func (s *a2Suite) TestComputerSet() {
 
 func (s *a2Suite) TestReadSegment() {
 	s.comp.state.SetInt(memRead, memMain)
-	s.Equal(s.comp.Main, s.comp.ReadSegment())
+	s.Equal(s.comp.Main, ReadSegment(s.comp.state))
 
 	s.comp.state.SetInt(memRead, memAux)
-	s.Equal(s.comp.Aux, s.comp.ReadSegment())
+	s.Equal(s.comp.Aux, ReadSegment(s.comp.state))
 }
 
 func (s *a2Suite) TestWriteSegment() {
 	s.comp.state.SetInt(memWrite, memMain)
-	s.Equal(s.comp.Main, s.comp.WriteSegment())
+	s.Equal(s.comp.Main, WriteSegment(s.comp.state))
 
 	s.comp.state.SetInt(memWrite, memAux)
-	s.Equal(s.comp.Aux, s.comp.WriteSegment())
+	s.Equal(s.comp.Aux, WriteSegment(s.comp.state))
 }

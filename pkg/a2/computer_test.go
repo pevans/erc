@@ -18,8 +18,7 @@ func (s *a2Suite) TestNewComputer() {
 	s.NotNil(c.Drive2)
 	s.Equal(c.SelectedDrive, c.Drive1)
 	s.NotNil(c.CPU)
-	s.Equal(c.CPU.WMem, c)
-	s.Equal(c.CPU.RMem, c)
+	s.Equal(c.CPU.Memory, c.Main)
 	s.NotNil(c.RMap)
 	s.NotNil(c.WMap)
 }

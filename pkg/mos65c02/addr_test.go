@@ -17,8 +17,7 @@ type mosSuite struct {
 func (s *mosSuite) SetupTest() {
 	seg := data.NewSegment(0x10000)
 	s.cpu = new(CPU)
-	s.cpu.RMem = seg
-	s.cpu.WMem = seg
+	s.cpu.Memory = seg
 }
 
 func TestMosSuite(t *testing.T) {

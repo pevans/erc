@@ -11,11 +11,13 @@ type bankSwitcher struct {
 }
 
 const (
-	bankRead          = 401
-	bankWrite         = 402
-	bankDFBlock       = 403
-	bankSysBlock      = 404
-	bankWriteAttempts = 405
+	bankRead            = 401
+	bankWrite           = 402
+	bankDFBlock         = 403
+	bankSysBlock        = 404
+	bankWriteAttempts   = 405
+	bankSysBlockSegment = 406
+	bankROMSegment      = 407
 )
 
 // This const block defines some modes that our bank switcher can have.
@@ -95,8 +97,10 @@ func (bs *bankSwitcher) SwitchWrite(c *Computer, addr int, val uint8) {
 	switch addr {
 	case offAltZP:
 		c.state.SetInt(bankSysBlock, bankMain)
+		c.state.SetSegment(bankSysBlockSegment, c.Main)
 	case onAltZP:
 		c.state.SetInt(bankSysBlock, bankAux)
+		c.state.SetSegment(bankSysBlockSegment, c.Aux)
 	}
 
 	newBlock := c.state.Int(bankSysBlock)
@@ -159,6 +163,8 @@ func (bs *bankSwitcher) UseDefaults(c *Computer) {
 	c.state.SetInt(bankWrite, bankRAM)
 	c.state.SetInt(bankDFBlock, bank2)
 	c.state.SetInt(bankSysBlock, bankMain)
+	c.state.SetSegment(bankSysBlockSegment, c.Main)
+	c.state.SetSegment(bankROMSegment, c.ROM)
 }
 
 func bankSwitchRead(c *Computer, addr int) uint8 {
@@ -193,47 +199,43 @@ func bankSyncPagesFromAux(c *Computer) error {
 
 // BankSegment returns the memory segment that should be used with respect to
 // bank-switched auxiliary memory.
-func (c *Computer) BankSegment() *data.Segment {
-	if c.state.Int(bankSysBlock) == bankAux {
-		return c.Aux
-	}
-
-	return c.Main
+func BankSegment(stm *data.StateMap) *data.Segment {
+	return stm.Segment(bankSysBlockSegment)
 }
 
 // BankDFRead implements logic for reads into the D0...FF pages of memory,
 // taking into account the bank-switched states that the computer currently has.
-func BankDFRead(c *Computer, addr int) uint8 {
-	if c.state.Int(bankDFBlock) == bank2 && addr < 0xE000 {
-		return c.BankSegment().Get(int(addr) + 0x3000)
+func BankDFRead(addr int, stm *data.StateMap) uint8 {
+	if stm.Int(bankDFBlock) == bank2 && addr < 0xE000 {
+		return BankSegment(stm).Get(int(addr) + 0x3000)
 	}
 
-	if c.state.Int(bankRead) == bankROM {
-		return c.ROM.Get(int(addr) - SysRomOffset)
+	if stm.Int(bankRead) == bankROM {
+		return stm.Segment(bankROMSegment).Get(int(addr) - SysRomOffset)
 	}
 
-	return c.BankSegment().Get(int(addr))
+	return BankSegment(stm).Get(int(addr))
 }
 
 // BankDFWrite implements logic for writes into the D0...FF pages of memory,
 // taking into account the bank-switched states that the computer currently has.
-func BankDFWrite(c *Computer, addr int, val uint8) {
-	if c.state.Int(bankWrite) == bankNone {
+func BankDFWrite(addr int, val uint8, stm *data.StateMap) {
+	if stm.Int(bankWrite) == bankNone {
 		return
 	}
 
-	if c.state.Int(bankDFBlock) == bank2 && addr < 0xE000 {
-		c.BankSegment().Set(int(addr)+0x3000, val)
+	if stm.Int(bankDFBlock) == bank2 && addr < 0xE000 {
+		BankSegment(stm).Set(int(addr)+0x3000, val)
 		return
 	}
 
-	c.BankSegment().Set(int(addr), val)
+	BankSegment(stm).Set(int(addr), val)
 }
 
-func BankZPRead(c *Computer, addr int) uint8 {
-	return c.BankSegment().Get(int(addr))
+func BankZPRead(addr int, stm *data.StateMap) uint8 {
+	return BankSegment(stm).Get(int(addr))
 }
 
-func BankZPWrite(c *Computer, addr int, val uint8) {
-	c.BankSegment().Set(int(addr), val)
+func BankZPWrite(addr int, val uint8, stm *data.StateMap) {
+	BankSegment(stm).Set(int(addr), val)
 }

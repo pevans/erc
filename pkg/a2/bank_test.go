@@ -146,9 +146,9 @@ func (s *a2Suite) TestBankDFRead() {
 	testFor := func(sblock int) {
 		s.comp.state.SetInt(bankSysBlock, sblock)
 
-		s.comp.BankSegment().Set(xd000, val1)
-		s.comp.BankSegment().Set(xe000, val1)
-		s.comp.BankSegment().Set(x10000, val2)
+		BankSegment(s.comp.state).Set(xd000, val1)
+		BankSegment(s.comp.state).Set(xe000, val1)
+		BankSegment(s.comp.state).Set(x10000, val2)
 
 		s.Run("read from rom", func() {
 			s.comp.state.SetInt(bankRead, bankROM)
@@ -166,13 +166,13 @@ func (s *a2Suite) TestBankDFRead() {
 			s.comp.state.SetInt(bankDFBlock, bank2)
 			// The first read should use bank 2, but the second read should not,
 			// since it's in the E0 page.
-			s.Equal(s.comp.Get(xd000), s.comp.BankSegment().Get(x10000))
-			s.Equal(s.comp.Get(xe000), s.comp.BankSegment().Get(xe000))
+			s.Equal(s.comp.Get(xd000), BankSegment(s.comp.state).Get(x10000))
+			s.Equal(s.comp.Get(xe000), BankSegment(s.comp.state).Get(xe000))
 		})
 
 		s.Run("read from normal (bank1) ram", func() {
 			s.comp.state.SetInt(bankDFBlock, bank1)
-			s.Equal(s.comp.Get(xd000), s.comp.BankSegment().Get(xd000))
+			s.Equal(s.comp.Get(xd000), BankSegment(s.comp.state).Get(xd000))
 		})
 	}
 
@@ -206,10 +206,10 @@ func (s *a2Suite) TestBankDFWrite() {
 			s.comp.state.SetInt(bankWrite, bankRAM)
 			s.comp.state.SetInt(bankDFBlock, bank2)
 			s.comp.Set(dfaddr, val2)
-			s.Equal(val2, s.comp.ReadSegment().Get(0x10011))
+			s.Equal(val2, ReadSegment(s.comp.state).Get(0x10011))
 
 			s.comp.Set(efaddr, val1)
-			s.Equal(val1, s.comp.ReadSegment().Get(efaddr))
+			s.Equal(val1, ReadSegment(s.comp.state).Get(efaddr))
 		})
 	}
 

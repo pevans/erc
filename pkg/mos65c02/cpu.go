@@ -15,11 +15,6 @@ type CPU struct {
 	Memory *data.Segment
 	State  *data.StateMap
 
-	// RMem and WMem are the segments from which we will read or write
-	// whenever it is necessary.
-	RMem data.Getter
-	WMem data.Setter
-
 	// This is the current address mode that the CPU is operating
 	// within. The address mode affects how the CPU will determine the
 	// effective address for an instruction.
@@ -80,8 +75,4 @@ type CPU struct {
 
 func (c *CPU) UseSegment(seg *data.Segment) {
 	c.Memory = seg
-}
-
-func (c *CPU) UseStateMap(sm *data.StateMap) {
-	c.State = sm
 }

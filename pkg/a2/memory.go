@@ -7,8 +7,10 @@ import (
 type memSwitcher struct{}
 
 const (
-	memRead  = 200
-	memWrite = 201
+	memRead         = 200
+	memWrite        = 201
+	memReadSegment  = 202
+	memWriteSegment = 203
 )
 
 const (
@@ -71,12 +73,16 @@ func (ms *memSwitcher) SwitchWrite(c *Computer, addr int, val uint8) {
 	switch addr {
 	case onMemReadAux:
 		c.state.SetInt(memRead, memAux)
+		c.state.SetSegment(memReadSegment, c.Aux)
 	case offMemReadAux:
 		c.state.SetInt(memRead, memMain)
+		c.state.SetSegment(memReadSegment, c.Main)
 	case onMemWriteAux:
 		c.state.SetInt(memWrite, memAux)
+		c.state.SetSegment(memWriteSegment, c.Aux)
 	case offMemWriteAux:
 		c.state.SetInt(memWrite, memMain)
+		c.state.SetSegment(memWriteSegment, c.Main)
 	}
 }
 
@@ -88,7 +94,7 @@ func (c *Computer) Get(addr int) uint8 {
 		return fn(c, uaddr)
 	}
 
-	return c.ReadSegment().Get(addr)
+	return ReadSegment(c.state).Get(addr)
 }
 
 // Set will set the byte at addr to val, or will execute a write switch
@@ -100,34 +106,26 @@ func (c *Computer) Set(addr int, val uint8) {
 		return
 	}
 
-	c.WriteSegment().Set(addr, val)
+	WriteSegment(c.state).Set(addr, val)
 }
 
 // MapRange will, given a range of addresses (from..to), set the read
 // and write map functions to those given.
-func (c *Computer) MapRange(from, to int, rfn ReadMapFn, wfn WriteMapFn) {
+func (c *Computer) MapRange(from, to int, rfn data.SoftRead, wfn data.SoftWrite) {
 	for addr := from; addr < to; addr++ {
-		c.RMap[addr] = rfn
-		c.WMap[addr] = wfn
+		c.smap.SetRead(addr, rfn)
+		c.smap.SetWrite(addr, wfn)
 	}
 }
 
 // ReadSegment returns the segment that should be used for general
 // reads, according to our current memory mode.
-func (c *Computer) ReadSegment() *data.Segment {
-	if c.state.Int(memRead) == memAux {
-		return c.Aux
-	}
-
-	return c.Main
+func ReadSegment(stm *data.StateMap) *data.Segment {
+	return stm.Segment(memReadSegment)
 }
 
 // WriteSegment returns the segment that should be used for general
 // writes, according to our current memory mode.
-func (c *Computer) WriteSegment() *data.Segment {
-	if c.state.Int(memWrite) == memAux {
-		return c.Aux
-	}
-
-	return c.Main
+func WriteSegment(stm *data.StateMap) *data.Segment {
+	return stm.Segment(memWriteSegment)
 }

@@ -32,6 +32,9 @@ const (
 	// When this is true, then high resolution will be rendered as "double high"
 	// resolution.
 	displayDoubleHigh = 508
+
+	displayRedraw     = 509
+	displayAuxSegment = 510
 )
 
 const (
@@ -130,6 +133,8 @@ func (ds *displaySwitcher) UseDefaults(c *Computer) {
 	c.state.SetBool(displayMixed, false)
 	c.state.SetBool(displayPage2, false)
 	c.state.SetBool(displayStore80, false)
+	c.state.SetBool(displayRedraw, true)
+	c.state.SetSegment(displayAuxSegment, c.Aux)
 }
 
 func (ds *displaySwitcher) onOrOffReadWrite(c *Computer, a int) bool {
@@ -250,34 +255,34 @@ func (ds *displaySwitcher) SwitchWrite(c *Computer, a int, val uint8) {
 	}
 }
 
-func (c *Computer) DisplaySegment(addr int) *data.Segment {
-	if c.state.Bool(displayStore80) {
-		if addr >= 0x0400 && addr < 0x0800 && c.state.Bool(displayHires) {
-			return c.Aux
+func DisplaySegment(addr int, stm *data.StateMap) *data.Segment {
+	if stm.Bool(displayStore80) {
+		if addr >= 0x0400 && addr < 0x0800 && stm.Bool(displayHires) {
+			return stm.Segment(displayAuxSegment)
 		} else if addr >= 0x2000 && addr < 0x4000 &&
-			c.state.Bool(displayHires) &&
-			c.state.Bool(displayPage2) {
-			return c.Aux
+			stm.Bool(displayHires) &&
+			stm.Bool(displayPage2) {
+			return stm.Segment(displayAuxSegment)
 		}
 	}
 
-	return c.ReadSegment()
+	return ReadSegment(stm)
 }
 
-func DisplayRead(c *Computer, addr int) uint8 {
-	return c.DisplaySegment(addr).Get(int(addr))
+func DisplayRead(addr int, stm *data.StateMap) uint8 {
+	return DisplaySegment(addr, stm).Get(int(addr))
 }
 
-func DisplayWrite(c *Computer, addr int, val uint8) {
+func DisplayWrite(addr int, val uint8, stm *data.StateMap) {
 	// Let the drawing routines we have know that it's time to re-render
 	// the screen.
-	c.reDraw = true
-	c.DisplaySegment(addr).Set(int(addr), val)
+	stm.SetBool(displayRedraw, true)
+	DisplaySegment(addr, stm).Set(int(addr), val)
 }
 
 // Render will draw an updated picture of our graphics to the local framebuffer
 func (c *Computer) Render() {
-	if !c.reDraw {
+	if !c.state.Bool(displayRedraw) {
 		return
 	}
 
@@ -307,5 +312,5 @@ func (c *Computer) Render() {
 		c.log.Debugf("i'm getting called with display mode %x", c.DisplayMode)
 	}
 
-	c.reDraw = false
+	c.state.SetBool(displayRedraw, false)
 }

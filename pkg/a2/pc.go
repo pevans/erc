@@ -1,12 +1,15 @@
 package a2
 
+import "github.com/pevans/erc/pkg/data"
+
 type pcSwitcher struct{}
 
 const (
-	pcExpansion = 300
-	pcSlotC3    = 301
-	pcSlotCX    = 302
-	pcExpSlot   = 303
+	pcExpansion  = 300
+	pcSlotC3     = 301
+	pcSlotCX     = 302
+	pcExpSlot    = 303
+	pcROMSegment = 304
 )
 
 const (
@@ -42,15 +45,15 @@ func (ps *pcSwitcher) UseDefaults(c *Computer) {
 	c.state.SetBool(pcExpansion, false)
 	c.state.SetBool(pcSlotC3, false)
 	c.state.SetBool(pcSlotCX, true)
+	c.state.SetSegment(pcROMSegment, c.ROM)
 }
 
 // SwitchRead will return hi on bit 7 if slot c3 or cx is set to use peripheral
 // rom; otherwise lo.
 func (ps *pcSwitcher) SwitchRead(c *Computer, addr int) uint8 {
 	var (
-		hi      uint8 = 0x80
-		lo      uint8 = 0x00
-		addrInt       = int(addr)
+		hi uint8 = 0x80
+		lo uint8 = 0x00
 	)
 
 	switch addr {
@@ -66,7 +69,7 @@ func (ps *pcSwitcher) SwitchRead(c *Computer, addr int) uint8 {
 	case offExpROM:
 		// This is kind of an unusual switch, though, in that calling it
 		// produces a side effect while returning from ROM.
-		val := PCRead(c, addr)
+		val := PCRead(addr, c.state)
 
 		// Hitting this address will clear the IO SELECT' and IO STROBE' signals
 		// in the hardware, which essentially means that expansion rom is turned
@@ -77,28 +80,28 @@ func (ps *pcSwitcher) SwitchRead(c *Computer, addr int) uint8 {
 		return val
 	}
 
-	if ps.slotXROM(addrInt) {
-		c.state.SetInt(pcExpSlot, ps.slotFromAddr(addrInt))
-		return PCRead(c, addr)
+	if slotXROM(addr) {
+		c.state.SetInt(pcExpSlot, ps.slotFromAddr(addr))
+		return PCRead(addr, c.state)
 	}
 
-	if ps.expROM(addrInt) && c.state.Int(pcExpSlot) > 0 {
+	if expROM(addr) && c.state.Int(pcExpSlot) > 0 {
 		c.state.SetBool(pcExpansion, true)
-		return PCRead(c, addr)
+		return PCRead(addr, c.state)
 	}
 
 	return lo
 }
 
-func (ps *pcSwitcher) slotXROM(addr int) bool {
+func slotXROM(addr int) bool {
 	return addr >= 0xC100 && addr < 0xC800
 }
 
-func (ps *pcSwitcher) expROM(addr int) bool {
+func expROM(addr int) bool {
 	return addr >= 0xC800 && addr < 0xD000
 }
 
-func (ps *pcSwitcher) slot3ROM(addr int) bool {
+func slot3ROM(addr int) bool {
 	return addr >= 0xC300 && addr < 0xC400
 }
 
@@ -141,26 +144,25 @@ func pcPROMAddr(addr int) int {
 // PCRead returns a byte from ROM within the peripheral card address space
 // ($C1..$CF). Based on the contents of the computer's PC Switcher, this can be
 // from internal ROM or from a dedicated peripheral ROM block.
-func PCRead(c *Computer, addr int) uint8 {
+func PCRead(addr int, stm *data.StateMap) uint8 {
 	var (
-		addrInt   = int(addr)
-		intROM    = int(pcIROMAddr(addrInt))
-		periphROM = int(pcPROMAddr(addrInt))
+		intROM    = int(pcIROMAddr(addr))
+		periphROM = int(pcPROMAddr(addr))
 	)
 
 	switch {
 	case
-		c.state.Bool(pcExpansion) && c.pc.expROM(addrInt),
-		c.state.Bool(pcSlotC3) && c.pc.slot3ROM(addrInt),
-		c.state.Bool(pcSlotCX) && c.pc.slotXROM(addrInt):
-		return c.ROM.Get(int(periphROM))
+		stm.Bool(pcExpansion) && expROM(addr),
+		stm.Bool(pcSlotC3) && slot3ROM(addr),
+		stm.Bool(pcSlotCX) && slotXROM(addr):
+		return stm.Segment(pcROMSegment).Get(periphROM)
 	}
 
-	return c.ROM.Get(int(intROM))
+	return stm.Segment(pcROMSegment).Get(intROM)
 }
 
 // PCWrite is a stub which does nothing, since it handles writes into an
 // explicitly read-only memory space.
-func PCWrite(c *Computer, addr int, val uint8) {
+func PCWrite(addr int, val uint8, stm *data.StateMap) {
 	// Do nothing
 }

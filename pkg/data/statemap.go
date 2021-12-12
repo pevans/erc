@@ -61,3 +61,29 @@ func (sm *StateMap) Bool(k int) bool {
 func (sm *StateMap) SetBool(k int, v bool) {
 	sm.m[k] = v
 }
+
+func (sm *StateMap) Segment(k int) *Segment {
+	v, ok := sm.m[k]
+	if !ok {
+		return nil
+	}
+
+	return v.(*Segment)
+}
+
+func (sm *StateMap) SetSegment(k int, v *Segment) {
+	sm.m[k] = v
+}
+
+func (sm *StateMap) Any(k int) interface{} {
+	v, ok := sm.m[k]
+	if !ok {
+		return nil
+	}
+
+	return v
+}
+
+func (sm *StateMap) SetAny(k int, v interface{}) {
+	sm.m[k] = v
+}

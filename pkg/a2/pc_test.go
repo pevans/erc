@@ -70,31 +70,31 @@ func (s *a2Suite) TestPCRead() {
 
 	s.Run("reads from expansion space", func() {
 		s.comp.state.SetBool(pcExpansion, true)
-		s.Equal(s.comp.ROM.Get(prc801), PCRead(s.comp, uc801))
+		s.Equal(s.comp.ROM.Get(prc801), PCRead(uc801, s.comp.state))
 
 		s.comp.state.SetBool(pcExpansion, false)
-		s.Equal(s.comp.ROM.Get(irc801), PCRead(s.comp, uc801))
+		s.Equal(s.comp.ROM.Get(irc801), PCRead(uc801, s.comp.state))
 	})
 
 	s.Run("reads from c3 rom space", func() {
 		s.comp.state.SetBool(pcSlotC3, true)
 		s.comp.state.SetBool(pcSlotCX, false)
-		s.Equal(s.comp.ROM.Get(prc301), PCRead(s.comp, uc301))
+		s.Equal(s.comp.ROM.Get(prc301), PCRead(uc301, s.comp.state))
 
 		s.comp.state.SetBool(pcSlotC3, false)
-		s.Equal(s.comp.ROM.Get(irc301), PCRead(s.comp, uc301))
+		s.Equal(s.comp.ROM.Get(irc301), PCRead(uc301, s.comp.state))
 
 		// slotCX is a trick; it enables us to read C3 ROM even if C3 ROM is
 		// off.
 		s.comp.state.SetBool(pcSlotCX, true)
-		s.Equal(s.comp.ROM.Get(prc301), PCRead(s.comp, uc301))
+		s.Equal(s.comp.ROM.Get(prc301), PCRead(uc301, s.comp.state))
 	})
 
 	s.Run("reads from cx rom space", func() {
 		s.comp.state.SetBool(pcSlotCX, true)
-		s.Equal(s.comp.ROM.Get(prc401), PCRead(s.comp, uc401))
+		s.Equal(s.comp.ROM.Get(prc401), PCRead(uc401, s.comp.state))
 
 		s.comp.state.SetBool(pcSlotCX, false)
-		s.Equal(s.comp.ROM.Get(irc401), PCRead(s.comp, uc401))
+		s.Equal(s.comp.ROM.Get(irc401), PCRead(uc401, s.comp.state))
 	})
 }

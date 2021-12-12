@@ -24,10 +24,6 @@ type Computer struct {
 	// The CPU of the Apple //e was an MOS 65C02 processor.
 	CPU *mos65c02.CPU
 
-	// reDraw is set to true when a screen redraw is necessary, and set
-	// to false the redraw is done.
-	reDraw bool
-
 	// There are three primary segments of memory in an Apple //e; main
 	// memory, read-only memory, and auxiliary memory. Each are
 	// accessible through a mechanism called bank-switching.
@@ -57,6 +53,7 @@ type Computer struct {
 	bank bankSwitcher
 	disp displaySwitcher
 	kb   kbSwitcher
+	disk diskSwitcher
 
 	// DisplayMode is the state that our display output is currently in.
 	// (For example, text mode, hires, lores, etc.)
@@ -119,8 +116,7 @@ func NewComputer() *Computer {
 	comp.SelectedDrive = comp.Drive1
 
 	comp.CPU = new(mos65c02.CPU)
-	comp.CPU.WMem = comp
-	comp.CPU.RMem = comp
+	comp.CPU.Memory = comp.Main
 
 	comp.RMap = make(map[int]ReadMapFn)
 	comp.WMap = make(map[int]WriteMapFn)
@@ -152,5 +148,5 @@ func (c *Computer) Dimensions() (width, height int) {
 }
 
 func (c *Computer) NeedsRender() bool {
-	return c.reDraw
+	return c.state.Bool(displayRedraw)
 }

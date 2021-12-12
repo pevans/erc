@@ -72,6 +72,7 @@ func (c *Computer) Reset() {
 	c.kb.UseDefaults(c)
 	c.mem.UseDefaults(c)
 	c.pc.UseDefaults(c)
+	c.disk.UseDefaults(c)
 
 	// Jump to the reset PC address; note this must happen _after_ we
 	// set our modes above, or else we might pull the PC value from the
