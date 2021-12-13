@@ -65,6 +65,10 @@ func (s *Segment) Set(addr int, val uint8) {
 	s.Mem[addr] = val
 }
 
+func (s *Segment) DirectSet(addr int, val uint8) {
+	s.Mem[addr] = val
+}
+
 // Get will get the value from a given cell. If a read function is
 // registered, we will return whatever that is; otherwise we will return
 // the value directly.
@@ -76,6 +80,10 @@ func (s *Segment) Get(addr int) uint8 {
 		}
 	}
 
+	return s.Mem[addr]
+}
+
+func (s *Segment) DirectGet(addr int) uint8 {
 	return s.Mem[addr]
 }
 

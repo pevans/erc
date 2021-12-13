@@ -66,26 +66,16 @@ func (s *a2Suite) TestMemSwitcherSwitchWrite() {
 
 func (s *a2Suite) TestComputerGet() {
 	idx := 0x1
-	uidx := int(idx)
 	val := uint8(0x12)
 
-	// test a normal get
-	delete(s.comp.RMap, uidx)
-	s.comp.Main.Mem[idx] = val
+	s.comp.Main.DirectSet(idx, val)
 	s.comp.state.SetInt(memRead, memMain)
+	s.comp.state.SetSegment(memReadSegment, s.comp.Main)
 	s.Equal(val, s.comp.Get(idx))
 
-	// test a get from rmap
-	s.comp.Main.Mem[idx] = uint8(0)
-	s.comp.RMap[uidx] = func(c *Computer, addr int) uint8 {
-		return val
-	}
-	s.Equal(val, s.comp.Get(idx))
-
-	// test a get from aux
-	delete(s.comp.RMap, uidx)
-	s.comp.Aux.Mem[idx] = val
+	s.comp.Aux.DirectSet(idx, val)
 	s.comp.state.SetInt(memRead, memAux)
+	s.comp.state.SetSegment(memReadSegment, s.comp.Aux)
 	s.Equal(val, s.comp.Get(idx))
 }
 
@@ -117,16 +107,20 @@ func (s *a2Suite) TestComputerSet() {
 
 func (s *a2Suite) TestReadSegment() {
 	s.comp.state.SetInt(memRead, memMain)
+	s.comp.state.SetSegment(memReadSegment, s.comp.Main)
 	s.Equal(s.comp.Main, ReadSegment(s.comp.state))
 
 	s.comp.state.SetInt(memRead, memAux)
+	s.comp.state.SetSegment(memReadSegment, s.comp.Aux)
 	s.Equal(s.comp.Aux, ReadSegment(s.comp.state))
 }
 
 func (s *a2Suite) TestWriteSegment() {
 	s.comp.state.SetInt(memWrite, memMain)
+	s.comp.state.SetSegment(memWriteSegment, s.comp.Main)
 	s.Equal(s.comp.Main, WriteSegment(s.comp.state))
 
 	s.comp.state.SetInt(memWrite, memAux)
+	s.comp.state.SetSegment(memWriteSegment, s.comp.Aux)
 	s.Equal(s.comp.Aux, WriteSegment(s.comp.state))
 }

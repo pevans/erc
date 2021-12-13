@@ -10,6 +10,8 @@ import (
 // want them to be.
 func TestHiresDots(t *testing.T) {
 	c := NewComputer()
+	c.Boot("")
+
 	dots := make([]hiresDot, 280)
 	emptyDots := []hiresDot{}
 

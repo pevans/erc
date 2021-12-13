@@ -207,14 +207,14 @@ func BankSegment(stm *data.StateMap) *data.Segment {
 // taking into account the bank-switched states that the computer currently has.
 func BankDFRead(addr int, stm *data.StateMap) uint8 {
 	if stm.Int(bankDFBlock) == bank2 && addr < 0xE000 {
-		return BankSegment(stm).Get(int(addr) + 0x3000)
+		return BankSegment(stm).DirectGet(int(addr) + 0x3000)
 	}
 
 	if stm.Int(bankRead) == bankROM {
 		return stm.Segment(bankROMSegment).Get(int(addr) - SysRomOffset)
 	}
 
-	return BankSegment(stm).Get(int(addr))
+	return BankSegment(stm).DirectGet(int(addr))
 }
 
 // BankDFWrite implements logic for writes into the D0...FF pages of memory,
@@ -225,17 +225,17 @@ func BankDFWrite(addr int, val uint8, stm *data.StateMap) {
 	}
 
 	if stm.Int(bankDFBlock) == bank2 && addr < 0xE000 {
-		BankSegment(stm).Set(int(addr)+0x3000, val)
+		BankSegment(stm).DirectSet(int(addr)+0x3000, val)
 		return
 	}
 
-	BankSegment(stm).Set(int(addr), val)
+	BankSegment(stm).DirectSet(int(addr), val)
 }
 
 func BankZPRead(addr int, stm *data.StateMap) uint8 {
-	return BankSegment(stm).Get(int(addr))
+	return BankSegment(stm).DirectGet(int(addr))
 }
 
 func BankZPWrite(addr int, val uint8, stm *data.StateMap) {
-	BankSegment(stm).Set(int(addr), val)
+	BankSegment(stm).DirectSet(int(addr), val)
 }

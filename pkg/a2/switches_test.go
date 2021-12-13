@@ -2,46 +2,8 @@ package a2
 
 func (s *a2Suite) TestMapSoftSwitches() {
 	var (
-		addr int
-		ok   bool
+		ok bool
 	)
-
-	// Testing for BankAuxiliary switches
-	for addr = 0; addr < 0x200; addr++ {
-		_, ok = s.comp.RMap[addr]
-		s.Equal(true, ok)
-
-		_, ok = s.comp.WMap[addr]
-		s.Equal(true, ok)
-	}
-
-	for addr = 0x400; addr < 0x800; addr++ {
-		_, ok = s.comp.RMap[addr]
-		s.Equal(true, ok)
-
-		_, ok = s.comp.WMap[addr]
-		s.Equal(true, ok)
-	}
-
-	for addr = 0x2000; addr < 0x4000; addr++ {
-		_, ok = s.comp.RMap[addr]
-		s.Equal(true, ok)
-
-		_, ok = s.comp.WMap[addr]
-		s.Equal(true, ok)
-	}
-
-	// Testing all cases where ROM or bank-addressable RAM could be
-	// found. The end condition is addr > 0 because we need to test
-	// through 0xFFFF; adding 1 to that number would overflow us back to
-	// zero, which will kick us out.
-	for addr = 0xD000; addr <= 0xFFFF; addr++ {
-		_, ok = s.comp.RMap[addr]
-		s.Equal(true, ok)
-
-		_, ok = s.comp.WMap[addr]
-		s.Equal(true, ok)
-	}
 
 	rmapModifiers := []int{
 		kbDataAndStrobe,

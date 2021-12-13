@@ -46,6 +46,8 @@ func memWriteSwitches() []int {
 func (ms *memSwitcher) UseDefaults(c *Computer) {
 	c.state.SetInt(memRead, memMain)
 	c.state.SetInt(memWrite, memMain)
+	c.state.SetSegment(memReadSegment, c.Main)
+	c.state.SetSegment(memWriteSegment, c.Main)
 }
 
 func (ms *memSwitcher) SwitchRead(c *Computer, addr int) uint8 {

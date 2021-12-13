@@ -270,14 +270,14 @@ func DisplaySegment(addr int, stm *data.StateMap) *data.Segment {
 }
 
 func DisplayRead(addr int, stm *data.StateMap) uint8 {
-	return DisplaySegment(addr, stm).Get(int(addr))
+	return DisplaySegment(addr, stm).DirectGet(int(addr))
 }
 
 func DisplayWrite(addr int, val uint8, stm *data.StateMap) {
 	// Let the drawing routines we have know that it's time to re-render
 	// the screen.
 	stm.SetBool(displayRedraw, true)
-	DisplaySegment(addr, stm).Set(int(addr), val)
+	DisplaySegment(addr, stm).DirectSet(int(addr), val)
 }
 
 // Render will draw an updated picture of our graphics to the local framebuffer

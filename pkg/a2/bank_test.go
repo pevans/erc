@@ -1,5 +1,7 @@
 package a2
 
+import "github.com/pevans/erc/pkg/data"
+
 func (s *a2Suite) TestUseDefaults() {
 	s.comp.bank.UseDefaults(s.comp)
 	s.Equal(bankROM, s.comp.state.Int(bankRead))
@@ -221,18 +223,20 @@ func (s *a2Suite) TestBankZPRead() {
 	addr := 0x123
 	cases := []struct {
 		mode int
+		seg  *data.Segment
 		main uint8
 		aux  uint8
 		want uint8
 	}{
-		{bankAux, 0x1, 0x2, 0x2},
-		{bankMain, 0x3, 0x2, 0x3},
+		{bankAux, s.comp.Aux, 0x1, 0x2, 0x2},
+		{bankMain, s.comp.Main, 0x3, 0x2, 0x3},
 	}
 
 	for _, c := range cases {
-		s.comp.Main.Set(addr, c.main)
-		s.comp.Aux.Set(addr, c.aux)
+		s.comp.Main.DirectSet(addr, c.main)
+		s.comp.Aux.DirectSet(addr, c.aux)
 		s.comp.state.SetInt(bankSysBlock, c.mode)
+		s.comp.state.SetSegment(bankSysBlockSegment, c.seg)
 
 		s.Equal(c.want, s.comp.Get(addr))
 	}
@@ -242,12 +246,13 @@ func (s *a2Suite) TestBankZPWrite() {
 	addr := 0x123
 	cases := []struct {
 		mode int
+		seg  *data.Segment
 		main uint8
 		aux  uint8
 		want uint8
 	}{
-		{bankAux, 0x0, 0x2, 0x2},
-		{bankMain, 0x3, 0x0, 0x3},
+		{bankAux, s.comp.Aux, 0x0, 0x2, 0x2},
+		{bankMain, s.comp.Main, 0x3, 0x0, 0x3},
 	}
 
 	for _, c := range cases {
@@ -255,9 +260,10 @@ func (s *a2Suite) TestBankZPWrite() {
 		s.comp.Aux.Set(addr, 0x0)
 
 		s.comp.state.SetInt(bankSysBlock, c.mode)
+		s.comp.state.SetSegment(bankSysBlockSegment, c.seg)
 		s.comp.Set(addr, c.want)
 
-		s.Equal(c.main, s.comp.Main.Get(addr))
-		s.Equal(c.aux, s.comp.Aux.Get(addr))
+		s.Equal(c.main, s.comp.Main.DirectGet(addr))
+		s.Equal(c.aux, s.comp.Aux.DirectGet(addr))
 	}
 }
