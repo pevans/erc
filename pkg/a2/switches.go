@@ -19,57 +19,43 @@ func (c *Computer) MapSoftSwitches() {
 	c.MapRange(0xC100, 0xD000, PCRead, PCWrite)
 	c.MapRange(0xD000, 0x10000, BankDFRead, BankDFWrite)
 
-	rfn := func(s Switcher) func(*Computer, int) uint8 {
-		return func(c *Computer, addr int) uint8 {
-			return s.SwitchRead(c, addr)
-		}
-	}
-
-	wfn := func(s Switcher) func(*Computer, int, uint8) {
-		return func(c *Computer, addr int, val uint8) {
-			s.SwitchWrite(c, addr, val)
-		}
-	}
-
 	for _, a := range kbReadSwitches() {
-		c.RMap[a] = rfn(&c.kb)
+		c.smap.SetRead(a, kbSwitchRead)
 	}
 
 	for _, a := range kbWriteSwitches() {
-		c.WMap[a] = wfn(&c.kb)
+		c.smap.SetWrite(a, kbSwitchWrite)
 	}
 
 	for _, a := range memReadSwitches() {
-		c.RMap[a] = rfn(&c.mem)
+		c.smap.SetRead(a, memSwitchRead)
 	}
 
 	for _, a := range memWriteSwitches() {
-		c.WMap[a] = wfn(&c.mem)
+		c.smap.SetWrite(a, memSwitchWrite)
 	}
 
-	for _, addr := range bankReadSwitches() {
-		c.RMap[addr] = rfn(&c.bank)
+	for _, a := range bankReadSwitches() {
+		c.smap.SetRead(a, bankSwitchRead)
 	}
 
-	for _, addr := range bankWriteSwitches() {
-		c.WMap[addr] = wfn(&c.bank)
+	for _, a := range bankWriteSwitches() {
+		c.smap.SetWrite(a, bankSwitchWrite)
 	}
 
 	for _, a := range pcReadSwitches() {
-		c.RMap[a] = rfn(&c.pc)
+		c.smap.SetRead(a, pcSwitchRead)
 	}
 
 	for _, a := range pcWriteSwitches() {
-		c.WMap[a] = func(c *Computer, a int, val uint8) {
-			c.pc.SwitchWrite(c, a, val)
-		}
+		c.smap.SetWrite(a, pcSwitchWrite)
 	}
 
 	for _, a := range displayReadSwitches() {
-		c.RMap[a] = rfn(&c.disp)
+		c.smap.SetRead(a, displaySwitchRead)
 	}
 
 	for _, a := range displayWriteSwitches() {
-		c.WMap[a] = wfn(&c.disp)
+		c.smap.SetWrite(a, displaySwitchWrite)
 	}
 }

@@ -1,6 +1,6 @@
 package a2
 
-type kbSwitcher struct{}
+import "github.com/pevans/erc/pkg/data"
 
 const (
 	kbLastKey = 100
@@ -26,37 +26,29 @@ func kbWriteSwitches() []int {
 	}
 }
 
-func (ks *kbSwitcher) SwitchRead(c *Computer, addr int) uint8 {
+func kbSwitchRead(addr int, stm *data.StateMap) uint8 {
 	switch addr {
 	case kbDataAndStrobe:
-		return c.state.Uint8(kbLastKey) | c.state.Uint8(kbStrobe)
+		return stm.Uint8(kbLastKey) | stm.Uint8(kbStrobe)
 	case kbAnyKeyDown:
-		c.state.SetUint8(kbStrobe, 0)
-		return c.state.Uint8(kbKeyDown)
+		stm.SetUint8(kbStrobe, 0)
+		return stm.Uint8(kbKeyDown)
 	}
 
 	// Nothing else can really come in here, but if something did...
 	return 0
 }
 
-func (ks *kbSwitcher) SwitchWrite(c *Computer, addr int, val uint8) {
+func kbSwitchWrite(addr int, val uint8, stm *data.StateMap) {
 	if addr == kbAnyKeyDown {
-		c.state.SetUint8(kbStrobe, 0)
+		stm.SetUint8(kbStrobe, 0)
 	}
 }
 
-func (ks *kbSwitcher) UseDefaults(c *Computer) {
+func kbUseDefaults(c *Computer) {
 	c.state.SetUint8(kbLastKey, 0)
 	c.state.SetUint8(kbKeyDown, 0)
 	c.state.SetUint8(kbStrobe, 0)
-}
-
-func kbSwitchRead(c *Computer, addr int) uint8 {
-	return c.kb.SwitchRead(c, addr)
-}
-
-func kbSwitchWrite(c *Computer, addr int, val uint8) {
-	c.kb.SwitchWrite(c, addr, val)
 }
 
 func (c *Computer) PressKey(key uint8) {

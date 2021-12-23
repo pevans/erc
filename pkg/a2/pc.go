@@ -2,8 +2,6 @@ package a2
 
 import "github.com/pevans/erc/pkg/data"
 
-type pcSwitcher struct{}
-
 const (
 	pcExpansion  = 300
 	pcSlotC3     = 301
@@ -41,7 +39,7 @@ func pcWriteSwitches() []int {
 
 // UseDefaults sets the state of the pc switcher to that which it should have
 // after a cold or warm boot.
-func (ps *pcSwitcher) UseDefaults(c *Computer) {
+func pcUseDefaults(c *Computer) {
 	c.state.SetBool(pcExpansion, false)
 	c.state.SetBool(pcSlotC3, false)
 	c.state.SetBool(pcSlotCX, true)
@@ -50,7 +48,7 @@ func (ps *pcSwitcher) UseDefaults(c *Computer) {
 
 // SwitchRead will return hi on bit 7 if slot c3 or cx is set to use peripheral
 // rom; otherwise lo.
-func (ps *pcSwitcher) SwitchRead(c *Computer, addr int) uint8 {
+func pcSwitchRead(addr int, stm *data.StateMap) uint8 {
 	var (
 		hi uint8 = 0x80
 		lo uint8 = 0x00
@@ -58,36 +56,36 @@ func (ps *pcSwitcher) SwitchRead(c *Computer, addr int) uint8 {
 
 	switch addr {
 	case rdSlotC3ROM:
-		if c.state.Bool(pcSlotC3) {
+		if stm.Bool(pcSlotC3) {
 			return hi
 		}
 		// it _seems_ like this should return lo instead of hi...?
 	case rdSlotCXROM:
-		if c.state.Bool(pcSlotCX) {
+		if stm.Bool(pcSlotCX) {
 			return lo
 		}
 	case offExpROM:
 		// This is kind of an unusual switch, though, in that calling it
 		// produces a side effect while returning from ROM.
-		val := PCRead(addr, c.state)
+		val := PCRead(addr, stm)
 
 		// Hitting this address will clear the IO SELECT' and IO STROBE' signals
 		// in the hardware, which essentially means that expansion rom is turned
 		// off. But only after we get the return value.
-		c.state.SetBool(pcExpansion, false)
-		c.state.SetInt(pcExpSlot, 0)
+		stm.SetBool(pcExpansion, false)
+		stm.SetInt(pcExpSlot, 0)
 
 		return val
 	}
 
 	if slotXROM(addr) {
-		c.state.SetInt(pcExpSlot, ps.slotFromAddr(addr))
-		return PCRead(addr, c.state)
+		stm.SetInt(pcExpSlot, pcSlotFromAddr(addr))
+		return PCRead(addr, stm)
 	}
 
-	if expROM(addr) && c.state.Int(pcExpSlot) > 0 {
-		c.state.SetBool(pcExpansion, true)
-		return PCRead(addr, c.state)
+	if expROM(addr) && stm.Int(pcExpSlot) > 0 {
+		stm.SetBool(pcExpansion, true)
+		return PCRead(addr, stm)
 	}
 
 	return lo
@@ -105,31 +103,31 @@ func slot3ROM(addr int) bool {
 	return addr >= 0xC300 && addr < 0xC400
 }
 
-// slotFromAddr returns the effective slot number from a given CnXX address.
+// pcSlotFromAddr returns the effective slot number from a given CnXX address.
 // While this can theoretically scale to any of sixteen slots, in practice the
 // `n` will be between 1-7.
-func (ps *pcSwitcher) slotFromAddr(addr int) int {
+func pcSlotFromAddr(addr int) int {
 	return (addr >> 8) & 0xf
 }
 
 // SwitchWrite will handle soft switch writes that, in our case, will enable or
 // disable slot rom access.
-func (ps *pcSwitcher) SwitchWrite(c *Computer, addr int, val uint8) {
+func pcSwitchWrite(addr int, val uint8, stm *data.StateMap) {
 	switch addr {
 	case onSlotC3ROM:
-		c.state.SetBool(pcSlotC3, true)
+		stm.SetBool(pcSlotC3, true)
 	case offSlotC3ROM:
-		c.state.SetBool(pcSlotC3, false)
+		stm.SetBool(pcSlotC3, false)
 	case onSlotCXROM:
 		// Note that enabling slotcx rom _also_ enables slotc3 rom, and
 		// disabling does the same.
-		c.state.SetBool(pcSlotCX, true)
-		c.state.SetBool(pcSlotC3, true)
+		stm.SetBool(pcSlotCX, true)
+		stm.SetBool(pcSlotC3, true)
 	case offSlotCXROM:
 		// FIXME: the problem is that addresses aren't matching the
 		// consts, even though they are equal values
-		c.state.SetBool(pcSlotCX, false)
-		c.state.SetBool(pcSlotC3, false)
+		stm.SetBool(pcSlotCX, false)
+		stm.SetBool(pcSlotC3, false)
 	}
 }
 

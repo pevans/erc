@@ -1,9 +1,7 @@
 package a2
 
 func (s *a2Suite) TestDisplaySwitcherUseDefaults() {
-	var ds displaySwitcher
-
-	ds.UseDefaults(s.comp)
+	displayUseDefaults(s.comp)
 
 	s.Equal(true, s.comp.state.Bool(displayText))
 	s.Equal(false, s.comp.state.Bool(displayAltChar))
@@ -18,7 +16,6 @@ func (s *a2Suite) TestDisplaySwitcherUseDefaults() {
 
 func (s *a2Suite) TestDisplaySwitcherSwitchRead() {
 	var (
-		ds displaySwitcher
 		hi uint8 = 0x80
 		lo uint8 = 0x00
 	)
@@ -26,9 +23,9 @@ func (s *a2Suite) TestDisplaySwitcherSwitchRead() {
 	s.Run("high on bit 7", func() {
 		test := func(c *Computer, key int, a int) {
 			c.state.SetBool(key, true)
-			s.Equal(hi, ds.SwitchRead(s.comp, a))
+			s.Equal(hi, displaySwitchRead(a, s.comp.state))
 			c.state.SetBool(key, false)
-			s.Equal(lo, ds.SwitchRead(s.comp, a))
+			s.Equal(lo, displaySwitchRead(a, s.comp.state))
 		}
 
 		test(s.comp, displayAltChar, rdAltChar)
@@ -45,7 +42,7 @@ func (s *a2Suite) TestDisplaySwitcherSwitchRead() {
 	s.Run("reads turn stuff on", func() {
 		onfn := func(c *Computer, key int, a int) {
 			c.state.SetBool(key, false)
-			ds.SwitchRead(s.comp, a)
+			displaySwitchRead(a, s.comp.state)
 			s.True(c.state.Bool(key))
 		}
 
@@ -62,14 +59,14 @@ func (s *a2Suite) TestDisplaySwitcherSwitchRead() {
 		// true
 		s.comp.state.SetBool(displayIou, false)
 		s.comp.state.SetBool(displayDoubleHigh, false)
-		ds.SwitchRead(s.comp, onDHires)
+		displaySwitchRead(onDHires, s.comp.state)
 		s.False(s.comp.state.Bool(displayDoubleHigh))
 	})
 
 	s.Run("reads turn stuff off", func() {
 		offfn := func(c *Computer, key int, a int) {
 			c.state.SetBool(key, true)
-			ds.SwitchRead(s.comp, a)
+			displaySwitchRead(a, s.comp.state)
 			s.False(c.state.Bool(key))
 		}
 
@@ -84,18 +81,16 @@ func (s *a2Suite) TestDisplaySwitcherSwitchRead() {
 
 		s.comp.state.SetBool(displayIou, false)
 		s.comp.state.SetBool(displayDoubleHigh, true)
-		ds.SwitchRead(s.comp, offDHires)
+		displaySwitchRead(offDHires, s.comp.state)
 		s.True(s.comp.state.Bool(displayDoubleHigh))
 	})
 }
 
 func (s *a2Suite) TestDisplaySwitcherSwitchWrite() {
-	var ds displaySwitcher
-
 	s.Run("writes turn stuff on", func() {
 		on := func(c *Computer, key int, a int) {
 			c.state.SetBool(key, false)
-			ds.SwitchWrite(s.comp, a, 0x0)
+			displaySwitchWrite(a, 0x0, s.comp.state)
 			s.True(c.state.Bool(key))
 		}
 
@@ -116,14 +111,14 @@ func (s *a2Suite) TestDisplaySwitcherSwitchWrite() {
 		// true
 		s.comp.state.SetBool(displayIou, false)
 		s.comp.state.SetBool(displayDoubleHigh, false)
-		ds.SwitchWrite(s.comp, onDHires, 0x0)
+		displaySwitchWrite(onDHires, 0x0, s.comp.state)
 		s.False(s.comp.state.Bool(displayDoubleHigh))
 	})
 
 	s.Run("writes turn stuff off", func() {
 		off := func(c *Computer, key int, a int) {
 			c.state.SetBool(key, true)
-			ds.SwitchWrite(s.comp, a, 0x0)
+			displaySwitchWrite(a, 0x0, s.comp.state)
 			s.False(c.state.Bool(key))
 		}
 
@@ -144,7 +139,7 @@ func (s *a2Suite) TestDisplaySwitcherSwitchWrite() {
 		// true
 		s.comp.state.SetBool(displayIou, false)
 		s.comp.state.SetBool(displayDoubleHigh, true)
-		ds.SwitchWrite(s.comp, offDHires, 0x0)
+		displaySwitchWrite(offDHires, 0x0, s.comp.state)
 		s.True(s.comp.state.Bool(displayDoubleHigh))
 	})
 }

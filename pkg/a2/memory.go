@@ -4,13 +4,13 @@ import (
 	"github.com/pevans/erc/pkg/data"
 )
 
-type memSwitcher struct{}
-
 const (
 	memRead         = 200
 	memWrite        = 201
 	memReadSegment  = 202
 	memWriteSegment = 203
+	memAuxSegment   = 204
+	memMainSegment  = 205
 )
 
 const (
@@ -43,14 +43,16 @@ func memWriteSwitches() []int {
 	}
 }
 
-func (ms *memSwitcher) UseDefaults(c *Computer) {
+func memUseDefaults(c *Computer) {
 	c.state.SetInt(memRead, memMain)
 	c.state.SetInt(memWrite, memMain)
 	c.state.SetSegment(memReadSegment, c.Main)
 	c.state.SetSegment(memWriteSegment, c.Main)
+	c.state.SetSegment(memAuxSegment, c.Aux)
+	c.state.SetSegment(memMainSegment, c.Main)
 }
 
-func (ms *memSwitcher) SwitchRead(c *Computer, addr int) uint8 {
+func memSwitchRead(addr int, stm *data.StateMap) uint8 {
 	var (
 		hi uint8 = 0x80
 		lo uint8 = 0x00
@@ -58,12 +60,12 @@ func (ms *memSwitcher) SwitchRead(c *Computer, addr int) uint8 {
 
 	switch addr {
 	case rdMemReadAux:
-		if c.state.Int(memRead) == memAux {
+		if stm.Int(memRead) == memAux {
 			return hi
 		}
 
 	case rdMemWriteAux:
-		if c.state.Int(memWrite) == memAux {
+		if stm.Int(memWrite) == memAux {
 			return hi
 		}
 	}
@@ -71,43 +73,32 @@ func (ms *memSwitcher) SwitchRead(c *Computer, addr int) uint8 {
 	return lo
 }
 
-func (ms *memSwitcher) SwitchWrite(c *Computer, addr int, val uint8) {
+func memSwitchWrite(addr int, val uint8, stm *data.StateMap) {
 	switch addr {
 	case onMemReadAux:
-		c.state.SetInt(memRead, memAux)
-		c.state.SetSegment(memReadSegment, c.Aux)
+		stm.SetInt(memRead, memAux)
+		stm.SetSegment(memReadSegment, stm.Segment(memAuxSegment))
 	case offMemReadAux:
-		c.state.SetInt(memRead, memMain)
-		c.state.SetSegment(memReadSegment, c.Main)
+		stm.SetInt(memRead, memMain)
+		stm.SetSegment(memReadSegment, stm.Segment(memMainSegment))
 	case onMemWriteAux:
-		c.state.SetInt(memWrite, memAux)
-		c.state.SetSegment(memWriteSegment, c.Aux)
+		stm.SetInt(memWrite, memAux)
+		stm.SetSegment(memWriteSegment, stm.Segment(memAuxSegment))
 	case offMemWriteAux:
-		c.state.SetInt(memWrite, memMain)
-		c.state.SetSegment(memWriteSegment, c.Main)
+		stm.SetInt(memWrite, memMain)
+		stm.SetSegment(memWriteSegment, stm.Segment(memMainSegment))
 	}
 }
 
 // Get will return the byte at addr, or will execute a read switch if
 // one is present at the given address.
 func (c *Computer) Get(addr int) uint8 {
-	uaddr := int(addr)
-	if fn, ok := c.RMap[uaddr]; ok {
-		return fn(c, uaddr)
-	}
-
 	return ReadSegment(c.state).Get(addr)
 }
 
 // Set will set the byte at addr to val, or will execute a write switch
 // if one is present at the given address.
 func (c *Computer) Set(addr int, val uint8) {
-	uaddr := int(addr)
-	if fn, ok := c.WMap[uaddr]; ok {
-		fn(c, uaddr, val)
-		return
-	}
-
 	WriteSegment(c.state).Set(addr, val)
 }
 

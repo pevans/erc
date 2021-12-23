@@ -3,7 +3,7 @@ package a2
 import "github.com/pevans/erc/pkg/data"
 
 func (s *a2Suite) TestUseDefaults() {
-	s.comp.bank.UseDefaults(s.comp)
+	bankUseDefaults(s.comp)
 	s.Equal(bankROM, s.comp.state.Int(bankRead))
 	s.Equal(bankRAM, s.comp.state.Int(bankWrite))
 	s.Equal(bank2, s.comp.state.Int(bankDFBlock))
@@ -11,8 +11,6 @@ func (s *a2Suite) TestUseDefaults() {
 }
 
 func (s *a2Suite) TestSwitchRead() {
-	bank := bankSwitcher{}
-
 	rmodes := map[int]int{
 		0xC080: bankRAM,
 		0xC081: bankROM,
@@ -47,17 +45,17 @@ func (s *a2Suite) TestSwitchRead() {
 	}
 
 	rd := func(addr int) int {
-		_ = bank.SwitchRead(s.comp, int(addr))
+		_ = bankSwitchRead(int(addr), s.comp.state)
 		return s.comp.state.Int(bankRead)
 	}
 
 	wr := func(addr int) int {
-		_ = bank.SwitchRead(s.comp, int(addr))
+		_ = bankSwitchRead(int(addr), s.comp.state)
 		return s.comp.state.Int(bankWrite)
 	}
 
 	df := func(addr int) int {
-		_ = bank.SwitchRead(s.comp, int(addr))
+		_ = bankSwitchRead(int(addr), s.comp.state)
 		return s.comp.state.Int(bankDFBlock)
 	}
 
@@ -87,25 +85,24 @@ func (s *a2Suite) TestSwitchRead() {
 		lo7 := uint8(0x00)
 
 		s.comp.state.SetInt(bankDFBlock, bank2)
-		s.Equal(hi7, bank.SwitchRead(s.comp, int(0xC011)))
+		s.Equal(hi7, bankSwitchRead(int(0xC011), s.comp.state))
 		s.comp.state.SetInt(bankDFBlock, bank1)
-		s.Equal(lo7, bank.SwitchRead(s.comp, int(0xC011)))
+		s.Equal(lo7, bankSwitchRead(int(0xC011), s.comp.state))
 
 		s.comp.state.SetInt(bankRead, bankRAM)
-		s.Equal(hi7, bank.SwitchRead(s.comp, int(0xC012)))
+		s.Equal(hi7, bankSwitchRead(int(0xC012), s.comp.state))
 		s.comp.state.SetInt(bankRead, bankROM)
-		s.Equal(lo7, bank.SwitchRead(s.comp, int(0xC012)))
+		s.Equal(lo7, bankSwitchRead(int(0xC012), s.comp.state))
 
 		s.comp.state.SetInt(bankSysBlock, bankAux)
-		s.Equal(hi7, bank.SwitchRead(s.comp, int(0xC016)))
+		s.Equal(hi7, bankSwitchRead(int(0xC016), s.comp.state))
 		s.comp.state.SetInt(bankSysBlock, bankMain)
-		s.Equal(lo7, bank.SwitchRead(s.comp, int(0xC016)))
+		s.Equal(lo7, bankSwitchRead(int(0xC016), s.comp.state))
 	})
 }
 
 func (s *a2Suite) TestSwitchWrite() {
 	var (
-		bank bankSwitcher
 		d123 uint8 = 123
 		d45  uint8 = 45
 		addr int   = 0x11
@@ -114,21 +111,21 @@ func (s *a2Suite) TestSwitchWrite() {
 	s.Run("switching main to aux", func() {
 		s.comp.Main.Mem[addr] = d123
 		s.comp.state.SetInt(bankSysBlock, bankMain)
-		bank.SwitchWrite(s.comp, int(0xC009), d45)
+		bankSwitchWrite(int(0xC009), d45, s.comp.state)
 		s.Equal(bankAux, s.comp.state.Int(bankSysBlock))
 		s.Equal(d123, s.comp.Aux.Mem[addr])
 	})
 
 	s.Run("switching aux to main", func() {
 		s.comp.Aux.Mem[addr] = d45
-		bank.SwitchWrite(s.comp, int(0xC008), d123)
+		bankSwitchWrite(int(0xC008), d123, s.comp.state)
 		s.Equal(bankMain, s.comp.state.Int(bankSysBlock))
 		s.Equal(d45, s.comp.Main.Mem[addr])
 	})
 
 	s.Run("not changing the mode should not copy pages", func() {
 		s.comp.Aux.Mem[addr] = d123
-		bank.SwitchWrite(s.comp, int(0xC008), d123)
+		bankSwitchWrite(int(0xC008), d123, s.comp.state)
 		s.Equal(bankMain, s.comp.state.Int(bankSysBlock))
 		s.Equal(d45, s.comp.Main.Mem[addr])
 	})

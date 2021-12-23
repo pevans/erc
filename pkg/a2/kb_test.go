@@ -3,7 +3,7 @@ package a2
 func (s *a2Suite) TestKBDefaults() {
 	var zero uint8 = 0
 
-	s.comp.kb.UseDefaults(s.comp)
+	kbUseDefaults(s.comp)
 	s.Equal(zero, s.comp.state.Uint8(kbLastKey))
 	s.Equal(zero, s.comp.state.Uint8(kbKeyDown))
 	s.Equal(zero, s.comp.state.Uint8(kbStrobe))
@@ -41,12 +41,12 @@ func (s *a2Suite) TestKBSwitchRead() {
 
 	s.Run("data and strobe", func() {
 		s.comp.PressKey(in)
-		s.Equal(out, s.comp.kb.SwitchRead(s.comp, kbDataAndStrobe))
+		s.Equal(out, kbSwitchRead(kbDataAndStrobe, s.comp.state))
 	})
 
 	s.Run("any key down", func() {
 		s.comp.state.SetUint8(kbStrobe, hi)
-		s.Equal(hi, s.comp.kb.SwitchRead(s.comp, kbAnyKeyDown))
+		s.Equal(hi, kbSwitchRead(kbAnyKeyDown, s.comp.state))
 		s.Zero(s.comp.state.Uint8(kbStrobe))
 	})
 }
@@ -56,7 +56,7 @@ func (s *a2Suite) TestKBSwitchWrite() {
 
 	s.Run("any key down", func() {
 		s.comp.state.SetUint8(kbStrobe, hi)
-		s.comp.kb.SwitchWrite(s.comp, kbAnyKeyDown, 0)
+		kbSwitchWrite(kbAnyKeyDown, 0, s.comp.state)
 		s.Zero(s.comp.state.Uint8(kbStrobe))
 	})
 }

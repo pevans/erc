@@ -1,8 +1,9 @@
 package a2
 
+import "github.com/pevans/erc/pkg/data"
+
 func (s *a2Suite) TestMemSwitcherUseDefaults() {
-	mem := memSwitcher{}
-	mem.UseDefaults(s.comp)
+	memUseDefaults(s.comp)
 
 	s.Equal(memMain, s.comp.state.Int(memRead))
 	s.Equal(memMain, s.comp.state.Int(memWrite))
@@ -14,23 +15,22 @@ func (s *a2Suite) TestMemSwitcherSwitchRead() {
 		c014 int   = 0xC014
 		hi   uint8 = 0x80
 		lo   uint8 = 0x00
-		ms   memSwitcher
 	)
 
 	s.Run("read profile", func() {
 		s.comp.state.SetInt(memRead, memAux)
-		s.Equal(hi, ms.SwitchRead(s.comp, c013))
+		s.Equal(hi, memSwitchRead(c013, s.comp.state))
 
 		s.comp.state.SetInt(memRead, memMain)
-		s.Equal(lo, ms.SwitchRead(s.comp, c013))
+		s.Equal(lo, memSwitchRead(c013, s.comp.state))
 	})
 
 	s.Run("write profile", func() {
 		s.comp.state.SetInt(memWrite, memAux)
-		s.Equal(hi, ms.SwitchRead(s.comp, c014))
+		s.Equal(hi, memSwitchRead(c014, s.comp.state))
 
 		s.comp.state.SetInt(memWrite, memMain)
-		s.Equal(lo, ms.SwitchRead(s.comp, c014))
+		s.Equal(lo, memSwitchRead(c014, s.comp.state))
 	})
 }
 
@@ -40,26 +40,25 @@ func (s *a2Suite) TestMemSwitcherSwitchWrite() {
 		c003 int = 0xC003
 		c004 int = 0xC004
 		c005 int = 0xC005
-		ms   memSwitcher
 	)
 
 	s.Run("set aux works", func() {
 		s.comp.state.SetInt(memRead, memMain)
-		ms.SwitchWrite(s.comp, c003, 0)
+		memSwitchWrite(c003, 0, s.comp.state)
 		s.Equal(memAux, s.comp.state.Int(memRead))
 
 		s.comp.state.SetInt(memWrite, memMain)
-		ms.SwitchWrite(s.comp, c005, 0)
+		memSwitchWrite(c005, 0, s.comp.state)
 		s.Equal(memAux, s.comp.state.Int(memWrite))
 	})
 
 	s.Run("set main works", func() {
 		s.comp.state.SetInt(memRead, memAux)
-		ms.SwitchWrite(s.comp, c002, 0)
+		memSwitchWrite(c002, 0, s.comp.state)
 		s.Equal(memMain, s.comp.state.Int(memRead))
 
 		s.comp.state.SetInt(memWrite, memAux)
-		ms.SwitchWrite(s.comp, c004, 0)
+		memSwitchWrite(c004, 0, s.comp.state)
 		s.Equal(memMain, s.comp.state.Int(memWrite))
 	})
 }
@@ -85,23 +84,21 @@ func (s *a2Suite) TestComputerSet() {
 	val := uint8(0x12)
 
 	// test a normal set
-	delete(s.comp.WMap, uidx)
 	s.comp.state.SetInt(memWrite, memMain)
-	s.comp.Set(idx, val)
+	WriteSegment(s.comp.state).DirectSet(idx, val)
 	s.Equal(val, s.comp.Main.Mem[idx])
 
 	// test a set from wmap
 	var target uint8
-	s.comp.WMap[uidx] = func(c *Computer, addr int, val uint8) {
+	s.comp.smap.SetWrite(uidx, func(addr int, val uint8, stm *data.StateMap) {
 		target = val
-	}
+	})
 	s.comp.Set(idx, val)
 	s.Equal(target, val)
 
 	// test a get from aux
-	delete(s.comp.WMap, uidx)
 	s.comp.state.SetInt(memWrite, memAux)
-	s.comp.Set(idx, val)
+	WriteSegment(s.comp.state).DirectSet(idx, val)
 	s.Equal(val, s.comp.Aux.Mem[idx])
 }
 

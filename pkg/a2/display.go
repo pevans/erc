@@ -4,8 +4,6 @@ import (
 	"github.com/pevans/erc/pkg/data"
 )
 
-type displaySwitcher struct{}
-
 const (
 	// Use the alternate character set if this is true (as opposed to the
 	// primary set).
@@ -120,7 +118,7 @@ func displayWriteSwitches() []int {
 	}
 }
 
-func (ds *displaySwitcher) UseDefaults(c *Computer) {
+func displayUseDefaults(c *Computer) {
 	// Text mode should be enabled
 	c.state.SetBool(displayText, true)
 
@@ -137,40 +135,40 @@ func (ds *displaySwitcher) UseDefaults(c *Computer) {
 	c.state.SetSegment(displayAuxSegment, c.Aux)
 }
 
-func (ds *displaySwitcher) onOrOffReadWrite(c *Computer, a int) bool {
+func displayOnOrOffReadWrite(a int, stm *data.StateMap) bool {
 	switch a {
 	case onPage2:
-		c.state.SetBool(displayPage2, true)
+		stm.SetBool(displayPage2, true)
 		return true
 	case onText:
-		c.state.SetBool(displayText, true)
+		stm.SetBool(displayText, true)
 		return true
 	case onMixed:
-		c.state.SetBool(displayMixed, true)
+		stm.SetBool(displayMixed, true)
 		return true
 	case onHires:
-		c.state.SetBool(displayHires, true)
+		stm.SetBool(displayHires, true)
 		return true
 	case onDHires:
-		if c.state.Bool(displayIou) {
-			c.state.SetBool(displayDoubleHigh, true)
+		if stm.Bool(displayIou) {
+			stm.SetBool(displayDoubleHigh, true)
 		}
 		return true
 	case offPage2:
-		c.state.SetBool(displayPage2, false)
+		stm.SetBool(displayPage2, false)
 		return true
 	case offText:
-		c.state.SetBool(displayText, false)
+		stm.SetBool(displayText, false)
 		return true
 	case offMixed:
-		c.state.SetBool(displayMixed, false)
+		stm.SetBool(displayMixed, false)
 		return true
 	case offHires:
-		c.state.SetBool(displayHires, false)
+		stm.SetBool(displayHires, false)
 		return true
 	case offDHires:
-		if c.state.Bool(displayIou) {
-			c.state.SetBool(displayDoubleHigh, false)
+		if stm.Bool(displayIou) {
+			stm.SetBool(displayDoubleHigh, false)
 		}
 		return true
 	}
@@ -178,51 +176,51 @@ func (ds *displaySwitcher) onOrOffReadWrite(c *Computer, a int) bool {
 	return false
 }
 
-func (ds *displaySwitcher) SwitchRead(c *Computer, a int) uint8 {
+func displaySwitchRead(a int, stm *data.StateMap) uint8 {
 	var (
 		hi uint8 = 0x80
 		lo uint8 = 0x00
 	)
 
-	if ds.onOrOffReadWrite(c, a) {
+	if displayOnOrOffReadWrite(a, stm) {
 		return lo
 	}
 
 	switch a {
 	case rdAltChar:
-		if c.state.Bool(displayAltChar) {
+		if stm.Bool(displayAltChar) {
 			return hi
 		}
 	case rd80Col:
-		if c.state.Bool(displayCol80) {
+		if stm.Bool(displayCol80) {
 			return hi
 		}
 	case rd80Store:
-		if c.state.Bool(displayStore80) {
+		if stm.Bool(displayStore80) {
 			return hi
 		}
 	case rdPage2:
-		if c.state.Bool(displayPage2) {
+		if stm.Bool(displayPage2) {
 			return hi
 		}
 	case rdText:
-		if c.state.Bool(displayText) {
+		if stm.Bool(displayText) {
 			return hi
 		}
 	case rdMixed:
-		if c.state.Bool(displayMixed) {
+		if stm.Bool(displayMixed) {
 			return hi
 		}
 	case rdHires:
-		if c.state.Bool(displayHires) {
+		if stm.Bool(displayHires) {
 			return hi
 		}
 	case rdIOUDis:
-		if c.state.Bool(displayIou) {
+		if stm.Bool(displayIou) {
 			return hi
 		}
 	case rdDHires:
-		if c.state.Bool(displayDoubleHigh) {
+		if stm.Bool(displayDoubleHigh) {
 			return hi
 		}
 	}
@@ -230,28 +228,28 @@ func (ds *displaySwitcher) SwitchRead(c *Computer, a int) uint8 {
 	return lo
 }
 
-func (ds *displaySwitcher) SwitchWrite(c *Computer, a int, val uint8) {
-	if ds.onOrOffReadWrite(c, a) {
+func displaySwitchWrite(a int, val uint8, stm *data.StateMap) {
+	if displayOnOrOffReadWrite(a, stm) {
 		return
 	}
 
 	switch a {
 	case onAltChar:
-		c.state.SetBool(displayAltChar, true)
+		stm.SetBool(displayAltChar, true)
 	case on80Col:
-		c.state.SetBool(displayCol80, true)
+		stm.SetBool(displayCol80, true)
 	case on80Store:
-		c.state.SetBool(displayStore80, true)
+		stm.SetBool(displayStore80, true)
 	case onIOUDis:
-		c.state.SetBool(displayIou, true)
+		stm.SetBool(displayIou, true)
 	case offAltChar:
-		c.state.SetBool(displayAltChar, false)
+		stm.SetBool(displayAltChar, false)
 	case off80Col:
-		c.state.SetBool(displayCol80, false)
+		stm.SetBool(displayCol80, false)
 	case off80Store:
-		c.state.SetBool(displayStore80, false)
+		stm.SetBool(displayStore80, false)
 	case offIOUDis:
-		c.state.SetBool(displayIou, false)
+		stm.SetBool(displayIou, false)
 	}
 }
 

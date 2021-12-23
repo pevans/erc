@@ -1,34 +1,30 @@
 package a2
 
 func (s *a2Suite) TestPCSwitcherUseDefaults() {
-	var ps pcSwitcher
-
-	ps.UseDefaults(s.comp)
+	pcUseDefaults(s.comp)
 	s.Equal(false, s.comp.state.Bool(pcExpansion))
 	s.Equal(false, s.comp.state.Bool(pcSlotC3))
 	s.Equal(true, s.comp.state.Bool(pcSlotCX))
 }
 
 func (s *a2Suite) TestPCSwitcherSwitchWrite() {
-	var ps pcSwitcher
-
 	s.Run("slot c3 rom writes work", func() {
 		s.comp.state.SetBool(pcSlotC3, false)
-		ps.SwitchWrite(s.comp, int(0xC00B), 0x0)
+		pcSwitchWrite(int(0xC00B), 0x0, s.comp.state)
 		s.Equal(true, s.comp.state.Bool(pcSlotC3))
 
-		ps.SwitchWrite(s.comp, int(0xC00A), 0x0)
+		pcSwitchWrite(int(0xC00A), 0x0, s.comp.state)
 		s.Equal(false, s.comp.state.Bool(pcSlotC3))
 	})
 
 	s.Run("slot cx rom writes work", func() {
 		s.comp.state.SetBool(pcSlotCX, false)
 		s.comp.state.SetBool(pcSlotC3, false)
-		ps.SwitchWrite(s.comp, int(0xC006), 0x0)
+		pcSwitchWrite(int(0xC006), 0x0, s.comp.state)
 		s.Equal(true, s.comp.state.Bool(pcSlotCX))
 		s.Equal(true, s.comp.state.Bool(pcSlotC3))
 
-		ps.SwitchWrite(s.comp, int(0xC007), 0x0)
+		pcSwitchWrite(int(0xC007), 0x0, s.comp.state)
 		s.Equal(false, s.comp.state.Bool(pcSlotCX))
 		s.Equal(false, s.comp.state.Bool(pcSlotC3))
 	})
@@ -36,19 +32,18 @@ func (s *a2Suite) TestPCSwitcherSwitchWrite() {
 
 func (s *a2Suite) TestPCSwitcherSwitchRead() {
 	var (
-		ps pcSwitcher
 		hi uint8 = 0x80
 		lo uint8 = 0x00
 	)
 
 	s.Run("read of slotc3 returns hi", func() {
 		s.comp.state.SetBool(pcSlotC3, true)
-		s.Equal(hi, ps.SwitchRead(s.comp, int(0xC017)))
+		s.Equal(hi, pcSwitchRead(int(0xC017), s.comp.state))
 	})
 
 	s.Run("read of slot cx returns lo", func() {
 		s.comp.state.SetBool(pcSlotCX, true)
-		s.Equal(lo, ps.SwitchRead(s.comp, int(0xC016)))
+		s.Equal(lo, pcSwitchRead(int(0xC016), s.comp.state))
 	})
 }
 

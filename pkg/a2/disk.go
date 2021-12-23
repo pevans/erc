@@ -6,9 +6,7 @@ const (
 	diskComputer = 600
 )
 
-type diskSwitcher struct{}
-
-func (ds *diskSwitcher) UseDefaults(c *Computer) {
+func diskUseDefaults(c *Computer) {
 	c.state.SetAny(diskComputer, c) // :cry:
 }
 

@@ -35,25 +35,12 @@ type Computer struct {
 	Drive2        *Drive
 	SelectedDrive *Drive
 
-	// RMap and WMap are the read and write address maps. These contain
-	// functions which emulate the "soft switches" that Apple IIs used
-	// to implement special functionality.
-	RMap map[int]ReadMapFn
-	WMap map[int]WriteMapFn
-
 	smap  *data.SoftMap
 	state *data.StateMap
 
 	// MemMode is a collection of bit flags which tell us what state of
 	// memory we have.
 	MemMode int
-
-	pc   pcSwitcher
-	mem  memSwitcher
-	bank bankSwitcher
-	disp displaySwitcher
-	kb   kbSwitcher
-	disk diskSwitcher
 
 	// DisplayMode is the state that our display output is currently in.
 	// (For example, text mode, hires, lores, etc.)
@@ -117,9 +104,6 @@ func NewComputer() *Computer {
 
 	comp.CPU = new(mos65c02.CPU)
 	comp.CPU.Memory = comp.Main
-
-	comp.RMap = make(map[int]ReadMapFn)
-	comp.WMap = make(map[int]WriteMapFn)
 
 	return comp
 }

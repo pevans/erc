@@ -5,11 +5,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-type bankSwitcher struct {
-	// How many times have we tried to put write into bankRAM mode?
-	writeAttempts int
-}
-
 const (
 	bankRead            = 401
 	bankWrite           = 402
@@ -69,51 +64,51 @@ func bankWriteSwitches() []int {
 // SwitchRead manages reads from soft switches that mostly have to do with
 // returning the state of bank-switching as well as, paradoxically, allowing
 // callers to _modify_ said state.
-func (bs *bankSwitcher) SwitchRead(c *Computer, addr int) uint8 {
+func bankSwitchRead(addr int, stm *data.StateMap) uint8 {
 	// In this set of addresses, it's possible that we might need to return a
 	// value with bit 7 "checked" (which is to say, 1).
 	switch addr {
 	case rdBnk2:
-		return bs.bit7(c.state.Int(bankDFBlock) == bank2)
+		return bankBit7(stm.Int(bankDFBlock) == bank2)
 	case rdLCRAM:
-		return bs.bit7(c.state.Int(bankRead) == bankRAM)
+		return bankBit7(stm.Int(bankRead) == bankRAM)
 	case rdAltZP:
-		return bs.bit7(c.state.Int(bankSysBlock) == bankAux)
+		return bankBit7(stm.Int(bankSysBlock) == bankAux)
 	}
 
 	// Otherwise, we farm off the mode checks to other methods.
-	c.state.SetInt(bankRead, bs.readMode(addr))
-	c.state.SetInt(bankWrite, bs.writeMode(addr))
-	c.state.SetInt(bankDFBlock, bs.dfBlockMode(addr))
+	stm.SetInt(bankRead, bankReadMode(addr))
+	stm.SetInt(bankWrite, bankWriteMode(addr, stm))
+	stm.SetInt(bankDFBlock, bankDFBlockMode(addr))
 
 	return 0x00
 }
 
 // SwitchWrite manages writes on soft switches that may modify bank-switch
 // state, specifically that to do with the usage of main vs. auxilliary memory.
-func (bs *bankSwitcher) SwitchWrite(c *Computer, addr int, val uint8) {
-	origBlock := c.state.Int(bankSysBlock)
+func bankSwitchWrite(addr int, val uint8, stm *data.StateMap) {
+	origBlock := stm.Int(bankSysBlock)
 
 	switch addr {
 	case offAltZP:
-		c.state.SetInt(bankSysBlock, bankMain)
-		c.state.SetSegment(bankSysBlockSegment, c.Main)
+		stm.SetInt(bankSysBlock, bankMain)
+		stm.SetSegment(bankSysBlockSegment, stm.Segment(memMainSegment))
 	case onAltZP:
-		c.state.SetInt(bankSysBlock, bankAux)
-		c.state.SetSegment(bankSysBlockSegment, c.Aux)
+		stm.SetInt(bankSysBlock, bankAux)
+		stm.SetSegment(bankSysBlockSegment, stm.Segment(memAuxSegment))
 	}
 
-	newBlock := c.state.Int(bankSysBlock)
+	newBlock := stm.Int(bankSysBlock)
 	if origBlock != newBlock {
-		if err := bankSyncPages(c, origBlock, newBlock); err != nil {
+		if err := bankSyncPages(stm, origBlock, newBlock); err != nil {
 			panic(errors.Wrap(err, "could not copy bank memory between segments"))
 		}
 	}
 }
 
-// bit7 will return, given some boolean condition that has already been
+// bankBit7 will return, given some boolean condition that has already been
 // computed, either a value with bit 7 flagged on, or zero.
-func (bs *bankSwitcher) bit7(cond bool) uint8 {
+func bankBit7(cond bool) uint8 {
 	if cond {
 		return 0x80
 	}
@@ -121,7 +116,7 @@ func (bs *bankSwitcher) bit7(cond bool) uint8 {
 	return 0x00
 }
 
-func (bs *bankSwitcher) readMode(addr int) int {
+func bankReadMode(addr int) int {
 	switch addr {
 	case 0xC080, 0xC083, 0xC088, 0xC08B:
 		return bankRAM
@@ -130,21 +125,21 @@ func (bs *bankSwitcher) readMode(addr int) int {
 	return bankROM
 }
 
-func (bs *bankSwitcher) writeMode(addr int) int {
+func bankWriteMode(addr int, stm *data.StateMap) int {
 	switch addr {
 	case 0xC081, 0xC083, 0xC089, 0xC08B:
-		bs.writeAttempts++
+		stm.SetInt(bankWriteAttempts, stm.Int(bankWriteAttempts)+1)
 	}
 
-	if bs.writeAttempts > 1 {
-		bs.writeAttempts = 0
+	if stm.Int(bankWriteAttempts) > 1 {
+		stm.SetInt(bankWriteAttempts, 0)
 		return bankRAM
 	}
 
 	return bankNone
 }
 
-func (bs *bankSwitcher) dfBlockMode(addr int) int {
+func bankDFBlockMode(addr int) int {
 	switch addr {
 	case 0xC080, 0xC081, 0xC082, 0xC083:
 		return bank2
@@ -155,7 +150,7 @@ func (bs *bankSwitcher) dfBlockMode(addr int) int {
 
 // UseDefaults will set the state of the bank switcher to use what the computer
 // would have if you cold- or warm-booted.
-func (bs *bankSwitcher) UseDefaults(c *Computer) {
+func bankUseDefaults(c *Computer) {
 	// "When you turn power on or reset the Apple IIe, it initializes the bank
 	// switches for reading the ROM and writing the RAM, using the second bank
 	// of RAM."
@@ -167,33 +162,35 @@ func (bs *bankSwitcher) UseDefaults(c *Computer) {
 	c.state.SetSegment(bankROMSegment, c.ROM)
 }
 
-func bankSwitchRead(c *Computer, addr int) uint8 {
-	return c.bank.SwitchRead(c, addr)
-}
-
-func bankSwitchWrite(c *Computer, addr int, val uint8) {
-	c.bank.SwitchWrite(c, addr, val)
-}
-
-func bankSyncPages(c *Computer, oldmode, newmode int) error {
+func bankSyncPages(stm *data.StateMap, oldmode, newmode int) error {
 	if oldmode == newmode {
 		return nil
 	}
 
 	if oldmode == bankMain {
-		return bankSyncPagesToAux(c)
+		return bankSyncPagesToAux(stm)
 	}
 
-	return bankSyncPagesFromAux(c)
+	return bankSyncPagesFromAux(stm)
 }
 
-func bankSyncPagesToAux(c *Computer) error {
-	_, err := c.Aux.CopySlice(0, c.Main.Mem[0:0x200])
+func bankSyncPagesToAux(stm *data.StateMap) error {
+	var (
+		aux  = stm.Segment(memAuxSegment)
+		main = stm.Segment(memMainSegment)
+	)
+
+	_, err := aux.CopySlice(0, main.Mem[0:0x200])
 	return err
 }
 
-func bankSyncPagesFromAux(c *Computer) error {
-	_, err := c.Main.CopySlice(0, c.Aux.Mem[0:0x200])
+func bankSyncPagesFromAux(stm *data.StateMap) error {
+	var (
+		aux  = stm.Segment(memAuxSegment)
+		main = stm.Segment(memMainSegment)
+	)
+
+	_, err := main.CopySlice(0, aux.Mem[0:0x200])
 	return err
 }
 
