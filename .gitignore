@@ -12,3 +12,6 @@
 # Ignore any IDE stuff
 .idea
 .vscode
+
+# Notes that I keep
+.notes
