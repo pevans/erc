@@ -1,6 +1,7 @@
 package a2
 
 import (
+	"github.com/pevans/erc/pkg/clog"
 	"github.com/pevans/erc/pkg/data"
 )
 
@@ -284,7 +285,7 @@ func (c *Computer) Render() {
 		return
 	}
 
-	c.log.Debug("rendering...")
+	clog.Debug("rendering...")
 
 	// if it's text, do one thing
 	// if it's lores, do another thing
@@ -307,7 +308,7 @@ func (c *Computer) Render() {
 
 		c.hiresRender(start, end)
 	default:
-		c.log.Debugf("i'm getting called with display mode %x", c.DisplayMode)
+		clog.Debugf("i'm getting called with display mode %x", c.DisplayMode)
 	}
 
 	c.state.SetBool(displayRedraw, false)

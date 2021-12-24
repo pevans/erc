@@ -1,12 +1,10 @@
 package main
 
 import (
-	"log"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/pevans/erc/pkg/a2"
-	"github.com/pevans/erc/pkg/boot"
+	"github.com/pevans/erc/pkg/clog"
 	"github.com/pevans/erc/pkg/gfx"
 	"github.com/pkg/errors"
 )
@@ -15,12 +13,11 @@ import (
 // us.
 type game struct {
 	comp *a2.Computer
-	log  *boot.Logger
 }
 
 // drawLoop executes the logic to render our graphics according to some cadence
 // (which is generally x frames per second).
-func drawLoop(comp *a2.Computer, log *boot.Logger) error {
+func drawLoop(comp *a2.Computer) error {
 	w, h := comp.Dimensions()
 
 	ebiten.SetWindowSize(w*3, h*3)
@@ -28,7 +25,6 @@ func drawLoop(comp *a2.Computer, log *boot.Logger) error {
 
 	g := &game{
 		comp: comp,
-		log:  log,
 	}
 
 	return ebiten.RunGame(g)
@@ -42,7 +38,7 @@ func (g *game) Layout(outWidth, outHeight int) (scrWidth, scrHeight int) {
 // Draw executes the render logic for the framebuffer.
 func (g *game) Draw(screen *ebiten.Image) {
 	if err := g.comp.FrameBuffer.Render(screen); err != nil {
-		log.Fatal(errors.Wrap(err, "could not render framebuffer"))
+		clog.Error(errors.Wrap(err, "could not render framebuffer"))
 	}
 }
 

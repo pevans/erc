@@ -5,7 +5,6 @@ import (
 
 	"github.com/pevans/erc/pkg/asmrec"
 	"github.com/pevans/erc/pkg/asmrec/a2rec"
-	"github.com/pevans/erc/pkg/boot"
 	"github.com/pevans/erc/pkg/data"
 	"github.com/pevans/erc/pkg/gfx"
 	"github.com/pevans/erc/pkg/mos65c02"
@@ -53,7 +52,6 @@ type Computer struct {
 	// SysFont is the system font for the Apple II
 	SysFont *gfx.Font
 
-	log       *boot.Logger
 	rec       asmrec.Recorder
 	recWriter io.Writer
 }
@@ -111,11 +109,6 @@ func NewComputer() *Computer {
 // SetFont will take the accepted font and treat it as our system font
 func (c *Computer) SetFont(f *gfx.Font) {
 	c.SysFont = f
-}
-
-// SetLogger will tell the computer which logger to use for any log messages
-func (c *Computer) SetLogger(l *boot.Logger) {
-	c.log = l
 }
 
 // SetRecorderWriter accepts a writer that we'll use to output any records of

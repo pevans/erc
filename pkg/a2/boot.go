@@ -79,3 +79,12 @@ func (c *Computer) Reset() {
 	// wrong place in memory.
 	c.CPU.PC = c.CPU.Get16(ResetPC)
 }
+
+func (c *Computer) bankInit() {
+	c.state.SetInt(bankRead, bankROM)
+	c.state.SetInt(bankWrite, bankRAM)
+	c.state.SetInt(bankDFBlock, bank2)
+	c.state.SetInt(bankSysBlock, bankMain)
+	c.state.SetSegment(bankSysBlockSegment, c.Main)
+	c.state.SetSegment(bankROMSegment, c.ROM)
+}

@@ -2,8 +2,6 @@ package a2
 
 import (
 	"os"
-
-	"github.com/pevans/erc/pkg/boot"
 )
 
 func (s *a2Suite) TestNewComputer() {
@@ -19,12 +17,6 @@ func (s *a2Suite) TestNewComputer() {
 	s.Equal(c.SelectedDrive, c.Drive1)
 	s.NotNil(c.CPU)
 	s.Equal(c.CPU.Memory, c.Main)
-}
-
-func (s *a2Suite) TestSetLogger() {
-	l, _ := boot.DefaultConfig().NewLogger()
-	s.comp.SetLogger(l)
-	s.NotNil(s.comp.log)
 }
 
 func (s *a2Suite) TestRecorderWriter() {

@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/pevans/erc/pkg/data"
-	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -173,7 +172,6 @@ func (s *mosSuite) TestIdx() {
 
 		// And at the operand (+ X).
 		s.cpu.Set16(uint16(c.oper+c.x), c.atOper)
-		log.Printf("Expecting = %x", uint16(c.oper+c.x))
 
 		// Finally, the value we want to see.
 		s.cpu.Set(c.atOper, c.want)
