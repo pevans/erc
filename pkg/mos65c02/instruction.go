@@ -6,7 +6,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/pevans/erc/pkg/asmrec/a2rec"
+	"github.com/pevans/erc/pkg/asmrec"
+	"github.com/pevans/erc/pkg/disasm"
 	"github.com/pevans/erc/pkg/trace"
 )
 
@@ -80,7 +81,7 @@ func (c *CPU) Execute() error {
 	var (
 		inst Instruction
 		mode AddrMode
-		rec  a2rec.Recorder
+		tr   trace.Trace
 	)
 
 	c.counter++
@@ -88,17 +89,6 @@ func (c *CPU) Execute() error {
 	c.Opcode = c.Get(c.PC)
 	mode = addrModes[c.Opcode]
 	inst = instructions[c.Opcode]
-
-	rec.PC = c.PC
-	rec.PrintState = true
-	rec.Opcode = c.Opcode
-	rec.A = c.A
-	rec.X = c.X
-	rec.Y = c.Y
-	rec.S = c.S
-	rec.P = c.P
-	rec.Inst = inst.String()
-	rec.Mode = mode.String()
 
 	// NOTE: neither the address mode resolver nor the instruction
 	// handler have any error conditions. This is by design: they DO NOT
@@ -108,21 +98,24 @@ func (c *CPU) Execute() error {
 	// mode handler.
 	mode(c)
 
-	rec.Operand = c.Operand
-	rec.EffAddr = c.EffAddr
-	rec.EffVal = c.EffVal
+	disAvail := disasm.Available()
+	asmAvail := asmrec.Available()
 
-	saveTrace(c)
+	if disAvail || asmAvail {
+		writeTrace(c, &tr)
+	}
+
+	if disAvail {
+		disasm.Map(int(c.PC), tr.String())
+	}
+
+	if asmAvail {
+		writeState(c, &tr)
+		asmrec.Record(tr.String())
+	}
 
 	// Now execute the instruction
 	inst(c)
-
-	srec := rec
-	srec.PrintState = false
-
-	if c.SMap != nil {
-		_ = c.SMap.Map(int(srec.PC), &srec)
-	}
 
 	// Adjust the program counter to beyond the expected instruction
 	// sequence (1 byte for the opcode, + N bytes for the operand, based
@@ -136,24 +129,18 @@ func (c *CPU) Execute() error {
 	return nil
 }
 
-func saveTrace(c *CPU) {
-	if c.RecWriter == nil {
-		return
-	}
+func writeTrace(c *CPU, tr *trace.Trace) {
+	tr.Location = fmt.Sprintf(`%04X`, c.PC)
+	tr.Counter = c.counter
+	tr.Instruction = instructions[c.Opcode].String()
+	tr.Operand = formatOperand(c.AddrMode, c.Operand, c.PC)
+}
 
-	t := &trace.Trace{
-		Location:    fmt.Sprintf(`%04X`, c.PC),
-		Counter:     c.counter,
-		Instruction: instructions[c.Opcode].String(),
-		Operand:     formatOperand(c.AddrMode, c.Operand, c.PC),
-
-		State: fmt.Sprintf(
-			`A:%02X X:%02X Y:%02X P:%02X S:%02X (%s) EA:%04X EV:%02X`,
-			c.A, c.X, c.Y, c.P, c.S, formatStatus(c.P), c.EffAddr, c.EffVal,
-		),
-	}
-
-	t.Write(c.RecWriter)
+func writeState(c *CPU, tr *trace.Trace) {
+	tr.State = fmt.Sprintf(
+		`A:%02X X:%02X Y:%02X P:%02X S:%02X (%s) EA:%04X EV:%02X`,
+		c.A, c.X, c.Y, c.P, c.S, formatStatus(c.P), c.EffAddr, c.EffVal,
+	)
 }
 
 func formatOperand(mode int, operand uint16, pc uint16) string {

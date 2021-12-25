@@ -1,7 +1,6 @@
 package a2
 
 import (
-	"github.com/pevans/erc/pkg/disasm"
 	"github.com/pevans/erc/pkg/mos65c02"
 	"github.com/pevans/erc/pkg/obj"
 )
@@ -25,8 +24,6 @@ const (
 // only when the computer is switched from a powered-off to a powered-on
 // state.
 func (c *Computer) Boot(disFile string) error {
-	c.CPU.SMap = disasm.NewSourceMap(disFile)
-
 	// Fetch the slice of bytes for system ROM and for peripheral ROM
 	// (they go to together).
 	rom, err := obj.Slice(4, RomMemorySize+4)
@@ -78,13 +75,4 @@ func (c *Computer) Reset() {
 	// set our modes above, or else we might pull the PC value from the
 	// wrong place in memory.
 	c.CPU.PC = c.CPU.Get16(ResetPC)
-}
-
-func (c *Computer) bankInit() {
-	c.state.SetInt(bankRead, bankROM)
-	c.state.SetInt(bankWrite, bankRAM)
-	c.state.SetInt(bankDFBlock, bank2)
-	c.state.SetInt(bankSysBlock, bankMain)
-	c.state.SetSegment(bankSysBlockSegment, c.Main)
-	c.state.SetSegment(bankROMSegment, c.ROM)
 }

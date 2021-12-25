@@ -9,7 +9,9 @@ import (
 
 	"github.com/alecthomas/kong"
 	"github.com/pevans/erc/pkg/a2"
+	"github.com/pevans/erc/pkg/asmrec"
 	"github.com/pevans/erc/pkg/clog"
+	"github.com/pevans/erc/pkg/disasm"
 
 	"github.com/pkg/errors"
 	"github.com/pkg/profile"
@@ -58,15 +60,24 @@ func main() {
 
 	if cli.ExecTrace != "" {
 		instLogFile, err := os.OpenFile(
-			cli.ExecTrace,
-			os.O_CREATE|os.O_TRUNC|os.O_WRONLY,
-			0755,
+			cli.ExecTrace, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0755,
 		)
 		if err != nil {
 			clog.Errorf("unable to open file for instruction logging: %v", err)
 		}
 
-		comp.SetRecorderWriter(instLogFile)
+		asmrec.Init(instLogFile)
+	}
+
+	if cli.Disassembly != "" {
+		disFile, err := os.OpenFile(
+			cli.Disassembly, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0755,
+		)
+		if err != nil {
+			clog.Errorf("unable to open file for disassembly: %v", err)
+		}
+
+		disasm.Init(disFile)
 	}
 
 	inputFile := cli.Image

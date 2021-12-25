@@ -1,8 +1,6 @@
 package a2
 
-import (
-	"github.com/pevans/erc/pkg/mos65c02"
-)
+import "github.com/pevans/erc/pkg/mos65c02"
 
 func (s *a2Suite) TestBoot() {
 	c := NewComputer()

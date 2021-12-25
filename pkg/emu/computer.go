@@ -11,5 +11,4 @@ type Computer interface {
 	Load(io.Reader, string) error
 	Process() error
 	Shutdown() error
-	SetRecorderWriter(io.Writer)
 }

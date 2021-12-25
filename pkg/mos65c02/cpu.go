@@ -1,17 +1,11 @@
 package mos65c02
 
 import (
-	"io"
-
 	"github.com/pevans/erc/pkg/data"
-	"github.com/pevans/erc/pkg/disasm"
 )
 
 // A CPU is an implementation of an MOS 65c02 processor.
 type CPU struct {
-	RecWriter io.Writer
-	SMap      *disasm.SourceMap
-
 	Memory *data.Segment
 	State  *data.StateMap
 

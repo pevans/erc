@@ -1,9 +1,5 @@
 package a2
 
-import (
-	"os"
-)
-
 func (s *a2Suite) TestNewComputer() {
 	c := NewComputer()
 
@@ -17,13 +13,6 @@ func (s *a2Suite) TestNewComputer() {
 	s.Equal(c.SelectedDrive, c.Drive1)
 	s.NotNil(c.CPU)
 	s.Equal(c.CPU.Memory, c.Main)
-}
-
-func (s *a2Suite) TestRecorderWriter() {
-	s.comp.SetRecorderWriter(os.Stdout)
-
-	s.Equal(os.Stdout, s.comp.recWriter)
-	s.NotNil(s.comp.rec)
 }
 
 func (s *a2Suite) TestDimensions() {

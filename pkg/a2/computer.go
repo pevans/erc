@@ -1,10 +1,6 @@
 package a2
 
 import (
-	"io"
-
-	"github.com/pevans/erc/pkg/asmrec"
-	"github.com/pevans/erc/pkg/asmrec/a2rec"
 	"github.com/pevans/erc/pkg/data"
 	"github.com/pevans/erc/pkg/gfx"
 	"github.com/pevans/erc/pkg/mos65c02"
@@ -51,9 +47,6 @@ type Computer struct {
 
 	// SysFont is the system font for the Apple II
 	SysFont *gfx.Font
-
-	rec       asmrec.Recorder
-	recWriter io.Writer
 }
 
 const (
@@ -109,14 +102,6 @@ func NewComputer() *Computer {
 // SetFont will take the accepted font and treat it as our system font
 func (c *Computer) SetFont(f *gfx.Font) {
 	c.SysFont = f
-}
-
-// SetRecorderWriter accepts a writer that we'll use to output any records of
-// the instructions we record.
-func (c *Computer) SetRecorderWriter(w io.Writer) {
-	c.CPU.RecWriter = w
-	c.recWriter = w
-	c.rec = new(a2rec.Recorder)
 }
 
 // Dimensions returns the screen dimensions of an Apple II.

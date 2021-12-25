@@ -1,48 +1,40 @@
 package disasm
 
 import (
-	"os"
+	"io"
 
-	"github.com/pevans/erc/pkg/asmrec"
+	"github.com/pevans/erc/pkg/clog"
 )
 
-type SourceMap struct {
-	file string
-	smap map[int]asmrec.Recorder
+var (
+	dislog    *clog.Channel
+	shutdown  = make(chan bool)
+	sourceMap = make(map[int]string)
+)
+
+func Init(w io.Writer) {
+	dislog = clog.NewChannel(w)
+	go dislog.WriteLoop(shutdown)
 }
 
-func NewSourceMap(file string) *SourceMap {
-	sm := new(SourceMap)
-	sm.file = file
-	sm.smap = make(map[int]asmrec.Recorder)
-
-	return sm
+func Available() bool {
+	return dislog != nil
 }
 
-func (sm *SourceMap) Map(addr int, rec asmrec.Recorder) bool {
-	if _, ok := sm.smap[addr]; ok {
-		return false
-	}
-
-	sm.smap[addr] = rec
-	return true
-}
-
-func (sm *SourceMap) WriteLog() error {
-	if sm.file == "" {
-		return nil
-	}
-
-	w, err := os.OpenFile(sm.file, os.O_CREATE|os.O_WRONLY, 0755)
-	if err != nil {
-		return err
-	}
-
-	for _, rec := range sm.smap {
-		if err := rec.Record(w); err != nil {
-			return err
+func Shutdown() {
+	if Available() {
+		for _, rec := range sourceMap {
+			dislog.Printf(rec)
 		}
+
+		shutdown <- true
+	}
+}
+
+func Map(addr int, s string) {
+	if _, ok := sourceMap[addr]; ok {
+		return
 	}
 
-	return nil
+	sourceMap[addr] = s
 }

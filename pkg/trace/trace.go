@@ -2,7 +2,6 @@ package trace
 
 import (
 	"fmt"
-	"io"
 )
 
 type Trace struct {
@@ -26,8 +25,8 @@ type Trace struct {
 	Counter int
 }
 
-func (t *Trace) Write(w io.Writer) {
-	fmt.Fprintf(w, "%-8s%-6s%-12s ; %s +%d\n",
+func (t *Trace) String() string {
+	return fmt.Sprintf("%-8s%-6s%-12s ; %s +%d",
 		t.Location, t.Instruction,
 		t.Operand, t.State, t.Counter,
 	)
