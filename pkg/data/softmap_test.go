@@ -9,10 +9,11 @@ import (
 const (
 	softTestVal  uint8 = 123
 	softTestAddr int   = 111
+	softTestSize int   = 256
 )
 
 func TestSoftMapRead(t *testing.T) {
-	sm := NewSoftMap()
+	sm := NewSoftMap(softTestSize)
 	val := softTestVal
 	fn := func(x int, _ *StateMap) uint8 {
 		return val
@@ -32,7 +33,7 @@ func TestSoftMapRead(t *testing.T) {
 func TestSoftMapWrite(t *testing.T) {
 	var val uint8
 
-	sm := NewSoftMap()
+	sm := NewSoftMap(softTestSize)
 	fn := func(x int, y uint8, _ *StateMap) {
 		val = y
 	}

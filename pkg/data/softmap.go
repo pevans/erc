@@ -12,17 +12,17 @@ type SoftWrite func(int, uint8, *StateMap)
 // It is intended to model soft switches in Apple IIs and similar
 // constructs across other architectures.
 type SoftMap struct {
-	reads  map[int]SoftRead
-	writes map[int]SoftWrite
+	reads  []SoftRead
+	writes []SoftWrite
 	state  *StateMap
 }
 
 // NewSoftMap returns a newly allocated softmap with valid maps for
 // reads and writes.
-func NewSoftMap() *SoftMap {
+func NewSoftMap(size int) *SoftMap {
 	sm := new(SoftMap)
-	sm.reads = make(map[int]SoftRead)
-	sm.writes = make(map[int]SoftWrite)
+	sm.reads = make([]SoftRead, size)
+	sm.writes = make([]SoftWrite, size)
 	return sm
 }
 
@@ -46,8 +46,8 @@ func (sm *SoftMap) SetWrite(addr int, fn SoftWrite) {
 // address exists, (0, false) is returned. Otherwise, the resulting
 // value from the call and true.
 func (sm *SoftMap) Read(addr int) (uint8, bool) {
-	fn, ok := sm.reads[addr]
-	if !ok {
+	fn := sm.reads[addr]
+	if fn == nil {
 		return 0, false
 	}
 
@@ -57,8 +57,8 @@ func (sm *SoftMap) Read(addr int) (uint8, bool) {
 // Write will execute a write call against the softmap; if no entry for
 // an address exists, false is returned. Otherwise, true.
 func (sm *SoftMap) Write(addr int, val uint8) bool {
-	fn, ok := sm.writes[addr]
-	if !ok {
+	fn := sm.writes[addr]
+	if fn == nil {
 		return false
 	}
 

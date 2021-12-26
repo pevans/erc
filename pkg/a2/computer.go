@@ -81,7 +81,7 @@ func NewComputer() *Computer {
 	comp.Aux = data.NewSegment(AuxMemorySize)
 	comp.Main = data.NewSegment(MainMemorySize)
 	comp.ROM = data.NewSegment(RomMemorySize)
-	comp.smap = data.NewSoftMap()
+	comp.smap = data.NewSoftMap(0x20000)
 	comp.state = data.NewStateMap()
 	comp.smap.UseState(comp.state)
 
