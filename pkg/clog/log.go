@@ -16,13 +16,13 @@ const (
 var (
 	Level    = LevelError
 	stdlog   = NewChannel(os.Stdout)
-	Shutdown = make(chan bool)
+	shutdown = make(chan bool)
 )
 
 // Init starts up the package logger.
 func Init(w io.Writer) {
 	stdlog.Writer = w
-	go stdlog.WriteLoop(Shutdown)
+	go stdlog.WriteLoop(shutdown)
 }
 
 // Debug sends a message to the stdlog channel if the level is >= debug.
@@ -56,14 +56,18 @@ func Errorf(format string, vals ...interface{}) {
 	mesg := fmt.Sprintf(format, vals...)
 	stdlog.Printf("[%v] <error> %v", time.Now(), mesg)
 
-	// Sending a true to the Shutdown channel may not be strictly
+	// Sending a true to the shutdown channel may not be strictly
 	// necessary, but we want to show the intention that we exit the
 	// write loop.
-	Shutdown <- true
+	shutdown <- true
 
 	panic("error, exiting")
 }
 
 func Error(v interface{}) {
 	Errorf("%v", v)
+}
+
+func Shutdown() {
+	shutdown <- true
 }

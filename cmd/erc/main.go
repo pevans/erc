@@ -12,6 +12,7 @@ import (
 	"github.com/pevans/erc/pkg/asmrec"
 	"github.com/pevans/erc/pkg/clog"
 	"github.com/pevans/erc/pkg/disasm"
+	"github.com/pevans/erc/pkg/input"
 
 	"github.com/pkg/errors"
 	"github.com/pkg/profile"
@@ -94,6 +95,11 @@ func main() {
 	if err := comp.Boot(cli.Disassembly); err != nil {
 		clog.Error(errors.Wrapf(err, "could not boot emulator"))
 	}
+
+	// Set up a listener event that funnels through our keyboard handler
+	go input.Listen(func(ev input.Event) {
+		comp.PressKey(uint8(ev.Key))
+	})
 
 	delay := 10 * time.Nanosecond
 	go processLoop(comp, delay)
