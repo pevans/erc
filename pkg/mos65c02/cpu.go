@@ -6,8 +6,9 @@ import (
 
 // A CPU is an implementation of an MOS 65c02 processor.
 type CPU struct {
-	Memory *data.Segment
-	State  *data.StateMap
+	RMem  data.Getter
+	WMem  data.Setter
+	State *data.StateMap
 
 	// This is the current address mode that the CPU is operating
 	// within. The address mode affects how the CPU will determine the
@@ -65,8 +66,4 @@ type CPU struct {
 
 	// how many instructions we've executed
 	counter int
-}
-
-func (c *CPU) UseSegment(seg *data.Segment) {
-	c.Memory = seg
 }

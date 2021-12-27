@@ -14,7 +14,9 @@ func TestInstructionString(t *testing.T) {
 
 func TestExecute(t *testing.T) {
 	c := new(CPU)
-	c.Memory = data.NewSegment(0x10000)
+	seg := data.NewSegment(0x10000)
+	c.RMem = seg
+	c.WMem = seg
 
 	// In just a blank default template, this should error out.
 	assert.NoError(t, c.Execute())

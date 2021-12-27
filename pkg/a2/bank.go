@@ -208,7 +208,7 @@ func BankDFRead(addr int, stm *data.StateMap) uint8 {
 	}
 
 	if stm.Int(bankRead) == bankROM {
-		return stm.Segment(bankROMSegment).Get(int(addr) - SysRomOffset)
+		return stm.Segment(bankROMSegment).DirectGet(int(addr) - SysRomOffset)
 	}
 
 	return BankSegment(stm).DirectGet(int(addr))

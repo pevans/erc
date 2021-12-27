@@ -11,6 +11,14 @@ type Segment struct {
 	smap *SoftMap
 }
 
+type SegmentReader interface {
+	UseReadSegment(*Segment)
+}
+
+type SegmentWriter interface {
+	UseWriteSegment(*Segment)
+}
+
 // A Getter can return a byte from a given address.
 type Getter interface {
 	Get(int) uint8

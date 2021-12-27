@@ -153,10 +153,10 @@ func PCRead(addr int, stm *data.StateMap) uint8 {
 		stm.Bool(pcExpansion) && expROM(addr),
 		stm.Bool(pcSlotC3) && slot3ROM(addr),
 		stm.Bool(pcSlotCX) && slotXROM(addr):
-		return stm.Segment(pcROMSegment).Get(periphROM)
+		return stm.Segment(pcROMSegment).DirectGet(periphROM)
 	}
 
-	return stm.Segment(pcROMSegment).Get(intROM)
+	return stm.Segment(pcROMSegment).DirectGet(intROM)
 }
 
 // PCWrite is a stub which does nothing, since it handles writes into an

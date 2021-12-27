@@ -94,7 +94,8 @@ func NewComputer() *Computer {
 	comp.SelectedDrive = comp.Drive1
 
 	comp.CPU = new(mos65c02.CPU)
-	comp.CPU.Memory = comp.Main
+	comp.CPU.RMem = comp
+	comp.CPU.WMem = comp
 
 	return comp
 }
