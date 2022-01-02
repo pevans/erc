@@ -152,12 +152,12 @@ func (s *a2Suite) TestBankDFRead() {
 		s.Run("read from rom", func() {
 			s.comp.state.SetInt(bankRead, bankROM)
 			s.comp.state.SetInt(bankDFBlock, bank1)
-			s.Equal(s.comp.Get(xd000), s.comp.ROM.Get(x1000))
-			s.Equal(s.comp.Get(xe000), s.comp.ROM.Get(x2000))
+			s.Equal(s.comp.Get(xd000), s.comp.ROM.DirectGet(x1000))
+			s.Equal(s.comp.Get(xe000), s.comp.ROM.DirectGet(x2000))
 
 			s.comp.state.SetInt(bankDFBlock, bank2)
-			s.NotEqual(s.comp.Get(xd000), s.comp.ROM.Get(x1000))
-			s.Equal(s.comp.Get(xe000), s.comp.ROM.Get(x2000))
+			s.NotEqual(s.comp.Get(xd000), s.comp.ROM.DirectGet(x1000))
+			s.Equal(s.comp.Get(xe000), s.comp.ROM.DirectGet(x2000))
 		})
 
 		s.Run("read from bank2 ram", func() {

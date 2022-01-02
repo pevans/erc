@@ -87,9 +87,9 @@ func (s *a2Suite) TestPCRead() {
 
 	s.Run("reads from cx rom space", func() {
 		s.comp.state.SetBool(pcSlotCX, true)
-		s.Equal(s.comp.ROM.Get(prc401), PCRead(uc401, s.comp.state))
+		s.Equal(s.comp.ROM.DirectGet(prc401), PCRead(uc401, s.comp.state))
 
 		s.comp.state.SetBool(pcSlotCX, false)
-		s.Equal(s.comp.ROM.Get(irc401), PCRead(uc401, s.comp.state))
+		s.Equal(s.comp.ROM.DirectGet(irc401), PCRead(uc401, s.comp.state))
 	})
 }
