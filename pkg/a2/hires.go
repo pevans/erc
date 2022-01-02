@@ -3,6 +3,8 @@ package a2
 import (
 	"fmt"
 	"image/color"
+
+	"github.com/pevans/erc/pkg/gfx"
 )
 
 type hiresDot struct {
@@ -40,7 +42,7 @@ func (c *Computer) hiresRender(start, end int) {
 	for y := uint(0); y < 192; y++ {
 		c.HiresDots(y, dots)
 		for x, dot := range dots {
-			c.FrameBuffer.SetCell(uint(x), y, dot.clr)
+			gfx.Screen.SetCell(uint(x), y, dot.clr)
 		}
 	}
 }

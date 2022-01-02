@@ -41,10 +41,6 @@ type Computer struct {
 	// (For example, text mode, hires, lores, etc.)
 	DisplayMode int
 
-	// FrameBuffer is the frame buffer we're using to manage the logical
-	// graphics state of the computer
-	FrameBuffer *gfx.FrameBuffer
-
 	// SysFont is the system font for the Apple II
 	SysFont *gfx.Font
 }
@@ -70,13 +66,17 @@ const (
 	SysRomOffset = 0xC000
 )
 
+// These are the absolute dimensions of a screen for the apple II in a
+// pixel (or "dot") form.
+const (
+	screenWidth  = 280
+	screenHeight = 192
+)
+
 // NewComputer returns an Apple //e computer value, which essentially
 // encompasses all of the things that an Apple II would need to run.
 func NewComputer() *Computer {
 	comp := &Computer{}
-
-	w, h := comp.Dimensions()
-	comp.FrameBuffer = gfx.NewFrameBuffer(uint(w), uint(h))
 
 	comp.Aux = data.NewSegment(AuxMemorySize)
 	comp.Main = data.NewSegment(MainMemorySize)
@@ -107,7 +107,13 @@ func (c *Computer) SetFont(f *gfx.Font) {
 
 // Dimensions returns the screen dimensions of an Apple II.
 func (c *Computer) Dimensions() (width, height int) {
-	return 280, 192
+	return screenWidth, screenHeight
+}
+
+// NewScreen returns a new frame buffer ready to hold the data that an
+// Apple II would need to render itself.
+func NewScreen() *gfx.FrameBuffer {
+	return gfx.NewFrameBuffer(uint(screenWidth), uint(screenHeight))
 }
 
 func (c *Computer) NeedsRender() bool {

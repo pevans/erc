@@ -38,7 +38,7 @@ func (g *game) Layout(outWidth, outHeight int) (scrWidth, scrHeight int) {
 
 // Draw executes the render logic for the framebuffer.
 func (g *game) Draw(screen *ebiten.Image) {
-	if err := g.comp.FrameBuffer.Render(screen); err != nil {
+	if err := gfx.Screen.Render(screen); err != nil {
 		clog.Error(errors.Wrap(err, "could not render framebuffer"))
 	}
 }

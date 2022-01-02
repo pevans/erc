@@ -12,6 +12,7 @@ import (
 	"github.com/pevans/erc/pkg/asmrec"
 	"github.com/pevans/erc/pkg/clog"
 	"github.com/pevans/erc/pkg/disasm"
+	"github.com/pevans/erc/pkg/gfx"
 	"github.com/pevans/erc/pkg/input"
 
 	"github.com/pkg/errors"
@@ -50,6 +51,7 @@ func main() {
 
 	comp := a2.NewComputer()
 	comp.SetFont(a2.SystemFont())
+	gfx.Screen = a2.NewScreen()
 
 	go func() {
 		sig := <-signals

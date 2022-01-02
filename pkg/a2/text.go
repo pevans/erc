@@ -1,5 +1,9 @@
 package a2
 
+import (
+	"github.com/pevans/erc/pkg/gfx"
+)
+
 var textAddressRows = []int{
 	//   0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // $400
@@ -162,6 +166,6 @@ func (c *Computer) textRender(start, end int) {
 		char := c.Get(int(addr))
 		glyph := c.SysFont.Glyph(int(char))
 
-		_ = c.FrameBuffer.Blit(x, y, glyph)
+		_ = gfx.Screen.Blit(x, y, glyph)
 	}
 }
