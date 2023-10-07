@@ -15,7 +15,7 @@ LINT = golangci-lint \
 all: test
 
 build:
-	go build ./cmd/erc
+	go build
 
 coverage:
 	COVERAGE=1 ./bin/test $(T)
