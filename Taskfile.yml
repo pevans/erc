@@ -1,0 +1,17 @@
+version: '3'
+
+tasks:
+  lint: |
+    golangci-lint \
+      --enable=gocognit \
+      --enable=goconst \
+      --enable=gocritic \
+      --enable=gocyclo \
+      --enable=gofmt \
+      --enable=goimports \
+      --enable=gosec \
+      --enable=misspell \
+      --enable=stylecheck \
+      --enable=unconvert \
+      --enable=unparam \
+      run
