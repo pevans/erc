@@ -27,7 +27,7 @@ func (s *sixtwoSuite) SetupSuite() {
 	dir, err := os.Getwd()
 	s.NoError(err)
 
-	s.baseDir = dir + "/../../data"
+	s.baseDir = dir + "/../data"
 
 	s.imageType = DOS33
 	s.physDisk = memory.NewSegment(NibSize)

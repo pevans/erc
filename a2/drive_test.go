@@ -183,7 +183,7 @@ func (s *a2Suite) TestImageType() {
 func (s *a2Suite) TestDriveLoad() {
 	d := NewDrive()
 
-	data, _ := os.Open("../../data/logical.disk")
+	data, _ := os.Open("../data/logical.disk")
 	s.NoError(d.Load(data, "something.dsk"))
 
 	s.Equal(sixtwo.DOS33, d.ImageType)
@@ -194,7 +194,7 @@ func (s *a2Suite) TestDriveLoad() {
 func (s *a2Suite) TestDriveRead() {
 	d := NewDrive()
 
-	dat, _ := os.Open("../../data/logical.disk")
+	dat, _ := os.Open("../data/logical.disk")
 	s.NoError(d.Load(dat, "something.dsk"))
 
 	d.Data.Set(d.Position(), 0x11)
@@ -210,7 +210,7 @@ func (s *a2Suite) TestDriveRead() {
 func (s *a2Suite) TestDriveWrite() {
 	d := NewDrive()
 
-	dat, _ := os.Open("../../data/logical.disk")
+	dat, _ := os.Open("../data/logical.disk")
 	s.NoError(d.Load(dat, "something.dsk"))
 
 	// If Latch < 0x80, Write should do nothing

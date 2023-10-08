@@ -1,4 +1,4 @@
-package data
+package memory
 
 // SoftRead is a type of function that takes an integer address and
 // returns an 8-bit value.

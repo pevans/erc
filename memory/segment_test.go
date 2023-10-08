@@ -1,4 +1,4 @@
-package data
+package memory
 
 import (
 	"os"
@@ -125,7 +125,7 @@ func TestReadFile(t *testing.T) {
 	assert.Error(t, s.ReadFile(""))
 
 	// See that we don't return an error for a real file
-	assert.NoError(t, s.ReadFile("../../data/logical.sector"))
+	assert.NoError(t, s.ReadFile("../data/logical.sector"))
 
 	// Make sure we have some real data
 	assert.NotEqual(t, uint8(0), s.Get(0))
