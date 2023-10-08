@@ -21,22 +21,16 @@ would not exist.
 
 ## What's in here?
 
-- The main command (erc) is located in the `cmd/erc` subdirectory.
-- Code for the MOS 65c02 processor is in `pkg/mos65c02`.
-- Code for the Apple II architecture is in `pkg/a2`.
-- There's random other code for things generally within the `pkg` dir.
+- The main command (erc) is located in this directory (`erc.go`).
+- Code for the MOS 65c02 processor is in `mos65c02`.
+- Code for the Apple II architecture is in `a2`.
+- There's random other code for things generally within other subdirectories.
 
 ## What can I do here?
 
 You can:
 
-- Build the executable `erc` by running `make build`.
-- Run the thing immediately by running `make run DSK=somerom`.
-- Install tools for linting and testing with `make tools`. (Note: the
-  tool installation currently makes an obnoxious assumption that you
-  have access to [brew](https://homebrew.sh), and thereby that you use
-  macOS.)
+- Build the executable `erc` by running `go build`.
 - Run various tests, including:
-  - `make lint` for linting
-  - `make test` for unit tests
-  - `make coverage` to see test coverage
+  - `task lint` for linting (requires [Task](https://taskfile.dev/))
+  - `go test ./...` for unit tests
