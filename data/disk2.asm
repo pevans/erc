@@ -197,10 +197,10 @@ A4:B0 B7                    BCS CHKHDC
 
 ; As we decode bytes, we're referencing the GCRTAB entries we built
 ; earlier but from a slightly different address point (hence GCRALT).
-; But make no mistake--we're EORing with GCRTAB data. Note that XORSAV
+; But make no mistake--we're EORing with GCRTAB memory. Note that XORSAV
 ; is an entry point ($0300) which is conveniently(!) $56 less than
 ; GCRTAB ($0356). It is, though, really just a place to stash the
-; intermediate data.
+; intermediate memory.
 A6:A0 56        DECODE      LDY #$56        ; loop this many times...
 A8:84 3C        SAV2BITS    STY A1L         ; save in A1L, because we use Y to read
 AA:BC 8C C0     DECBYTE2    LDY READ,X
@@ -238,7 +238,7 @@ D3:D0 87        BADDATA     BNE CHKHD       ; another sector?
 ; over to $FF), start over.
 ;
 ; The bytes we've already written into the ENTRY page need to have those
-; 2 bits we compiled into those 89 bytes pushed back into the data.
+; 2 bits we compiled into those 89 bytes pushed back into the memory.
 D5:A0 00                    LDY #$00
 D7:A2 56        BITLOOP     LDX #$56
 D9:CA           WRITELOOP   DEX

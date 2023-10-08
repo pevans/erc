@@ -3,8 +3,8 @@ package main
 import (
 	"time"
 
-	"github.com/pevans/erc/pkg/a2"
-	"github.com/pevans/erc/pkg/clog"
+	"github.com/pevans/erc/a2"
+	"github.com/pevans/erc/clog"
 	"github.com/pkg/errors"
 )
 

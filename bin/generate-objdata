@@ -22,7 +22,7 @@ data_len = len(data)
 
 # This just defines the variable name for the store data
 sys.stdout.write("package obj\n\n")
-sys.stdout.write('import "github.com/pevans/erc/pkg/data"\n\n')
+sys.stdout.write('import "github.com/pevans/erc/memory"\n\n')
 sys.stdout.write("var storeData = []uint8{\n\t")
 #sys.stdout.write("static unsigned char store_data[] =\n")
 

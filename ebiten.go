@@ -3,10 +3,10 @@ package main
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/pevans/erc/pkg/a2"
-	"github.com/pevans/erc/pkg/clog"
-	"github.com/pevans/erc/pkg/gfx"
-	"github.com/pevans/erc/pkg/input"
+	"github.com/pevans/erc/a2"
+	"github.com/pevans/erc/clog"
+	"github.com/pevans/erc/gfx"
+	"github.com/pevans/erc/input"
 	"github.com/pkg/errors"
 )
 
