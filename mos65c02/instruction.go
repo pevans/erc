@@ -8,6 +8,7 @@ import (
 
 	"github.com/pevans/erc/asmrec"
 	"github.com/pevans/erc/disasm"
+	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/trace"
 )
 
@@ -84,7 +85,7 @@ func (c *CPU) Execute() error {
 		tr   trace.Trace
 	)
 
-	c.counter++
+	metrics.Increment("instructions", 1)
 
 	c.Opcode = c.Get(c.PC)
 	mode = addrModes[c.Opcode]
@@ -131,7 +132,6 @@ func (c *CPU) Execute() error {
 
 func writeTrace(c *CPU, tr *trace.Trace) {
 	tr.Location = fmt.Sprintf(`%04X`, c.PC)
-	tr.Counter = c.counter
 	tr.Instruction = instructions[c.Opcode].String()
 	tr.Operand = formatOperand(c.AddrMode, c.Operand, c.PC)
 }
