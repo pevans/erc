@@ -1,5 +1,7 @@
 package mos65c02
 
+import "github.com/pevans/erc/internal/metrics"
+
 // Brk implements the BRK instruction, which is a hardware interrupt.
 // This isn't something that normally happens in software, but you might
 // see it in the system monitor (which was a debugger in Apple IIs).
@@ -41,6 +43,13 @@ func Jsr(c *CPU) {
 // Nop implements the NOP (no operation) instruction, which--well, it
 // does nothing. On purpose.
 func Nop(c *CPU) {
+	// The only intentional NOP instruction is executed from opcode $EA.
+	// Anything else may indicate that something is wrong -- like a bug
+	// in the emulator that led us to execute data as if it were program
+	// code.
+	if c.Opcode != 0xEA {
+		metrics.Increment("bad_opcodes", 1)
+	}
 }
 
 // Np2 implements the NP2 instruction, which like NOP does nothing.
