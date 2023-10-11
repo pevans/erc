@@ -1,6 +1,9 @@
 package a2
 
-import "github.com/pevans/erc/memory"
+import (
+	"github.com/pevans/erc/internal/metrics"
+	"github.com/pevans/erc/memory"
+)
 
 const (
 	diskComputer = 600
@@ -41,15 +44,22 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 	case 0xC:
 		if c.SelectedDrive.Mode == ReadMode || c.SelectedDrive.WriteProtect {
 			*val = c.SelectedDrive.Read()
+			metrics.Increment("disk_reads", 1)
 		} else if c.SelectedDrive.Mode == WriteMode {
 			// Write the value currently in the latch
 			c.SelectedDrive.Write()
+			metrics.Increment("disk_writes", 1)
+		} else {
+			metrics.Increment("failed_disk_readwrites", 1)
 		}
 
 	case 0xD:
 		// Set the latch value (for writes) to val
 		if c.SelectedDrive.Mode == WriteMode {
 			c.SelectedDrive.Latch = *val
+			metrics.Increment("disk_latches", 1)
+		} else {
+			metrics.Increment("failed_disk_latches", 1)
 		}
 
 	case 0xE:
