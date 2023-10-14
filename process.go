@@ -1,11 +1,11 @@
 package main
 
 import (
+	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/pevans/erc/a2"
-	"github.com/pevans/erc/clog"
-	"github.com/pkg/errors"
 )
 
 // processLoop executes a process loop whereby we simply execute instructions
@@ -14,7 +14,7 @@ import (
 func processLoop(comp *a2.Computer, delay time.Duration) {
 	for {
 		if err := comp.Process(); err != nil {
-			clog.Error(errors.Wrap(err, "process execution failed"))
+			slog.Error(fmt.Sprintf("process execution failed: %v", err))
 			return
 		}
 

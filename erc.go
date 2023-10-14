@@ -15,7 +15,6 @@ import (
 	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/input"
 
-	"github.com/pkg/errors"
 	"github.com/pkg/profile"
 )
 
@@ -46,7 +45,7 @@ func main() {
 	clog.Init(os.Stdout)
 
 	if len(os.Args) < 2 {
-		clog.Error("you must pass the name of a file to load")
+		fail("you must pass the name of a file to load")
 	}
 
 	comp := a2.NewComputer()
@@ -66,7 +65,7 @@ func main() {
 			cli.ExecTrace, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0755,
 		)
 		if err != nil {
-			clog.Errorf("unable to open file for instruction logging: %v", err)
+			fail(fmt.Sprintf("unable to open file for instruction logging: %v", err))
 		}
 
 		asmrec.Init(instLogFile)
@@ -77,7 +76,7 @@ func main() {
 			cli.Disassembly, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0755,
 		)
 		if err != nil {
-			clog.Errorf("unable to open file for disassembly: %v", err)
+			fail(fmt.Sprintf("unable to open file for disassembly: %v", err))
 		}
 
 		disasm.Init(disFile)
@@ -86,16 +85,16 @@ func main() {
 	inputFile := cli.Image
 	data, err := os.OpenFile(inputFile, os.O_RDWR, 0644)
 	if err != nil {
-		clog.Error(errors.Wrapf(err, "could not open file %s", inputFile))
+		fail(fmt.Sprintf("could not open file %s: %v", inputFile, err))
 	}
 
 	if err := comp.Load(data, inputFile); err != nil {
-		clog.Error(errors.Wrapf(err, "could not load file %s", inputFile))
+		fail(fmt.Sprintf("could not load file %s: %v", inputFile, err))
 	}
 
 	// Attempt a cold boot
 	if err := comp.Boot(cli.Disassembly); err != nil {
-		clog.Error(errors.Wrapf(err, "could not boot emulator"))
+		fail(fmt.Sprintf("could not boot emulator: %v", err))
 	}
 
 	// Set up a listener event that funnels through our keyboard handler
@@ -107,11 +106,16 @@ func main() {
 	go processLoop(comp, delay)
 
 	if err := drawLoop(comp); err != nil {
-		clog.Error(errors.Wrap(err, "failed to execute draw loop"))
+		fail(fmt.Sprintf("failed to execute draw loop: %v", err))
 	}
 
 	// Shutdown
 	if err := comp.Shutdown(); err != nil {
-		clog.Error(errors.Wrapf(err, "could not properly shut down emulator"))
+		fail(fmt.Sprintf("could not properly shut down emulator: %v", err))
 	}
+}
+
+func fail(reason string) {
+	fmt.Println(reason)
+	os.Exit(1)
 }

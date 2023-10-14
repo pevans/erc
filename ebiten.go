@@ -1,13 +1,14 @@
 package main
 
 import (
+	"fmt"
+	"log/slog"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/pevans/erc/a2"
-	"github.com/pevans/erc/clog"
 	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/input"
-	"github.com/pkg/errors"
 )
 
 // A game is just a small struct which ebiten will use to run the draw loop for
@@ -39,7 +40,7 @@ func (g *game) Layout(outWidth, outHeight int) (scrWidth, scrHeight int) {
 // Draw executes the render logic for the framebuffer.
 func (g *game) Draw(screen *ebiten.Image) {
 	if err := gfx.Screen.Render(screen); err != nil {
-		clog.Error(errors.Wrap(err, "could not render framebuffer"))
+		slog.Error(fmt.Sprintf("could not render framebuffer: %v", err))
 	}
 }
 
