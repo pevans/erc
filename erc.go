@@ -9,7 +9,6 @@ import (
 
 	"github.com/alecthomas/kong"
 	"github.com/pevans/erc/a2"
-	"github.com/pevans/erc/clog"
 	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/input"
 
@@ -37,8 +36,6 @@ func main() {
 
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
-
-	clog.Init(os.Stdout)
 
 	if len(os.Args) < 2 {
 		fail("you must pass the name of a file to load")
