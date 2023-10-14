@@ -1,3 +1,5 @@
+go 1.21
+
 module github.com/pevans/erc
 
 require (
@@ -19,5 +21,3 @@ require (
 	golang.org/x/sys v0.0.0-20210415045647-66c3f260301c // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-go 1.17
