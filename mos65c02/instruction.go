@@ -80,7 +80,6 @@ func (c *CPU) Execute() error {
 	var (
 		inst Instruction
 		mode AddrMode
-		tr   trace.Trace
 	)
 
 	metrics.Increment("instructions", 1)
