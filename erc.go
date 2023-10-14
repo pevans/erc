@@ -9,7 +9,6 @@ import (
 
 	"github.com/alecthomas/kong"
 	"github.com/pevans/erc/a2"
-	"github.com/pevans/erc/asmrec"
 	"github.com/pevans/erc/clog"
 	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/input"
@@ -18,9 +17,8 @@ import (
 )
 
 type cli struct {
-	ExecTrace string `help:"Write an execution trace to a file"`
-	Profile   bool   `help:"Write out a profile trace"`
-	Image     string `arg`
+	Profile bool   `help:"Write out a profile trace"`
+	Image   string `arg`
 }
 
 // ConfigFile is the default (relative) location of our configuration file.
@@ -57,17 +55,6 @@ func main() {
 		comp.Shutdown()
 		os.Exit(1)
 	}()
-
-	if cli.ExecTrace != "" {
-		instLogFile, err := os.OpenFile(
-			cli.ExecTrace, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0755,
-		)
-		if err != nil {
-			fail(fmt.Sprintf("unable to open file for instruction logging: %v", err))
-		}
-
-		asmrec.Init(instLogFile)
-	}
 
 	inputFile := cli.Image
 	data, err := os.OpenFile(inputFile, os.O_RDWR, 0644)

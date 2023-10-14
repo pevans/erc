@@ -6,7 +6,6 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/pevans/erc/asmrec"
 	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/trace"
 )
@@ -97,17 +96,6 @@ func (c *CPU) Execute() error {
 	// Resolve the values of EffAddr and EffVal by executing the address
 	// mode handler.
 	mode(c)
-
-	asmAvail := asmrec.Available()
-
-	if asmAvail {
-		writeTrace(c, &tr)
-	}
-
-	if asmAvail {
-		writeState(c, &tr)
-		asmrec.Record(tr.String())
-	}
 
 	// Now execute the instruction
 	inst(c)
