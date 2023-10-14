@@ -41,6 +41,7 @@ func (g *game) Layout(outWidth, outHeight int) (scrWidth, scrHeight int) {
 func (g *game) Draw(screen *ebiten.Image) {
 	if err := gfx.Screen.Render(screen); err != nil {
 		slog.Error(fmt.Sprintf("could not render framebuffer: %v", err))
+		return
 	}
 }
 
