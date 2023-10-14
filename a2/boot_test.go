@@ -5,7 +5,7 @@ import "github.com/pevans/erc/mos65c02"
 func (s *a2Suite) TestBoot() {
 	c := NewComputer()
 
-	s.NoError(c.Boot(""))
+	s.NoError(c.Boot())
 
 	// We know as part of the boot procedure that we copy in rom, but we
 	// don't necessarily want to test the entirety of that; let's just

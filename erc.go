@@ -11,7 +11,6 @@ import (
 	"github.com/pevans/erc/a2"
 	"github.com/pevans/erc/asmrec"
 	"github.com/pevans/erc/clog"
-	"github.com/pevans/erc/disasm"
 	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/input"
 
@@ -19,10 +18,9 @@ import (
 )
 
 type cli struct {
-	ExecTrace   string `help:"Write an execution trace to a file"`
-	Disassembly string `help:"Write disassembled instructions to a file"`
-	Profile     bool   `help:"Write out a profile trace"`
-	Image       string `arg`
+	ExecTrace string `help:"Write an execution trace to a file"`
+	Profile   bool   `help:"Write out a profile trace"`
+	Image     string `arg`
 }
 
 // ConfigFile is the default (relative) location of our configuration file.
@@ -71,17 +69,6 @@ func main() {
 		asmrec.Init(instLogFile)
 	}
 
-	if cli.Disassembly != "" {
-		disFile, err := os.OpenFile(
-			cli.Disassembly, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0755,
-		)
-		if err != nil {
-			fail(fmt.Sprintf("unable to open file for disassembly: %v", err))
-		}
-
-		disasm.Init(disFile)
-	}
-
 	inputFile := cli.Image
 	data, err := os.OpenFile(inputFile, os.O_RDWR, 0644)
 	if err != nil {
@@ -93,7 +80,7 @@ func main() {
 	}
 
 	// Attempt a cold boot
-	if err := comp.Boot(cli.Disassembly); err != nil {
+	if err := comp.Boot(); err != nil {
 		fail(fmt.Sprintf("could not boot emulator: %v", err))
 	}
 

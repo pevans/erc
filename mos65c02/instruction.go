@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/pevans/erc/asmrec"
-	"github.com/pevans/erc/disasm"
 	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/trace"
 )
@@ -99,15 +98,10 @@ func (c *CPU) Execute() error {
 	// mode handler.
 	mode(c)
 
-	disAvail := disasm.Available()
 	asmAvail := asmrec.Available()
 
-	if disAvail || asmAvail {
+	if asmAvail {
 		writeTrace(c, &tr)
-	}
-
-	if disAvail {
-		disasm.Map(int(c.PC), tr.String())
 	}
 
 	if asmAvail {

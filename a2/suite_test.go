@@ -17,7 +17,7 @@ func (s *a2Suite) SetupSuite() {
 }
 
 func (s *a2Suite) SetupTest() {
-	_ = s.comp.Boot("")
+	_ = s.comp.Boot()
 }
 
 func TestA2Suite(t *testing.T) {
