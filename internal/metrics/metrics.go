@@ -34,3 +34,11 @@ func Export() map[string]int {
 
 	return expMap
 }
+
+func Clear() {
+	metricMutex.Lock()
+
+	metricMap = map[string]int{}
+
+	metricMutex.Unlock()
+}

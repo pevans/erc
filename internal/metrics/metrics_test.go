@@ -38,3 +38,10 @@ func TestExport(t *testing.T) {
 	val, _ := exp["fffffff"]
 	assert.Equal(t, val, 111)
 }
+
+func TestClear(t *testing.T) {
+	Increment("abc", 1)
+
+	Clear()
+	assert.Empty(t, metricMap)
+}
