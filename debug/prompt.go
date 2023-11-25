@@ -4,9 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/pevans/erc/a2"
+	"github.com/pkg/errors"
 )
 
 func Prompt(comp *a2.Computer) {
@@ -47,12 +49,23 @@ func execute(comp *a2.Computer, cmd string) {
 	}
 
 	switch tokens[0] {
+	case "get":
+		get(comp, tokens)
+
 	case "help":
 		help()
+
+	case "quit":
+		comp.Shutdown()
+		os.Exit(0)
 
 	case "resume":
 		comp.Debugger = false
 		say("resuming emulation")
+
+	case "set":
+		set(comp, tokens)
+
 	default:
 		say(fmt.Sprintf(`unknown command: "%v"`, tokens[0]))
 		help()
@@ -61,6 +74,20 @@ func execute(comp *a2.Computer, cmd string) {
 
 func help() {
 	say("list of commands")
-	say("  help ..... print this message")
-	say("  resume ... resume emulation")
+	say("  data")
+	say("    get <addr> ......... print the value at address <addr>")
+	say("    set <addr> <val> ... write <val> at address <addr>")
+	say("  the rest")
+	say("    help ............... print this message")
+	say("    quit ............... quit the emulator")
+	say("    resume ............. resume emulation")
+}
+
+func hex(token string, bits int) (int, error) {
+	ui64, err := strconv.ParseUint(token, 16, bits)
+	if err != nil {
+		return 0, errors.Wrapf(err, `invalid hex: "%v"`, token)
+	}
+
+	return int(ui64), nil
 }
