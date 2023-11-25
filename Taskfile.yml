@@ -1,6 +1,8 @@
 version: '3'
 
 tasks:
+  default:
+    - task: test
   lint: |
     golangci-lint \
       --enable=gocognit \
@@ -15,3 +17,5 @@ tasks:
       --enable=unconvert \
       --enable=unparam \
       run
+  test:
+    go test ./...

@@ -12,10 +12,15 @@ type EventListener func(e Event)
 // These are key modifiers. Note that they represent a real keyboard
 // you'd use today, not a virtual keyboard from any emulated device.
 const (
-	ModShift   = iota // shift key
-	ModOption         // option key
-	ModControl        // control key
-	ModCommand        // command key
+	ModNone    = iota
+	ModShift   // shift key
+	ModOption  // option key
+	ModControl // control key
+	ModCommand // command key
+)
+
+const (
+	KeyNone rune = 0
 )
 
 var (

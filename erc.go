@@ -11,6 +11,7 @@ import (
 	"github.com/pevans/erc/a2"
 	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/input"
+	"github.com/pevans/erc/shortcut"
 
 	"github.com/pkg/profile"
 )
@@ -70,6 +71,10 @@ func main() {
 
 	// Set up a listener event that funnels through our keyboard handler
 	go input.Listen(func(ev input.Event) {
+		if shortcut.Check(ev, comp) {
+			return
+		}
+
 		comp.PressKey(uint8(ev.Key))
 	})
 

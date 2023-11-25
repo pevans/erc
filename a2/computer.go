@@ -1,8 +1,8 @@
 package a2
 
 import (
-	"github.com/pevans/erc/memory"
 	"github.com/pevans/erc/gfx"
+	"github.com/pevans/erc/memory"
 	"github.com/pevans/erc/mos65c02"
 )
 
@@ -43,6 +43,9 @@ type Computer struct {
 
 	// SysFont is the system font for the Apple II
 	SysFont *gfx.Font
+
+	// Whether we're using the debugger or not
+	Debugger bool
 }
 
 const (
