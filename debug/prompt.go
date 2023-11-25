@@ -49,22 +49,25 @@ func execute(comp *a2.Computer, cmd string) {
 	}
 
 	switch tokens[0] {
+	// data
 	case "get":
 		get(comp, tokens)
+	case "reg":
+		reg(comp, tokens)
+	case "set":
+		set(comp, tokens)
+	case "status":
+		status(comp)
 
+		// the rest
 	case "help":
 		help()
-
 	case "quit":
 		comp.Shutdown()
 		os.Exit(0)
-
 	case "resume":
 		comp.Debugger = false
 		say("resuming emulation")
-
-	case "set":
-		set(comp, tokens)
 
 	default:
 		say(fmt.Sprintf(`unknown command: "%v"`, tokens[0]))
@@ -76,7 +79,9 @@ func help() {
 	say("list of commands")
 	say("  data")
 	say("    get <addr> ......... print the value at address <addr>")
+	say("    reg <r> <val> ...... write <val> to register <r>")
 	say("    set <addr> <val> ... write <val> at address <addr>")
+	say("    status ............. show registers and next execution")
 	say("  the rest")
 	say("    help ............... print this message")
 	say("    quit ............... quit the emulator")
