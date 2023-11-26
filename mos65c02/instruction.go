@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/pevans/erc/internal/metrics"
-	"github.com/pevans/erc/trace"
 )
 
 // An Instruction is a function that performs an operation on the CPU.
@@ -110,12 +109,6 @@ func (c *CPU) Execute() error {
 	c.P |= UNUSED | BREAK
 
 	return nil
-}
-
-func writeTrace(c *CPU, tr *trace.Trace) {
-	tr.Location = fmt.Sprintf(`%04X`, c.PC)
-	tr.Instruction = instructions[c.Opcode].String()
-	tr.Operand = formatOperand(c.AddrMode, c.Operand, c.PC)
 }
 
 func (c *CPU) Status() string {
