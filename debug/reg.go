@@ -38,6 +38,6 @@ func reg(comp *a2.Computer, tokens []string) {
 		comp.CPU.Y = uint8(val)
 		status(comp)
 	default:
-		say(fmt.Sprintf(`invalid register: "%v"`, tokens[1]))
+		say(fmt.Sprintf("invalid register: \"%v\"", tokens[1]))
 	}
 }

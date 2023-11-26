@@ -120,14 +120,14 @@ func writeTrace(c *CPU, tr *trace.Trace) {
 
 func (c *CPU) Status() string {
 	return fmt.Sprintf(
-		`A:$%02X X:$%02X Y:$%02X S:$%02X P:$%02X (%s) PC:$%04X`,
+		"A:$%02X X:$%02X Y:$%02X S:$%02X P:$%02X (%s) PC:$%04X",
 		c.A, c.X, c.Y, c.P, c.S, formatStatus(c.P), c.PC,
 	)
 }
 
 func (c *CPU) NextInstruction() string {
 	return fmt.Sprintf(
-		`%s %s`,
+		"%s %s",
 		instructions[c.Opcode].String(),
 		formatOperand(c.AddrMode, c.Operand, c.PC),
 	)

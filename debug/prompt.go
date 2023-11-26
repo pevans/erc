@@ -59,6 +59,10 @@ func execute(comp *a2.Computer, cmd string) {
 	case "status":
 		status(comp)
 
+		// execution
+	case "step":
+		step(comp, tokens)
+
 		// the rest
 	case "help":
 		help()
@@ -70,19 +74,21 @@ func execute(comp *a2.Computer, cmd string) {
 		say("resuming emulation")
 
 	default:
-		say(fmt.Sprintf(`unknown command: "%v"`, tokens[0]))
+		say(fmt.Sprintf("unknown command: \"%v\"", tokens[0]))
 		help()
 	}
 }
 
 func help() {
 	say("list of commands")
-	say("  data")
+	say("  [data]")
 	say("    get <addr> ......... print the value at address <addr>")
 	say("    reg <r> <val> ...... write <val> to register <r>")
 	say("    set <addr> <val> ... write <val> at address <addr>")
 	say("    status ............. show registers and next execution")
-	say("  the rest")
+	say("  [execution]")
+	say("    step <times> ....... execute <times> instructions")
+	say("  [the rest]")
 	say("    help ............... print this message")
 	say("    quit ............... quit the emulator")
 	say("    resume ............. resume emulation")
@@ -91,7 +97,16 @@ func help() {
 func hex(token string, bits int) (int, error) {
 	ui64, err := strconv.ParseUint(token, 16, bits)
 	if err != nil {
-		return 0, errors.Wrapf(err, `invalid hex: "%v"`, token)
+		return 0, errors.Wrapf(err, "invalid hex: \"%v\"", token)
+	}
+
+	return int(ui64), nil
+}
+
+func integer(token string) (int, error) {
+	ui64, err := strconv.ParseUint(token, 10, 64)
+	if err != nil {
+		return 0, errors.Wrapf(err, "invalid integer: \"%v\"", token)
 	}
 
 	return int(ui64), nil
