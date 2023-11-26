@@ -15,7 +15,8 @@ type Instruction func(c *CPU)
 
 // Below is a table of instructions that are mapped to opcodes. For
 // corresponding address modes, see addr.go.
-//   00   01   02   03   04   05   06   07   08   09   0A   0B   0C   0D   0E   0F
+//
+//	00   01   02   03   04   05   06   07   08   09   0A   0B   0C   0D   0E   0F
 var instructions = [256]Instruction{
 	Brk, Ora, Np2, Nop, Tsb, Ora, Asl, Nop, Php, Ora, Asl, Nop, Tsb, Ora, Asl, Nop, // 0x
 	Bpl, Ora, Ora, Nop, Trb, Ora, Asl, Nop, Clc, Ora, Inc, Nop, Trb, Ora, Asl, Nop, // 1x
@@ -117,10 +118,18 @@ func writeTrace(c *CPU, tr *trace.Trace) {
 	tr.Operand = formatOperand(c.AddrMode, c.Operand, c.PC)
 }
 
-func writeState(c *CPU, tr *trace.Trace) {
-	tr.State = fmt.Sprintf(
-		`A:%02X X:%02X Y:%02X P:%02X S:%02X (%s) EA:%04X EV:%02X`,
-		c.A, c.X, c.Y, c.P, c.S, formatStatus(c.P), c.EffAddr, c.EffVal,
+func (c *CPU) Status() string {
+	return fmt.Sprintf(
+		`A:$%02X X:$%02X Y:$%02X S:$%02X P:$%02X (%s) PC:$%04X`,
+		c.A, c.X, c.Y, c.P, c.S, formatStatus(c.P), c.PC,
+	)
+}
+
+func (c *CPU) NextInstruction() string {
+	return fmt.Sprintf(
+		`%s %s`,
+		instructions[c.Opcode].String(),
+		formatOperand(c.AddrMode, c.Operand, c.PC),
 	)
 }
 
