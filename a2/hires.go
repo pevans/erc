@@ -7,9 +7,14 @@ import (
 	"github.com/pevans/erc/gfx"
 )
 
+const (
+	palettePurpleGreen = iota
+	paletteBlueOrange
+)
+
 type hiresDot struct {
-	bits    byte
-	palette []color.RGBA
+	on      bool
+	palette int
 	clr     color.RGBA
 }
 
@@ -24,8 +29,8 @@ var (
 
 var hiresPalette0 = []color.RGBA{
 	hiresBlack,
-	hiresGreen,
 	hiresPurple,
+	hiresGreen,
 	hiresWhite,
 }
 
@@ -58,30 +63,72 @@ func (c *Computer) HiresDots(row uint, dots []hiresDot) error {
 
 	addr := hiresAddrs[row]
 
-	for i := 0; i < 40; i++ {
-		byt := c.Get(int(addr) + i)
-		pal := hiresPalette0
+	for byteOffset := 0; byteOffset < 40; byteOffset++ {
+		byt := c.Get(int(addr) + byteOffset)
+		pal := palettePurpleGreen
 
+		// The high bit tells us which palette to use; if it's 1, we
+		// switch to the blue/orange palette.
 		if byt&0x80 > 0 {
-			pal = hiresPalette1
+			pal = paletteBlueOrange
 		}
 
-		for d := 0; d < 7; d++ {
-			dots[(int(i)*7)+d].bits = byte(byt & 3)
-			dots[(int(i)*7)+d].palette = pal
+		dotOffset := int(byteOffset) * 7
+
+		// Loop through the bits and set dots to on or off for each bit.
+		for byteColumn := 0; byteColumn < 7; byteColumn++ {
+			dots[dotOffset+byteColumn].on = byte(byt&1) > 0
+			dots[dotOffset+byteColumn].palette = pal
+
 			byt >>= 1
 		}
 	}
 
-	evenOffset := 0
-	for i, dot := range dots {
-		palIndex := int(dot.bits)
-		if dot.bits > 0 && dot.bits < 3 {
-			palIndex += evenOffset
+	for i, _ := range dots {
+		var (
+			white  = 3
+			black  = 0
+			color1 = 1
+			color2 = 2
+		)
+
+		thisOn := dots[i].on
+		prevOn := (i-1 >= 0) && dots[i-1].on
+		colors := hiresPalette0
+
+		if dots[i].palette == paletteBlueOrange {
+			colors = hiresPalette1
+
+			if i == 0 {
+				prevOn = true
+			}
 		}
 
-		dots[i].clr = dot.palette[palIndex]
-		evenOffset ^= 1
+		switch {
+		case thisOn && prevOn:
+			dots[i].clr = colors[white]
+
+		case thisOn && !prevOn:
+			thisColor := color1
+
+			if i%2 > 0 {
+				thisColor = color2
+			}
+
+			dots[i].clr = colors[thisColor]
+
+		case prevOn && !thisOn:
+			thisColor := color1
+
+			if i%2 == 0 {
+				thisColor = color2
+			}
+
+			dots[i].clr = colors[thisColor]
+
+		default:
+			dots[i].clr = colors[black]
+		}
 	}
 
 	return nil
