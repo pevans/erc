@@ -98,10 +98,6 @@ func (c *Computer) HiresDots(row uint, dots []hiresDot) error {
 
 		if dots[i].palette == paletteBlueOrange {
 			colors = hiresPalette1
-
-			if i == 0 {
-				prevOn = true
-			}
 		}
 
 		switch {
