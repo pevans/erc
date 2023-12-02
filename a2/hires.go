@@ -13,32 +13,33 @@ const (
 )
 
 type hiresDot struct {
-	on      bool
-	palette int
-	clr     color.RGBA
+	on       bool
+	boundary bool
+	palette  int
+	clr      color.RGBA
 }
 
 var (
-	hiresBlack  = color.RGBA{R: 0x00, G: 0x00, B: 0x00}
-	hiresWhite  = color.RGBA{R: 0xff, G: 0xff, B: 0xff}
-	hiresGreen  = color.RGBA{R: 0x2f, G: 0xbc, B: 0x1a}
-	hiresPurple = color.RGBA{R: 0xd0, G: 0x43, B: 0xe5}
-	hiresBlue   = color.RGBA{R: 0x2f, G: 0x95, B: 0xe5}
-	hiresOrange = color.RGBA{R: 0xd0, G: 0x6a, B: 0x1a}
+	hiresBlack       = color.RGBA{R: 0x00, G: 0x00, B: 0x00}
+	hiresWhite       = color.RGBA{R: 0xff, G: 0xff, B: 0xff}
+	hiresGreen       = color.RGBA{R: 0x2f, G: 0xbc, B: 0x1a}
+	hiresPurple      = color.RGBA{R: 0xd0, G: 0x43, B: 0xe5}
+	hiresBlue        = color.RGBA{R: 0x2f, G: 0x95, B: 0xe5}
+	hiresOrange      = color.RGBA{R: 0xd0, G: 0x6a, B: 0x1a}
+	hiresDarkGreen   = color.RGBA{R: 0x3f, G: 0x4c, B: 0x12}
+	hiresDarkPurple  = color.RGBA{R: 0x3e, G: 0x31, B: 0x79}
+	hiresLightGreen  = color.RGBA{R: 0xbd, G: 0xea, B: 0x86}
+	hiresLightPurple = color.RGBA{R: 0xbb, G: 0xaf, B: 0xf6}
 )
 
 var hiresPalette0 = []color.RGBA{
-	hiresBlack,
 	hiresPurple,
 	hiresGreen,
-	hiresWhite,
 }
 
 var hiresPalette1 = []color.RGBA{
-	hiresBlack,
 	hiresBlue,
 	hiresOrange,
-	hiresWhite,
 }
 
 func (c *Computer) hiresRender(start, end int) {
@@ -57,6 +58,51 @@ func (c *Computer) hiresRender(start, end int) {
 // sufficient to contain all the dots in such a row, this function will
 // return an error.
 func (c *Computer) HiresDots(row uint, dots []hiresDot) error {
+	if err := hiresFillDots(c, row, dots); err != nil {
+		return err
+	}
+
+	// This is technically a double scan of the row. We could probably
+	// make this faster, but on modern hardware, this hasn't been a
+	// problem worth solving.
+	for i, _ := range dots {
+		thisOn := dots[i].on
+		prevOn := (i-1 >= 0) && dots[i-1].on
+		colors := hiresPalette0
+		colorIndex := i % 2
+
+		if dots[i].palette == paletteBlueOrange {
+			colors = hiresPalette1
+		}
+
+		switch {
+		case thisOn && prevOn:
+			dots[i].clr = hiresWhite
+
+		case thisOn && !prevOn:
+			dots[i].clr = colors[colorIndex]
+
+		case !thisOn && prevOn:
+			// The XOR just flips the position of the color our index
+			// would use; so if it would have been purple, now it's
+			// green, or whatever.
+			dots[i].clr = colors[colorIndex^1]
+
+		default:
+			dots[i].clr = hiresBlack
+		}
+
+		if i > 0 && dots[i-1].boundary {
+			dots[i-1], dots[i] = shiftBoundaryDots(dots[i-1], dots[i])
+		}
+	}
+
+	return nil
+}
+
+// Fill in the boolean on/off state of each dot based on a 40 byte
+// region that is implied by the given row.
+func hiresFillDots(comp *Computer, row uint, dots []hiresDot) error {
 	if len(dots) != 280 {
 		return fmt.Errorf("dots slice must contain 280 items")
 	}
@@ -64,7 +110,7 @@ func (c *Computer) HiresDots(row uint, dots []hiresDot) error {
 	addr := hiresAddrs[row]
 
 	for byteOffset := 0; byteOffset < 40; byteOffset++ {
-		byt := c.Get(int(addr) + byteOffset)
+		byt := comp.Get(int(addr) + byteOffset)
 		pal := palettePurpleGreen
 
 		// The high bit tells us which palette to use; if it's 1, we
@@ -82,49 +128,8 @@ func (c *Computer) HiresDots(row uint, dots []hiresDot) error {
 
 			byt >>= 1
 		}
-	}
 
-	for i, _ := range dots {
-		var (
-			white  = 3
-			black  = 0
-			color1 = 1
-			color2 = 2
-		)
-
-		thisOn := dots[i].on
-		prevOn := (i-1 >= 0) && dots[i-1].on
-		colors := hiresPalette0
-
-		if dots[i].palette == paletteBlueOrange {
-			colors = hiresPalette1
-		}
-
-		switch {
-		case thisOn && prevOn:
-			dots[i].clr = colors[white]
-
-		case thisOn && !prevOn:
-			thisColor := color1
-
-			if i%2 > 0 {
-				thisColor = color2
-			}
-
-			dots[i].clr = colors[thisColor]
-
-		case prevOn && !thisOn:
-			thisColor := color1
-
-			if i%2 == 0 {
-				thisColor = color2
-			}
-
-			dots[i].clr = colors[thisColor]
-
-		default:
-			dots[i].clr = colors[black]
-		}
+		dots[dotOffset+6].boundary = true
 	}
 
 	return nil
