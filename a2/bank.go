@@ -12,8 +12,9 @@ const (
 	bankDFBlock         = 403
 	bankSysBlock        = 404
 	bankWriteAttempts   = 405
-	bankSysBlockSegment = 406
-	bankROMSegment      = 407
+	bankReadAttempts    = 406
+	bankSysBlockSegment = 407
+	bankROMSegment      = 408
 )
 
 // This const block defines some modes that our bank switcher can have.
@@ -166,7 +167,7 @@ func bankUseDefaults(c *Computer) {
 	// of RAM."
 	c.state.SetInt(bankRead, bankROM)
 	c.state.SetInt(bankWrite, bankRAM)
-	c.state.SetInt(bankDFBlock, bank2)
+	c.state.SetInt(bankDFBlock, bank1)
 	c.state.SetInt(bankSysBlock, bankMain)
 	c.state.SetSegment(bankSysBlockSegment, c.Main)
 	c.state.SetSegment(bankROMSegment, c.ROM)
