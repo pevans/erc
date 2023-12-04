@@ -2,6 +2,7 @@ package a2
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/pevans/erc/input"
 	"github.com/pevans/erc/internal/metrics"
@@ -13,9 +14,17 @@ func (c *Computer) Shutdown() error {
 	input.Shutdown()
 
 	fmt.Println("--- METRICS ---")
+
 	mets := metrics.Export()
-	for name, counter := range mets {
-		fmt.Printf("%v = %v\n", name, counter)
+	keys := []string{}
+
+	for name, _ := range mets {
+		keys = append(keys, name)
+	}
+
+	sort.Strings(keys)
+	for _, key := range keys {
+		fmt.Printf("%v = %v\n", key, mets[key])
 	}
 
 	return nil

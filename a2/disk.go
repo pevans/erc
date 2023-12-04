@@ -50,7 +50,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 			c.SelectedDrive.Write()
 			metrics.Increment("disk_writes", 1)
 		} else {
-			metrics.Increment("failed_disk_readwrites", 1)
+			metrics.Increment("disk_failed_readwrites", 1)
 		}
 
 	case 0xD:
@@ -59,7 +59,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 			c.SelectedDrive.Latch = *val
 			metrics.Increment("disk_latches", 1)
 		} else {
-			metrics.Increment("failed_disk_latches", 1)
+			metrics.Increment("disk_failed_latches", 1)
 		}
 
 	case 0xE:

@@ -1,6 +1,7 @@
 package a2
 
 import (
+	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/memory"
 	"github.com/pkg/errors"
 )
@@ -69,10 +70,13 @@ func bankSwitchRead(addr int, stm *memory.StateMap) uint8 {
 	// value with bit 7 "checked" (which is to say, 1).
 	switch addr {
 	case rdBnk2:
+		metrics.Increment("soft_read_bank_2", 1)
 		return bankBit7(stm.Int(bankDFBlock) == bank2)
 	case rdLCRAM:
+		metrics.Increment("soft_read_bank_lang_card", 1)
 		return bankBit7(stm.Int(bankRead) == bankRAM)
 	case rdAltZP:
+		metrics.Increment("soft_read_bank_alt_zp", 1)
 		return bankBit7(stm.Int(bankSysBlock) == bankAux)
 	}
 
@@ -91,9 +95,11 @@ func bankSwitchWrite(addr int, val uint8, stm *memory.StateMap) {
 
 	switch addr {
 	case offAltZP:
+		metrics.Increment("soft_write_bank_alt_zp_off", 1)
 		stm.SetInt(bankSysBlock, bankMain)
 		stm.SetSegment(bankSysBlockSegment, stm.Segment(memMainSegment))
 	case onAltZP:
+		metrics.Increment("soft_write_bank_alt_zp_on", 1)
 		stm.SetInt(bankSysBlock, bankAux)
 		stm.SetSegment(bankSysBlockSegment, stm.Segment(memAuxSegment))
 	}
@@ -109,6 +115,7 @@ func bankSwitchWrite(addr int, val uint8, stm *memory.StateMap) {
 // bankBit7 will return, given some boolean condition that has already been
 // computed, either a value with bit 7 flagged on, or zero.
 func bankBit7(cond bool) uint8 {
+	metrics.Increment("soft_read_bank_bit_7", 1)
 	if cond {
 		return 0x80
 	}
@@ -117,6 +124,7 @@ func bankBit7(cond bool) uint8 {
 }
 
 func bankReadMode(addr int) int {
+	metrics.Increment("soft_read_bank", 1)
 	switch addr {
 	case 0xC080, 0xC083, 0xC088, 0xC08B:
 		return bankRAM
@@ -126,6 +134,7 @@ func bankReadMode(addr int) int {
 }
 
 func bankWriteMode(addr int, stm *memory.StateMap) int {
+	metrics.Increment("soft_write_bank", 1)
 	switch addr {
 	case 0xC081, 0xC083, 0xC089, 0xC08B:
 		stm.SetInt(bankWriteAttempts, stm.Int(bankWriteAttempts)+1)
@@ -140,6 +149,7 @@ func bankWriteMode(addr int, stm *memory.StateMap) int {
 }
 
 func bankDFBlockMode(addr int) int {
+	metrics.Increment("soft_bank_df_block_mode", 1)
 	switch addr {
 	case 0xC080, 0xC081, 0xC082, 0xC083:
 		return bank2
@@ -203,6 +213,7 @@ func BankSegment(stm *memory.StateMap) *memory.Segment {
 // BankDFRead implements logic for reads into the D0...FF pages of memory,
 // taking into account the bank-switched states that the computer currently has.
 func BankDFRead(addr int, stm *memory.StateMap) uint8 {
+	metrics.Increment("soft_read_bank_df_block", 1)
 	if stm.Int(bankDFBlock) == bank2 && addr < 0xE000 {
 		return BankSegment(stm).DirectGet(int(addr) + 0x3000)
 	}
@@ -217,6 +228,7 @@ func BankDFRead(addr int, stm *memory.StateMap) uint8 {
 // BankDFWrite implements logic for writes into the D0...FF pages of memory,
 // taking into account the bank-switched states that the computer currently has.
 func BankDFWrite(addr int, val uint8, stm *memory.StateMap) {
+	metrics.Increment("soft_write_bank_df_block", 1)
 	if stm.Int(bankWrite) == bankNone {
 		return
 	}
@@ -230,9 +242,11 @@ func BankDFWrite(addr int, val uint8, stm *memory.StateMap) {
 }
 
 func BankZPRead(addr int, stm *memory.StateMap) uint8 {
+	metrics.Increment("soft_read_bank_zp", 1)
 	return BankSegment(stm).DirectGet(int(addr))
 }
 
 func BankZPWrite(addr int, val uint8, stm *memory.StateMap) {
+	metrics.Increment("soft_write_bank_zp", 1)
 	BankSegment(stm).DirectSet(int(addr), val)
 }

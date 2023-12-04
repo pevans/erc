@@ -1,6 +1,9 @@
 package a2
 
-import "github.com/pevans/erc/memory"
+import (
+	"github.com/pevans/erc/internal/metrics"
+	"github.com/pevans/erc/memory"
+)
 
 const (
 	kbLastKey = 100
@@ -29,8 +32,10 @@ func kbWriteSwitches() []int {
 func kbSwitchRead(addr int, stm *memory.StateMap) uint8 {
 	switch addr {
 	case kbDataAndStrobe:
+		metrics.Increment("soft_read_kb_data_and_strobe", 1)
 		return stm.Uint8(kbLastKey) | stm.Uint8(kbStrobe)
 	case kbAnyKeyDown:
+		metrics.Increment("soft_read_kb_any_key_down", 1)
 		stm.SetUint8(kbStrobe, 0)
 		return stm.Uint8(kbKeyDown)
 	}
@@ -41,6 +46,7 @@ func kbSwitchRead(addr int, stm *memory.StateMap) uint8 {
 
 func kbSwitchWrite(addr int, val uint8, stm *memory.StateMap) {
 	if addr == kbAnyKeyDown {
+		metrics.Increment("soft_write_kb_any_key_down", 1)
 		stm.SetUint8(kbStrobe, 0)
 	}
 }

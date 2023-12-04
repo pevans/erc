@@ -1,6 +1,7 @@
 package a2
 
 import (
+	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/memory"
 )
 
@@ -76,15 +77,19 @@ func memSwitchRead(addr int, stm *memory.StateMap) uint8 {
 func memSwitchWrite(addr int, val uint8, stm *memory.StateMap) {
 	switch addr {
 	case onMemReadAux:
+		metrics.Increment("soft_memory_read_aux_on", 1)
 		stm.SetInt(memRead, memAux)
 		stm.SetSegment(memReadSegment, stm.Segment(memAuxSegment))
 	case offMemReadAux:
+		metrics.Increment("soft_memory_read_aux_off", 1)
 		stm.SetInt(memRead, memMain)
 		stm.SetSegment(memReadSegment, stm.Segment(memMainSegment))
 	case onMemWriteAux:
+		metrics.Increment("soft_memory_write_aux_on", 1)
 		stm.SetInt(memWrite, memAux)
 		stm.SetSegment(memWriteSegment, stm.Segment(memAuxSegment))
 	case offMemWriteAux:
+		metrics.Increment("soft_memory_write_aux_off", 1)
 		stm.SetInt(memWrite, memMain)
 		stm.SetSegment(memWriteSegment, stm.Segment(memMainSegment))
 	}

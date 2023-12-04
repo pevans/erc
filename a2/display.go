@@ -139,35 +139,45 @@ func displayUseDefaults(c *Computer) {
 func displayOnOrOffReadWrite(a int, stm *memory.StateMap) bool {
 	switch a {
 	case onPage2:
+		metrics.Increment("soft_display_page_2_on", 1)
 		stm.SetBool(displayPage2, true)
 		return true
 	case onText:
+		metrics.Increment("soft_display_text_on", 1)
 		stm.SetBool(displayText, true)
 		return true
 	case onMixed:
+		metrics.Increment("soft_display_mixed_on", 1)
 		stm.SetBool(displayMixed, true)
 		return true
 	case onHires:
+		metrics.Increment("soft_display_hires_on", 1)
 		stm.SetBool(displayHires, true)
 		return true
 	case onDHires:
+		metrics.Increment("soft_display_dhires_on", 1)
 		if stm.Bool(displayIou) {
 			stm.SetBool(displayDoubleHigh, true)
 		}
 		return true
 	case offPage2:
+		metrics.Increment("soft_display_page_2_off", 1)
 		stm.SetBool(displayPage2, false)
 		return true
 	case offText:
+		metrics.Increment("soft_display_text_off", 1)
 		stm.SetBool(displayText, false)
 		return true
 	case offMixed:
+		metrics.Increment("soft_display_mixed_off", 1)
 		stm.SetBool(displayMixed, false)
 		return true
 	case offHires:
+		metrics.Increment("soft_display_hires_off", 1)
 		stm.SetBool(displayHires, false)
 		return true
 	case offDHires:
+		metrics.Increment("soft_display_dhires_off", 1)
 		if stm.Bool(displayIou) {
 			stm.SetBool(displayDoubleHigh, false)
 		}

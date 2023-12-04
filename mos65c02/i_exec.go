@@ -6,6 +6,8 @@ import "github.com/pevans/erc/internal/metrics"
 // This isn't something that normally happens in software, but you might
 // see it in the system monitor (which was a debugger in Apple IIs).
 func Brk(c *CPU) {
+	metrics.Increment("instruction_brk", 1)
+
 	// This pushes the the current PC register value in little-endian
 	// order.
 	c.PushStack(uint8(c.PC >> 8))
@@ -54,10 +56,12 @@ func Nop(c *CPU) {
 
 // Np2 implements the NP2 instruction, which like NOP does nothing.
 func Np2(c *CPU) {
+	metrics.Increment("instruction_np2", 1)
 }
 
 // Np3 implements the NP3 instruction, which like NOP does nothing.
 func Np3(c *CPU) {
+	metrics.Increment("instruction_np3", 1)
 }
 
 // Rti implements the RTI (return from interrupt) instruction, which

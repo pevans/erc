@@ -1,6 +1,9 @@
 package a2
 
-import "github.com/pevans/erc/memory"
+import (
+	"github.com/pevans/erc/internal/metrics"
+	"github.com/pevans/erc/memory"
+)
 
 const (
 	pcExpansion  = 300
@@ -56,15 +59,19 @@ func pcSwitchRead(addr int, stm *memory.StateMap) uint8 {
 
 	switch addr {
 	case rdSlotC3ROM:
+		metrics.Increment("soft_pc_read_slot_c3_rom", 1)
 		if stm.Bool(pcSlotC3) {
 			return hi
 		}
 		// it _seems_ like this should return lo instead of hi...?
 	case rdSlotCXROM:
+		metrics.Increment("soft_pc_read_slot_cx_rom", 1)
 		if stm.Bool(pcSlotCX) {
 			return lo
 		}
 	case offExpROM:
+		metrics.Increment("soft_pc_exp_rom_off", 1)
+
 		// This is kind of an unusual switch, though, in that calling it
 		// produces a side effect while returning from ROM.
 		val := PCRead(addr, stm)
@@ -79,11 +86,13 @@ func pcSwitchRead(addr int, stm *memory.StateMap) uint8 {
 	}
 
 	if slotXROM(addr) {
+		metrics.Increment("soft_pc_xrom", 1)
 		stm.SetInt(pcExpSlot, pcSlotFromAddr(addr))
 		return PCRead(addr, stm)
 	}
 
 	if expROM(addr) && stm.Int(pcExpSlot) > 0 {
+		metrics.Increment("soft_pc_exp_rom", 1)
 		stm.SetBool(pcExpansion, true)
 		return PCRead(addr, stm)
 	}
@@ -115,15 +124,19 @@ func pcSlotFromAddr(addr int) int {
 func pcSwitchWrite(addr int, val uint8, stm *memory.StateMap) {
 	switch addr {
 	case onSlotC3ROM:
+		metrics.Increment("soft_pc_slot_c3_rom_on", 1)
 		stm.SetBool(pcSlotC3, true)
 	case offSlotC3ROM:
+		metrics.Increment("soft_pc_slot_c3_rom_off", 1)
 		stm.SetBool(pcSlotC3, false)
 	case onSlotCXROM:
+		metrics.Increment("soft_pc_slot_cx_c3_rom_on", 1)
 		// Note that enabling slotcx rom _also_ enables slotc3 rom, and
 		// disabling does the same.
 		stm.SetBool(pcSlotCX, true)
 		stm.SetBool(pcSlotC3, true)
 	case offSlotCXROM:
+		metrics.Increment("soft_pc_slot_cx_c3_rom_off", 1)
 		// FIXME: the problem is that addresses aren't matching the
 		// consts, even though they are equal values
 		stm.SetBool(pcSlotCX, false)
@@ -153,14 +166,17 @@ func PCRead(addr int, stm *memory.StateMap) uint8 {
 		stm.Bool(pcExpansion) && expROM(addr),
 		stm.Bool(pcSlotC3) && slot3ROM(addr),
 		stm.Bool(pcSlotCX) && slotXROM(addr):
+		metrics.Increment("soft_pc_get_periph_rom", 1)
 		return stm.Segment(pcROMSegment).DirectGet(periphROM)
 	}
 
+	metrics.Increment("soft_pc_get_int_rom", 1)
 	return stm.Segment(pcROMSegment).DirectGet(intROM)
 }
 
 // PCWrite is a stub which does nothing, since it handles writes into an
 // explicitly read-only memory space.
 func PCWrite(addr int, val uint8, stm *memory.StateMap) {
+	metrics.Increment("soft_pc_failed_write", 1)
 	// Do nothing
 }
