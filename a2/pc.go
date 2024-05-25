@@ -64,11 +64,15 @@ func pcSwitchRead(addr int, stm *memory.StateMap) uint8 {
 			return hi
 		}
 		// it _seems_ like this should return lo instead of hi...?
+
 	case rdSlotCXROM:
 		metrics.Increment("soft_pc_read_slot_cx_rom", 1)
 		if stm.Bool(pcSlotCX) {
 			return lo
 		}
+
+		return hi
+
 	case offExpROM:
 		metrics.Increment("soft_pc_exp_rom_off", 1)
 
