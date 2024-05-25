@@ -264,7 +264,11 @@ func displaySwitchWrite(a int, val uint8, stm *memory.StateMap) {
 	}
 }
 
-func DisplaySegment(addr int, stm *memory.StateMap) *memory.Segment {
+func DisplaySegment(
+	addr int,
+	stm *memory.StateMap,
+	segfunc func(*memory.StateMap) *memory.Segment,
+) *memory.Segment {
 	if stm.Bool(displayStore80) {
 		if addr >= 0x0400 && addr < 0x0800 && stm.Bool(displayHires) {
 			return stm.Segment(displayAuxSegment)
@@ -275,18 +279,26 @@ func DisplaySegment(addr int, stm *memory.StateMap) *memory.Segment {
 		}
 	}
 
-	return ReadSegment(stm)
+	return segfunc(stm)
 }
 
 func DisplayRead(addr int, stm *memory.StateMap) uint8 {
-	return DisplaySegment(addr, stm).DirectGet(int(addr))
+	return DisplaySegment(
+		addr,
+		stm,
+		ReadSegment,
+	).DirectGet(int(addr))
 }
 
 func DisplayWrite(addr int, val uint8, stm *memory.StateMap) {
 	// Let the drawing routines we have know that it's time to re-render
 	// the screen.
 	stm.SetBool(displayRedraw, true)
-	DisplaySegment(addr, stm).DirectSet(int(addr), val)
+	DisplaySegment(
+		addr,
+		stm,
+		WriteSegment,
+	).DirectSet(int(addr), val)
 }
 
 // Render will draw an updated picture of our graphics to the local framebuffer

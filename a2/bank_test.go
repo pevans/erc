@@ -6,7 +6,7 @@ func (s *a2Suite) TestUseDefaults() {
 	bankUseDefaults(s.comp)
 	s.Equal(bankROM, s.comp.state.Int(bankRead))
 	s.Equal(bankRAM, s.comp.state.Int(bankWrite))
-	s.Equal(bank2, s.comp.state.Int(bankDFBlock))
+	s.Equal(bank1, s.comp.state.Int(bankDFBlock))
 	s.Equal(bankMain, s.comp.state.Int(bankSysBlock))
 }
 
