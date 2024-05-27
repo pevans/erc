@@ -6,17 +6,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-const (
-	bankRead            = 401
-	bankWrite           = 402
-	bankDFBlock         = 403
-	bankSysBlock        = 404
-	bankWriteAttempts   = 405
-	bankReadAttempts    = 406
-	bankSysBlockSegment = 407
-	bankROMSegment      = 408
-)
-
 // This const block defines some modes that our bank switcher can have.
 const (
 	bankRAM = iota
@@ -138,12 +127,9 @@ func bankWriteMode(addr int, stm *memory.StateMap) int {
 	metrics.Increment("soft_write_bank", 1)
 	switch addr {
 	case 0xC081, 0xC083, 0xC089, 0xC08B:
-		stm.SetInt(bankWriteAttempts, stm.Int(bankWriteAttempts)+1)
-	}
-
-	if stm.Int(bankWriteAttempts) > 1 {
-		stm.SetInt(bankWriteAttempts, 0)
-		return bankRAM
+		if stm.Int(bankWriteAttempts) > 1 {
+			return bankRAM
+		}
 	}
 
 	return bankNone
@@ -215,6 +201,7 @@ func BankSegment(stm *memory.StateMap) *memory.Segment {
 // taking into account the bank-switched states that the computer currently has.
 func BankDFRead(addr int, stm *memory.StateMap) uint8 {
 	metrics.Increment("soft_read_bank_df_block", 1)
+
 	if stm.Int(bankDFBlock) == bank2 && addr < 0xE000 {
 		return BankSegment(stm).DirectGet(int(addr) + 0x3000)
 	}
