@@ -88,3 +88,14 @@ func (sm *StateMap) Any(k int) interface{} {
 func (sm *StateMap) SetAny(k int, v interface{}) {
 	sm.m.Store(k, v)
 }
+
+func (sm *StateMap) Map(keyConvert func(any) string) map[string]any {
+	plainMap := make(map[string]any)
+
+	sm.m.Range(func(key, val any) bool {
+		plainMap[keyConvert(key)] = val
+		return true
+	})
+
+	return plainMap
+}

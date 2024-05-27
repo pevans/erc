@@ -6,12 +6,6 @@ import (
 )
 
 const (
-	kbLastKey = 100
-	kbStrobe  = 101
-	kbKeyDown = 102
-)
-
-const (
 	kbDataAndStrobe int = 0xC000
 	kbAnyKeyDown    int = 0xC010
 )

@@ -6,14 +6,6 @@ import (
 )
 
 const (
-	pcExpansion  = 300
-	pcSlotC3     = 301
-	pcSlotCX     = 302
-	pcExpSlot    = 303
-	pcROMSegment = 304
-)
-
-const (
 	offExpROM    = int(0xCFFF)
 	offSlotC3ROM = int(0xC00A)
 	offSlotCXROM = int(0xC007)

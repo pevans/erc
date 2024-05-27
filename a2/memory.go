@@ -6,15 +6,6 @@ import (
 )
 
 const (
-	memRead         = 200
-	memWrite        = 201
-	memReadSegment  = 202
-	memWriteSegment = 203
-	memAuxSegment   = 204
-	memMainSegment  = 205
-)
-
-const (
 	memMain = iota
 	memAux
 )
@@ -98,6 +89,16 @@ func memSwitchWrite(addr int, val uint8, stm *memory.StateMap) {
 // Get will return the byte at addr, or will execute a read switch if
 // one is present at the given address.
 func (c *Computer) Get(addr int) uint8 {
+	// Apple II architecture has an interesting phenomenon where you
+	// have to use a "knock-knock" to switch banks from RAM to ROM for
+	// writes.
+	switch addr {
+	case 0xC081, 0xC083, 0xC089, 0xC08B:
+		c.state.SetInt(bankWriteAttempts, c.state.Int(bankWriteAttempts)+1)
+	default:
+		c.state.SetInt(bankWriteAttempts, 0)
+	}
+
 	return ReadSegment(c.state).Get(addr)
 }
 

@@ -5,10 +5,6 @@ import (
 	"github.com/pevans/erc/memory"
 )
 
-const (
-	diskComputer = 600
-)
-
 func diskUseDefaults(c *Computer) {
 	c.state.SetAny(diskComputer, c) // :cry:
 }

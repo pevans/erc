@@ -122,3 +122,7 @@ func NewScreen() *gfx.FrameBuffer {
 func (c *Computer) NeedsRender() bool {
 	return c.state.Bool(displayRedraw)
 }
+
+func (c *Computer) State() map[string]any {
+	return c.state.Map(stateMapKeyToString)
+}

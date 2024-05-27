@@ -6,37 +6,6 @@ import (
 )
 
 const (
-	// Use the alternate character set if this is true (as opposed to the
-	// primary set).
-	displayAltChar = 500
-	// Text display should show 80 columns, not the default 40
-	displayCol80 = 501
-	// If this is on, we will store page 2 data in aux memory.
-	displayStore80 = 502
-	// Page 2 will use that second page for graphics in some circumstances; in
-	// others it might prefer page 1 but in auxiliary memory.
-	displayPage2 = 503
-	// Text controls whether we show text mode or not. This can be set in
-	// addition to other modes, which is why this is treated as a bool and not a
-	// const/enum for a resolution.
-	displayText = 504
-	// Controls whether we show a mix of low resolution and text mode in some situations.
-	displayMixed = 505
-	// If highRes is true, then we are in some form of high resolution mode;
-	// otherwise we assume a low resolution mode.
-	displayHires = 506
-	// This enables "IOU" access for certain soft switches in the $C0 page. It
-	// also enables double high resolution to be set.
-	displayIou = 507
-	// When this is true, then high resolution will be rendered as "double high"
-	// resolution.
-	displayDoubleHigh = 508
-
-	displayRedraw     = 509
-	displayAuxSegment = 510
-)
-
-const (
 	// These are R7 actions, meaning they are switches you read from that return
 	// bit 7 high when the modes are on, and low if not.
 	rd80Col   = int(0xC01F)
