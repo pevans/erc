@@ -51,6 +51,16 @@ func (s *a2Suite) TestSwitchRead() {
 
 	wr := func(addr int) int {
 		_ = bankSwitchRead(int(addr), s.comp.state)
+
+		// Because the read attempts are adjusted in the computer
+		// Process method, we simulate that here.
+		switch addr {
+		case 0xC081, 0xC083, 0xC089, 0xC08B:
+			s.comp.state.SetInt(bankReadAttempts, s.comp.state.Int(bankReadAttempts)+1)
+		default:
+			s.comp.state.SetInt(bankReadAttempts, 0)
+		}
+
 		return s.comp.state.Int(bankWrite)
 	}
 
@@ -156,7 +166,7 @@ func (s *a2Suite) TestBankDFRead() {
 			s.Equal(s.comp.Get(xe000), s.comp.ROM.DirectGet(x2000))
 
 			s.comp.state.SetInt(bankDFBlock, bank2)
-			s.NotEqual(s.comp.Get(xd000), s.comp.ROM.DirectGet(x1000))
+			s.Equal(s.comp.Get(xd000), s.comp.ROM.DirectGet(x1000))
 			s.Equal(s.comp.Get(xe000), s.comp.ROM.DirectGet(x2000))
 		})
 

@@ -68,12 +68,56 @@ func bankSwitchRead(addr int, stm *memory.StateMap) uint8 {
 	case rdAltZP:
 		metrics.Increment("soft_read_bank_alt_zp", 1)
 		return bankBit7(stm.Int(bankSysBlock) == bankAux)
-	}
 
-	// Otherwise, we farm off the mode checks to other methods.
-	stm.SetInt(bankRead, bankReadMode(addr))
-	stm.SetInt(bankWrite, bankWriteMode(addr, stm))
-	stm.SetInt(bankDFBlock, bankDFBlockMode(addr))
+	case 0xC080:
+		stm.SetInt(bankRead, bankRAM)
+		stm.SetInt(bankWrite, bankNone)
+		stm.SetInt(bankDFBlock, bank2)
+
+	case 0xC081:
+		if stm.Int(bankReadAttempts) >= 1 {
+			stm.SetInt(bankWrite, bankRAM)
+		}
+		stm.SetInt(bankRead, bankROM)
+		stm.SetInt(bankDFBlock, bank2)
+
+	case 0xC082:
+		stm.SetInt(bankRead, bankROM)
+		stm.SetInt(bankWrite, bankNone)
+		stm.SetInt(bankDFBlock, bank2)
+
+	case 0xC083:
+		if stm.Int(bankReadAttempts) >= 1 {
+			stm.SetInt(bankWrite, bankRAM)
+		}
+		stm.SetInt(bankRead, bankRAM)
+		stm.SetInt(bankDFBlock, bank2)
+
+	case 0xC088:
+		stm.SetInt(bankRead, bankRAM)
+		stm.SetInt(bankWrite, bankNone)
+		stm.SetInt(bankDFBlock, bank1)
+
+	case 0xC089:
+		if stm.Int(bankReadAttempts) >= 1 {
+			stm.SetInt(bankWrite, bankRAM)
+		}
+		stm.SetInt(bankRead, bankROM)
+		stm.SetInt(bankDFBlock, bank1)
+
+	case 0xC08A:
+		stm.SetInt(bankRead, bankROM)
+		stm.SetInt(bankWrite, bankNone)
+		stm.SetInt(bankDFBlock, bank1)
+
+	case 0xC08B:
+		if stm.Int(bankReadAttempts) >= 1 {
+			stm.SetInt(bankWrite, bankRAM)
+		}
+		stm.SetInt(bankRead, bankRAM)
+		stm.SetInt(bankDFBlock, bank1)
+
+	}
 
 	return 0x00
 }
@@ -111,38 +155,6 @@ func bankBit7(cond bool) uint8 {
 	}
 
 	return 0x00
-}
-
-func bankReadMode(addr int) int {
-	metrics.Increment("soft_read_bank", 1)
-	switch addr {
-	case 0xC080, 0xC083, 0xC088, 0xC08B:
-		return bankRAM
-	}
-
-	return bankROM
-}
-
-func bankWriteMode(addr int, stm *memory.StateMap) int {
-	metrics.Increment("soft_write_bank", 1)
-	switch addr {
-	case 0xC081, 0xC083, 0xC089, 0xC08B:
-		if stm.Int(bankWriteAttempts) > 1 {
-			return bankRAM
-		}
-	}
-
-	return bankNone
-}
-
-func bankDFBlockMode(addr int) int {
-	metrics.Increment("soft_bank_df_block_mode", 1)
-	switch addr {
-	case 0xC080, 0xC081, 0xC082, 0xC083:
-		return bank2
-	}
-
-	return bank1
 }
 
 // UseDefaults will set the state of the bank switcher to use what the computer
@@ -202,12 +214,12 @@ func BankSegment(stm *memory.StateMap) *memory.Segment {
 func BankDFRead(addr int, stm *memory.StateMap) uint8 {
 	metrics.Increment("soft_read_bank_df_block", 1)
 
-	if stm.Int(bankDFBlock) == bank2 && addr < 0xE000 {
-		return BankSegment(stm).DirectGet(int(addr) + 0x3000)
-	}
-
 	if stm.Int(bankRead) == bankROM {
 		return stm.Segment(bankROMSegment).DirectGet(int(addr) - SysRomOffset)
+	}
+
+	if stm.Int(bankDFBlock) == bank2 && addr < 0xE000 {
+		return BankSegment(stm).DirectGet(int(addr) + 0x3000)
 	}
 
 	return BankSegment(stm).DirectGet(int(addr))
