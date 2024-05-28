@@ -3,6 +3,7 @@ package a2
 import (
 	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/memory"
+	"github.com/pevans/erc/statemap"
 )
 
 const (
@@ -36,12 +37,12 @@ func memWriteSwitches() []int {
 }
 
 func memUseDefaults(c *Computer) {
-	c.state.SetInt(memRead, memMain)
-	c.state.SetInt(memWrite, memMain)
-	c.state.SetSegment(memReadSegment, c.Main)
-	c.state.SetSegment(memWriteSegment, c.Main)
-	c.state.SetSegment(memAuxSegment, c.Aux)
-	c.state.SetSegment(memMainSegment, c.Main)
+	c.state.SetInt(statemap.MemRead, memMain)
+	c.state.SetInt(statemap.MemWrite, memMain)
+	c.state.SetSegment(statemap.MemReadSegment, c.Main)
+	c.state.SetSegment(statemap.MemWriteSegment, c.Main)
+	c.state.SetSegment(statemap.MemAuxSegment, c.Aux)
+	c.state.SetSegment(statemap.MemMainSegment, c.Main)
 }
 
 func memSwitchRead(addr int, stm *memory.StateMap) uint8 {
@@ -52,12 +53,12 @@ func memSwitchRead(addr int, stm *memory.StateMap) uint8 {
 
 	switch addr {
 	case rdMemReadAux:
-		if stm.Int(memRead) == memAux {
+		if stm.Int(statemap.MemRead) == memAux {
 			return hi
 		}
 
 	case rdMemWriteAux:
-		if stm.Int(memWrite) == memAux {
+		if stm.Int(statemap.MemWrite) == memAux {
 			return hi
 		}
 	}
@@ -69,20 +70,20 @@ func memSwitchWrite(addr int, val uint8, stm *memory.StateMap) {
 	switch addr {
 	case onMemReadAux:
 		metrics.Increment("soft_memory_read_aux_on", 1)
-		stm.SetInt(memRead, memAux)
-		stm.SetSegment(memReadSegment, stm.Segment(memAuxSegment))
+		stm.SetInt(statemap.MemRead, memAux)
+		stm.SetSegment(statemap.MemReadSegment, stm.Segment(statemap.MemAuxSegment))
 	case offMemReadAux:
 		metrics.Increment("soft_memory_read_aux_off", 1)
-		stm.SetInt(memRead, memMain)
-		stm.SetSegment(memReadSegment, stm.Segment(memMainSegment))
+		stm.SetInt(statemap.MemRead, memMain)
+		stm.SetSegment(statemap.MemReadSegment, stm.Segment(statemap.MemMainSegment))
 	case onMemWriteAux:
 		metrics.Increment("soft_memory_write_aux_on", 1)
-		stm.SetInt(memWrite, memAux)
-		stm.SetSegment(memWriteSegment, stm.Segment(memAuxSegment))
+		stm.SetInt(statemap.MemWrite, memAux)
+		stm.SetSegment(statemap.MemWriteSegment, stm.Segment(statemap.MemAuxSegment))
 	case offMemWriteAux:
 		metrics.Increment("soft_memory_write_aux_off", 1)
-		stm.SetInt(memWrite, memMain)
-		stm.SetSegment(memWriteSegment, stm.Segment(memMainSegment))
+		stm.SetInt(statemap.MemWrite, memMain)
+		stm.SetSegment(statemap.MemWriteSegment, stm.Segment(statemap.MemMainSegment))
 	}
 }
 
@@ -110,11 +111,11 @@ func (c *Computer) MapRange(from, to int, rfn memory.SoftRead, wfn memory.SoftWr
 // ReadSegment returns the segment that should be used for general
 // reads, according to our current memory mode.
 func ReadSegment(stm *memory.StateMap) *memory.Segment {
-	return stm.Segment(memReadSegment)
+	return stm.Segment(statemap.MemReadSegment)
 }
 
 // WriteSegment returns the segment that should be used for general
 // writes, according to our current memory mode.
 func WriteSegment(stm *memory.StateMap) *memory.Segment {
-	return stm.Segment(memWriteSegment)
+	return stm.Segment(statemap.MemWriteSegment)
 }

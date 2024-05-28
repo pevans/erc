@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/pevans/erc/internal/metrics"
+	"github.com/pevans/erc/statemap"
 )
 
 // An Instruction is a function that performs an operation on the CPU.
@@ -68,6 +69,41 @@ func (i Instruction) String() string {
 	return strings.ToUpper(parts[len(parts)-1])
 }
 
+// OpcodeReadsMemory returns true for all opcodes we would consider as
+// "reading" data in memory. This is useful, for instance, for soft
+// switches which care about whether data is being read from somewhere
+// or written somewhere.
+func OpcodeReadsMemory(opcode uint8) bool {
+	switch opcode {
+	case
+		0xA1,
+		0xA5,
+		0xA9,
+		0xAD,
+		0xB1,
+		0xB5,
+		0xB9,
+		0xBD:
+		return true // LDA
+	case
+		0xAE,
+		0xA2,
+		0xA6,
+		0xB6,
+		0xBE:
+		return true // LDX
+	case
+		0xA0,
+		0xA4,
+		0xAC,
+		0xB4,
+		0xBC:
+		return true // LDY
+	}
+
+	return false
+}
+
 // Execute will process through one instruction and return. While doing
 // so, the CPU state will update such that it moves to the next
 // instruction. Note that the MOS 65C02 processor can execute
@@ -87,6 +123,11 @@ func (c *CPU) Execute() error {
 	c.Opcode = c.Get(c.PC)
 	mode = addrModes[c.Opcode]
 	inst = instructions[c.Opcode]
+
+	c.State.SetBool(
+		statemap.InstructionReadOp,
+		OpcodeReadsMemory(c.Opcode),
+	)
 
 	// NOTE: neither the address mode resolver nor the instruction
 	// handler have any error conditions. This is by design: they DO NOT

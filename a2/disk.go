@@ -3,16 +3,17 @@ package a2
 import (
 	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/memory"
+	"github.com/pevans/erc/statemap"
 )
 
 func diskUseDefaults(c *Computer) {
-	c.state.SetAny(diskComputer, c) // :cry:
+	c.state.SetAny(statemap.DiskComputer, c) // :cry:
 }
 
 func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 	var (
 		nib = addr & 0xF
-		c   = stm.Any(diskComputer).(*Computer)
+		c   = stm.Any(statemap.DiskComputer).(*Computer)
 	)
 
 	switch nib {

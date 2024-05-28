@@ -19,6 +19,11 @@ type CPU struct {
 	// the address mode of the instruction that we must carry out.
 	Opcode uint8
 
+	// ReadOp will be true if the last operation was a "read", as
+	// opposed to a "write". This is important for some soft switch
+	// logic.
+	ReadOp bool
+
 	// The Operand is the one or two bytes which is an argument to the
 	// opcode.
 	Operand uint16

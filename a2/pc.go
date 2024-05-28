@@ -3,6 +3,7 @@ package a2
 import (
 	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/memory"
+	"github.com/pevans/erc/statemap"
 )
 
 const (
@@ -35,10 +36,10 @@ func pcWriteSwitches() []int {
 // UseDefaults sets the state of the pc switcher to that which it should have
 // after a cold or warm boot.
 func pcUseDefaults(c *Computer) {
-	c.state.SetBool(pcExpansion, false)
-	c.state.SetBool(pcSlotC3, false)
-	c.state.SetBool(pcSlotCX, true)
-	c.state.SetSegment(pcROMSegment, c.ROM)
+	c.state.SetBool(statemap.PCExpansion, false)
+	c.state.SetBool(statemap.PCSlotC3, false)
+	c.state.SetBool(statemap.PCSlotCX, true)
+	c.state.SetSegment(statemap.PCROMSegment, c.ROM)
 }
 
 // SwitchRead will return hi on bit 7 if slot c3 or cx is set to use peripheral
@@ -52,14 +53,14 @@ func pcSwitchRead(addr int, stm *memory.StateMap) uint8 {
 	switch addr {
 	case rdSlotC3ROM:
 		metrics.Increment("soft_pc_read_slot_c3_rom", 1)
-		if stm.Bool(pcSlotC3) {
+		if stm.Bool(statemap.PCSlotC3) {
 			return hi
 		}
 		// it _seems_ like this should return lo instead of hi...?
 
 	case rdSlotCXROM:
 		metrics.Increment("soft_pc_read_slot_cx_rom", 1)
-		if stm.Bool(pcSlotCX) {
+		if stm.Bool(statemap.PCSlotCX) {
 			return lo
 		}
 
@@ -75,21 +76,21 @@ func pcSwitchRead(addr int, stm *memory.StateMap) uint8 {
 		// Hitting this address will clear the IO SELECT' and IO STROBE' signals
 		// in the hardware, which essentially means that expansion rom is turned
 		// off. But only after we get the return value.
-		stm.SetBool(pcExpansion, false)
-		stm.SetInt(pcExpSlot, 0)
+		stm.SetBool(statemap.PCExpansion, false)
+		stm.SetInt(statemap.PCExpSlot, 0)
 
 		return val
 	}
 
 	if slotXROM(addr) {
 		metrics.Increment("soft_pc_xrom", 1)
-		stm.SetInt(pcExpSlot, pcSlotFromAddr(addr))
+		stm.SetInt(statemap.PCExpSlot, pcSlotFromAddr(addr))
 		return PCRead(addr, stm)
 	}
 
-	if expROM(addr) && stm.Int(pcExpSlot) > 0 {
+	if expROM(addr) && stm.Int(statemap.PCExpSlot) > 0 {
 		metrics.Increment("soft_pc_exp_rom", 1)
-		stm.SetBool(pcExpansion, true)
+		stm.SetBool(statemap.PCExpansion, true)
 		return PCRead(addr, stm)
 	}
 
@@ -121,22 +122,22 @@ func pcSwitchWrite(addr int, val uint8, stm *memory.StateMap) {
 	switch addr {
 	case onSlotC3ROM:
 		metrics.Increment("soft_pc_slot_c3_rom_on", 1)
-		stm.SetBool(pcSlotC3, true)
+		stm.SetBool(statemap.PCSlotC3, true)
 	case offSlotC3ROM:
 		metrics.Increment("soft_pc_slot_c3_rom_off", 1)
-		stm.SetBool(pcSlotC3, false)
+		stm.SetBool(statemap.PCSlotC3, false)
 	case onSlotCXROM:
 		metrics.Increment("soft_pc_slot_cx_c3_rom_on", 1)
 		// Note that enabling slotcx rom _also_ enables slotc3 rom, and
 		// disabling does the same.
-		stm.SetBool(pcSlotCX, true)
-		stm.SetBool(pcSlotC3, true)
+		stm.SetBool(statemap.PCSlotCX, true)
+		stm.SetBool(statemap.PCSlotC3, true)
 	case offSlotCXROM:
 		metrics.Increment("soft_pc_slot_cx_c3_rom_off", 1)
 		// FIXME: the problem is that addresses aren't matching the
 		// consts, even though they are equal values
-		stm.SetBool(pcSlotCX, false)
-		stm.SetBool(pcSlotC3, false)
+		stm.SetBool(statemap.PCSlotCX, false)
+		stm.SetBool(statemap.PCSlotC3, false)
 	}
 }
 
@@ -159,15 +160,15 @@ func PCRead(addr int, stm *memory.StateMap) uint8 {
 
 	switch {
 	case
-		stm.Bool(pcExpansion) && expROM(addr),
-		stm.Bool(pcSlotC3) && slot3ROM(addr),
-		stm.Bool(pcSlotCX) && slotXROM(addr):
+		stm.Bool(statemap.PCExpansion) && expROM(addr),
+		stm.Bool(statemap.PCSlotC3) && slot3ROM(addr),
+		stm.Bool(statemap.PCSlotCX) && slotXROM(addr):
 		metrics.Increment("soft_pc_get_periph_rom", 1)
-		return stm.Segment(pcROMSegment).DirectGet(periphROM)
+		return stm.Segment(statemap.PCROMSegment).DirectGet(periphROM)
 	}
 
 	metrics.Increment("soft_pc_get_int_rom", 1)
-	return stm.Segment(pcROMSegment).DirectGet(intROM)
+	return stm.Segment(statemap.PCROMSegment).DirectGet(intROM)
 }
 
 // PCWrite is a stub which does nothing, since it handles writes into an

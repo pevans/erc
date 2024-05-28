@@ -4,6 +4,7 @@ import (
 	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/memory"
 	"github.com/pevans/erc/mos65c02"
+	"github.com/pevans/erc/statemap"
 )
 
 // ReadMapFn is a function which can execute a soft switch procedure on
@@ -99,6 +100,7 @@ func NewComputer() *Computer {
 	comp.CPU = new(mos65c02.CPU)
 	comp.CPU.RMem = comp
 	comp.CPU.WMem = comp
+	comp.CPU.State = comp.state
 
 	return comp
 }
@@ -120,9 +122,9 @@ func NewScreen() *gfx.FrameBuffer {
 }
 
 func (c *Computer) NeedsRender() bool {
-	return c.state.Bool(displayRedraw)
+	return c.state.Bool(statemap.DisplayRedraw)
 }
 
 func (c *Computer) State() map[string]any {
-	return c.state.Map(stateMapKeyToString)
+	return c.state.Map(statemap.KeyToString)
 }
