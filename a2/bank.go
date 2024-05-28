@@ -28,17 +28,21 @@ const (
 func bankReadSwitches() []int {
 	return []int{
 		0xC080,
-		0xC080,
-		0xC081,
 		0xC081,
 		0xC082,
 		0xC083,
-		0xC083,
-		0xC083,
+		0xC084,
+		0xC085,
+		0xC086,
+		0xC087,
 		0xC088,
 		0xC089,
 		0xC08A,
 		0xC08B,
+		0xC08C,
+		0xC08D,
+		0xC08E,
+		0xC08F,
 		rdAltZP,
 		rdBnk2,
 		rdLCRAM,
@@ -69,48 +73,48 @@ func bankSwitchRead(addr int, stm *memory.StateMap) uint8 {
 		metrics.Increment("soft_read_bank_alt_zp", 1)
 		return bankBit7(stm.Int(bankSysBlock) == bankAux)
 
-	case 0xC080:
+	case 0xC080, 0xC084:
 		stm.SetInt(bankRead, bankRAM)
 		stm.SetInt(bankWrite, bankNone)
 		stm.SetInt(bankDFBlock, bank2)
 
-	case 0xC081:
+	case 0xC081, 0xC085:
 		if stm.Int(bankReadAttempts) >= 1 {
 			stm.SetInt(bankWrite, bankRAM)
 		}
 		stm.SetInt(bankRead, bankROM)
 		stm.SetInt(bankDFBlock, bank2)
 
-	case 0xC082:
+	case 0xC082, 0xC086:
 		stm.SetInt(bankRead, bankROM)
 		stm.SetInt(bankWrite, bankNone)
 		stm.SetInt(bankDFBlock, bank2)
 
-	case 0xC083:
+	case 0xC083, 0xC087:
 		if stm.Int(bankReadAttempts) >= 1 {
 			stm.SetInt(bankWrite, bankRAM)
 		}
 		stm.SetInt(bankRead, bankRAM)
 		stm.SetInt(bankDFBlock, bank2)
 
-	case 0xC088:
+	case 0xC088, 0xC08C:
 		stm.SetInt(bankRead, bankRAM)
 		stm.SetInt(bankWrite, bankNone)
 		stm.SetInt(bankDFBlock, bank1)
 
-	case 0xC089:
+	case 0xC089, 0xC08D:
 		if stm.Int(bankReadAttempts) >= 1 {
 			stm.SetInt(bankWrite, bankRAM)
 		}
 		stm.SetInt(bankRead, bankROM)
 		stm.SetInt(bankDFBlock, bank1)
 
-	case 0xC08A:
+	case 0xC08A, 0xC08E:
 		stm.SetInt(bankRead, bankROM)
 		stm.SetInt(bankWrite, bankNone)
 		stm.SetInt(bankDFBlock, bank1)
 
-	case 0xC08B:
+	case 0xC08B, 0xC08F:
 		if stm.Int(bankReadAttempts) >= 1 {
 			stm.SetInt(bankWrite, bankRAM)
 		}
