@@ -21,7 +21,6 @@ const (
 	bankWrite           = 402
 	bankDFBlock         = 403
 	bankSysBlock        = 404
-	bankWriteAttempts   = 405
 	bankReadAttempts    = 406
 	bankSysBlockSegment = 407
 	bankROMSegment      = 408
@@ -54,8 +53,6 @@ func stateMapKeyToString(key any) string {
 		return "bankDFBlock"
 	case bankSysBlock:
 		return "bankSysBlock"
-	case bankWriteAttempts:
-		return "bankWriteAttempts"
 	case bankReadAttempts:
 		return "bankReadAttempts"
 	case bankSysBlockSegment:
