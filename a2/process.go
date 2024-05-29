@@ -1,8 +1,6 @@
 package a2
 
 import (
-	"fmt"
-
 	"github.com/pevans/erc/statemap"
 )
 
@@ -13,10 +11,12 @@ func (c *Computer) Process() error {
 		return err
 	}
 
-	fmt.Printf("ugh: %s\n", c.CPU.NextInstruction())
-	if c.CPU.NextInstruction() == "JMP ($003A)" {
-		//c.Debugger = true
-	}
+	/*
+		fmt.Printf("ugh: %s\n", c.CPU.NextInstruction())
+		if c.CPU.NextInstruction() == "INC $C083,X" {
+			c.Debugger = true
+		}
+	*/
 
 	// Check if this is was a knock-knock on one of our bank switches
 	switch c.CPU.EffAddr {
