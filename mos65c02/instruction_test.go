@@ -17,6 +17,7 @@ func TestExecute(t *testing.T) {
 	seg := memory.NewSegment(0x10000)
 	c.RMem = seg
 	c.WMem = seg
+	c.State = new(memory.StateMap)
 
 	// In just a blank default template, this should error out.
 	assert.NoError(t, c.Execute())
