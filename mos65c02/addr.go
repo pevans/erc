@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
+
+	"github.com/pevans/erc/statemap"
 )
 
 // An AddrMode is a function which resolves what the effective address
@@ -38,7 +40,8 @@ const (
 
 // Below is an address mode table that maps mode functions to specific
 // opcodes.
-//   00   01   02   03   04   05   06   07   08   09   0A   0B   0C   0D   0E   0F
+//
+//	00   01   02   03   04   05   06   07   08   09   0A   0B   0C   0D   0E   0F
 var addrModes = [256]AddrMode{
 	Imp, Idx, By2, Imp, Zpg, Zpg, Zpg, Imp, Imp, Imm, Acc, Imp, Abs, Abs, Abs, Imp, // 0x
 	Rel, Idy, Zpg, Imp, Zpg, Zpx, Zpx, Imp, Imp, Aby, Acc, Imp, Abs, Abx, Abx, Imp, // 1x
@@ -64,7 +67,7 @@ var addrModes = [256]AddrMode{
 // the instruction would change the PC due to its defined behavior, the
 // offset is given as zero.
 //
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
+//	0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
 var offsets = [256]uint16{
 	1, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1, 1, 3, 3, 3, 1, // 0x
 	0, 2, 2, 1, 2, 2, 2, 1, 1, 3, 1, 1, 3, 3, 3, 1, // 1x
@@ -122,6 +125,11 @@ func Abs(c *CPU) {
 //
 // Ex. INC $1234,X increments the byte at $1234 + X
 func Abx(c *CPU) {
+	// Indexed instructions can cause _false reads_ when done across
+	// page boundaries, so we simulate that here.
+	c.State.SetBool(statemap.InstructionReadOp, true)
+	c.State.SetInt(statemap.BankReadAttempts, 1)
+
 	c.Operand = c.Get16(c.PC + 1)
 	c.EffAddr = c.Operand + uint16(c.X)
 	c.EffVal = c.Get(c.EffAddr)
@@ -132,6 +140,11 @@ func Abx(c *CPU) {
 //
 // Ex. INC $1234,Y increments the byte at $1234 + Y
 func Aby(c *CPU) {
+	// Indexed instructions can cause _false reads_ when done across
+	// page boundaries, so we simulate that here.
+	c.State.SetBool(statemap.InstructionReadOp, true)
+	c.State.SetInt(statemap.BankReadAttempts, 1)
+
 	c.Operand = c.Get16(c.PC + 1)
 	c.EffAddr = c.Operand + uint16(c.Y)
 	c.EffVal = c.Get(c.EffAddr)

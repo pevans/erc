@@ -16,6 +16,7 @@ type mosSuite struct {
 func (s *mosSuite) SetupTest() {
 	seg := memory.NewSegment(0x10000)
 	s.cpu = new(CPU)
+	s.cpu.State = new(memory.StateMap)
 	s.cpu.RMem = seg
 	s.cpu.WMem = seg
 }
