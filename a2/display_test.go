@@ -1,17 +1,19 @@
 package a2
 
+import "github.com/pevans/erc/statemap"
+
 func (s *a2Suite) TestDisplaySwitcherUseDefaults() {
 	displayUseDefaults(s.comp)
 
-	s.Equal(true, s.comp.state.Bool(displayText))
-	s.Equal(false, s.comp.state.Bool(displayAltChar))
-	s.Equal(false, s.comp.state.Bool(displayCol80))
-	s.Equal(false, s.comp.state.Bool(displayDoubleHigh))
-	s.Equal(false, s.comp.state.Bool(displayHires))
-	s.Equal(false, s.comp.state.Bool(displayIou))
-	s.Equal(false, s.comp.state.Bool(displayMixed))
-	s.Equal(false, s.comp.state.Bool(displayPage2))
-	s.Equal(false, s.comp.state.Bool(displayStore80))
+	s.Equal(true, s.comp.state.Bool(statemap.DisplayText))
+	s.Equal(false, s.comp.state.Bool(statemap.DisplayAltChar))
+	s.Equal(false, s.comp.state.Bool(statemap.DisplayCol80))
+	s.Equal(false, s.comp.state.Bool(statemap.DisplayDoubleHigh))
+	s.Equal(false, s.comp.state.Bool(statemap.DisplayHires))
+	s.Equal(false, s.comp.state.Bool(statemap.DisplayIou))
+	s.Equal(false, s.comp.state.Bool(statemap.DisplayMixed))
+	s.Equal(false, s.comp.state.Bool(statemap.DisplayPage2))
+	s.Equal(false, s.comp.state.Bool(statemap.DisplayStore80))
 }
 
 func (s *a2Suite) TestDisplaySwitcherSwitchRead() {
@@ -28,15 +30,15 @@ func (s *a2Suite) TestDisplaySwitcherSwitchRead() {
 			s.Equal(lo, displaySwitchRead(a, s.comp.state))
 		}
 
-		test(s.comp, displayAltChar, rdAltChar)
-		test(s.comp, displayCol80, rd80Col)
-		test(s.comp, displayDoubleHigh, rdDHires)
-		test(s.comp, displayHires, rdHires)
-		test(s.comp, displayIou, rdIOUDis)
-		test(s.comp, displayMixed, rdMixed)
-		test(s.comp, displayPage2, rdPage2)
-		test(s.comp, displayStore80, rd80Store)
-		test(s.comp, displayText, rdText)
+		test(s.comp, statemap.DisplayAltChar, rdAltChar)
+		test(s.comp, statemap.DisplayCol80, rd80Col)
+		test(s.comp, statemap.DisplayDoubleHigh, rdDHires)
+		test(s.comp, statemap.DisplayHires, rdHires)
+		test(s.comp, statemap.DisplayIou, rdIOUDis)
+		test(s.comp, statemap.DisplayMixed, rdMixed)
+		test(s.comp, statemap.DisplayPage2, rdPage2)
+		test(s.comp, statemap.DisplayStore80, rd80Store)
+		test(s.comp, statemap.DisplayText, rdText)
 	})
 
 	s.Run("reads turn stuff on", func() {
@@ -46,21 +48,21 @@ func (s *a2Suite) TestDisplaySwitcherSwitchRead() {
 			s.True(c.state.Bool(key))
 		}
 
-		onfn(s.comp, displayPage2, onPage2)
-		onfn(s.comp, displayText, onText)
-		onfn(s.comp, displayMixed, onMixed)
-		onfn(s.comp, displayHires, onHires)
+		onfn(s.comp, statemap.DisplayPage2, onPage2)
+		onfn(s.comp, statemap.DisplayText, onText)
+		onfn(s.comp, statemap.DisplayMixed, onMixed)
+		onfn(s.comp, statemap.DisplayHires, onHires)
 
 		// doubleHigh will only be set true if iou is true
-		s.comp.state.SetBool(displayIou, true)
-		onfn(s.comp, displayDoubleHigh, onDHires)
+		s.comp.state.SetBool(statemap.DisplayIou, true)
+		onfn(s.comp, statemap.DisplayDoubleHigh, onDHires)
 
 		// But it would be nice to demonstrate the inverse, that we won't set it
 		// true
-		s.comp.state.SetBool(displayIou, false)
-		s.comp.state.SetBool(displayDoubleHigh, false)
+		s.comp.state.SetBool(statemap.DisplayIou, false)
+		s.comp.state.SetBool(statemap.DisplayDoubleHigh, false)
 		displaySwitchRead(onDHires, s.comp.state)
-		s.False(s.comp.state.Bool(displayDoubleHigh))
+		s.False(s.comp.state.Bool(statemap.DisplayDoubleHigh))
 	})
 
 	s.Run("reads turn stuff off", func() {
@@ -70,19 +72,19 @@ func (s *a2Suite) TestDisplaySwitcherSwitchRead() {
 			s.False(c.state.Bool(key))
 		}
 
-		offfn(s.comp, displayPage2, offPage2)
-		offfn(s.comp, displayText, offText)
-		offfn(s.comp, displayMixed, offMixed)
-		offfn(s.comp, displayHires, offHires)
+		offfn(s.comp, statemap.DisplayPage2, offPage2)
+		offfn(s.comp, statemap.DisplayText, offText)
+		offfn(s.comp, statemap.DisplayMixed, offMixed)
+		offfn(s.comp, statemap.DisplayHires, offHires)
 
 		// Same as for the on-switches, this will only turn off if iou is true
-		s.comp.state.SetBool(displayIou, true)
-		offfn(s.comp, displayDoubleHigh, offDHires)
+		s.comp.state.SetBool(statemap.DisplayIou, true)
+		offfn(s.comp, statemap.DisplayDoubleHigh, offDHires)
 
-		s.comp.state.SetBool(displayIou, false)
-		s.comp.state.SetBool(displayDoubleHigh, true)
+		s.comp.state.SetBool(statemap.DisplayIou, false)
+		s.comp.state.SetBool(statemap.DisplayDoubleHigh, true)
 		displaySwitchRead(offDHires, s.comp.state)
-		s.True(s.comp.state.Bool(displayDoubleHigh))
+		s.True(s.comp.state.Bool(statemap.DisplayDoubleHigh))
 	})
 }
 
@@ -94,25 +96,25 @@ func (s *a2Suite) TestDisplaySwitcherSwitchWrite() {
 			s.True(c.state.Bool(key))
 		}
 
-		on(s.comp, displayPage2, onPage2)
-		on(s.comp, displayText, onText)
-		on(s.comp, displayMixed, onMixed)
-		on(s.comp, displayHires, onHires)
-		on(s.comp, displayAltChar, onAltChar)
-		on(s.comp, displayCol80, on80Col)
-		on(s.comp, displayStore80, on80Store)
-		on(s.comp, displayIou, onIOUDis)
+		on(s.comp, statemap.DisplayPage2, onPage2)
+		on(s.comp, statemap.DisplayText, onText)
+		on(s.comp, statemap.DisplayMixed, onMixed)
+		on(s.comp, statemap.DisplayHires, onHires)
+		on(s.comp, statemap.DisplayAltChar, onAltChar)
+		on(s.comp, statemap.DisplayCol80, on80Col)
+		on(s.comp, statemap.DisplayStore80, on80Store)
+		on(s.comp, statemap.DisplayIou, onIOUDis)
 
 		// doubleHigh will only be set true if iou is true
-		s.comp.state.SetBool(displayIou, true)
-		on(s.comp, displayDoubleHigh, onDHires)
+		s.comp.state.SetBool(statemap.DisplayIou, true)
+		on(s.comp, statemap.DisplayDoubleHigh, onDHires)
 
 		// But it would be nice to demonstrate the inverse, that we won't set it
 		// true
-		s.comp.state.SetBool(displayIou, false)
-		s.comp.state.SetBool(displayDoubleHigh, false)
+		s.comp.state.SetBool(statemap.DisplayIou, false)
+		s.comp.state.SetBool(statemap.DisplayDoubleHigh, false)
 		displaySwitchWrite(onDHires, 0x0, s.comp.state)
-		s.False(s.comp.state.Bool(displayDoubleHigh))
+		s.False(s.comp.state.Bool(statemap.DisplayDoubleHigh))
 	})
 
 	s.Run("writes turn stuff off", func() {
@@ -122,25 +124,25 @@ func (s *a2Suite) TestDisplaySwitcherSwitchWrite() {
 			s.False(c.state.Bool(key))
 		}
 
-		off(s.comp, displayPage2, offPage2)
-		off(s.comp, displayText, offText)
-		off(s.comp, displayMixed, offMixed)
-		off(s.comp, displayHires, offHires)
-		off(s.comp, displayAltChar, offAltChar)
-		off(s.comp, displayCol80, off80Col)
-		off(s.comp, displayStore80, off80Store)
-		off(s.comp, displayIou, offIOUDis)
+		off(s.comp, statemap.DisplayPage2, offPage2)
+		off(s.comp, statemap.DisplayText, offText)
+		off(s.comp, statemap.DisplayMixed, offMixed)
+		off(s.comp, statemap.DisplayHires, offHires)
+		off(s.comp, statemap.DisplayAltChar, offAltChar)
+		off(s.comp, statemap.DisplayCol80, off80Col)
+		off(s.comp, statemap.DisplayStore80, off80Store)
+		off(s.comp, statemap.DisplayIou, offIOUDis)
 
 		// doubleHigh will only be set true if iou is true
-		s.comp.state.SetBool(displayIou, true)
-		off(s.comp, displayDoubleHigh, offDHires)
+		s.comp.state.SetBool(statemap.DisplayIou, true)
+		off(s.comp, statemap.DisplayDoubleHigh, offDHires)
 
 		// But it would be nice to demonstrate the inverse, that we won't set it
 		// true
-		s.comp.state.SetBool(displayIou, false)
-		s.comp.state.SetBool(displayDoubleHigh, true)
+		s.comp.state.SetBool(statemap.DisplayIou, false)
+		s.comp.state.SetBool(statemap.DisplayDoubleHigh, true)
 		displaySwitchWrite(offDHires, 0x0, s.comp.state)
-		s.True(s.comp.state.Bool(displayDoubleHigh))
+		s.True(s.comp.state.Bool(statemap.DisplayDoubleHigh))
 	})
 }
 
@@ -156,7 +158,7 @@ func (s *a2Suite) TestDisplaySegment() {
 	)
 
 	s.Run("read from main memory", func() {
-		s.comp.state.SetBool(displayStore80, false)
+		s.comp.state.SetBool(statemap.DisplayStore80, false)
 		WriteSegment(s.comp.state).Set(p1addr, val)
 		WriteSegment(s.comp.state).Set(p2addr, val)
 		WriteSegment(s.comp.state).Set(other, val)
@@ -166,7 +168,7 @@ func (s *a2Suite) TestDisplaySegment() {
 	})
 
 	s.Run("80store uses aux", func() {
-		s.comp.state.SetBool(displayStore80, true)
+		s.comp.state.SetBool(statemap.DisplayStore80, true)
 		WriteSegment(s.comp.state).Set(p1addr, val)
 		WriteSegment(s.comp.state).Set(p2addr, val)
 		WriteSegment(s.comp.state).Set(other, val)
@@ -176,19 +178,19 @@ func (s *a2Suite) TestDisplaySegment() {
 
 		// We should be able to show that we use a different memory segment if
 		// highRes is on
-		s.comp.state.SetBool(displayHires, false)
+		s.comp.state.SetBool(statemap.DisplayHires, false)
 		s.Equal(val, DisplaySegment(up1addr, s.comp.state, ReadSegment).Get(p1addr))
-		s.comp.state.SetBool(displayHires, true)
+		s.comp.state.SetBool(statemap.DisplayHires, true)
 		s.NotEqual(val, DisplaySegment(up1addr, s.comp.state, ReadSegment).Get(p1addr))
 
 		// We need both double high resolution _and_ page2 in order to get a
 		// different segment in the page 2 address space.
-		s.comp.state.SetBool(displayDoubleHigh, false)
-		s.comp.state.SetBool(displayPage2, false)
+		s.comp.state.SetBool(statemap.DisplayDoubleHigh, false)
+		s.comp.state.SetBool(statemap.DisplayPage2, false)
 		s.Equal(val, DisplaySegment(up2addr, s.comp.state, ReadSegment).Get(p2addr))
-		s.comp.state.SetBool(displayDoubleHigh, true)
+		s.comp.state.SetBool(statemap.DisplayDoubleHigh, true)
 		s.Equal(val, DisplaySegment(up2addr, s.comp.state, ReadSegment).Get(p2addr))
-		s.comp.state.SetBool(displayPage2, true)
+		s.comp.state.SetBool(statemap.DisplayPage2, true)
 		s.NotEqual(val, DisplaySegment(up2addr, s.comp.state, ReadSegment).Get(p2addr))
 	})
 }
@@ -211,8 +213,8 @@ func (s *a2Suite) TestDisplayWrite() {
 		val   = uint8(0x23)
 	)
 
-	s.comp.state.SetBool(displayRedraw, false)
+	s.comp.state.SetBool(statemap.DisplayRedraw, false)
 	DisplayWrite(uaddr, val, s.comp.state)
 	s.Equal(val, DisplaySegment(uaddr, s.comp.state, ReadSegment).Get(addr))
-	s.True(s.comp.state.Bool(displayRedraw))
+	s.True(s.comp.state.Bool(statemap.DisplayRedraw))
 }

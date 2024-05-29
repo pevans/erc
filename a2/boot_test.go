@@ -1,6 +1,9 @@
 package a2
 
-import "github.com/pevans/erc/mos65c02"
+import (
+	"github.com/pevans/erc/mos65c02"
+	"github.com/pevans/erc/statemap"
+)
 
 func (s *a2Suite) TestBoot() {
 	c := NewComputer()
@@ -27,5 +30,5 @@ func (s *a2Suite) TestReset() {
 	)
 	s.Equal(c.CPU.Get16(ResetPC), c.CPU.PC)
 	s.Equal(uint8(0xFF), c.CPU.S)
-	s.True(c.state.Bool(displayText))
+	s.True(c.state.Bool(statemap.DisplayText))
 }

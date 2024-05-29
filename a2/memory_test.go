@@ -1,12 +1,15 @@
 package a2
 
-import "github.com/pevans/erc/memory"
+import (
+	"github.com/pevans/erc/memory"
+	"github.com/pevans/erc/statemap"
+)
 
 func (s *a2Suite) TestMemSwitcherUseDefaults() {
 	memUseDefaults(s.comp)
 
-	s.Equal(memMain, s.comp.state.Int(memRead))
-	s.Equal(memMain, s.comp.state.Int(memWrite))
+	s.Equal(memMain, s.comp.state.Int(statemap.MemRead))
+	s.Equal(memMain, s.comp.state.Int(statemap.MemWrite))
 }
 
 func (s *a2Suite) TestMemSwitcherSwitchRead() {
@@ -18,18 +21,18 @@ func (s *a2Suite) TestMemSwitcherSwitchRead() {
 	)
 
 	s.Run("read profile", func() {
-		s.comp.state.SetInt(memRead, memAux)
+		s.comp.state.SetInt(statemap.MemRead, memAux)
 		s.Equal(hi, memSwitchRead(c013, s.comp.state))
 
-		s.comp.state.SetInt(memRead, memMain)
+		s.comp.state.SetInt(statemap.MemRead, memMain)
 		s.Equal(lo, memSwitchRead(c013, s.comp.state))
 	})
 
 	s.Run("write profile", func() {
-		s.comp.state.SetInt(memWrite, memAux)
+		s.comp.state.SetInt(statemap.MemWrite, memAux)
 		s.Equal(hi, memSwitchRead(c014, s.comp.state))
 
-		s.comp.state.SetInt(memWrite, memMain)
+		s.comp.state.SetInt(statemap.MemWrite, memMain)
 		s.Equal(lo, memSwitchRead(c014, s.comp.state))
 	})
 }
@@ -43,23 +46,23 @@ func (s *a2Suite) TestMemSwitcherSwitchWrite() {
 	)
 
 	s.Run("set aux works", func() {
-		s.comp.state.SetInt(memRead, memMain)
+		s.comp.state.SetInt(statemap.MemRead, memMain)
 		memSwitchWrite(c003, 0, s.comp.state)
-		s.Equal(memAux, s.comp.state.Int(memRead))
+		s.Equal(memAux, s.comp.state.Int(statemap.MemRead))
 
-		s.comp.state.SetInt(memWrite, memMain)
+		s.comp.state.SetInt(statemap.MemWrite, memMain)
 		memSwitchWrite(c005, 0, s.comp.state)
-		s.Equal(memAux, s.comp.state.Int(memWrite))
+		s.Equal(memAux, s.comp.state.Int(statemap.MemWrite))
 	})
 
 	s.Run("set main works", func() {
-		s.comp.state.SetInt(memRead, memAux)
+		s.comp.state.SetInt(statemap.MemRead, memAux)
 		memSwitchWrite(c002, 0, s.comp.state)
-		s.Equal(memMain, s.comp.state.Int(memRead))
+		s.Equal(memMain, s.comp.state.Int(statemap.MemRead))
 
-		s.comp.state.SetInt(memWrite, memAux)
+		s.comp.state.SetInt(statemap.MemWrite, memAux)
 		memSwitchWrite(c004, 0, s.comp.state)
-		s.Equal(memMain, s.comp.state.Int(memWrite))
+		s.Equal(memMain, s.comp.state.Int(statemap.MemWrite))
 	})
 }
 
@@ -68,13 +71,13 @@ func (s *a2Suite) TestComputerGet() {
 	val := uint8(0x12)
 
 	s.comp.Main.DirectSet(idx, val)
-	s.comp.state.SetInt(memRead, memMain)
-	s.comp.state.SetSegment(memReadSegment, s.comp.Main)
+	s.comp.state.SetInt(statemap.MemRead, memMain)
+	s.comp.state.SetSegment(statemap.MemReadSegment, s.comp.Main)
 	s.Equal(val, s.comp.Get(idx))
 
 	s.comp.Aux.DirectSet(idx, val)
-	s.comp.state.SetInt(memRead, memAux)
-	s.comp.state.SetSegment(memReadSegment, s.comp.Aux)
+	s.comp.state.SetInt(statemap.MemRead, memAux)
+	s.comp.state.SetSegment(statemap.MemReadSegment, s.comp.Aux)
 	s.Equal(val, s.comp.Get(idx))
 }
 
@@ -84,7 +87,7 @@ func (s *a2Suite) TestComputerSet() {
 	val := uint8(0x12)
 
 	// test a normal set
-	s.comp.state.SetInt(memWrite, memMain)
+	s.comp.state.SetInt(statemap.MemWrite, memMain)
 	WriteSegment(s.comp.state).DirectSet(idx, val)
 	s.Equal(val, s.comp.Main.Mem[idx])
 
@@ -97,27 +100,27 @@ func (s *a2Suite) TestComputerSet() {
 	s.Equal(target, val)
 
 	// test a get from aux
-	s.comp.state.SetInt(memWrite, memAux)
+	s.comp.state.SetInt(statemap.MemWrite, memAux)
 	WriteSegment(s.comp.state).DirectSet(idx, val)
 	s.Equal(val, s.comp.Aux.Mem[idx])
 }
 
 func (s *a2Suite) TestReadSegment() {
-	s.comp.state.SetInt(memRead, memMain)
-	s.comp.state.SetSegment(memReadSegment, s.comp.Main)
+	s.comp.state.SetInt(statemap.MemRead, memMain)
+	s.comp.state.SetSegment(statemap.MemReadSegment, s.comp.Main)
 	s.Equal(s.comp.Main, ReadSegment(s.comp.state))
 
-	s.comp.state.SetInt(memRead, memAux)
-	s.comp.state.SetSegment(memReadSegment, s.comp.Aux)
+	s.comp.state.SetInt(statemap.MemRead, memAux)
+	s.comp.state.SetSegment(statemap.MemReadSegment, s.comp.Aux)
 	s.Equal(s.comp.Aux, ReadSegment(s.comp.state))
 }
 
 func (s *a2Suite) TestWriteSegment() {
-	s.comp.state.SetInt(memWrite, memMain)
-	s.comp.state.SetSegment(memWriteSegment, s.comp.Main)
+	s.comp.state.SetInt(statemap.MemWrite, memMain)
+	s.comp.state.SetSegment(statemap.MemWriteSegment, s.comp.Main)
 	s.Equal(s.comp.Main, WriteSegment(s.comp.state))
 
-	s.comp.state.SetInt(memWrite, memAux)
-	s.comp.state.SetSegment(memWriteSegment, s.comp.Aux)
+	s.comp.state.SetInt(statemap.MemWrite, memAux)
+	s.comp.state.SetSegment(statemap.MemWriteSegment, s.comp.Aux)
 	s.Equal(s.comp.Aux, WriteSegment(s.comp.state))
 }
