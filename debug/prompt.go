@@ -56,6 +56,8 @@ func execute(comp *a2.Computer, cmd string) {
 		reg(comp, tokens)
 	case "set":
 		set(comp, tokens)
+	case "statemap":
+		stateMap(comp)
 	case "status":
 		status(comp)
 
