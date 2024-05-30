@@ -62,6 +62,8 @@ func execute(comp *a2.Computer, cmd string) {
 		// execution
 	case "step":
 		step(comp, tokens)
+	case "until":
+		until(comp, tokens)
 
 		// the rest
 	case "help":
