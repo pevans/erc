@@ -130,24 +130,18 @@ func (s *a2Suite) TestSwitchWrite() {
 
 	s.Run("switching main to aux", func() {
 		s.comp.Main.Mem[addr] = d123
+		s.comp.Aux.Mem[addr] = d45
 		s.comp.state.SetInt(statemap.BankSysBlock, bankMain)
 		bankSwitchWrite(int(0xC009), d45, s.comp.state)
 		s.Equal(bankAux, s.comp.state.Int(statemap.BankSysBlock))
-		s.Equal(d123, s.comp.Aux.Mem[addr])
+		s.Equal(d45, s.comp.Aux.Mem[addr])
 	})
 
 	s.Run("switching aux to main", func() {
 		s.comp.Aux.Mem[addr] = d45
 		bankSwitchWrite(int(0xC008), d123, s.comp.state)
 		s.Equal(bankMain, s.comp.state.Int(statemap.BankSysBlock))
-		s.Equal(d45, s.comp.Main.Mem[addr])
-	})
-
-	s.Run("not changing the mode should not copy pages", func() {
-		s.comp.Aux.Mem[addr] = d123
-		bankSwitchWrite(int(0xC008), d123, s.comp.state)
-		s.Equal(bankMain, s.comp.state.Int(statemap.BankSysBlock))
-		s.Equal(d45, s.comp.Main.Mem[addr])
+		s.Equal(d123, s.comp.Main.Mem[addr])
 	})
 }
 

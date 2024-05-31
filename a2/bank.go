@@ -4,7 +4,6 @@ import (
 	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/memory"
 	"github.com/pevans/erc/statemap"
-	"github.com/pkg/errors"
 )
 
 // This const block defines some modes that our bank switcher can have.
@@ -130,8 +129,6 @@ func bankSwitchRead(addr int, stm *memory.StateMap) uint8 {
 // SwitchWrite manages writes on soft switches that may modify bank-switch
 // state, specifically that to do with the usage of main vs. auxilliary memory.
 func bankSwitchWrite(addr int, val uint8, stm *memory.StateMap) {
-	origBlock := stm.Int(statemap.BankSysBlock)
-
 	switch addr {
 	case offAltZP:
 		metrics.Increment("soft_write_bank_alt_zp_off", 1)
@@ -141,13 +138,6 @@ func bankSwitchWrite(addr int, val uint8, stm *memory.StateMap) {
 		metrics.Increment("soft_write_bank_alt_zp_on", 1)
 		stm.SetInt(statemap.BankSysBlock, bankAux)
 		stm.SetSegment(statemap.BankSysBlockSegment, stm.Segment(statemap.MemAuxSegment))
-	}
-
-	newBlock := stm.Int(statemap.BankSysBlock)
-	if origBlock != newBlock {
-		if err := bankSyncPages(stm, origBlock, newBlock); err != nil {
-			panic(errors.Wrap(err, "could not copy bank memory between segments"))
-		}
 	}
 }
 
@@ -174,38 +164,6 @@ func bankUseDefaults(c *Computer) {
 	c.state.SetInt(statemap.BankSysBlock, bankMain)
 	c.state.SetSegment(statemap.BankSysBlockSegment, c.Main)
 	c.state.SetSegment(statemap.BankROMSegment, c.ROM)
-}
-
-func bankSyncPages(stm *memory.StateMap, oldmode, newmode int) error {
-	if oldmode == newmode {
-		return nil
-	}
-
-	if oldmode == bankMain {
-		return bankSyncPagesToAux(stm)
-	}
-
-	return bankSyncPagesFromAux(stm)
-}
-
-func bankSyncPagesToAux(stm *memory.StateMap) error {
-	var (
-		aux  = stm.Segment(statemap.MemAuxSegment)
-		main = stm.Segment(statemap.MemMainSegment)
-	)
-
-	_, err := aux.CopySlice(0, main.Mem[0:0x200])
-	return err
-}
-
-func bankSyncPagesFromAux(stm *memory.StateMap) error {
-	var (
-		aux  = stm.Segment(statemap.MemAuxSegment)
-		main = stm.Segment(statemap.MemMainSegment)
-	)
-
-	_, err := main.CopySlice(0, aux.Mem[0:0x200])
-	return err
 }
 
 // BankSegment returns the memory segment that should be used with respect to
