@@ -240,7 +240,7 @@ func DisplaySegment(
 	segfunc func(*memory.StateMap) *memory.Segment,
 ) *memory.Segment {
 	if stm.Bool(statemap.DisplayStore80) {
-		if addr >= 0x0400 && addr < 0x0800 && stm.Bool(statemap.DisplayHires) {
+		if addr >= 0x0400 && addr < 0x0800 && stm.Bool(statemap.DisplayPage2) {
 			return stm.Segment(statemap.DisplayAuxSegment)
 		} else if addr >= 0x2000 && addr < 0x4000 &&
 			stm.Bool(statemap.DisplayHires) &&

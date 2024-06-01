@@ -178,17 +178,17 @@ func (s *a2Suite) TestDisplaySegment() {
 
 		// We should be able to show that we use a different memory segment if
 		// highRes is on
-		s.comp.state.SetBool(statemap.DisplayHires, false)
+		s.comp.state.SetBool(statemap.DisplayPage2, false)
 		s.Equal(val, DisplaySegment(up1addr, s.comp.state, ReadSegment).Get(p1addr))
-		s.comp.state.SetBool(statemap.DisplayHires, true)
+		s.comp.state.SetBool(statemap.DisplayPage2, true)
 		s.NotEqual(val, DisplaySegment(up1addr, s.comp.state, ReadSegment).Get(p1addr))
 
 		// We need both double high resolution _and_ page2 in order to get a
 		// different segment in the page 2 address space.
-		s.comp.state.SetBool(statemap.DisplayDoubleHigh, false)
+		s.comp.state.SetBool(statemap.DisplayHires, false)
 		s.comp.state.SetBool(statemap.DisplayPage2, false)
 		s.Equal(val, DisplaySegment(up2addr, s.comp.state, ReadSegment).Get(p2addr))
-		s.comp.state.SetBool(statemap.DisplayDoubleHigh, true)
+		s.comp.state.SetBool(statemap.DisplayHires, true)
 		s.Equal(val, DisplaySegment(up2addr, s.comp.state, ReadSegment).Get(p2addr))
 		s.comp.state.SetBool(statemap.DisplayPage2, true)
 		s.NotEqual(val, DisplaySegment(up2addr, s.comp.state, ReadSegment).Get(p2addr))
