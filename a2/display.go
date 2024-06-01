@@ -237,26 +237,39 @@ func displaySwitchWrite(a int, val uint8, stm *memory.StateMap) {
 func DisplaySegment(
 	addr int,
 	stm *memory.StateMap,
-	seg *memory.Segment,
+	segfunc func(*memory.StateMap) *memory.Segment,
 ) *memory.Segment {
+	main := stm.Segment(statemap.MemMainSegment)
+	displayAux := stm.Segment(statemap.DisplayAuxSegment)
+
 	if stm.Bool(statemap.DisplayStore80) {
-		if addr >= 0x0400 && addr < 0x0800 && stm.Bool(statemap.DisplayPage2) {
-			return stm.Segment(statemap.DisplayAuxSegment)
-		} else if addr >= 0x2000 && addr < 0x4000 &&
-			stm.Bool(statemap.DisplayHires) &&
-			stm.Bool(statemap.DisplayPage2) {
-			return stm.Segment(statemap.DisplayAuxSegment)
+		if addr >= 0x0400 && addr < 0x0800 {
+			if stm.Bool(statemap.DisplayPage2) {
+				return displayAux
+			}
+
+			return main
+		}
+
+		if addr >= 0x2000 && addr < 0x4000 {
+			if stm.Bool(statemap.DisplayHires) {
+				if stm.Bool(statemap.DisplayPage2) {
+					return displayAux
+				}
+
+				return main
+			}
 		}
 	}
 
-	return seg
+	return segfunc(stm)
 }
 
 func DisplayRead(addr int, stm *memory.StateMap) uint8 {
 	return DisplaySegment(
 		addr,
 		stm,
-		stm.Segment(statemap.MemMainSegment),
+		ReadSegment,
 	).DirectGet(int(addr))
 }
 
@@ -267,7 +280,7 @@ func DisplayWrite(addr int, val uint8, stm *memory.StateMap) {
 	DisplaySegment(
 		addr,
 		stm,
-		stm.Segment(statemap.MemMainSegment),
+		WriteSegment,
 	).DirectSet(int(addr), val)
 }
 
