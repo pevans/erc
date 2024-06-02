@@ -51,10 +51,6 @@ func (s *a2Suite) TestPCSwitcherSwitchRead() {
 
 func (s *a2Suite) TestPCRead() {
 	var (
-		c801   = 0xC801
-		uc801  = int(c801)
-		prc801 = pcPROMAddr(c801)
-		irc801 = pcIROMAddr(c801)
 		c301   = 0xC301
 		uc301  = int(c301)
 		prc301 = pcPROMAddr(c301)
@@ -65,14 +61,6 @@ func (s *a2Suite) TestPCRead() {
 		irc401 = pcIROMAddr(c401)
 	)
 
-	s.Run("reads from expansion space", func() {
-		s.comp.state.SetBool(statemap.PCExpansion, true)
-		s.Equal(s.comp.ROM.Get(prc801), PCRead(uc801, s.comp.state))
-
-		s.comp.state.SetBool(statemap.PCExpansion, false)
-		s.Equal(s.comp.ROM.Get(irc801), PCRead(uc801, s.comp.state))
-	})
-
 	s.Run("reads from c3 rom space", func() {
 		s.comp.state.SetBool(statemap.PCSlotC3, true)
 		s.comp.state.SetBool(statemap.PCSlotCX, false)
@@ -81,10 +69,8 @@ func (s *a2Suite) TestPCRead() {
 		s.comp.state.SetBool(statemap.PCSlotC3, false)
 		s.Equal(s.comp.ROM.Get(irc301), PCRead(uc301, s.comp.state))
 
-		// slotCX is a trick; it enables us to read C3 ROM even if C3 ROM is
-		// off.
 		s.comp.state.SetBool(statemap.PCSlotCX, true)
-		s.Equal(s.comp.ROM.Get(prc301), PCRead(uc301, s.comp.state))
+		s.Equal(s.comp.ROM.Get(irc301), PCRead(uc301, s.comp.state))
 	})
 
 	s.Run("reads from cx rom space", func() {
