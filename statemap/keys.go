@@ -36,6 +36,8 @@ const (
 	MemWriteSegment
 	PCExpSlot
 	PCExpansion
+	PCIOSelect
+	PCIOStrobe
 	PCROMSegment
 	PCSlotC3
 	PCSlotCX
@@ -108,14 +110,18 @@ func KeyToString(key any) string {
 		return "MemMainSegment"
 	case PCExpansion:
 		return "PCExpansion"
+	case PCExpSlot:
+		return "PCExpSlot"
+	case PCIOSelect:
+		return "PCIOSelect"
+	case PCIOStrobe:
+		return "PCIOStrobe"
+	case PCROMSegment:
+		return "PCROMSegment"
 	case PCSlotC3:
 		return "PCSlotC3"
 	case PCSlotCX:
 		return "PCSlotCX"
-	case PCExpSlot:
-		return "PCExpSlot"
-	case PCROMSegment:
-		return "PCROMSegment"
 	}
 
 	return fmt.Sprintf("unknown (%v)", key)

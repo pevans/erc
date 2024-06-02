@@ -37,6 +37,8 @@ func pcWriteSwitches() []int {
 // after a cold or warm boot.
 func pcUseDefaults(c *Computer) {
 	c.state.SetBool(statemap.PCExpansion, false)
+	c.state.SetBool(statemap.PCIOSelect, false)
+	c.state.SetBool(statemap.PCIOStrobe, false)
 	c.state.SetBool(statemap.PCSlotC3, false)
 	c.state.SetBool(statemap.PCSlotCX, true)
 	c.state.SetSegment(statemap.PCROMSegment, c.ROM)
@@ -154,26 +156,83 @@ func pcPROMAddr(addr int) int {
 // from internal ROM or from a dedicated peripheral ROM block.
 func PCRead(addr int, stm *memory.StateMap) uint8 {
 	var (
-		intROM    = int(pcIROMAddr(addr))
-		periphROM = int(pcPROMAddr(addr))
+		intAddr    = int(pcIROMAddr(addr))
+		periphAddr = int(pcPROMAddr(addr))
+		pcrom      = stm.Segment(statemap.PCROMSegment)
 	)
 
+	// Regardless of circumstances, any read of the expansion disable
+	// address should wipe our expansion state.
+	if addr == offExpROM {
+		disableExpansion(stm)
+	}
+
 	switch {
-	case
-		stm.Bool(statemap.PCExpansion) && expROM(addr),
-		stm.Bool(statemap.PCSlotC3) && slot3ROM(addr),
-		stm.Bool(statemap.PCSlotCX) && slotXROM(addr):
+	case stm.Bool(statemap.PCSlotCX):
+		// Special case #1: we should turn on IOSelect if it's a slotCX
+		// address.
+		if slotXROM(addr) {
+			stm.SetBool(statemap.PCIOSelect, true)
+		}
+
+		// Even though we want to return peripheral ROM for Cxxx
+		// addresses, if SLOTC3ROM is not active, we should obey that
+		// and return internal ROM.
+		if !stm.Bool(statemap.PCSlotC3) && slot3ROM(addr) {
+			return pcrom.DirectGet(intAddr)
+		}
+
+		// Special case #2: we should turn on IOStrobe for expansion ROM
+		// addresses.
+		if expROM(addr) {
+			stm.SetBool(statemap.PCIOStrobe, true)
+
+			if stm.Bool(statemap.PCIOSelect) {
+				// If both IOSelect and IOStrobe are true, we have
+				// enabled expansion ROM.
+				stm.SetBool(statemap.PCExpansion, true)
+
+				return expansionROM(stm, addr)
+			}
+		}
+
+		return pcrom.DirectGet(periphAddr)
+
+	case stm.Bool(statemap.PCSlotC3) && slot3ROM(addr):
 		metrics.Increment("soft_pc_get_periph_rom", 1)
-		return stm.Segment(statemap.PCROMSegment).DirectGet(periphROM)
+		return pcrom.DirectGet(periphAddr)
+
+	case stm.Bool(statemap.PCExpansion) && expROM(addr):
+		return expansionROM(stm, addr)
 	}
 
 	metrics.Increment("soft_pc_get_int_rom", 1)
-	return stm.Segment(statemap.PCROMSegment).DirectGet(intROM)
+	return pcrom.DirectGet(intAddr)
 }
 
 // PCWrite is a stub which does nothing, since it handles writes into an
 // explicitly read-only memory space.
 func PCWrite(addr int, val uint8, stm *memory.StateMap) {
 	metrics.Increment("soft_pc_failed_write", 1)
-	// Do nothing
+
+	// Even a write to the expansion rom disable address should cause us
+	// to wipe all of our state.
+	if addr == offExpROM {
+		disableExpansion(stm)
+	}
+}
+
+func disableExpansion(stm *memory.StateMap) {
+	stm.SetBool(statemap.PCIOSelect, false)
+	stm.SetBool(statemap.PCIOStrobe, false)
+	stm.SetBool(statemap.PCExpansion, false)
+	stm.SetInt(statemap.PCExpSlot, 0)
+}
+
+func expansionROM(stm *memory.StateMap, addr int) uint8 {
+	// Since we don't support any peripherals that have dedicated ROM,
+	// we must fall back to returning data from internal ROM.
+	return stm.Segment(statemap.PCROMSegment).DirectGet(
+		pcIROMAddr(addr),
+	)
 }
