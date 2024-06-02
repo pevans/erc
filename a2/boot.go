@@ -26,7 +26,7 @@ const (
 func (c *Computer) Boot() error {
 	// Fetch the slice of bytes for system ROM and for peripheral ROM
 	// (they go to together).
-	rom, err := obj.Slice(4, RomMemorySize+4)
+	rom, err := obj.Slice(0, RomMemorySize-1)
 	if err != nil {
 		return err
 	}
