@@ -312,6 +312,14 @@ func (c *Computer) Render() {
 		)
 
 		c.hiresRender(start, end)
+
+	default:
+		var (
+			start int = 0x400
+			end   int = 0x800
+		)
+
+		c.loresRender(start, end)
 	}
 
 	c.state.SetBool(statemap.DisplayRedraw, false)
