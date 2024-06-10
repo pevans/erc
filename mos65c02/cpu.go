@@ -1,6 +1,7 @@
 package mos65c02
 
 import (
+	"github.com/pevans/erc/clock"
 	"github.com/pevans/erc/memory"
 )
 
@@ -9,6 +10,8 @@ type CPU struct {
 	RMem  memory.Getter
 	WMem  memory.Setter
 	State *memory.StateMap
+
+	ClockEmulator *clock.Emulator
 
 	// This is the current address mode that the CPU is operating
 	// within. The address mode affects how the CPU will determine the

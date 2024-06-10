@@ -1,6 +1,7 @@
 package a2
 
 import (
+	"github.com/pevans/erc/clock"
 	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/memory"
 	"github.com/pevans/erc/mos65c02"
@@ -101,6 +102,7 @@ func NewComputer() *Computer {
 	comp.CPU.RMem = comp
 	comp.CPU.WMem = comp
 	comp.CPU.State = comp.state
+	comp.CPU.ClockEmulator = clock.NewEmulator(1_023_000)
 
 	return comp
 }

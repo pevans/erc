@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/statemap"
@@ -36,8 +37,7 @@ var instructions = [256]Instruction{
 	Beq, Sbc, Sbc, Nop, Np2, Sbc, Inc, Nop, Sed, Sbc, Plx, Nop, Np3, Sbc, Inc, Nop, // Fx
 }
 
-/*
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
+// 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
 var cycles = [256]uint8{
 	7, 6, 2, 1, 5, 3, 5, 1, 3, 2, 2, 1, 6, 4, 6, 1, // 0x
 	2, 5, 5, 1, 5, 4, 6, 1, 2, 4, 2, 1, 6, 4, 6, 1, // 1x
@@ -56,7 +56,6 @@ var cycles = [256]uint8{
 	2, 6, 2, 1, 3, 3, 5, 1, 2, 2, 2, 1, 4, 4, 6, 1, // Ex
 	2, 5, 5, 1, 4, 4, 6, 1, 2, 4, 4, 1, 4, 4, 7, 1, // Fx
 }
-*/
 
 // String composes an instruction function into a string and returns
 // that
@@ -148,6 +147,10 @@ func (c *CPU) Execute() error {
 	// We always apply BREAK and UNUSED after each execution, mostly in
 	// observance for how other emulators have handled this step.
 	c.P |= UNUSED | BREAK
+
+	if c.ClockEmulator != nil {
+		c.ClockEmulator.WaitForCycles(int64(cycles[c.Opcode]), time.Sleep)
+	}
 
 	return nil
 }

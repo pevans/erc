@@ -1,6 +1,8 @@
 package clock
 
-import "time"
+import (
+	"time"
+)
 
 // Emulator is a device which you can use to simulate a slower
 // computer's clockspeed.
@@ -35,4 +37,6 @@ func (e *Emulator) WaitForCycles(cycles int64, waitFunc func(d time.Duration)) {
 	cycleTime := time.Duration(cycles) * e.timePerCycle
 
 	waitFunc(cycleTime - elapsedTime)
+
+	e.lastWaitTime = time.Now()
 }

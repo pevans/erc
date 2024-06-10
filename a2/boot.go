@@ -1,6 +1,8 @@
 package a2
 
 import (
+	"time"
+
 	"github.com/pevans/erc/mos65c02"
 	"github.com/pevans/erc/obj"
 )
@@ -75,4 +77,6 @@ func (c *Computer) Reset() {
 	// set our modes above, or else we might pull the PC value from the
 	// wrong place in memory.
 	c.CPU.PC = c.CPU.Get16(ResetPC)
+
+	c.CPU.ClockEmulator.SetWaitTime(time.Now())
 }
