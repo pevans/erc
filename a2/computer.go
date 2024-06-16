@@ -80,7 +80,7 @@ const (
 
 // NewComputer returns an Apple //e computer value, which essentially
 // encompasses all of the things that an Apple II would need to run.
-func NewComputer() *Computer {
+func NewComputer(hertz int64) *Computer {
 	comp := &Computer{}
 
 	comp.Aux = memory.NewSegment(AuxMemorySize)
@@ -102,7 +102,13 @@ func NewComputer() *Computer {
 	comp.CPU.RMem = comp
 	comp.CPU.WMem = comp
 	comp.CPU.State = comp.state
-	comp.CPU.ClockEmulator = clock.NewEmulator(1_023_000)
+
+	// Note that hertz is treated as a unit of cycles per second, but
+	// the number may not feel precisely accurate to how an Apple II
+	// might have run. I've found that if I use 1.023 MHz, the Apple IIe
+	// speed, things feel much slower than I'd expect. In practice,
+	// something approximately double that number feels more right.
+	comp.CPU.ClockEmulator = clock.NewEmulator(hertz)
 
 	return comp
 }

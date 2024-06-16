@@ -13,7 +13,7 @@ type a2Suite struct {
 }
 
 func (s *a2Suite) SetupSuite() {
-	s.comp = NewComputer()
+	s.comp = NewComputer(123)
 }
 
 func (s *a2Suite) SetupTest() {

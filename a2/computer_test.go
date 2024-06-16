@@ -1,7 +1,7 @@
 package a2
 
 func (s *a2Suite) TestNewComputer() {
-	c := NewComputer()
+	c := NewComputer(123)
 
 	s.NotNil(c)
 	s.NotNil(c.Aux)

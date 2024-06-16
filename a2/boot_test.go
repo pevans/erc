@@ -6,7 +6,7 @@ import (
 )
 
 func (s *a2Suite) TestBoot() {
-	c := NewComputer()
+	c := NewComputer(123)
 
 	s.NoError(c.Boot())
 
@@ -20,7 +20,7 @@ func (s *a2Suite) TestBoot() {
 }
 
 func (s *a2Suite) TestReset() {
-	c := NewComputer()
+	c := NewComputer(123)
 
 	c.Reset()
 

@@ -19,6 +19,7 @@ import (
 type cli struct {
 	Profile bool   `help:"Write out a profile trace"`
 	Image   string `arg`
+	Speed   int    `default:"1" help:"Starting speed of the emulator (more is faster)"`
 }
 
 // ConfigFile is the default (relative) location of our configuration file.
@@ -42,7 +43,7 @@ func main() {
 		fail("you must pass the name of a file to load")
 	}
 
-	comp := a2.NewComputer()
+	comp := a2.NewComputer(clockspeed(cli.Speed))
 	comp.SetFont(a2.SystemFont())
 	gfx.Screen = a2.NewScreen()
 
@@ -94,4 +95,23 @@ func main() {
 func fail(reason string) {
 	fmt.Println(reason)
 	os.Exit(1)
+}
+
+// Return hertz based on some given abstract speed. A larger speed
+// should return a larger hertz.
+func clockspeed(speed int) int64 {
+	// You should not consider this number to correlate with how fast an
+	// Apple II might have run.
+	hertz := int64(2_000_000)
+
+	// Let's not allow the caller to get too crazy
+	if speed > 5 {
+		speed = 5
+	}
+
+	for i := 1; i < speed; i++ {
+		hertz *= 2
+	}
+
+	return hertz
 }

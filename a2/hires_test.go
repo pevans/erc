@@ -9,7 +9,7 @@ import (
 // TODO: we should do some better tests to show the colors are what we
 // want them to be.
 func TestHiresDots(t *testing.T) {
-	c := NewComputer()
+	c := NewComputer(123)
 	c.Boot()
 
 	dots := make([]hiresDot, 280)
