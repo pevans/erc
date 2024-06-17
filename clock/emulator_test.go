@@ -19,7 +19,6 @@ func TestWaitForCycles(t *testing.T) {
 		actualDiff time.Duration = 0
 	)
 
-	emu.SetWaitTime(time.Now())
 	emu.WaitForCycles(8, func(d time.Duration) {
 		actualDiff = d
 	})

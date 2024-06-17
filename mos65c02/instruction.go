@@ -103,6 +103,10 @@ func OpcodeReadsMemory(opcode uint8) bool {
 	return false
 }
 
+func (c *CPU) Cycles() int {
+	return int(cycles[c.Opcode])
+}
+
 // Execute will process through one instruction and return. While doing
 // so, the CPU state will update such that it moves to the next
 // instruction. Note that the MOS 65C02 processor can execute

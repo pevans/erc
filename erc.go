@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/alecthomas/kong"
 	"github.com/pevans/erc/a2"
@@ -79,8 +78,7 @@ func main() {
 		comp.PressKey(uint8(ev.Key))
 	})
 
-	delay := 10 * time.Nanosecond
-	go processLoop(comp, delay)
+	go processLoop(comp)
 
 	if err := drawLoop(comp); err != nil {
 		fail(fmt.Sprintf("failed to execute draw loop: %v", err))
@@ -97,12 +95,11 @@ func fail(reason string) {
 	os.Exit(1)
 }
 
-// Return hertz based on some given abstract speed. A larger speed
-// should return a larger hertz.
+// Return hertz based on some given abstract speed. Relatively larger
+// speeds imply a larger hertz; i.e. clockspeed(2) > clockspeed(1).
 func clockspeed(speed int) int64 {
-	// You should not consider this number to correlate with how fast an
-	// Apple II might have run.
-	hertz := int64(2_000_000)
+	// Use the basic clockspeed of an Apple IIe as a starting point
+	hertz := int64(1_023_000)
 
 	// Let's not allow the caller to get too crazy
 	if speed > 5 {

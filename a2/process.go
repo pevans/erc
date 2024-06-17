@@ -5,10 +5,10 @@ import (
 )
 
 // Process executes a single execution of an opcode in the Apple II.
-func (c *Computer) Process() error {
+func (c *Computer) Process() (int, error) {
 	err := c.CPU.Execute()
 	if err != nil {
-		return err
+		return c.CPU.Cycles(), err
 	}
 
 	// Check if this is was a knock-knock on one of our bank switches
@@ -16,11 +16,11 @@ func (c *Computer) Process() error {
 	case 0xC081, 0xC083, 0xC085, 0xC087, 0xC089, 0xC08B, 0xC08D, 0xC08F:
 		if c.state.Bool(statemap.InstructionReadOp) {
 			c.state.SetInt(statemap.BankReadAttempts, c.state.Int(statemap.BankReadAttempts)+1)
-			return nil
+			return c.CPU.Cycles(), nil
 		}
 	}
 
 	c.state.SetInt(statemap.BankReadAttempts, 0)
 
-	return nil
+	return c.CPU.Cycles(), nil
 }

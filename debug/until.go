@@ -25,7 +25,7 @@ func until(comp *a2.Computer, tokens []string) {
 	}
 
 	for i := 0; i < maxIterations; i++ {
-		if err := comp.Process(); err != nil {
+		if _, err := comp.Process(); err != nil {
 			panic(fmt.Sprintf("failed execution while stepping over: %v", err))
 		}
 
