@@ -29,7 +29,7 @@ func until(comp *a2.Computer, tokens []string) {
 			panic(fmt.Sprintf("failed execution while stepping over: %v", err))
 		}
 
-		if strings.HasPrefix(comp.CPU.NextInstruction(), instruction) {
+		if strings.HasPrefix(comp.CPU.LastInstruction(), instruction) {
 			say(fmt.Sprintf("stepped over %v instructions", i+1))
 			return
 		}

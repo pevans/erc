@@ -91,19 +91,19 @@ func displayWriteSwitches() []int {
 
 func displayUseDefaults(c *Computer) {
 	// Text mode should be enabled
-	c.state.SetBool(statemap.DisplayText, true)
+	c.State.SetBool(statemap.DisplayText, true)
 
 	// All other options should be disabled
-	c.state.SetBool(statemap.DisplayAltChar, false)
-	c.state.SetBool(statemap.DisplayCol80, false)
-	c.state.SetBool(statemap.DisplayDoubleHigh, false)
-	c.state.SetBool(statemap.DisplayHires, false)
-	c.state.SetBool(statemap.DisplayIou, false)
-	c.state.SetBool(statemap.DisplayMixed, false)
-	c.state.SetBool(statemap.DisplayPage2, false)
-	c.state.SetBool(statemap.DisplayStore80, false)
-	c.state.SetBool(statemap.DisplayRedraw, true)
-	c.state.SetSegment(statemap.DisplayAuxSegment, c.Aux)
+	c.State.SetBool(statemap.DisplayAltChar, false)
+	c.State.SetBool(statemap.DisplayCol80, false)
+	c.State.SetBool(statemap.DisplayDoubleHigh, false)
+	c.State.SetBool(statemap.DisplayHires, false)
+	c.State.SetBool(statemap.DisplayIou, false)
+	c.State.SetBool(statemap.DisplayMixed, false)
+	c.State.SetBool(statemap.DisplayPage2, false)
+	c.State.SetBool(statemap.DisplayStore80, false)
+	c.State.SetBool(statemap.DisplayRedraw, true)
+	c.State.SetSegment(statemap.DisplayAuxSegment, c.Aux)
 }
 
 func displayOnOrOffReadWrite(a int, stm *memory.StateMap) bool {
@@ -286,7 +286,7 @@ func DisplayWrite(addr int, val uint8, stm *memory.StateMap) {
 
 // Render will draw an updated picture of our graphics to the local framebuffer
 func (c *Computer) Render() {
-	if !c.state.Bool(statemap.DisplayRedraw) {
+	if !c.State.Bool(statemap.DisplayRedraw) {
 		return
 	}
 
@@ -298,14 +298,14 @@ func (c *Computer) Render() {
 	// if it's hires, do the hires thing
 	// we also need to account for double text/lores/hires/mixed
 	switch {
-	case c.state.Bool(statemap.DisplayText):
+	case c.State.Bool(statemap.DisplayText):
 		var (
 			start int = 0x400
 			end   int = 0x800
 		)
 
 		c.textRender(start, end)
-	case c.state.Bool(statemap.DisplayHires):
+	case c.State.Bool(statemap.DisplayHires):
 		var (
 			start int = 0x2000
 			end   int = 0x4000
@@ -322,5 +322,5 @@ func (c *Computer) Render() {
 		c.loresRender(start, end)
 	}
 
-	c.state.SetBool(statemap.DisplayRedraw, false)
+	c.State.SetBool(statemap.DisplayRedraw, false)
 }

@@ -12,6 +12,8 @@ const (
 	BankSysBlock
 	BankSysBlockSegment
 	BankWrite
+	Debugger
+	DebuggerLookAhead
 	DiskComputer
 	DisplayAltChar
 	DisplayAuxSegment
@@ -64,6 +66,10 @@ func KeyToString(key any) string {
 		return "BankSysBlockSegment"
 	case BankROMSegment:
 		return "BankROMSegment"
+	case Debugger:
+		return "Debugger"
+	case DebuggerLookAhead:
+		return "DebuggerLookAhead"
 	case DiskComputer:
 		return "DiskComputer"
 	case DisplayAltChar:

@@ -37,12 +37,12 @@ func memWriteSwitches() []int {
 }
 
 func memUseDefaults(c *Computer) {
-	c.state.SetInt(statemap.MemRead, memMain)
-	c.state.SetInt(statemap.MemWrite, memMain)
-	c.state.SetSegment(statemap.MemReadSegment, c.Main)
-	c.state.SetSegment(statemap.MemWriteSegment, c.Main)
-	c.state.SetSegment(statemap.MemAuxSegment, c.Aux)
-	c.state.SetSegment(statemap.MemMainSegment, c.Main)
+	c.State.SetInt(statemap.MemRead, memMain)
+	c.State.SetInt(statemap.MemWrite, memMain)
+	c.State.SetSegment(statemap.MemReadSegment, c.Main)
+	c.State.SetSegment(statemap.MemWriteSegment, c.Main)
+	c.State.SetSegment(statemap.MemAuxSegment, c.Aux)
+	c.State.SetSegment(statemap.MemMainSegment, c.Main)
 }
 
 func memSwitchRead(addr int, stm *memory.StateMap) uint8 {
@@ -90,13 +90,13 @@ func memSwitchWrite(addr int, val uint8, stm *memory.StateMap) {
 // Get will return the byte at addr, or will execute a read switch if
 // one is present at the given address.
 func (c *Computer) Get(addr int) uint8 {
-	return ReadSegment(c.state).Get(addr)
+	return ReadSegment(c.State).Get(addr)
 }
 
 // Set will set the byte at addr to val, or will execute a write switch
 // if one is present at the given address.
 func (c *Computer) Set(addr int, val uint8) {
-	WriteSegment(c.state).Set(addr, val)
+	WriteSegment(c.State).Set(addr, val)
 }
 
 // MapRange will, given a range of addresses (from..to), set the read

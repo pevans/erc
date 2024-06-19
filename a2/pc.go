@@ -36,12 +36,12 @@ func pcWriteSwitches() []int {
 // UseDefaults sets the state of the pc switcher to that which it should have
 // after a cold or warm boot.
 func pcUseDefaults(c *Computer) {
-	c.state.SetBool(statemap.PCExpansion, false)
-	c.state.SetBool(statemap.PCIOSelect, false)
-	c.state.SetBool(statemap.PCIOStrobe, false)
-	c.state.SetBool(statemap.PCSlotC3, false)
-	c.state.SetBool(statemap.PCSlotCX, true)
-	c.state.SetSegment(statemap.PCROMSegment, c.ROM)
+	c.State.SetBool(statemap.PCExpansion, false)
+	c.State.SetBool(statemap.PCIOSelect, false)
+	c.State.SetBool(statemap.PCIOStrobe, false)
+	c.State.SetBool(statemap.PCSlotC3, false)
+	c.State.SetBool(statemap.PCSlotCX, true)
+	c.State.SetSegment(statemap.PCROMSegment, c.ROM)
 }
 
 // SwitchRead will return hi on bit 7 if slot c3 or cx is set to use peripheral

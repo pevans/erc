@@ -123,6 +123,10 @@ func (c *CPU) Execute() error {
 
 	metrics.Increment("instructions", 1)
 
+	// We want to record the current PC before it might change as the
+	// result of any instruction we execute
+	c.LastPC = c.PC
+
 	c.Opcode = c.Get(c.PC)
 	mode = addrModes[c.Opcode]
 	inst = instructions[c.Opcode]
@@ -166,11 +170,11 @@ func (c *CPU) Status() string {
 	)
 }
 
-func (c *CPU) NextInstruction() string {
+func (c *CPU) LastInstruction() string {
 	return fmt.Sprintf(
 		"%s %s",
 		instructions[c.Opcode].String(),
-		formatOperand(c.AddrMode, c.Operand, c.PC),
+		formatOperand(c.AddrMode, c.Operand, c.LastPC),
 	)
 }
 

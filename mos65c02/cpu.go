@@ -47,8 +47,10 @@ type CPU struct {
 	EffVal uint8
 
 	// PC is the Program Counter. It is where the processor
-	// will look to execute its next instruction.
-	PC uint16
+	// will look to execute its next instruction. LastPC is the address
+	// of the last instruction that was executed.
+	PC     uint16
+	LastPC uint16
 
 	// The A register is the Accumulator. You can think of the
 	// accumulator as similar to how old calculators work; arithmetic

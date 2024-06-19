@@ -47,25 +47,25 @@ func kbSwitchWrite(addr int, val uint8, stm *memory.StateMap) {
 }
 
 func kbUseDefaults(c *Computer) {
-	c.state.SetUint8(statemap.KBLastKey, 0)
-	c.state.SetUint8(statemap.KBKeyDown, 0)
-	c.state.SetUint8(statemap.KBStrobe, 0)
+	c.State.SetUint8(statemap.KBLastKey, 0)
+	c.State.SetUint8(statemap.KBKeyDown, 0)
+	c.State.SetUint8(statemap.KBStrobe, 0)
 }
 
 func (c *Computer) PressKey(key uint8) {
 	// There can only be 7-bit ASCII in an Apple II, so we explicitly
 	// take off the high bit.
-	c.state.SetUint8(statemap.KBLastKey, key&0x7F)
+	c.State.SetUint8(statemap.KBLastKey, key&0x7F)
 
 	// We need to set the strobe bit, which (when returned) is always
 	// with the high bit at 1.
-	c.state.SetUint8(statemap.KBStrobe, 0x80)
+	c.State.SetUint8(statemap.KBStrobe, 0x80)
 
 	// This flag (again with the high bit set to 1) is set _while_ a key
 	// is pressed.
-	c.state.SetUint8(statemap.KBKeyDown, 0x80)
+	c.State.SetUint8(statemap.KBKeyDown, 0x80)
 }
 
 func (c *Computer) ClearKeys() {
-	c.state.SetUint8(statemap.KBKeyDown, 0)
+	c.State.SetUint8(statemap.KBKeyDown, 0)
 }

@@ -127,8 +127,10 @@ func Abs(c *CPU) {
 func Abx(c *CPU) {
 	// Indexed instructions can cause _false reads_ when done across
 	// page boundaries, so we simulate that here.
-	c.State.SetBool(statemap.InstructionReadOp, true)
-	c.State.SetInt(statemap.BankReadAttempts, 1)
+	if !c.State.Bool(statemap.DebuggerLookAhead) {
+		c.State.SetBool(statemap.InstructionReadOp, true)
+		c.State.SetInt(statemap.BankReadAttempts, 1)
+	}
 
 	c.Operand = c.Get16(c.PC + 1)
 	c.EffAddr = c.Operand + uint16(c.X)
@@ -142,8 +144,10 @@ func Abx(c *CPU) {
 func Aby(c *CPU) {
 	// Indexed instructions can cause _false reads_ when done across
 	// page boundaries, so we simulate that here.
-	c.State.SetBool(statemap.InstructionReadOp, true)
-	c.State.SetInt(statemap.BankReadAttempts, 1)
+	if !c.State.Bool(statemap.DebuggerLookAhead) {
+		c.State.SetBool(statemap.InstructionReadOp, true)
+		c.State.SetInt(statemap.BankReadAttempts, 1)
+	}
 
 	c.Operand = c.Get16(c.PC + 1)
 	c.EffAddr = c.Operand + uint16(c.Y)

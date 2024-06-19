@@ -6,6 +6,7 @@ import (
 
 	"github.com/pevans/erc/a2"
 	"github.com/pevans/erc/debug"
+	"github.com/pevans/erc/statemap"
 )
 
 // processLoop executes a process loop whereby we simply execute instructions
@@ -13,7 +14,7 @@ import (
 // error, or if some external process issues an Exit command to the OS.
 func processLoop(comp *a2.Computer) {
 	for {
-		if comp.Debugger {
+		if comp.State.Bool(statemap.Debugger) {
 			debug.Prompt(comp)
 			continue
 		}

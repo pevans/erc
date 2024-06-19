@@ -33,7 +33,7 @@ type Computer struct {
 	SelectedDrive *Drive
 
 	smap  *memory.SoftMap
-	state *memory.StateMap
+	State *memory.StateMap
 
 	// MemMode is a collection of bit flags which tell us what state of
 	// memory we have.
@@ -45,9 +45,6 @@ type Computer struct {
 
 	// SysFont is the system font for the Apple II
 	SysFont *gfx.Font
-
-	// Whether we're using the debugger or not
-	Debugger bool
 }
 
 const (
@@ -87,8 +84,8 @@ func NewComputer(hertz int64) *Computer {
 	comp.Main = memory.NewSegment(MainMemorySize)
 	comp.ROM = memory.NewSegment(RomMemorySize)
 	comp.smap = memory.NewSoftMap(0x20000)
-	comp.state = memory.NewStateMap()
-	comp.smap.UseState(comp.state)
+	comp.State = memory.NewStateMap()
+	comp.smap.UseState(comp.State)
 
 	comp.Aux.UseSoftMap(comp.smap)
 	comp.Main.UseSoftMap(comp.smap)
@@ -101,7 +98,7 @@ func NewComputer(hertz int64) *Computer {
 	comp.CPU = new(mos65c02.CPU)
 	comp.CPU.RMem = comp
 	comp.CPU.WMem = comp
-	comp.CPU.State = comp.state
+	comp.CPU.State = comp.State
 
 	// Note that hertz is treated as a unit of cycles per second, but
 	// the number may not feel precisely accurate to how an Apple II
@@ -130,9 +127,9 @@ func NewScreen() *gfx.FrameBuffer {
 }
 
 func (c *Computer) NeedsRender() bool {
-	return c.state.Bool(statemap.DisplayRedraw)
+	return c.State.Bool(statemap.DisplayRedraw)
 }
 
-func (c *Computer) State() map[string]any {
-	return c.state.Map(statemap.KeyToString)
-}
+//func (c *Computer) State() map[string]any {
+//	return c.state.Map(statemap.KeyToString)
+//}

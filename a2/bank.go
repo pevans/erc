@@ -158,12 +158,12 @@ func bankUseDefaults(c *Computer) {
 	// "When you turn power on or reset the Apple IIe, it initializes the bank
 	// switches for reading the ROM and writing the RAM, using the second bank
 	// of RAM."
-	c.state.SetInt(statemap.BankRead, bankROM)
-	c.state.SetInt(statemap.BankWrite, bankRAM)
-	c.state.SetInt(statemap.BankDFBlock, bank1)
-	c.state.SetInt(statemap.BankSysBlock, bankMain)
-	c.state.SetSegment(statemap.BankSysBlockSegment, c.Main)
-	c.state.SetSegment(statemap.BankROMSegment, c.ROM)
+	c.State.SetInt(statemap.BankRead, bankROM)
+	c.State.SetInt(statemap.BankWrite, bankRAM)
+	c.State.SetInt(statemap.BankDFBlock, bank1)
+	c.State.SetInt(statemap.BankSysBlock, bankMain)
+	c.State.SetSegment(statemap.BankSysBlockSegment, c.Main)
+	c.State.SetSegment(statemap.BankROMSegment, c.ROM)
 }
 
 // BankSegment returns the memory segment that should be used with respect to
