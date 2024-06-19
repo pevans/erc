@@ -68,6 +68,8 @@ func execute(comp *a2.Computer, cmd string) {
 		until(comp, tokens)
 
 		// the rest
+	case "disk":
+		disk(comp, tokens)
 	case "help":
 		help()
 	case "quit":
@@ -92,7 +94,9 @@ func help() {
 	say("    status ............. show registers and next execution")
 	say("  [execution]")
 	say("    step <times> ....... execute <times> instructions")
+	say("    until <instruction>  execute until <instruction>")
 	say("  [the rest]")
+	say("    disk <file> ........ load <file> into drive")
 	say("    help ............... print this message")
 	say("    quit ............... quit the emulator")
 	say("    resume ............. resume emulation")
