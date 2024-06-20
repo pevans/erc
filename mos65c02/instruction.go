@@ -172,9 +172,33 @@ func (c *CPU) Status() string {
 
 func (c *CPU) LastInstruction() string {
 	return fmt.Sprintf(
-		"%s %s",
-		instructions[c.Opcode].String(),
+		"$%04X %s %s",
+		c.LastPC, instructions[c.Opcode].String(),
 		formatOperand(c.AddrMode, c.Operand, c.LastPC),
+	)
+}
+
+// NextInstruction returns a string representing the next opcode that
+// would be executed
+func (c *CPU) NextInstruction() string {
+	opcode := c.Get(c.PC)
+	mode := addrModes[opcode]
+
+	// Copy the CPU so we don't alter our own operand, effective
+	// address, etc.
+	copyOfCPU := c
+
+	// There are some cases where resolving the address mode may mutate
+	// the CPU or state map, so we use DebuggerLookAhead to let the
+	// address mode code know what's about to happen.
+	copyOfCPU.State.SetBool(statemap.DebuggerLookAhead, true)
+	mode(copyOfCPU)
+	copyOfCPU.State.SetBool(statemap.DebuggerLookAhead, false)
+
+	return fmt.Sprintf(
+		"$%04X %s %s",
+		c.PC, instructions[opcode].String(),
+		formatOperand(copyOfCPU.AddrMode, copyOfCPU.Operand, c.PC),
 	)
 }
 

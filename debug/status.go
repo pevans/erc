@@ -9,9 +9,11 @@ import (
 func status(comp *a2.Computer) {
 	var (
 		regfmt  = "registers .......... %s"
-		nextfmt = "last instruction ... %s"
+		lastfmt = "last instruction ... %s"
+		nextfmt = "next instruction ... %s"
 	)
 
 	say(fmt.Sprintf(regfmt, comp.CPU.Status()))
-	say(fmt.Sprintf(nextfmt, comp.CPU.LastInstruction()))
+	say(fmt.Sprintf(lastfmt, comp.CPU.LastInstruction()))
+	say(fmt.Sprintf(nextfmt, comp.CPU.NextInstruction()))
 }
