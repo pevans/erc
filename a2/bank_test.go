@@ -7,10 +7,10 @@ import (
 
 func (s *a2Suite) TestUseDefaults() {
 	bankUseDefaults(s.comp)
-	s.Equal(bankROM, s.comp.state.Int(statemap.BankRead))
-	s.Equal(bankRAM, s.comp.state.Int(statemap.BankWrite))
-	s.Equal(bank1, s.comp.state.Int(statemap.BankDFBlock))
-	s.Equal(bankMain, s.comp.state.Int(statemap.BankSysBlock))
+	s.Equal(bankROM, s.comp.State.Int(statemap.BankRead))
+	s.Equal(bankRAM, s.comp.State.Int(statemap.BankWrite))
+	s.Equal(bank1, s.comp.State.Int(statemap.BankDFBlock))
+	s.Equal(bankMain, s.comp.State.Int(statemap.BankSysBlock))
 }
 
 func (s *a2Suite) TestSwitchRead() {
@@ -48,35 +48,35 @@ func (s *a2Suite) TestSwitchRead() {
 	}
 
 	rd := func(addr int) int {
-		_ = bankSwitchRead(int(addr), s.comp.state)
-		return s.comp.state.Int(statemap.BankRead)
+		_ = bankSwitchRead(int(addr), s.comp.State)
+		return s.comp.State.Int(statemap.BankRead)
 	}
 
 	wr := func(addr int) int {
 		// Because the read attempts are adjusted in the computer
 		// Process method, we simulate that here.
-		_ = bankSwitchRead(int(addr), s.comp.state)
+		_ = bankSwitchRead(int(addr), s.comp.State)
 
 		switch addr {
 		case
 			0xC081, 0xC083, 0xC085, 0xC087,
 			0xC089, 0xC08B, 0xC08D, 0xC08F:
-			s.comp.state.SetInt(
+			s.comp.State.SetInt(
 				statemap.BankReadAttempts,
-				s.comp.state.Int(statemap.BankReadAttempts)+1,
+				s.comp.State.Int(statemap.BankReadAttempts)+1,
 			)
-			s.comp.state.SetBool(statemap.InstructionReadOp, true)
+			s.comp.State.SetBool(statemap.InstructionReadOp, true)
 		default:
-			s.comp.state.SetBool(statemap.InstructionReadOp, false)
-			s.comp.state.SetInt(statemap.BankReadAttempts, 0)
+			s.comp.State.SetBool(statemap.InstructionReadOp, false)
+			s.comp.State.SetInt(statemap.BankReadAttempts, 0)
 		}
 
-		return s.comp.state.Int(statemap.BankWrite)
+		return s.comp.State.Int(statemap.BankWrite)
 	}
 
 	df := func(addr int) int {
-		_ = bankSwitchRead(int(addr), s.comp.state)
-		return s.comp.state.Int(statemap.BankDFBlock)
+		_ = bankSwitchRead(int(addr), s.comp.State)
+		return s.comp.State.Int(statemap.BankDFBlock)
 	}
 
 	s.Run("read modes are set properly", func() {
@@ -104,20 +104,20 @@ func (s *a2Suite) TestSwitchRead() {
 		hi7 := uint8(0x80)
 		lo7 := uint8(0x00)
 
-		s.comp.state.SetInt(statemap.BankDFBlock, bank2)
-		s.Equal(hi7, bankSwitchRead(int(0xC011), s.comp.state))
-		s.comp.state.SetInt(statemap.BankDFBlock, bank1)
-		s.Equal(lo7, bankSwitchRead(int(0xC011), s.comp.state))
+		s.comp.State.SetInt(statemap.BankDFBlock, bank2)
+		s.Equal(hi7, bankSwitchRead(int(0xC011), s.comp.State))
+		s.comp.State.SetInt(statemap.BankDFBlock, bank1)
+		s.Equal(lo7, bankSwitchRead(int(0xC011), s.comp.State))
 
-		s.comp.state.SetInt(statemap.BankRead, bankRAM)
-		s.Equal(hi7, bankSwitchRead(int(0xC012), s.comp.state))
-		s.comp.state.SetInt(statemap.BankRead, bankROM)
-		s.Equal(lo7, bankSwitchRead(int(0xC012), s.comp.state))
+		s.comp.State.SetInt(statemap.BankRead, bankRAM)
+		s.Equal(hi7, bankSwitchRead(int(0xC012), s.comp.State))
+		s.comp.State.SetInt(statemap.BankRead, bankROM)
+		s.Equal(lo7, bankSwitchRead(int(0xC012), s.comp.State))
 
-		s.comp.state.SetInt(statemap.BankSysBlock, bankAux)
-		s.Equal(hi7, bankSwitchRead(int(0xC016), s.comp.state))
-		s.comp.state.SetInt(statemap.BankSysBlock, bankMain)
-		s.Equal(lo7, bankSwitchRead(int(0xC016), s.comp.state))
+		s.comp.State.SetInt(statemap.BankSysBlock, bankAux)
+		s.Equal(hi7, bankSwitchRead(int(0xC016), s.comp.State))
+		s.comp.State.SetInt(statemap.BankSysBlock, bankMain)
+		s.Equal(lo7, bankSwitchRead(int(0xC016), s.comp.State))
 	})
 }
 
@@ -131,16 +131,16 @@ func (s *a2Suite) TestSwitchWrite() {
 	s.Run("switching main to aux", func() {
 		s.comp.Main.Mem[addr] = d123
 		s.comp.Aux.Mem[addr] = d45
-		s.comp.state.SetInt(statemap.BankSysBlock, bankMain)
-		bankSwitchWrite(int(0xC009), d45, s.comp.state)
-		s.Equal(bankAux, s.comp.state.Int(statemap.BankSysBlock))
+		s.comp.State.SetInt(statemap.BankSysBlock, bankMain)
+		bankSwitchWrite(int(0xC009), d45, s.comp.State)
+		s.Equal(bankAux, s.comp.State.Int(statemap.BankSysBlock))
 		s.Equal(d45, s.comp.Aux.Mem[addr])
 	})
 
 	s.Run("switching aux to main", func() {
 		s.comp.Aux.Mem[addr] = d45
-		bankSwitchWrite(int(0xC008), d123, s.comp.state)
-		s.Equal(bankMain, s.comp.state.Int(statemap.BankSysBlock))
+		bankSwitchWrite(int(0xC008), d123, s.comp.State)
+		s.Equal(bankMain, s.comp.State.Int(statemap.BankSysBlock))
 		s.Equal(d123, s.comp.Main.Mem[addr])
 	})
 }
@@ -157,35 +157,35 @@ func (s *a2Suite) TestBankDFRead() {
 	)
 
 	testFor := func(sblock int) {
-		s.comp.state.SetInt(statemap.BankSysBlock, sblock)
+		s.comp.State.SetInt(statemap.BankSysBlock, sblock)
 
-		BankSegment(s.comp.state).Set(xd000, val1)
-		BankSegment(s.comp.state).Set(xe000, val1)
-		BankSegment(s.comp.state).Set(x10000, val2)
+		BankSegment(s.comp.State).Set(xd000, val1)
+		BankSegment(s.comp.State).Set(xe000, val1)
+		BankSegment(s.comp.State).Set(x10000, val2)
 
 		s.Run("read from rom", func() {
-			s.comp.state.SetInt(statemap.BankRead, bankROM)
-			s.comp.state.SetInt(statemap.BankDFBlock, bank1)
+			s.comp.State.SetInt(statemap.BankRead, bankROM)
+			s.comp.State.SetInt(statemap.BankDFBlock, bank1)
 			s.Equal(s.comp.Get(xd000), s.comp.ROM.DirectGet(x1000))
 			s.Equal(s.comp.Get(xe000), s.comp.ROM.DirectGet(x2000))
 
-			s.comp.state.SetInt(statemap.BankDFBlock, bank2)
+			s.comp.State.SetInt(statemap.BankDFBlock, bank2)
 			s.Equal(s.comp.Get(xd000), s.comp.ROM.DirectGet(x1000))
 			s.Equal(s.comp.Get(xe000), s.comp.ROM.DirectGet(x2000))
 		})
 
 		s.Run("read from bank2 ram", func() {
-			s.comp.state.SetInt(statemap.BankRead, bankRAM)
-			s.comp.state.SetInt(statemap.BankDFBlock, bank2)
+			s.comp.State.SetInt(statemap.BankRead, bankRAM)
+			s.comp.State.SetInt(statemap.BankDFBlock, bank2)
 			// The first read should use bank 2, but the second read should not,
 			// since it's in the E0 page.
-			s.Equal(s.comp.Get(xd000), BankSegment(s.comp.state).Get(x10000))
-			s.Equal(s.comp.Get(xe000), BankSegment(s.comp.state).Get(xe000))
+			s.Equal(s.comp.Get(xd000), BankSegment(s.comp.State).Get(x10000))
+			s.Equal(s.comp.Get(xe000), BankSegment(s.comp.State).Get(xe000))
 		})
 
 		s.Run("read from normal (bank1) ram", func() {
-			s.comp.state.SetInt(statemap.BankDFBlock, bank1)
-			s.Equal(s.comp.Get(xd000), BankSegment(s.comp.state).Get(xd000))
+			s.comp.State.SetInt(statemap.BankDFBlock, bank1)
+			s.Equal(s.comp.Get(xd000), BankSegment(s.comp.State).Get(xd000))
 		})
 	}
 
@@ -202,27 +202,27 @@ func (s *a2Suite) TestBankDFWrite() {
 	)
 
 	testFor := func(sblock int) {
-		s.comp.state.SetInt(statemap.BankSysBlock, sblock)
+		s.comp.State.SetInt(statemap.BankSysBlock, sblock)
 		s.Run("writes respect the value of the write mode", func() {
-			s.comp.state.SetInt(statemap.BankRead, bankRAM)
-			s.comp.state.SetInt(statemap.BankWrite, bankRAM)
-			s.comp.state.SetInt(statemap.BankDFBlock, bank1)
+			s.comp.State.SetInt(statemap.BankRead, bankRAM)
+			s.comp.State.SetInt(statemap.BankWrite, bankRAM)
+			s.comp.State.SetInt(statemap.BankDFBlock, bank1)
 			s.comp.Set(dfaddr, val1)
 			s.Equal(val1, s.comp.Get(dfaddr))
 
-			s.comp.state.SetInt(statemap.BankWrite, bankNone)
+			s.comp.State.SetInt(statemap.BankWrite, bankNone)
 			s.comp.Set(efaddr, val2)
 			s.NotEqual(val2, s.comp.Get(efaddr))
 		})
 
 		s.Run("writes use bank2 in the D0-DF page range", func() {
-			s.comp.state.SetInt(statemap.BankWrite, bankRAM)
-			s.comp.state.SetInt(statemap.BankDFBlock, bank2)
+			s.comp.State.SetInt(statemap.BankWrite, bankRAM)
+			s.comp.State.SetInt(statemap.BankDFBlock, bank2)
 			s.comp.Set(dfaddr, val2)
-			s.Equal(val2, ReadSegment(s.comp.state).Get(0x10011))
+			s.Equal(val2, ReadSegment(s.comp.State).Get(0x10011))
 
 			s.comp.Set(efaddr, val1)
-			s.Equal(val1, ReadSegment(s.comp.state).Get(efaddr))
+			s.Equal(val1, ReadSegment(s.comp.State).Get(efaddr))
 		})
 	}
 
@@ -246,8 +246,8 @@ func (s *a2Suite) TestBankZPRead() {
 	for _, c := range cases {
 		s.comp.Main.DirectSet(addr, c.main)
 		s.comp.Aux.DirectSet(addr, c.aux)
-		s.comp.state.SetInt(statemap.BankSysBlock, c.mode)
-		s.comp.state.SetSegment(statemap.BankSysBlockSegment, c.seg)
+		s.comp.State.SetInt(statemap.BankSysBlock, c.mode)
+		s.comp.State.SetSegment(statemap.BankSysBlockSegment, c.seg)
 
 		s.Equal(c.want, s.comp.Get(addr))
 	}
@@ -270,8 +270,8 @@ func (s *a2Suite) TestBankZPWrite() {
 		s.comp.Main.Set(addr, 0x0)
 		s.comp.Aux.Set(addr, 0x0)
 
-		s.comp.state.SetInt(statemap.BankSysBlock, c.mode)
-		s.comp.state.SetSegment(statemap.BankSysBlockSegment, c.seg)
+		s.comp.State.SetInt(statemap.BankSysBlock, c.mode)
+		s.comp.State.SetSegment(statemap.BankSysBlockSegment, c.seg)
 		s.comp.Set(addr, c.want)
 
 		s.Equal(c.main, s.comp.Main.DirectGet(addr))
