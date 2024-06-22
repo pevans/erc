@@ -50,7 +50,7 @@ var readSwitchMap = map[int]Switch{
 	0xC017: {Mode: ModeR, Name: "SLOTC3ROM"},
 }
 
-func ReadSoftSwitch(addr int) Switch {
+func ReadSwitch(addr int) Switch {
 	readSwitch, ok := readSwitchMap[addr]
 	if !ok {
 		return Switch{}

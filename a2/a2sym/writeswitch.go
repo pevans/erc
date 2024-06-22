@@ -43,7 +43,7 @@ var writeSwitchMap = map[int]Switch{
 	0xC007: {Mode: ModeW, Name: "SLOTCXROM", Description: "internal rom at $Cx00"},
 }
 
-func WriteSoftSwitch(addr int) Switch {
+func WriteSwitch(addr int) Switch {
 	writeSwitch, ok := writeSwitchMap[addr]
 	if !ok {
 		return Switch{}

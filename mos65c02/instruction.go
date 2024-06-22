@@ -215,12 +215,12 @@ func (c *CPU) explainInstruction(opcode uint8) string {
 	}
 
 	if c.State.Bool(statemap.InstructionReadOp) {
-		if rs := a2sym.ReadSoftSwitch(addr); rs.Mode != a2sym.ModeNone {
+		if rs := a2sym.ReadSwitch(addr); rs.Mode != a2sym.ModeNone {
 			return fmt.Sprintf(" ; %v", rs)
 		}
 	}
 
-	if ws := a2sym.WriteSoftSwitch(addr); ws.Mode != a2sym.ModeNone {
+	if ws := a2sym.WriteSwitch(addr); ws.Mode != a2sym.ModeNone {
 		return fmt.Sprintf(" ; %v", ws)
 	}
 
