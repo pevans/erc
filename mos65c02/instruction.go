@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/pevans/erc/a2/a2sym"
+	"github.com/pevans/erc/asm"
 	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/statemap"
 )
@@ -172,12 +173,16 @@ func (c *CPU) Status() string {
 }
 
 func (c *CPU) LastInstruction() string {
-	return fmt.Sprintf(
-		"$%04X %s %s%s",
-		c.LastPC, instructions[c.Opcode].String(),
-		formatOperand(c.AddrMode, c.Operand, c.LastPC),
-		c.explainInstruction(c.Opcode),
-	)
+	ln := asm.Line{
+		Address:     int(c.LastPC),
+		Instruction: instructions[c.Opcode].String(),
+		Operand: formatOperand(
+			c.AddrMode, c.Operand, c.LastPC,
+		),
+		Comment: c.explainInstruction(c.Opcode),
+	}
+
+	return ln.String()
 }
 
 // NextInstruction returns a string representing the next opcode that
@@ -197,12 +202,16 @@ func (c *CPU) NextInstruction() string {
 	mode(copyOfCPU)
 	copyOfCPU.State.SetBool(statemap.DebuggerLookAhead, false)
 
-	return fmt.Sprintf(
-		"$%04X %s %s%s",
-		c.PC, instructions[opcode].String(),
-		formatOperand(copyOfCPU.AddrMode, copyOfCPU.Operand, c.PC),
-		copyOfCPU.explainInstruction(opcode),
-	)
+	ln := asm.Line{
+		Address:     int(c.PC),
+		Instruction: instructions[opcode].String(),
+		Operand: formatOperand(
+			copyOfCPU.AddrMode, copyOfCPU.Operand, c.PC,
+		),
+		Comment: c.explainInstruction(opcode),
+	}
+
+	return ln.String()
 }
 
 func (c *CPU) explainInstruction(opcode uint8) string {
@@ -210,18 +219,18 @@ func (c *CPU) explainInstruction(opcode uint8) string {
 
 	if isJSR(opcode) {
 		if routine := a2sym.Subroutine(addr); routine != "" {
-			return fmt.Sprintf(" ; subroutine %v", routine)
+			return fmt.Sprintf("subroutine %v", routine)
 		}
 	}
 
 	if c.State.Bool(statemap.InstructionReadOp) {
 		if rs := a2sym.ReadSwitch(addr); rs.Mode != a2sym.ModeNone {
-			return fmt.Sprintf(" ; %v", rs)
+			return rs.String()
 		}
 	}
 
 	if ws := a2sym.WriteSwitch(addr); ws.Mode != a2sym.ModeNone {
-		return fmt.Sprintf(" ; %v", ws)
+		return ws.String()
 	}
 
 	return ""
