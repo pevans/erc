@@ -2,6 +2,8 @@ package a2sym
 
 import "fmt"
 
+// A SwitchMode is one of several modes to suggest how a soft switch
+// might operate
 type SwitchMode int
 
 const (
@@ -13,12 +15,14 @@ const (
 	ModeW
 )
 
+// A Switch is a struct containing metadata about a soft switch
 type Switch struct {
 	Mode        SwitchMode
 	Name        string
 	Description string
 }
 
+// String returns a short explanation of how a soft switch works
 func (mode SwitchMode) String() string {
 	switch mode {
 	case ModeR:
@@ -36,6 +40,9 @@ func (mode SwitchMode) String() string {
 	return "unknown switch mode"
 }
 
+// String here returns a form of description for a soft switch. Zero
+// value switches return an empty string. In other cases, we'll format
+// the mode, name, and description (as applicable).
 func (s Switch) String() string {
 	// This is probably a zero-value switch
 	if s.Mode == ModeNone {

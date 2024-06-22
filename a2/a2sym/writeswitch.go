@@ -1,5 +1,7 @@
 package a2sym
 
+// writeSwitchMap, like readSwitchMap, contains addresses and known soft
+// switches that can be triggered with writes
 var writeSwitchMap = map[int]Switch{
 	// Keyboard switches -- see the note in the readSwitchMap on how
 	// this switch was named.
