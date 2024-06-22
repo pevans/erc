@@ -19,3 +19,5 @@ tasks:
       run
   test:
     go test ./...
+  install:
+    go build && mv erc $HOME/bin
