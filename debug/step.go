@@ -29,6 +29,8 @@ func step(comp *a2.Computer, tokens []string) {
 		if _, err := comp.Process(); err != nil {
 			panic(fmt.Sprintf("could not step instruction: %v", err))
 		}
+
+		say(comp.CPU.LastInstruction())
 	}
 
 	say(fmt.Sprintf("executed %v times, current state is now", step))

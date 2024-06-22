@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pevans/erc/a2/a2sym"
 	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/statemap"
 )
@@ -172,9 +173,10 @@ func (c *CPU) Status() string {
 
 func (c *CPU) LastInstruction() string {
 	return fmt.Sprintf(
-		"$%04X %s %s",
+		"$%04X %s %s%s",
 		c.LastPC, instructions[c.Opcode].String(),
 		formatOperand(c.AddrMode, c.Operand, c.LastPC),
+		c.explainInstruction(c.Opcode),
 	)
 }
 
@@ -196,30 +198,63 @@ func (c *CPU) NextInstruction() string {
 	copyOfCPU.State.SetBool(statemap.DebuggerLookAhead, false)
 
 	return fmt.Sprintf(
-		"$%04X %s %s",
+		"$%04X %s %s%s",
 		c.PC, instructions[opcode].String(),
 		formatOperand(copyOfCPU.AddrMode, copyOfCPU.Operand, c.PC),
+		copyOfCPU.explainInstruction(opcode),
 	)
 }
 
-func formatOperand(mode int, operand uint16, pc uint16) string {
+func (c *CPU) explainInstruction(opcode uint8) string {
+	addr := int(c.EffAddr)
+
+	if isJSR(opcode) {
+		if routine := a2sym.Subroutine(addr); routine != "" {
+			return fmt.Sprintf(" ; subroutine %v", routine)
+		}
+	}
+
+	if c.State.Bool(statemap.InstructionReadOp) {
+		if rs := a2sym.ReadSoftSwitch(addr); rs.Mode != a2sym.ModeNone {
+			return fmt.Sprintf(" ; %v", rs)
+		}
+	}
+
+	if ws := a2sym.WriteSoftSwitch(addr); ws.Mode != a2sym.ModeNone {
+		return fmt.Sprintf(" ; %v", ws)
+	}
+
+	return ""
+}
+
+func isJSR(opcode uint8) bool {
+	return opcode == 0x20
+}
+
+func formatOperand(
+	mode int,
+	operand uint16,
+	pc uint16,
+) string {
+	str := ""
+
 	switch mode {
 	case amAcc, amImp, amBy2, amBy3:
-		return ""
+		break
 	case amAbs:
-		return fmt.Sprintf("$%04X", operand)
+		str = fmt.Sprintf("$%04X", operand)
 	case amAbx:
-		return fmt.Sprintf("$%04X,X", operand)
+		str = fmt.Sprintf("$%04X,X", operand)
 	case amAby:
-		return fmt.Sprintf("$%04X,Y", operand)
+		str = fmt.Sprintf("$%04X,Y", operand)
 	case amIdx:
-		return fmt.Sprintf("($%02X,X)", operand)
+		str = fmt.Sprintf("($%02X,X)", operand)
 	case amIdy:
-		return fmt.Sprintf("($%02X),Y", operand)
+		str = fmt.Sprintf("($%02X),Y", operand)
 	case amInd:
-		return fmt.Sprintf("($%04X)", operand)
+		str = fmt.Sprintf("($%04X)", operand)
 	case amImm:
-		return fmt.Sprintf("#$%02X", operand)
+		str = fmt.Sprintf("#$%02X", operand)
 	case amRel:
 		newAddr := pc + operand + 2
 
@@ -229,16 +264,16 @@ func formatOperand(mode int, operand uint16, pc uint16) string {
 			newAddr -= 256
 		}
 
-		return fmt.Sprintf("$%04X", newAddr)
+		str = fmt.Sprintf("$%04X", newAddr)
 	case amZpg:
-		return fmt.Sprintf("$%02X", operand)
+		str = fmt.Sprintf("$%02X", operand)
 	case amZpx:
-		return fmt.Sprintf("$%02X,X", operand)
+		str = fmt.Sprintf("$%02X,X", operand)
 	case amZpy:
-		return fmt.Sprintf("$%02X,Y", operand)
+		str = fmt.Sprintf("$%02X,Y", operand)
 	}
 
-	return ""
+	return str
 }
 
 func formatStatus(p uint8) string {

@@ -1,6 +1,12 @@
 package mos65c02
 
-import "github.com/pevans/erc/internal/metrics"
+import (
+	"fmt"
+
+	"github.com/pevans/erc/a2/a2sym"
+	"github.com/pevans/erc/internal/metrics"
+	"github.com/pevans/erc/statemap"
+)
 
 // Brk implements the BRK instruction, which is a hardware interrupt.
 // This isn't something that normally happens in software, but you might
@@ -38,6 +44,14 @@ func Jsr(c *CPU) {
 	// return from subroutine (RTS) in the stack.
 	c.PushStack(uint8(nextPos >> 8))
 	c.PushStack(uint8(nextPos & 0xFF))
+
+	// This is a bad hack to allow us only to look for builtin routines
+	// when we're reading ROM. TODO: I should get rid of this hack.
+	if c.State.Int(statemap.BankRead) == 1 {
+		if routine := a2sym.Subroutine(int(c.EffAddr)); routine != "" {
+			metrics.Increment(fmt.Sprintf("jsr_builtin_%s", routine), 1)
+		}
+	}
 
 	c.PC = c.EffAddr
 }
