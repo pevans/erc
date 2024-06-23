@@ -14,9 +14,10 @@ import (
 // A game is just a small struct which ebiten will use to run the draw loop for
 // us.
 type game struct {
-	comp       *a2.Computer
-	keys       []ebiten.Key
-	inputEvent input.Event
+	comp           *a2.Computer
+	keys           []ebiten.Key
+	inputEvent     input.Event
+	lastInputEvent input.Event
 }
 
 // drawLoop executes the logic to render our graphics according to some cadence
@@ -48,12 +49,25 @@ func (g *game) Draw(screen *ebiten.Image) {
 	}
 }
 
-// Update is kind of a noop for us. Nominally you could use it to execute game
-// logic, but it will run as often as the frames on screen will update--this
-// ends up being too infrequently for us to make use of it.
+// Update handles logic once for every frame that is rendered, but this
+// method is not _the method_ that renders the screen.
 func (g *game) Update() error {
+	g.keys = g.keys[:0]
 	g.keys = inpututil.AppendPressedKeys(g.keys)
 
+	if len(g.keys) > 0 {
+		g.pushInputEvent()
+	} else {
+		g.inputEvent = input.Event{}
+		g.lastInputEvent = input.Event{}
+	}
+
+	g.comp.Render()
+
+	return nil
+}
+
+func (g *game) pushInputEvent() {
 	for _, k := range g.keys {
 		// If we see a modifier among the keys, we set the input event's
 		// modifier. It's possible we've seen multiple modifiers -- if
@@ -66,20 +80,21 @@ func (g *game) Update() error {
 		g.inputEvent.Key = gfx.KeyToRune(k)
 	}
 
+	// Don't allow repeat keystrokes
+	if g.inputEvent == g.lastInputEvent &&
+		g.inputEvent.Key != input.KeyNone {
+		return
+	}
+
 	// If we got through the key slice with some valid key, we'll push
 	// the input event with whatever modifier is left. If we only saw a
 	// modifier, we'll hold it in inputEvent until the next time Update
 	// is called.
 	if g.inputEvent.Key != input.KeyNone {
 		input.PushEvent(g.inputEvent)
-		g.inputEvent = input.Event{}
+
+		g.lastInputEvent = g.inputEvent
 	}
-
-	// Wipe the slice without freeing its capacity
-	g.keys = g.keys[:0]
-
-	g.comp.Render()
-	return nil
 }
 
 func modifier(key ebiten.Key) int {
