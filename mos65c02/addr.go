@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/pevans/erc/statemap"
+	"github.com/pevans/erc/a2/a2state"
 )
 
 // An AddrMode is a function which resolves what the effective address
@@ -127,9 +127,9 @@ func Abs(c *CPU) {
 func Abx(c *CPU) {
 	// Indexed instructions can cause _false reads_ when done across
 	// page boundaries, so we simulate that here.
-	if !c.State.Bool(statemap.DebuggerLookAhead) {
-		c.State.SetBool(statemap.InstructionReadOp, true)
-		c.State.SetInt(statemap.BankReadAttempts, 1)
+	if !c.State.Bool(a2state.DebuggerLookAhead) {
+		c.State.SetBool(a2state.InstructionReadOp, true)
+		c.State.SetInt(a2state.BankReadAttempts, 1)
 	}
 
 	c.Operand = c.Get16(c.PC + 1)
@@ -144,9 +144,9 @@ func Abx(c *CPU) {
 func Aby(c *CPU) {
 	// Indexed instructions can cause _false reads_ when done across
 	// page boundaries, so we simulate that here.
-	if !c.State.Bool(statemap.DebuggerLookAhead) {
-		c.State.SetBool(statemap.InstructionReadOp, true)
-		c.State.SetInt(statemap.BankReadAttempts, 1)
+	if !c.State.Bool(a2state.DebuggerLookAhead) {
+		c.State.SetBool(a2state.InstructionReadOp, true)
+		c.State.SetInt(a2state.BankReadAttempts, 1)
 	}
 
 	c.Operand = c.Get16(c.PC + 1)

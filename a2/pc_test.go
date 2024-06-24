@@ -1,34 +1,34 @@
 package a2
 
-import "github.com/pevans/erc/statemap"
+import "github.com/pevans/erc/a2/a2state"
 
 func (s *a2Suite) TestPCSwitcherUseDefaults() {
 	pcUseDefaults(s.comp)
-	s.Equal(false, s.comp.State.Bool(statemap.PCExpansion))
-	s.Equal(false, s.comp.State.Bool(statemap.PCSlotC3))
-	s.Equal(true, s.comp.State.Bool(statemap.PCSlotCX))
+	s.Equal(false, s.comp.State.Bool(a2state.PCExpansion))
+	s.Equal(false, s.comp.State.Bool(a2state.PCSlotC3))
+	s.Equal(true, s.comp.State.Bool(a2state.PCSlotCX))
 }
 
 func (s *a2Suite) TestPCSwitcherSwitchWrite() {
 	s.Run("slot c3 rom writes work", func() {
-		s.comp.State.SetBool(statemap.PCSlotC3, false)
+		s.comp.State.SetBool(a2state.PCSlotC3, false)
 		pcSwitchWrite(int(0xC00B), 0x0, s.comp.State)
-		s.Equal(true, s.comp.State.Bool(statemap.PCSlotC3))
+		s.Equal(true, s.comp.State.Bool(a2state.PCSlotC3))
 
 		pcSwitchWrite(int(0xC00A), 0x0, s.comp.State)
-		s.Equal(false, s.comp.State.Bool(statemap.PCSlotC3))
+		s.Equal(false, s.comp.State.Bool(a2state.PCSlotC3))
 	})
 
 	s.Run("slot cx rom writes work", func() {
-		s.comp.State.SetBool(statemap.PCSlotCX, false)
-		s.comp.State.SetBool(statemap.PCSlotC3, false)
+		s.comp.State.SetBool(a2state.PCSlotCX, false)
+		s.comp.State.SetBool(a2state.PCSlotC3, false)
 		pcSwitchWrite(int(0xC006), 0x0, s.comp.State)
-		s.Equal(true, s.comp.State.Bool(statemap.PCSlotCX))
-		s.Equal(true, s.comp.State.Bool(statemap.PCSlotC3))
+		s.Equal(true, s.comp.State.Bool(a2state.PCSlotCX))
+		s.Equal(true, s.comp.State.Bool(a2state.PCSlotC3))
 
 		pcSwitchWrite(int(0xC007), 0x0, s.comp.State)
-		s.Equal(false, s.comp.State.Bool(statemap.PCSlotCX))
-		s.Equal(false, s.comp.State.Bool(statemap.PCSlotC3))
+		s.Equal(false, s.comp.State.Bool(a2state.PCSlotCX))
+		s.Equal(false, s.comp.State.Bool(a2state.PCSlotC3))
 	})
 }
 
@@ -39,12 +39,12 @@ func (s *a2Suite) TestPCSwitcherSwitchRead() {
 	)
 
 	s.Run("read of slotc3 returns hi", func() {
-		s.comp.State.SetBool(statemap.PCSlotC3, true)
+		s.comp.State.SetBool(a2state.PCSlotC3, true)
 		s.Equal(hi, pcSwitchRead(int(0xC017), s.comp.State))
 	})
 
 	s.Run("read of slot cx returns lo", func() {
-		s.comp.State.SetBool(statemap.PCSlotCX, true)
+		s.comp.State.SetBool(a2state.PCSlotCX, true)
 		s.Equal(lo, pcSwitchRead(int(0xC016), s.comp.State))
 	})
 }
@@ -62,22 +62,22 @@ func (s *a2Suite) TestPCRead() {
 	)
 
 	s.Run("reads from c3 rom space", func() {
-		s.comp.State.SetBool(statemap.PCSlotC3, true)
-		s.comp.State.SetBool(statemap.PCSlotCX, false)
+		s.comp.State.SetBool(a2state.PCSlotC3, true)
+		s.comp.State.SetBool(a2state.PCSlotCX, false)
 		s.Equal(s.comp.ROM.Get(prc301), PCRead(uc301, s.comp.State))
 
-		s.comp.State.SetBool(statemap.PCSlotC3, false)
+		s.comp.State.SetBool(a2state.PCSlotC3, false)
 		s.Equal(s.comp.ROM.Get(irc301), PCRead(uc301, s.comp.State))
 
-		s.comp.State.SetBool(statemap.PCSlotCX, true)
+		s.comp.State.SetBool(a2state.PCSlotCX, true)
 		s.Equal(s.comp.ROM.Get(irc301), PCRead(uc301, s.comp.State))
 	})
 
 	s.Run("reads from cx rom space", func() {
-		s.comp.State.SetBool(statemap.PCSlotCX, true)
+		s.comp.State.SetBool(a2state.PCSlotCX, true)
 		s.Equal(s.comp.ROM.DirectGet(prc401), PCRead(uc401, s.comp.State))
 
-		s.comp.State.SetBool(statemap.PCSlotCX, false)
+		s.comp.State.SetBool(a2state.PCSlotCX, false)
 		s.Equal(s.comp.ROM.DirectGet(irc401), PCRead(uc401, s.comp.State))
 	})
 }

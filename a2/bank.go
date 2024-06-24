@@ -1,9 +1,9 @@
 package a2
 
 import (
+	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/memory"
-	"github.com/pevans/erc/statemap"
 )
 
 const (
@@ -54,61 +54,61 @@ func bankSwitchRead(addr int, stm *memory.StateMap) uint8 {
 	switch addr {
 	case rdBnk2:
 		metrics.Increment("soft_read_bank_2", 1)
-		return bankBit7(stm.Bool(statemap.BankDFBlockBank2))
+		return bankBit7(stm.Bool(a2state.BankDFBlockBank2))
 	case rdLCRAM:
 		metrics.Increment("soft_read_bank_lang_card", 1)
-		return bankBit7(stm.Bool(statemap.BankReadRAM))
+		return bankBit7(stm.Bool(a2state.BankReadRAM))
 	case rdAltZP:
 		metrics.Increment("soft_read_bank_alt_zp", 1)
-		return bankBit7(stm.Bool(statemap.BankSysBlockAux))
+		return bankBit7(stm.Bool(a2state.BankSysBlockAux))
 
 	case 0xC080, 0xC084:
-		stm.SetBool(statemap.BankReadRAM, true)
-		stm.SetBool(statemap.BankWriteRAM, false)
-		stm.SetBool(statemap.BankDFBlockBank2, true)
+		stm.SetBool(a2state.BankReadRAM, true)
+		stm.SetBool(a2state.BankWriteRAM, false)
+		stm.SetBool(a2state.BankDFBlockBank2, true)
 
 	case 0xC081, 0xC085:
-		if stm.Int(statemap.BankReadAttempts) >= 1 && stm.Bool(statemap.InstructionReadOp) {
-			stm.SetBool(statemap.BankWriteRAM, true)
+		if stm.Int(a2state.BankReadAttempts) >= 1 && stm.Bool(a2state.InstructionReadOp) {
+			stm.SetBool(a2state.BankWriteRAM, true)
 		}
-		stm.SetBool(statemap.BankReadRAM, false)
-		stm.SetBool(statemap.BankDFBlockBank2, true)
+		stm.SetBool(a2state.BankReadRAM, false)
+		stm.SetBool(a2state.BankDFBlockBank2, true)
 
 	case 0xC082, 0xC086:
-		stm.SetBool(statemap.BankReadRAM, false)
-		stm.SetBool(statemap.BankWriteRAM, false)
-		stm.SetBool(statemap.BankDFBlockBank2, true)
+		stm.SetBool(a2state.BankReadRAM, false)
+		stm.SetBool(a2state.BankWriteRAM, false)
+		stm.SetBool(a2state.BankDFBlockBank2, true)
 
 	case 0xC083, 0xC087:
-		if stm.Int(statemap.BankReadAttempts) >= 1 && stm.Bool(statemap.InstructionReadOp) {
-			stm.SetBool(statemap.BankWriteRAM, true)
+		if stm.Int(a2state.BankReadAttempts) >= 1 && stm.Bool(a2state.InstructionReadOp) {
+			stm.SetBool(a2state.BankWriteRAM, true)
 		}
-		stm.SetBool(statemap.BankReadRAM, true)
-		stm.SetBool(statemap.BankDFBlockBank2, true)
+		stm.SetBool(a2state.BankReadRAM, true)
+		stm.SetBool(a2state.BankDFBlockBank2, true)
 
 	case 0xC088, 0xC08C:
-		stm.SetBool(statemap.BankReadRAM, true)
-		stm.SetBool(statemap.BankWriteRAM, false)
-		stm.SetBool(statemap.BankDFBlockBank2, false)
+		stm.SetBool(a2state.BankReadRAM, true)
+		stm.SetBool(a2state.BankWriteRAM, false)
+		stm.SetBool(a2state.BankDFBlockBank2, false)
 
 	case 0xC089, 0xC08D:
-		if stm.Int(statemap.BankReadAttempts) >= 1 && stm.Bool(statemap.InstructionReadOp) {
-			stm.SetBool(statemap.BankWriteRAM, true)
+		if stm.Int(a2state.BankReadAttempts) >= 1 && stm.Bool(a2state.InstructionReadOp) {
+			stm.SetBool(a2state.BankWriteRAM, true)
 		}
-		stm.SetBool(statemap.BankReadRAM, false)
-		stm.SetBool(statemap.BankDFBlockBank2, false)
+		stm.SetBool(a2state.BankReadRAM, false)
+		stm.SetBool(a2state.BankDFBlockBank2, false)
 
 	case 0xC08A, 0xC08E:
-		stm.SetBool(statemap.BankReadRAM, false)
-		stm.SetBool(statemap.BankWriteRAM, false)
-		stm.SetBool(statemap.BankDFBlockBank2, false)
+		stm.SetBool(a2state.BankReadRAM, false)
+		stm.SetBool(a2state.BankWriteRAM, false)
+		stm.SetBool(a2state.BankDFBlockBank2, false)
 
 	case 0xC08B, 0xC08F:
-		if stm.Int(statemap.BankReadAttempts) >= 1 && stm.Bool(statemap.InstructionReadOp) {
-			stm.SetBool(statemap.BankWriteRAM, true)
+		if stm.Int(a2state.BankReadAttempts) >= 1 && stm.Bool(a2state.InstructionReadOp) {
+			stm.SetBool(a2state.BankWriteRAM, true)
 		}
-		stm.SetBool(statemap.BankReadRAM, true)
-		stm.SetBool(statemap.BankDFBlockBank2, false)
+		stm.SetBool(a2state.BankReadRAM, true)
+		stm.SetBool(a2state.BankDFBlockBank2, false)
 
 	}
 
@@ -121,12 +121,12 @@ func bankSwitchWrite(addr int, val uint8, stm *memory.StateMap) {
 	switch addr {
 	case offAltZP:
 		metrics.Increment("soft_write_bank_alt_zp_off", 1)
-		stm.SetBool(statemap.BankSysBlockAux, false)
-		stm.SetSegment(statemap.BankSysBlockSegment, stm.Segment(statemap.MemMainSegment))
+		stm.SetBool(a2state.BankSysBlockAux, false)
+		stm.SetSegment(a2state.BankSysBlockSegment, stm.Segment(a2state.MemMainSegment))
 	case onAltZP:
 		metrics.Increment("soft_write_bank_alt_zp_on", 1)
-		stm.SetBool(statemap.BankSysBlockAux, true)
-		stm.SetSegment(statemap.BankSysBlockSegment, stm.Segment(statemap.MemAuxSegment))
+		stm.SetBool(a2state.BankSysBlockAux, true)
+		stm.SetSegment(a2state.BankSysBlockSegment, stm.Segment(a2state.MemAuxSegment))
 	}
 }
 
@@ -147,18 +147,18 @@ func bankUseDefaults(c *Computer) {
 	// "When you turn power on or reset the Apple IIe, it initializes the bank
 	// switches for reading the ROM and writing the RAM, using the second bank
 	// of RAM."
-	c.State.SetBool(statemap.BankReadRAM, false)
-	c.State.SetBool(statemap.BankWriteRAM, true)
-	c.State.SetBool(statemap.BankDFBlockBank2, false)
-	c.State.SetBool(statemap.BankSysBlockAux, false)
-	c.State.SetSegment(statemap.BankSysBlockSegment, c.Main)
-	c.State.SetSegment(statemap.BankROMSegment, c.ROM)
+	c.State.SetBool(a2state.BankReadRAM, false)
+	c.State.SetBool(a2state.BankWriteRAM, true)
+	c.State.SetBool(a2state.BankDFBlockBank2, false)
+	c.State.SetBool(a2state.BankSysBlockAux, false)
+	c.State.SetSegment(a2state.BankSysBlockSegment, c.Main)
+	c.State.SetSegment(a2state.BankROMSegment, c.ROM)
 }
 
 // BankSegment returns the memory segment that should be used with respect to
 // bank-switched auxiliary memory.
 func BankSegment(stm *memory.StateMap) *memory.Segment {
-	return stm.Segment(statemap.BankSysBlockSegment)
+	return stm.Segment(a2state.BankSysBlockSegment)
 }
 
 // BankDFRead implements logic for reads into the D0...FF pages of memory,
@@ -166,11 +166,11 @@ func BankSegment(stm *memory.StateMap) *memory.Segment {
 func BankDFRead(addr int, stm *memory.StateMap) uint8 {
 	metrics.Increment("soft_read_bank_df_block", 1)
 
-	if !stm.Bool(statemap.BankReadRAM) {
-		return stm.Segment(statemap.BankROMSegment).DirectGet(int(addr) - SysRomOffset)
+	if !stm.Bool(a2state.BankReadRAM) {
+		return stm.Segment(a2state.BankROMSegment).DirectGet(int(addr) - SysRomOffset)
 	}
 
-	if stm.Bool(statemap.BankDFBlockBank2) && addr < 0xE000 {
+	if stm.Bool(a2state.BankDFBlockBank2) && addr < 0xE000 {
 		return BankSegment(stm).DirectGet(int(addr) + 0x3000)
 	}
 
@@ -181,11 +181,11 @@ func BankDFRead(addr int, stm *memory.StateMap) uint8 {
 // taking into account the bank-switched states that the computer currently has.
 func BankDFWrite(addr int, val uint8, stm *memory.StateMap) {
 	metrics.Increment("soft_write_bank_df_block", 1)
-	if !stm.Bool(statemap.BankWriteRAM) {
+	if !stm.Bool(a2state.BankWriteRAM) {
 		return
 	}
 
-	if stm.Bool(statemap.BankDFBlockBank2) && addr < 0xE000 {
+	if stm.Bool(a2state.BankDFBlockBank2) && addr < 0xE000 {
 		BankSegment(stm).DirectSet(int(addr)+0x3000, val)
 		return
 	}

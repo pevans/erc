@@ -1,36 +1,36 @@
 package a2
 
-import "github.com/pevans/erc/statemap"
+import "github.com/pevans/erc/a2/a2state"
 
 func (s *a2Suite) TestKBDefaults() {
 	var zero uint8 = 0
 
 	kbUseDefaults(s.comp)
-	s.Equal(zero, s.comp.State.Uint8(statemap.KBLastKey))
-	s.Equal(zero, s.comp.State.Uint8(statemap.KBKeyDown))
-	s.Equal(zero, s.comp.State.Uint8(statemap.KBStrobe))
+	s.Equal(zero, s.comp.State.Uint8(a2state.KBLastKey))
+	s.Equal(zero, s.comp.State.Uint8(a2state.KBKeyDown))
+	s.Equal(zero, s.comp.State.Uint8(a2state.KBStrobe))
 }
 
 func (s *a2Suite) TestClearKeys() {
-	s.comp.State.SetUint8(statemap.KBKeyDown, 128)
+	s.comp.State.SetUint8(a2state.KBKeyDown, 128)
 	s.comp.ClearKeys()
-	s.Zero(s.comp.State.Uint8(statemap.KBKeyDown))
+	s.Zero(s.comp.State.Uint8(a2state.KBKeyDown))
 }
 
 func (s *a2Suite) TestPressKey() {
 	s.Run("clears the high bit and saves the low bits", func() {
 		s.comp.PressKey(0xff)
-		s.Equal(uint8(0x7f), s.comp.State.Uint8(statemap.KBLastKey))
+		s.Equal(uint8(0x7f), s.comp.State.Uint8(a2state.KBLastKey))
 	})
 
 	s.Run("sets the strobe", func() {
 		s.comp.PressKey(0)
-		s.Equal(uint8(0x80), s.comp.State.Uint8(statemap.KBStrobe))
+		s.Equal(uint8(0x80), s.comp.State.Uint8(a2state.KBStrobe))
 	})
 
 	s.Run("sets key down", func() {
 		s.comp.PressKey(0)
-		s.Equal(uint8(0x80), s.comp.State.Uint8(statemap.KBKeyDown))
+		s.Equal(uint8(0x80), s.comp.State.Uint8(a2state.KBKeyDown))
 	})
 }
 
@@ -47,9 +47,9 @@ func (s *a2Suite) TestKBSwitchRead() {
 	})
 
 	s.Run("any key down", func() {
-		s.comp.State.SetUint8(statemap.KBStrobe, hi)
+		s.comp.State.SetUint8(a2state.KBStrobe, hi)
 		s.Equal(hi, kbSwitchRead(kbAnyKeyDown, s.comp.State))
-		s.Zero(s.comp.State.Uint8(statemap.KBStrobe))
+		s.Zero(s.comp.State.Uint8(a2state.KBStrobe))
 	})
 }
 
@@ -57,8 +57,8 @@ func (s *a2Suite) TestKBSwitchWrite() {
 	var hi uint8 = 0x80
 
 	s.Run("any key down", func() {
-		s.comp.State.SetUint8(statemap.KBStrobe, hi)
+		s.comp.State.SetUint8(a2state.KBStrobe, hi)
 		kbSwitchWrite(kbAnyKeyDown, 0, s.comp.State)
-		s.Zero(s.comp.State.Uint8(statemap.KBStrobe))
+		s.Zero(s.comp.State.Uint8(a2state.KBStrobe))
 	})
 }

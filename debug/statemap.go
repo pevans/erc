@@ -5,13 +5,13 @@ import (
 	"slices"
 
 	"github.com/pevans/erc/a2"
+	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/memory"
-	"github.com/pevans/erc/statemap"
 	"golang.org/x/exp/maps"
 )
 
 func stateMap(comp *a2.Computer) {
-	stateMap := comp.State.Map(statemap.KeyToString)
+	stateMap := comp.State.Map(a2state.KeyToString)
 	stateKeys := maps.Keys(stateMap)
 	slices.Sort(stateKeys)
 

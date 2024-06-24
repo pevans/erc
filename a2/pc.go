@@ -1,9 +1,9 @@
 package a2
 
 import (
+	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/memory"
-	"github.com/pevans/erc/statemap"
 )
 
 const (
@@ -36,12 +36,12 @@ func pcWriteSwitches() []int {
 // UseDefaults sets the state of the pc switcher to that which it should have
 // after a cold or warm boot.
 func pcUseDefaults(c *Computer) {
-	c.State.SetBool(statemap.PCExpansion, false)
-	c.State.SetBool(statemap.PCIOSelect, false)
-	c.State.SetBool(statemap.PCIOStrobe, false)
-	c.State.SetBool(statemap.PCSlotC3, false)
-	c.State.SetBool(statemap.PCSlotCX, true)
-	c.State.SetSegment(statemap.PCROMSegment, c.ROM)
+	c.State.SetBool(a2state.PCExpansion, false)
+	c.State.SetBool(a2state.PCIOSelect, false)
+	c.State.SetBool(a2state.PCIOStrobe, false)
+	c.State.SetBool(a2state.PCSlotC3, false)
+	c.State.SetBool(a2state.PCSlotCX, true)
+	c.State.SetSegment(a2state.PCROMSegment, c.ROM)
 }
 
 // SwitchRead will return hi on bit 7 if slot c3 or cx is set to use peripheral
@@ -55,14 +55,14 @@ func pcSwitchRead(addr int, stm *memory.StateMap) uint8 {
 	switch addr {
 	case rdSlotC3ROM:
 		metrics.Increment("soft_pc_read_slot_c3_rom", 1)
-		if stm.Bool(statemap.PCSlotC3) {
+		if stm.Bool(a2state.PCSlotC3) {
 			return hi
 		}
 		// it _seems_ like this should return lo instead of hi...?
 
 	case rdSlotCXROM:
 		metrics.Increment("soft_pc_read_slot_cx_rom", 1)
-		if stm.Bool(statemap.PCSlotCX) {
+		if stm.Bool(a2state.PCSlotCX) {
 			return lo
 		}
 
@@ -78,21 +78,21 @@ func pcSwitchRead(addr int, stm *memory.StateMap) uint8 {
 		// Hitting this address will clear the IO SELECT' and IO STROBE' signals
 		// in the hardware, which essentially means that expansion rom is turned
 		// off. But only after we get the return value.
-		stm.SetBool(statemap.PCExpansion, false)
-		stm.SetInt(statemap.PCExpSlot, 0)
+		stm.SetBool(a2state.PCExpansion, false)
+		stm.SetInt(a2state.PCExpSlot, 0)
 
 		return val
 	}
 
 	if slotXROM(addr) {
 		metrics.Increment("soft_pc_xrom", 1)
-		stm.SetInt(statemap.PCExpSlot, pcSlotFromAddr(addr))
+		stm.SetInt(a2state.PCExpSlot, pcSlotFromAddr(addr))
 		return PCRead(addr, stm)
 	}
 
-	if expROM(addr) && stm.Int(statemap.PCExpSlot) > 0 {
+	if expROM(addr) && stm.Int(a2state.PCExpSlot) > 0 {
 		metrics.Increment("soft_pc_exp_rom", 1)
-		stm.SetBool(statemap.PCExpansion, true)
+		stm.SetBool(a2state.PCExpansion, true)
 		return PCRead(addr, stm)
 	}
 
@@ -124,22 +124,22 @@ func pcSwitchWrite(addr int, val uint8, stm *memory.StateMap) {
 	switch addr {
 	case onSlotC3ROM:
 		metrics.Increment("soft_pc_slot_c3_rom_on", 1)
-		stm.SetBool(statemap.PCSlotC3, true)
+		stm.SetBool(a2state.PCSlotC3, true)
 	case offSlotC3ROM:
 		metrics.Increment("soft_pc_slot_c3_rom_off", 1)
-		stm.SetBool(statemap.PCSlotC3, false)
+		stm.SetBool(a2state.PCSlotC3, false)
 	case onSlotCXROM:
 		metrics.Increment("soft_pc_slot_cx_c3_rom_on", 1)
 		// Note that enabling slotcx rom _also_ enables slotc3 rom, and
 		// disabling does the same.
-		stm.SetBool(statemap.PCSlotCX, true)
-		stm.SetBool(statemap.PCSlotC3, true)
+		stm.SetBool(a2state.PCSlotCX, true)
+		stm.SetBool(a2state.PCSlotC3, true)
 	case offSlotCXROM:
 		metrics.Increment("soft_pc_slot_cx_c3_rom_off", 1)
 		// FIXME: the problem is that addresses aren't matching the
 		// consts, even though they are equal values
-		stm.SetBool(statemap.PCSlotCX, false)
-		stm.SetBool(statemap.PCSlotC3, false)
+		stm.SetBool(a2state.PCSlotCX, false)
+		stm.SetBool(a2state.PCSlotC3, false)
 	}
 }
 
@@ -158,7 +158,7 @@ func PCRead(addr int, stm *memory.StateMap) uint8 {
 	var (
 		intAddr    = int(pcIROMAddr(addr))
 		periphAddr = int(pcPROMAddr(addr))
-		pcrom      = stm.Segment(statemap.PCROMSegment)
+		pcrom      = stm.Segment(a2state.PCROMSegment)
 	)
 
 	// Regardless of circumstances, any read of the expansion disable
@@ -168,29 +168,29 @@ func PCRead(addr int, stm *memory.StateMap) uint8 {
 	}
 
 	switch {
-	case stm.Bool(statemap.PCSlotCX):
+	case stm.Bool(a2state.PCSlotCX):
 		// Special case #1: we should turn on IOSelect if it's a slotCX
 		// address.
 		if slotXROM(addr) {
-			stm.SetBool(statemap.PCIOSelect, true)
+			stm.SetBool(a2state.PCIOSelect, true)
 		}
 
 		// Even though we want to return peripheral ROM for Cxxx
 		// addresses, if SLOTC3ROM is not active, we should obey that
 		// and return internal ROM.
-		if !stm.Bool(statemap.PCSlotC3) && slot3ROM(addr) {
+		if !stm.Bool(a2state.PCSlotC3) && slot3ROM(addr) {
 			return pcrom.DirectGet(intAddr)
 		}
 
 		// Special case #2: we should turn on IOStrobe for expansion ROM
 		// addresses.
 		if expROM(addr) {
-			stm.SetBool(statemap.PCIOStrobe, true)
+			stm.SetBool(a2state.PCIOStrobe, true)
 
-			if stm.Bool(statemap.PCIOSelect) {
+			if stm.Bool(a2state.PCIOSelect) {
 				// If both IOSelect and IOStrobe are true, we have
 				// enabled expansion ROM.
-				stm.SetBool(statemap.PCExpansion, true)
+				stm.SetBool(a2state.PCExpansion, true)
 
 				return expansionROM(stm, addr)
 			}
@@ -198,11 +198,11 @@ func PCRead(addr int, stm *memory.StateMap) uint8 {
 
 		return pcrom.DirectGet(periphAddr)
 
-	case stm.Bool(statemap.PCSlotC3) && slot3ROM(addr):
+	case stm.Bool(a2state.PCSlotC3) && slot3ROM(addr):
 		metrics.Increment("soft_pc_get_periph_rom", 1)
 		return pcrom.DirectGet(periphAddr)
 
-	case stm.Bool(statemap.PCExpansion) && expROM(addr):
+	case stm.Bool(a2state.PCExpansion) && expROM(addr):
 		return expansionROM(stm, addr)
 	}
 
@@ -223,16 +223,16 @@ func PCWrite(addr int, val uint8, stm *memory.StateMap) {
 }
 
 func disableExpansion(stm *memory.StateMap) {
-	stm.SetBool(statemap.PCIOSelect, false)
-	stm.SetBool(statemap.PCIOStrobe, false)
-	stm.SetBool(statemap.PCExpansion, false)
-	stm.SetInt(statemap.PCExpSlot, 0)
+	stm.SetBool(a2state.PCIOSelect, false)
+	stm.SetBool(a2state.PCIOStrobe, false)
+	stm.SetBool(a2state.PCExpansion, false)
+	stm.SetInt(a2state.PCExpSlot, 0)
 }
 
 func expansionROM(stm *memory.StateMap, addr int) uint8 {
 	// Since we don't support any peripherals that have dedicated ROM,
 	// we must fall back to returning data from internal ROM.
-	return stm.Segment(statemap.PCROMSegment).DirectGet(
+	return stm.Segment(a2state.PCROMSegment).DirectGet(
 		pcIROMAddr(addr),
 	)
 }

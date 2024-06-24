@@ -1,15 +1,15 @@
 package a2
 
 import (
+	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/memory"
-	"github.com/pevans/erc/statemap"
 )
 
 func (s *a2Suite) TestMemSwitcherUseDefaults() {
 	memUseDefaults(s.comp)
 
-	s.False(s.comp.State.Bool(statemap.MemReadAux))
-	s.False(s.comp.State.Bool(statemap.MemWriteAux))
+	s.False(s.comp.State.Bool(a2state.MemReadAux))
+	s.False(s.comp.State.Bool(a2state.MemWriteAux))
 }
 
 func (s *a2Suite) TestMemSwitcherSwitchRead() {
@@ -21,18 +21,18 @@ func (s *a2Suite) TestMemSwitcherSwitchRead() {
 	)
 
 	s.Run("read profile", func() {
-		s.comp.State.SetBool(statemap.MemReadAux, true)
+		s.comp.State.SetBool(a2state.MemReadAux, true)
 		s.Equal(hi, memSwitchRead(c013, s.comp.State))
 
-		s.comp.State.SetBool(statemap.MemReadAux, false)
+		s.comp.State.SetBool(a2state.MemReadAux, false)
 		s.Equal(lo, memSwitchRead(c013, s.comp.State))
 	})
 
 	s.Run("write profile", func() {
-		s.comp.State.SetBool(statemap.MemWriteAux, true)
+		s.comp.State.SetBool(a2state.MemWriteAux, true)
 		s.Equal(hi, memSwitchRead(c014, s.comp.State))
 
-		s.comp.State.SetBool(statemap.MemWriteAux, false)
+		s.comp.State.SetBool(a2state.MemWriteAux, false)
 		s.Equal(lo, memSwitchRead(c014, s.comp.State))
 	})
 }
@@ -46,23 +46,23 @@ func (s *a2Suite) TestMemSwitcherSwitchWrite() {
 	)
 
 	s.Run("set aux works", func() {
-		s.comp.State.SetBool(statemap.MemReadAux, false)
+		s.comp.State.SetBool(a2state.MemReadAux, false)
 		memSwitchWrite(c003, 0, s.comp.State)
-		s.True(s.comp.State.Bool(statemap.MemReadAux))
+		s.True(s.comp.State.Bool(a2state.MemReadAux))
 
-		s.comp.State.SetBool(statemap.MemWriteAux, false)
+		s.comp.State.SetBool(a2state.MemWriteAux, false)
 		memSwitchWrite(c005, 0, s.comp.State)
-		s.True(s.comp.State.Bool(statemap.MemWriteAux))
+		s.True(s.comp.State.Bool(a2state.MemWriteAux))
 	})
 
 	s.Run("set main works", func() {
-		s.comp.State.SetBool(statemap.MemReadAux, true)
+		s.comp.State.SetBool(a2state.MemReadAux, true)
 		memSwitchWrite(c002, 0, s.comp.State)
-		s.False(s.comp.State.Bool(statemap.MemReadAux))
+		s.False(s.comp.State.Bool(a2state.MemReadAux))
 
-		s.comp.State.SetBool(statemap.MemWriteAux, true)
+		s.comp.State.SetBool(a2state.MemWriteAux, true)
 		memSwitchWrite(c004, 0, s.comp.State)
-		s.False(s.comp.State.Bool(statemap.MemWriteAux))
+		s.False(s.comp.State.Bool(a2state.MemWriteAux))
 	})
 }
 
@@ -71,13 +71,13 @@ func (s *a2Suite) TestComputerGet() {
 	val := uint8(0x12)
 
 	s.comp.Main.DirectSet(idx, val)
-	s.comp.State.SetBool(statemap.MemReadAux, false)
-	s.comp.State.SetSegment(statemap.MemReadSegment, s.comp.Main)
+	s.comp.State.SetBool(a2state.MemReadAux, false)
+	s.comp.State.SetSegment(a2state.MemReadSegment, s.comp.Main)
 	s.Equal(val, s.comp.Get(idx))
 
 	s.comp.Aux.DirectSet(idx, val)
-	s.comp.State.SetBool(statemap.MemReadAux, true)
-	s.comp.State.SetSegment(statemap.MemReadSegment, s.comp.Aux)
+	s.comp.State.SetBool(a2state.MemReadAux, true)
+	s.comp.State.SetSegment(a2state.MemReadSegment, s.comp.Aux)
 	s.Equal(val, s.comp.Get(idx))
 }
 
@@ -87,7 +87,7 @@ func (s *a2Suite) TestComputerSet() {
 	val := uint8(0x12)
 
 	// test a normal set
-	s.comp.State.SetBool(statemap.MemWriteAux, false)
+	s.comp.State.SetBool(a2state.MemWriteAux, false)
 	WriteSegment(s.comp.State).DirectSet(idx, val)
 	s.Equal(val, s.comp.Main.Mem[idx])
 
@@ -100,27 +100,27 @@ func (s *a2Suite) TestComputerSet() {
 	s.Equal(target, val)
 
 	// test a get from aux
-	s.comp.State.SetBool(statemap.MemWriteAux, true)
+	s.comp.State.SetBool(a2state.MemWriteAux, true)
 	WriteSegment(s.comp.State).DirectSet(idx, val)
 	s.Equal(val, s.comp.Aux.Mem[idx])
 }
 
 func (s *a2Suite) TestReadSegment() {
-	s.comp.State.SetBool(statemap.MemReadAux, false)
-	s.comp.State.SetSegment(statemap.MemReadSegment, s.comp.Main)
+	s.comp.State.SetBool(a2state.MemReadAux, false)
+	s.comp.State.SetSegment(a2state.MemReadSegment, s.comp.Main)
 	s.Equal(s.comp.Main, ReadSegment(s.comp.State))
 
-	s.comp.State.SetBool(statemap.MemReadAux, true)
-	s.comp.State.SetSegment(statemap.MemReadSegment, s.comp.Aux)
+	s.comp.State.SetBool(a2state.MemReadAux, true)
+	s.comp.State.SetSegment(a2state.MemReadSegment, s.comp.Aux)
 	s.Equal(s.comp.Aux, ReadSegment(s.comp.State))
 }
 
 func (s *a2Suite) TestWriteSegment() {
-	s.comp.State.SetBool(statemap.MemWriteAux, false)
-	s.comp.State.SetSegment(statemap.MemWriteSegment, s.comp.Main)
+	s.comp.State.SetBool(a2state.MemWriteAux, false)
+	s.comp.State.SetSegment(a2state.MemWriteSegment, s.comp.Main)
 	s.Equal(s.comp.Main, WriteSegment(s.comp.State))
 
-	s.comp.State.SetBool(statemap.MemWriteAux, true)
-	s.comp.State.SetSegment(statemap.MemWriteSegment, s.comp.Aux)
+	s.comp.State.SetBool(a2state.MemWriteAux, true)
+	s.comp.State.SetSegment(a2state.MemWriteSegment, s.comp.Aux)
 	s.Equal(s.comp.Aux, WriteSegment(s.comp.State))
 }

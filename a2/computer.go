@@ -1,11 +1,11 @@
 package a2
 
 import (
+	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/clock"
 	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/memory"
 	"github.com/pevans/erc/mos65c02"
-	"github.com/pevans/erc/statemap"
 )
 
 // ReadMapFn is a function which can execute a soft switch procedure on
@@ -127,9 +127,9 @@ func NewScreen() *gfx.FrameBuffer {
 }
 
 func (c *Computer) NeedsRender() bool {
-	return c.State.Bool(statemap.DisplayRedraw)
+	return c.State.Bool(a2state.DisplayRedraw)
 }
 
 //func (c *Computer) State() map[string]any {
-//	return c.state.Map(statemap.KeyToString)
+//	return c.state.Map(a2state.KeyToString)
 //}

@@ -1,4 +1,4 @@
-package statemap
+package a2state
 
 import "fmt"
 

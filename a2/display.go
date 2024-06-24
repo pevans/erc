@@ -1,9 +1,9 @@
 package a2
 
 import (
+	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/memory"
-	"github.com/pevans/erc/statemap"
 )
 
 const (
@@ -91,65 +91,65 @@ func displayWriteSwitches() []int {
 
 func displayUseDefaults(c *Computer) {
 	// Text mode should be enabled
-	c.State.SetBool(statemap.DisplayText, true)
+	c.State.SetBool(a2state.DisplayText, true)
 
 	// All other options should be disabled
-	c.State.SetBool(statemap.DisplayAltChar, false)
-	c.State.SetBool(statemap.DisplayCol80, false)
-	c.State.SetBool(statemap.DisplayDoubleHigh, false)
-	c.State.SetBool(statemap.DisplayHires, false)
-	c.State.SetBool(statemap.DisplayIou, false)
-	c.State.SetBool(statemap.DisplayMixed, false)
-	c.State.SetBool(statemap.DisplayPage2, false)
-	c.State.SetBool(statemap.DisplayStore80, false)
-	c.State.SetBool(statemap.DisplayRedraw, true)
-	c.State.SetSegment(statemap.DisplayAuxSegment, c.Aux)
+	c.State.SetBool(a2state.DisplayAltChar, false)
+	c.State.SetBool(a2state.DisplayCol80, false)
+	c.State.SetBool(a2state.DisplayDoubleHigh, false)
+	c.State.SetBool(a2state.DisplayHires, false)
+	c.State.SetBool(a2state.DisplayIou, false)
+	c.State.SetBool(a2state.DisplayMixed, false)
+	c.State.SetBool(a2state.DisplayPage2, false)
+	c.State.SetBool(a2state.DisplayStore80, false)
+	c.State.SetBool(a2state.DisplayRedraw, true)
+	c.State.SetSegment(a2state.DisplayAuxSegment, c.Aux)
 }
 
 func displayOnOrOffReadWrite(a int, stm *memory.StateMap) bool {
 	switch a {
 	case onPage2:
 		metrics.Increment("soft_display_page_2_on", 1)
-		stm.SetBool(statemap.DisplayPage2, true)
+		stm.SetBool(a2state.DisplayPage2, true)
 		return true
 	case onText:
 		metrics.Increment("soft_display_text_on", 1)
-		stm.SetBool(statemap.DisplayText, true)
+		stm.SetBool(a2state.DisplayText, true)
 		return true
 	case onMixed:
 		metrics.Increment("soft_display_mixed_on", 1)
-		stm.SetBool(statemap.DisplayMixed, true)
+		stm.SetBool(a2state.DisplayMixed, true)
 		return true
 	case onHires:
 		metrics.Increment("soft_display_hires_on", 1)
-		stm.SetBool(statemap.DisplayHires, true)
+		stm.SetBool(a2state.DisplayHires, true)
 		return true
 	case onDHires:
 		metrics.Increment("soft_display_dhires_on", 1)
-		if stm.Bool(statemap.DisplayIou) {
-			stm.SetBool(statemap.DisplayDoubleHigh, true)
+		if stm.Bool(a2state.DisplayIou) {
+			stm.SetBool(a2state.DisplayDoubleHigh, true)
 		}
 		return true
 	case offPage2:
 		metrics.Increment("soft_display_page_2_off", 1)
-		stm.SetBool(statemap.DisplayPage2, false)
+		stm.SetBool(a2state.DisplayPage2, false)
 		return true
 	case offText:
 		metrics.Increment("soft_display_text_off", 1)
-		stm.SetBool(statemap.DisplayText, false)
+		stm.SetBool(a2state.DisplayText, false)
 		return true
 	case offMixed:
 		metrics.Increment("soft_display_mixed_off", 1)
-		stm.SetBool(statemap.DisplayMixed, false)
+		stm.SetBool(a2state.DisplayMixed, false)
 		return true
 	case offHires:
 		metrics.Increment("soft_display_hires_off", 1)
-		stm.SetBool(statemap.DisplayHires, false)
+		stm.SetBool(a2state.DisplayHires, false)
 		return true
 	case offDHires:
 		metrics.Increment("soft_display_dhires_off", 1)
-		if stm.Bool(statemap.DisplayIou) {
-			stm.SetBool(statemap.DisplayDoubleHigh, false)
+		if stm.Bool(a2state.DisplayIou) {
+			stm.SetBool(a2state.DisplayDoubleHigh, false)
 		}
 		return true
 	}
@@ -169,39 +169,39 @@ func displaySwitchRead(a int, stm *memory.StateMap) uint8 {
 
 	switch a {
 	case rdAltChar:
-		if stm.Bool(statemap.DisplayAltChar) {
+		if stm.Bool(a2state.DisplayAltChar) {
 			return hi
 		}
 	case rd80Col:
-		if stm.Bool(statemap.DisplayCol80) {
+		if stm.Bool(a2state.DisplayCol80) {
 			return hi
 		}
 	case rd80Store:
-		if stm.Bool(statemap.DisplayStore80) {
+		if stm.Bool(a2state.DisplayStore80) {
 			return hi
 		}
 	case rdPage2:
-		if stm.Bool(statemap.DisplayPage2) {
+		if stm.Bool(a2state.DisplayPage2) {
 			return hi
 		}
 	case rdText:
-		if stm.Bool(statemap.DisplayText) {
+		if stm.Bool(a2state.DisplayText) {
 			return hi
 		}
 	case rdMixed:
-		if stm.Bool(statemap.DisplayMixed) {
+		if stm.Bool(a2state.DisplayMixed) {
 			return hi
 		}
 	case rdHires:
-		if stm.Bool(statemap.DisplayHires) {
+		if stm.Bool(a2state.DisplayHires) {
 			return hi
 		}
 	case rdIOUDis:
-		if stm.Bool(statemap.DisplayIou) {
+		if stm.Bool(a2state.DisplayIou) {
 			return hi
 		}
 	case rdDHires:
-		if stm.Bool(statemap.DisplayDoubleHigh) {
+		if stm.Bool(a2state.DisplayDoubleHigh) {
 			return hi
 		}
 	}
@@ -216,21 +216,21 @@ func displaySwitchWrite(a int, val uint8, stm *memory.StateMap) {
 
 	switch a {
 	case onAltChar:
-		stm.SetBool(statemap.DisplayAltChar, true)
+		stm.SetBool(a2state.DisplayAltChar, true)
 	case on80Col:
-		stm.SetBool(statemap.DisplayCol80, true)
+		stm.SetBool(a2state.DisplayCol80, true)
 	case on80Store:
-		stm.SetBool(statemap.DisplayStore80, true)
+		stm.SetBool(a2state.DisplayStore80, true)
 	case onIOUDis:
-		stm.SetBool(statemap.DisplayIou, true)
+		stm.SetBool(a2state.DisplayIou, true)
 	case offAltChar:
-		stm.SetBool(statemap.DisplayAltChar, false)
+		stm.SetBool(a2state.DisplayAltChar, false)
 	case off80Col:
-		stm.SetBool(statemap.DisplayCol80, false)
+		stm.SetBool(a2state.DisplayCol80, false)
 	case off80Store:
-		stm.SetBool(statemap.DisplayStore80, false)
+		stm.SetBool(a2state.DisplayStore80, false)
 	case offIOUDis:
-		stm.SetBool(statemap.DisplayIou, false)
+		stm.SetBool(a2state.DisplayIou, false)
 	}
 }
 
@@ -239,12 +239,12 @@ func DisplaySegment(
 	stm *memory.StateMap,
 	segfunc func(*memory.StateMap) *memory.Segment,
 ) *memory.Segment {
-	main := stm.Segment(statemap.MemMainSegment)
-	displayAux := stm.Segment(statemap.DisplayAuxSegment)
+	main := stm.Segment(a2state.MemMainSegment)
+	displayAux := stm.Segment(a2state.DisplayAuxSegment)
 
-	if stm.Bool(statemap.DisplayStore80) {
+	if stm.Bool(a2state.DisplayStore80) {
 		if addr >= 0x0400 && addr < 0x0800 {
-			if stm.Bool(statemap.DisplayPage2) {
+			if stm.Bool(a2state.DisplayPage2) {
 				return displayAux
 			}
 
@@ -252,8 +252,8 @@ func DisplaySegment(
 		}
 
 		if addr >= 0x2000 && addr < 0x4000 {
-			if stm.Bool(statemap.DisplayHires) {
-				if stm.Bool(statemap.DisplayPage2) {
+			if stm.Bool(a2state.DisplayHires) {
+				if stm.Bool(a2state.DisplayPage2) {
 					return displayAux
 				}
 
@@ -276,7 +276,7 @@ func DisplayRead(addr int, stm *memory.StateMap) uint8 {
 func DisplayWrite(addr int, val uint8, stm *memory.StateMap) {
 	// Let the drawing routines we have know that it's time to re-render
 	// the screen.
-	stm.SetBool(statemap.DisplayRedraw, true)
+	stm.SetBool(a2state.DisplayRedraw, true)
 	DisplaySegment(
 		addr,
 		stm,
@@ -286,7 +286,7 @@ func DisplayWrite(addr int, val uint8, stm *memory.StateMap) {
 
 // Render will draw an updated picture of our graphics to the local framebuffer
 func (c *Computer) Render() {
-	if !c.State.Bool(statemap.DisplayRedraw) {
+	if !c.State.Bool(a2state.DisplayRedraw) {
 		return
 	}
 
@@ -298,14 +298,14 @@ func (c *Computer) Render() {
 	// if it's hires, do the hires thing
 	// we also need to account for double text/lores/hires/mixed
 	switch {
-	case c.State.Bool(statemap.DisplayText):
+	case c.State.Bool(a2state.DisplayText):
 		var (
 			start int = 0x400
 			end   int = 0x800
 		)
 
 		c.textRender(start, end)
-	case c.State.Bool(statemap.DisplayHires):
+	case c.State.Bool(a2state.DisplayHires):
 		var (
 			start int = 0x2000
 			end   int = 0x4000
@@ -322,5 +322,5 @@ func (c *Computer) Render() {
 		c.loresRender(start, end)
 	}
 
-	c.State.SetBool(statemap.DisplayRedraw, false)
+	c.State.SetBool(a2state.DisplayRedraw, false)
 }

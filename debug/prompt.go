@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/pevans/erc/a2"
-	"github.com/pevans/erc/statemap"
+	"github.com/pevans/erc/a2/a2state"
 	"github.com/pkg/errors"
 )
 
@@ -57,7 +57,7 @@ func execute(comp *a2.Computer, cmd string) {
 		reg(comp, tokens)
 	case "set":
 		set(comp, tokens)
-	case "statemap":
+	case "a2state":
 		stateMap(comp)
 	case "status":
 		status(comp)
@@ -77,7 +77,7 @@ func execute(comp *a2.Computer, cmd string) {
 		comp.Shutdown()
 		os.Exit(0)
 	case "resume":
-		comp.State.SetBool(statemap.Debugger, false)
+		comp.State.SetBool(a2state.Debugger, false)
 		say("resuming emulation")
 
 	default:

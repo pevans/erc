@@ -3,9 +3,9 @@ package mos65c02
 import (
 	"fmt"
 
+	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/a2/a2sym"
 	"github.com/pevans/erc/internal/metrics"
-	"github.com/pevans/erc/statemap"
 )
 
 // Brk implements the BRK instruction, which is a hardware interrupt.
@@ -45,7 +45,7 @@ func Jsr(c *CPU) {
 	c.PushStack(uint8(nextPos >> 8))
 	c.PushStack(uint8(nextPos & 0xFF))
 
-	if !c.State.Bool(statemap.BankReadRAM) {
+	if !c.State.Bool(a2state.BankReadRAM) {
 		if routine := a2sym.Subroutine(int(c.EffAddr)); routine != "" {
 			metrics.Increment(fmt.Sprintf("jsr_builtin_%s", routine), 1)
 		}

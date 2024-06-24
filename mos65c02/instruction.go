@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/a2/a2sym"
 	"github.com/pevans/erc/asm"
 	"github.com/pevans/erc/internal/metrics"
-	"github.com/pevans/erc/statemap"
 )
 
 // An Instruction is a function that performs an operation on the CPU.
@@ -134,7 +134,7 @@ func (c *CPU) Execute() error {
 	inst = instructions[c.Opcode]
 
 	c.State.SetBool(
-		statemap.InstructionReadOp,
+		a2state.InstructionReadOp,
 		OpcodeReadsMemory(c.Opcode),
 	)
 
@@ -198,9 +198,9 @@ func (c *CPU) NextInstruction() string {
 	// There are some cases where resolving the address mode may mutate
 	// the CPU or state map, so we use DebuggerLookAhead to let the
 	// address mode code know what's about to happen.
-	copyOfCPU.State.SetBool(statemap.DebuggerLookAhead, true)
+	copyOfCPU.State.SetBool(a2state.DebuggerLookAhead, true)
 	mode(copyOfCPU)
-	copyOfCPU.State.SetBool(statemap.DebuggerLookAhead, false)
+	copyOfCPU.State.SetBool(a2state.DebuggerLookAhead, false)
 
 	ln := asm.Line{
 		Address:     int(c.PC),
@@ -223,7 +223,7 @@ func (c *CPU) explainInstruction(opcode uint8) string {
 		}
 	}
 
-	if c.State.Bool(statemap.InstructionReadOp) {
+	if c.State.Bool(a2state.InstructionReadOp) {
 		if rs := a2sym.ReadSwitch(addr); rs.Mode != a2sym.ModeNone {
 			return rs.String()
 		}
