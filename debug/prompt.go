@@ -57,7 +57,7 @@ func execute(comp *a2.Computer, cmd string) {
 		reg(comp, tokens)
 	case "set":
 		set(comp, tokens)
-	case "a2state":
+	case "state":
 		stateMap(comp)
 	case "status":
 		status(comp)
@@ -92,6 +92,7 @@ func help() {
 	say("    get <addr> ......... print the value at address <addr>")
 	say("    reg <r> <val> ...... write <val> to register <r>")
 	say("    set <addr> <val> ... write <val> at address <addr>")
+	say("    state .............. print the apple II state")
 	say("    status ............. show registers and next execution")
 	say("  [execution]")
 	say("    step <times> ....... execute <times> instructions")
