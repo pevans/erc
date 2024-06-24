@@ -5,13 +5,13 @@ import "fmt"
 const (
 	noop = iota
 
-	BankDFBlock
+	BankDFBlockBank2
 	BankROMSegment
-	BankRead
 	BankReadAttempts
-	BankSysBlock
+	BankReadRAM
+	BankSysBlockAux
 	BankSysBlockSegment
-	BankWrite
+	BankWriteRAM
 	Debugger
 	DebuggerLookAhead
 	DiskComputer
@@ -32,9 +32,9 @@ const (
 	KBStrobe
 	MemAuxSegment
 	MemMainSegment
-	MemRead
+	MemReadAux
 	MemReadSegment
-	MemWrite
+	MemWriteAux
 	MemWriteSegment
 	PCExpSlot
 	PCExpansion
@@ -46,39 +46,39 @@ const (
 )
 
 var keyStringMap = map[int]string{
-	BankRead:            "BankRead",
-	BankWrite:           "BankWrite",
-	BankDFBlock:         "BankDFBlock",
-	BankSysBlock:        "BankSysBlock",
-	BankReadAttempts:    "BankReadAttempts",
-	BankSysBlockSegment: "BankSysBlockSegment",
+	BankDFBlockBank2:    "BankDFBlockBank2",
 	BankROMSegment:      "BankROMSegment",
+	BankReadAttempts:    "BankReadAttempts",
+	BankReadRAM:         "BankReadRAM",
+	BankSysBlockAux:     "BankSysBlockAux",
+	BankSysBlockSegment: "BankSysBlockSegment",
+	BankWriteRAM:        "BankWriteRAM",
 	Debugger:            "Debugger",
 	DebuggerLookAhead:   "DebuggerLookAhead",
 	DiskComputer:        "DiskComputer",
 	DisplayAltChar:      "DisplayAltChar",
+	DisplayAuxSegment:   "DisplayAuxSegment",
 	DisplayCol80:        "DisplayCol80",
-	DisplayStore80:      "DisplayStore80",
-	DisplayPage2:        "DisplayPage2",
-	DisplayText:         "DisplayText",
-	DisplayMixed:        "DisplayMixed",
+	DisplayDoubleHigh:   "DisplayDoubleHigh",
 	DisplayHires:        "DisplayHires",
 	DisplayIou:          "DisplayIou",
-	DisplayDoubleHigh:   "DisplayDoubleHigh",
+	DisplayMixed:        "DisplayMixed",
+	DisplayPage2:        "DisplayPage2",
 	DisplayRedraw:       "DisplayRedraw",
-	DisplayAuxSegment:   "DisplayAuxSegment",
+	DisplayStore80:      "DisplayStore80",
+	DisplayText:         "DisplayText",
 	InstructionReadOp:   "InstructionReadOp",
+	KBKeyDown:           "KBKeyDown",
 	KBLastKey:           "KBLastkey",
 	KBStrobe:            "KBStrobe",
-	KBKeyDown:           "KBKeyDown",
-	MemRead:             "MemRead",
-	MemWrite:            "MemWrite",
-	MemReadSegment:      "MemReadSegment",
-	MemWriteSegment:     "MemWriteSegment",
 	MemAuxSegment:       "MemAuxSegment",
 	MemMainSegment:      "MemMainSegment",
-	PCExpansion:         "PCExpansion",
+	MemReadAux:          "MemReadAux",
+	MemReadSegment:      "MemReadSegment",
+	MemWriteAux:         "MemWriteAux",
+	MemWriteSegment:     "MemWriteSegment",
 	PCExpSlot:           "PCExpSlot",
+	PCExpansion:         "PCExpansion",
 	PCIOSelect:          "PCIOSelect",
 	PCIOStrobe:          "PCIOStrobe",
 	PCROMSegment:        "PCROMSegment",

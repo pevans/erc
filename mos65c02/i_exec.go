@@ -45,9 +45,7 @@ func Jsr(c *CPU) {
 	c.PushStack(uint8(nextPos >> 8))
 	c.PushStack(uint8(nextPos & 0xFF))
 
-	// This is a bad hack to allow us only to look for builtin routines
-	// when we're reading ROM. TODO: I should get rid of this hack.
-	if c.State.Int(statemap.BankRead) == 1 {
+	if !c.State.Bool(statemap.BankReadRAM) {
 		if routine := a2sym.Subroutine(int(c.EffAddr)); routine != "" {
 			metrics.Increment(fmt.Sprintf("jsr_builtin_%s", routine), 1)
 		}

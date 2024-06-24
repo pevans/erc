@@ -7,11 +7,6 @@ import (
 )
 
 const (
-	memMain = iota
-	memAux
-)
-
-const (
 	offMemReadAux  = int(0xC002)
 	offMemWriteAux = int(0xC004)
 	onMemReadAux   = int(0xC003)
@@ -37,8 +32,8 @@ func memWriteSwitches() []int {
 }
 
 func memUseDefaults(c *Computer) {
-	c.State.SetInt(statemap.MemRead, memMain)
-	c.State.SetInt(statemap.MemWrite, memMain)
+	c.State.SetBool(statemap.MemReadAux, false)
+	c.State.SetBool(statemap.MemWriteAux, false)
 	c.State.SetSegment(statemap.MemReadSegment, c.Main)
 	c.State.SetSegment(statemap.MemWriteSegment, c.Main)
 	c.State.SetSegment(statemap.MemAuxSegment, c.Aux)
@@ -53,12 +48,12 @@ func memSwitchRead(addr int, stm *memory.StateMap) uint8 {
 
 	switch addr {
 	case rdMemReadAux:
-		if stm.Int(statemap.MemRead) == memAux {
+		if stm.Bool(statemap.MemReadAux) {
 			return hi
 		}
 
 	case rdMemWriteAux:
-		if stm.Int(statemap.MemWrite) == memAux {
+		if stm.Bool(statemap.MemWriteAux) {
 			return hi
 		}
 	}
@@ -70,19 +65,19 @@ func memSwitchWrite(addr int, val uint8, stm *memory.StateMap) {
 	switch addr {
 	case onMemReadAux:
 		metrics.Increment("soft_memory_read_aux_on", 1)
-		stm.SetInt(statemap.MemRead, memAux)
+		stm.SetBool(statemap.MemReadAux, true)
 		stm.SetSegment(statemap.MemReadSegment, stm.Segment(statemap.MemAuxSegment))
 	case offMemReadAux:
 		metrics.Increment("soft_memory_read_aux_off", 1)
-		stm.SetInt(statemap.MemRead, memMain)
+		stm.SetBool(statemap.MemReadAux, false)
 		stm.SetSegment(statemap.MemReadSegment, stm.Segment(statemap.MemMainSegment))
 	case onMemWriteAux:
 		metrics.Increment("soft_memory_write_aux_on", 1)
-		stm.SetInt(statemap.MemWrite, memAux)
+		stm.SetBool(statemap.MemWriteAux, true)
 		stm.SetSegment(statemap.MemWriteSegment, stm.Segment(statemap.MemAuxSegment))
 	case offMemWriteAux:
 		metrics.Increment("soft_memory_write_aux_off", 1)
-		stm.SetInt(statemap.MemWrite, memMain)
+		stm.SetBool(statemap.MemWriteAux, false)
 		stm.SetSegment(statemap.MemWriteSegment, stm.Segment(statemap.MemMainSegment))
 	}
 }
