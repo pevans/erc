@@ -45,89 +45,55 @@ const (
 	PCSlotCX
 )
 
+var keyStringMap = map[int]string{
+	BankRead:            "BankRead",
+	BankWrite:           "BankWrite",
+	BankDFBlock:         "BankDFBlock",
+	BankSysBlock:        "BankSysBlock",
+	BankReadAttempts:    "BankReadAttempts",
+	BankSysBlockSegment: "BankSysBlockSegment",
+	BankROMSegment:      "BankROMSegment",
+	Debugger:            "Debugger",
+	DebuggerLookAhead:   "DebuggerLookAhead",
+	DiskComputer:        "DiskComputer",
+	DisplayAltChar:      "DisplayAltChar",
+	DisplayCol80:        "DisplayCol80",
+	DisplayStore80:      "DisplayStore80",
+	DisplayPage2:        "DisplayPage2",
+	DisplayText:         "DisplayText",
+	DisplayMixed:        "DisplayMixed",
+	DisplayHires:        "DisplayHires",
+	DisplayIou:          "DisplayIou",
+	DisplayDoubleHigh:   "DisplayDoubleHigh",
+	DisplayRedraw:       "DisplayRedraw",
+	DisplayAuxSegment:   "DisplayAuxSegment",
+	InstructionReadOp:   "InstructionReadOp",
+	KBLastKey:           "KBLastkey",
+	KBStrobe:            "KBStrobe",
+	KBKeyDown:           "KBKeyDown",
+	MemRead:             "MemRead",
+	MemWrite:            "MemWrite",
+	MemReadSegment:      "MemReadSegment",
+	MemWriteSegment:     "MemWriteSegment",
+	MemAuxSegment:       "MemAuxSegment",
+	MemMainSegment:      "MemMainSegment",
+	PCExpansion:         "PCExpansion",
+	PCExpSlot:           "PCExpSlot",
+	PCIOSelect:          "PCIOSelect",
+	PCIOStrobe:          "PCIOStrobe",
+	PCROMSegment:        "PCROMSegment",
+	PCSlotC3:            "PCSlotC3",
+	PCSlotCX:            "PCSlotCX",
+}
+
 func KeyToString(key any) string {
 	intKey, ok := key.(int)
 	if !ok {
 		return fmt.Sprintf("unknown non-int key (%v)", key)
 	}
 
-	switch intKey {
-	case BankRead:
-		return "BankRead"
-	case BankWrite:
-		return "BankWrite"
-	case BankDFBlock:
-		return "BankDFBlock"
-	case BankSysBlock:
-		return "BankSysBlock"
-	case BankReadAttempts:
-		return "BankReadAttempts"
-	case BankSysBlockSegment:
-		return "BankSysBlockSegment"
-	case BankROMSegment:
-		return "BankROMSegment"
-	case Debugger:
-		return "Debugger"
-	case DebuggerLookAhead:
-		return "DebuggerLookAhead"
-	case DiskComputer:
-		return "DiskComputer"
-	case DisplayAltChar:
-		return "DisplayAltChar"
-	case DisplayCol80:
-		return "DisplayCol80"
-	case DisplayStore80:
-		return "DisplayStore80"
-	case DisplayPage2:
-		return "DisplayPage2"
-	case DisplayText:
-		return "DisplayText"
-	case DisplayMixed:
-		return "DisplayMixed"
-	case DisplayHires:
-		return "DisplayHires"
-	case DisplayIou:
-		return "DisplayIou"
-	case DisplayDoubleHigh:
-		return "DisplayDoubleHigh"
-	case DisplayRedraw:
-		return "DisplayRedraw"
-	case DisplayAuxSegment:
-		return "DisplayAuxSegment"
-	case InstructionReadOp:
-		return "InstructionReadOp"
-	case KBLastKey:
-		return "KBLastkey"
-	case KBStrobe:
-		return "KBStrobe"
-	case KBKeyDown:
-		return "KBKeyDown"
-	case MemRead:
-		return "MemRead"
-	case MemWrite:
-		return "MemWrite"
-	case MemReadSegment:
-		return "MemReadSegment"
-	case MemWriteSegment:
-		return "MemWriteSegment"
-	case MemAuxSegment:
-		return "MemAuxSegment"
-	case MemMainSegment:
-		return "MemMainSegment"
-	case PCExpansion:
-		return "PCExpansion"
-	case PCExpSlot:
-		return "PCExpSlot"
-	case PCIOSelect:
-		return "PCIOSelect"
-	case PCIOStrobe:
-		return "PCIOStrobe"
-	case PCROMSegment:
-		return "PCROMSegment"
-	case PCSlotC3:
-		return "PCSlotC3"
-	case PCSlotCX:
-		return "PCSlotCX"
+	if name, ok := keyStringMap[intKey]; ok {
+		return name
 	}
 
 	return fmt.Sprintf("unknown (%v)", key)
