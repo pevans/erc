@@ -1,4 +1,4 @@
-package a2
+package a2video
 
 // hiresAddrs are a set of base addresses which are the starts of rows
 // in a hires graphical context.

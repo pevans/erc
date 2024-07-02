@@ -2,6 +2,7 @@ package a2
 
 import (
 	"github.com/pevans/erc/a2/a2state"
+	"github.com/pevans/erc/a2/a2video"
 	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/memory"
 )
@@ -311,7 +312,7 @@ func (c *Computer) Render() {
 			end   int = 0x4000
 		)
 
-		c.hiresRender(start, end)
+		a2video.RenderHires(c, start, end)
 
 	default:
 		var (
