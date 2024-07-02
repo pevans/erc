@@ -320,7 +320,7 @@ func (c *Computer) Render() {
 			end   int = 0x800
 		)
 
-		c.loresRender(start, end)
+		a2video.RenderLores(c, start, end)
 	}
 
 	c.State.SetBool(a2state.DisplayRedraw, false)

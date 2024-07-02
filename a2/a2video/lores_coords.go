@@ -1,43 +1,4 @@
-package a2
-
-import (
-	"image/color"
-
-	"github.com/pevans/erc/gfx"
-)
-
-// Low resolution graphics are rendered in "blocks", 7 dots wide by 4
-// dots high. Each byte in Display Page 1 holds two blocks, which are
-// rendered top-to-bottom. Unlike text mode, low resolution mode's
-// column spans in memory encode two rows at a time.
-
-const (
-	loresBlockWidth  = 7
-	loresBlockHeight = 4
-)
-
-var (
-	// Although there are 16 color blocks, technically Gray1 and Gray2
-	// are the same color mask
-	loresColors = []*gfx.FrameBuffer{
-		/* loresBlockBlack      */ loresNewBlock(color.RGBA{0x00, 0x00, 0x00, 0x00}),
-		/* loresBlockMagenta    */ loresNewBlock(color.RGBA{0x90, 0x17, 0x40, 0x00}),
-		/* loresBlockDarkBlue   */ loresNewBlock(color.RGBA{0x40, 0x2c, 0xa5, 0x00}),
-		/* loresBlockPurple     */ loresNewBlock(color.RGBA{0xd0, 0x43, 0xe5, 0x00}),
-		/* loresBlockDarkGreen  */ loresNewBlock(color.RGBA{0x00, 0x69, 0x40, 0x00}),
-		/* loresBlockGray1      */ loresNewBlock(color.RGBA{0x80, 0x80, 0x80, 0x00}),
-		/* loresBlockMediumBlue */ loresNewBlock(color.RGBA{0x2f, 0x95, 0xe5, 0x00}),
-		/* loresBlockLightBlue  */ loresNewBlock(color.RGBA{0xbf, 0xab, 0xff, 0x00}),
-		/* loresBlockBrown      */ loresNewBlock(color.RGBA{0x40, 0x54, 0x00, 0x00}),
-		/* loresBlockOrange     */ loresNewBlock(color.RGBA{0xd0, 0x6a, 0x1a, 0x00}),
-		/* loresBlockGray2      */ loresNewBlock(color.RGBA{0x80, 0x80, 0x80, 0x00}),
-		/* loresBlockPink       */ loresNewBlock(color.RGBA{0xff, 0x96, 0xbf, 0x00}),
-		/* loresBlockLightGreen */ loresNewBlock(color.RGBA{0x2f, 0xbc, 0x1a, 0x00}),
-		/* loresBlockYellow     */ loresNewBlock(color.RGBA{0xbf, 0xd3, 0x5a, 0x00}),
-		/* loresBlockAquamarine */ loresNewBlock(color.RGBA{0x6f, 0xe8, 0xbf, 0x00}),
-		/* loresBlockWhite      */ loresNewBlock(color.RGBA{0xff, 0xff, 0xff, 0x00}),
-	}
-)
+package a2video
 
 // Map of address offsets to visible rows
 var loresAddressRows = []int{
@@ -175,47 +136,4 @@ var loresAddressCols = []int{
 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, // $7D0
 	16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, // $7E0
 	32, 33, 34, 35, 36, 37, 38, 39, -1, -1, -1, -1, -1, -1, -1, -1, // $7F0
-}
-
-// Return a solid rectangle composed of a given color
-func loresNewBlock(clr color.RGBA) *gfx.FrameBuffer {
-	fbuf := gfx.NewFrameBuffer(loresBlockWidth, loresBlockHeight)
-
-	for y := uint(0); y < loresBlockHeight; y++ {
-		for x := uint(0); x < loresBlockWidth; x++ {
-			fbuf.SetCell(x, y, clr)
-		}
-	}
-
-	return fbuf
-}
-
-// Return a color rectangle that matches the color suggested by the
-// given pattern of bits
-func loresBlock(bitPattern uint8) *gfx.FrameBuffer {
-	// Use a bitmask to prevent us from index something outside the
-	// bounds of loresColors
-	return loresColors[bitPattern&0xf]
-}
-
-func (c *Computer) loresRender(start, end int) {
-	for addr := start; addr < end; addr++ {
-		row := loresAddressRows[addr-start]
-		col := loresAddressCols[addr-start]
-
-		if row < 0 || col < 0 {
-			continue
-		}
-
-		x := uint(col) * loresBlockWidth
-		y := uint(row) * loresBlockHeight
-
-		byt := c.Get(int(addr))
-
-		// The Apple IIe technical reference (p. 22) states that we
-		// should show the low-order nibble in the top row, and
-		// high-order nibble in the bottom row.
-		_ = gfx.Screen.Blit(x, y, loresBlock(byt&0xf))
-		_ = gfx.Screen.Blit(x, y+4, loresBlock(byt>>4))
-	}
 }
