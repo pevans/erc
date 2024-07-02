@@ -1,8 +1,4 @@
-package a2
-
-import (
-	"github.com/pevans/erc/gfx"
-)
+package a2video
 
 var textAddressRows = []int{
 	//   0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
@@ -138,34 +134,4 @@ var textAddressCols = []int{
 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, // $7D0
 	16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, // $7E0
 	32, 33, 34, 35, 36, 37, 38, 39, -1, -1, -1, -1, -1, -1, -1, -1, // $7F0
-}
-
-// DrawText will render all the text we know of to the framebuffer
-func (c *Computer) DrawText() {
-}
-
-// textRender will draw text in the framebuffer starting from a specific memory
-// range, and ending at a specific memory range.
-func (c *Computer) textRender(start, end int) {
-	for addr := start; addr < end; addr++ {
-		// Try to figure out where the text should be displayed
-		row := textAddressRows[addr-start]
-		col := textAddressCols[addr-start]
-
-		// This address does not contain displayable data, and should be
-		// skipped.
-		if row < 0 || col < 0 {
-			continue
-		}
-
-		// Convert the row and column into the framebuffer grid
-		x := uint(col) * c.SysFont.GlyphWidth
-		y := uint(row) * c.SysFont.GlyphHeight
-
-		// Figure out what glyph to render
-		char := c.Get(int(addr))
-		glyph := c.SysFont.Glyph(int(char))
-
-		_ = gfx.Screen.Blit(x, y, glyph)
-	}
 }

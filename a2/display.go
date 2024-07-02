@@ -305,7 +305,8 @@ func (c *Computer) Render() {
 			end   int = 0x800
 		)
 
-		c.textRender(start, end)
+		a2video.RenderText(c, c.SysFont, start, end)
+
 	case c.State.Bool(a2state.DisplayHires):
 		var (
 			start int = 0x2000

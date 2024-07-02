@@ -53,8 +53,8 @@ func newLoresBlock(clr color.RGBA) *gfx.FrameBuffer {
 	return fbuf
 }
 
-// Return a color rectangle that matches the color suggested by the
-// given pattern of bits
+// LoresBlock will return a color rectangle that matches the color
+// suggested by the given pattern of bits
 func LoresBlock(bitPattern uint8) *gfx.FrameBuffer {
 	// Use a bitmask to prevent us from index something outside the
 	// bounds of loresColors
