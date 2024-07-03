@@ -17,10 +17,10 @@ type decoder struct {
 	physicalOffset  int
 }
 
-// Decode returns a new segment that is the six-and-two decoded form
+// Decode62 returns a new segment that is the six-and-two decoded form
 // (translating a physical to a logical data structure), based on a kind
 // of input image and segment.
-func Decode(imageType int, src *memory.Segment) (*memory.Segment, error) {
+func Decode62(imageType int, src *memory.Segment) (*memory.Segment, error) {
 	dec := &decoder{
 		physicalSegment: src,
 		logicalSegment:  memory.NewSegment(DosSize),

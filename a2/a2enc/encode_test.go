@@ -5,8 +5,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (s *sixtwoSuite) TestEncode() {
-	ps, err := a2enc.Encode(s.imageType, s.logDisk)
+func (s *sixtwoSuite) TestEncode62() {
+	ps, err := a2enc.Encode62(s.imageType, s.logDisk)
 
 	assert.NoError(s.T(), err)
 	assert.Equal(s.T(), s.physDisk, ps)

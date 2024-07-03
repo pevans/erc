@@ -53,10 +53,10 @@ func newEncoder(logSize, physSize int) *encoder {
 	}
 }
 
-// Encode returns a segment that is the six-and-two encoded form of the
+// Encode62 returns a segment that is the six-and-two encoded form of the
 // input segment, essentially translating from a logical to a physical
 // structure.
-func Encode(imageType int, src *memory.Segment) (*memory.Segment, error) {
+func Encode62(imageType int, src *memory.Segment) (*memory.Segment, error) {
 	enc := &encoder{
 		physicalSegment: memory.NewSegment(NibSize),
 		logicalSegment:  src,
