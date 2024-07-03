@@ -43,7 +43,6 @@ func main() {
 	}
 
 	comp := a2.NewComputer(clockspeed(cli.Speed))
-	comp.SetFont(a2.SystemFont())
 	gfx.Screen = a2.NewScreen()
 
 	go func() {

@@ -1,6 +1,7 @@
 package a2
 
 import (
+	"github.com/pevans/erc/a2/a2font"
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/clock"
 	"github.com/pevans/erc/gfx"
@@ -106,6 +107,8 @@ func NewComputer(hertz int64) *Computer {
 	// speed, things feel much slower than I'd expect. In practice,
 	// something approximately double that number feels more right.
 	comp.CPU.ClockEmulator = clock.NewEmulator(hertz)
+
+	comp.SetFont(a2font.SystemFont())
 
 	return comp
 }

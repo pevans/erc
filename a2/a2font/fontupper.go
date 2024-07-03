@@ -1,4 +1,4 @@
-package a2
+package a2font
 
 import "github.com/pevans/erc/gfx"
 

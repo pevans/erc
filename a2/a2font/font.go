@@ -1,4 +1,7 @@
-package a2
+// a2font provides fonts that can be used for the Apple II. These are
+// based on an examination of the font used by the computer, so there
+// may either be errors or minor discrepancies.
+package a2font
 
 import "github.com/pevans/erc/gfx"
 
