@@ -1,4 +1,4 @@
-package sixtwo
+package a2enc
 
 import (
 	"fmt"
@@ -9,12 +9,12 @@ import (
 type decodeMap map[uint8]uint8
 
 type decoder struct {
-	ls        *memory.Segment
-	ps        *memory.Segment
-	decMap    decodeMap
-	imageType int
-	loff      int
-	poff      int
+	logicalSegment  *memory.Segment
+	physicalSegment *memory.Segment
+	decodeMap       decodeMap
+	imageType       int
+	logicalOffset   int
+	physicalOffset  int
 }
 
 // Decode returns a new segment that is the six-and-two decoded form
@@ -22,17 +22,17 @@ type decoder struct {
 // of input image and segment.
 func Decode(imageType int, src *memory.Segment) (*memory.Segment, error) {
 	dec := &decoder{
-		ps:        src,
-		ls:        memory.NewSegment(DosSize),
-		imageType: imageType,
-		decMap:    newDecodeMap(),
+		physicalSegment: src,
+		logicalSegment:  memory.NewSegment(DosSize),
+		imageType:       imageType,
+		decodeMap:       newDecodeMap(),
 	}
 
 	for track := 0; track < NumTracks; track++ {
 		dec.writeTrack(track)
 	}
 
-	return dec.ls, nil
+	return dec.logicalSegment, nil
 }
 
 func (d *decoder) writeTrack(track int) {
@@ -41,17 +41,17 @@ func (d *decoder) writeTrack(track int) {
 
 	for sect := 0; sect < NumSectors; sect++ {
 		var (
-			logSect  = logicalSector(d.imageType, sect)
+			logSect  = LogicalSector(d.imageType, sect)
 			physSect = encPhysOrder[sect]
 		)
 
 		// The logical offset is based on logTrackOffset, with the
 		// sector length times the logical sector we should be copying
-		d.loff = logTrackOffset + (LogSectorLen * logSect)
+		d.logicalOffset = logTrackOffset + (LogSectorLen * logSect)
 
 		// However, the physical offset is based on the physical sector,
 		// which may need to be encoded in a different order
-		d.poff = physTrackOffset + (PhysSectorLen * physSect)
+		d.physicalOffset = physTrackOffset + (PhysSectorLen * physSect)
 
 		d.writeSector(track, sect)
 	}
@@ -68,7 +68,7 @@ func newDecodeMap() decodeMap {
 }
 
 func (d *decoder) logByte(b uint8) uint8 {
-	lb, ok := d.decMap[b]
+	lb, ok := d.decodeMap[b]
 	if !ok {
 		panic(fmt.Errorf("strange byte in decoding: %x", b))
 	}
@@ -77,8 +77,8 @@ func (d *decoder) logByte(b uint8) uint8 {
 }
 
 func (d *decoder) writeByte(b uint8) {
-	d.ls.Set(d.loff, b)
-	d.loff++
+	d.logicalSegment.Set(d.logicalOffset, b)
+	d.logicalOffset++
 }
 
 func (d *decoder) writeSector(track, sect int) {
@@ -89,30 +89,30 @@ func (d *decoder) writeSector(track, sect int) {
 
 	// There's going to be some opening metadata bytes that we will want
 	// to skip.
-	d.poff += PhysSectorHeader
+	d.physicalOffset += PhysSectorHeader
 
-	checksum := d.logByte(d.ps.Get(d.poff))
+	checksum := d.logByte(d.physicalSegment.Get(d.physicalOffset))
 	two[0] = checksum
 
 	for i := 1; i < TwoBlock; i++ {
-		lb := d.logByte(d.ps.Get(d.poff + i))
+		lb := d.logByte(d.physicalSegment.Get(d.physicalOffset + i))
 
 		checksum ^= lb
 		two[i] = checksum
 	}
 
-	d.poff += TwoBlock
+	d.physicalOffset += TwoBlock
 
 	for i := 0; i < SixBlock; i++ {
-		lb := d.logByte(d.ps.Get(d.poff + i))
+		lb := d.logByte(d.physicalSegment.Get(d.physicalOffset + i))
 
 		checksum ^= lb
 		six[i] = checksum
 	}
 
-	d.poff += SixBlock
+	d.physicalOffset += SixBlock
 
-	checksum ^= d.logByte(d.ps.Get(d.poff))
+	checksum ^= d.logByte(d.physicalSegment.Get(d.physicalOffset))
 	if checksum != 0 {
 		panic(fmt.Errorf("track %d, sector %d: checksum does not match", track, sect))
 	}

@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/pevans/erc/sixtwo"
+	"github.com/pevans/erc/a2/a2enc"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,7 +13,7 @@ func TestNewDrive(t *testing.T) {
 
 	assert.NotNil(t, d)
 	assert.Equal(t, ReadMode, d.Mode)
-	assert.Equal(t, sixtwo.DOS33, d.ImageType)
+	assert.Equal(t, a2enc.DOS33, d.ImageType)
 }
 
 func (s *a2Suite) TestDrivePosition() {
@@ -28,7 +28,7 @@ func (s *a2Suite) TestDrivePosition() {
 
 	// test track position
 	d.TrackPos = 6
-	s.Equal((sixtwo.PhysTrackLen*d.TrackPos/2)+d.SectorPos, d.Position())
+	s.Equal((a2enc.PhysTrackLen*d.TrackPos/2)+d.SectorPos, d.Position())
 }
 
 func (s *a2Suite) TestDriveShift() {
@@ -49,8 +49,8 @@ func (s *a2Suite) TestDriveShift() {
 	s.Equal(0, d.SectorPos)
 
 	// We can shift up but not including the length of a track
-	d.Shift(sixtwo.PhysTrackLen - 1)
-	s.Equal(sixtwo.PhysTrackLen-1, d.SectorPos)
+	d.Shift(a2enc.PhysTrackLen - 1)
+	s.Equal(a2enc.PhysTrackLen-1, d.SectorPos)
 	d.Shift(1)
 	s.Equal(0, d.SectorPos)
 
@@ -75,11 +75,11 @@ func (s *a2Suite) TestDriveStep() {
 
 	// No matter our starting point, if a step would go beyond MaxSteps,
 	// we should be left _at_ the MaxSteps position
-	d.Step(sixtwo.MaxSteps + 1)
-	s.Equal(sixtwo.MaxSteps, d.TrackPos)
+	d.Step(a2enc.MaxSteps + 1)
+	s.Equal(a2enc.MaxSteps, d.TrackPos)
 
 	// Any negative step that goes below zero should keep us at zero
-	d.Step(-sixtwo.MaxSteps * 2)
+	d.Step(-a2enc.MaxSteps * 2)
 	s.Equal(0, d.TrackPos)
 }
 
@@ -146,12 +146,12 @@ func (s *a2Suite) TestImageType() {
 	cases := map[string]test{
 		"do file": {
 			fname: "something.do",
-			want:  sixtwo.DOS33,
+			want:  a2enc.DOS33,
 			efn:   assert.NoError,
 		},
 		"dsk file": {
 			fname: "something.dsk",
-			want:  sixtwo.DOS33,
+			want:  a2enc.DOS33,
 			efn:   assert.NoError,
 		},
 		"nib file": {
@@ -161,7 +161,7 @@ func (s *a2Suite) TestImageType() {
 		},
 		"po file": {
 			fname: "something.po",
-			want:  sixtwo.ProDOS,
+			want:  a2enc.ProDOS,
 			efn:   assert.NoError,
 		},
 		"bad file": {
@@ -186,7 +186,7 @@ func (s *a2Suite) TestDriveLoad() {
 	data, _ := os.Open("../data/logical.disk")
 	s.NoError(d.Load(data, "something.dsk"))
 
-	s.Equal(sixtwo.DOS33, d.ImageType)
+	s.Equal(a2enc.DOS33, d.ImageType)
 	s.NotNil(d.Image)
 	s.NotNil(d.Data)
 }

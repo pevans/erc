@@ -1,4 +1,4 @@
-package sixtwo
+package a2enc
 
 const (
 	// VolumeMarker is a hard-coded number that encoding software will

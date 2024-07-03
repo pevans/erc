@@ -1,4 +1,4 @@
-package sixtwo
+package a2enc
 
 import (
 	"github.com/pevans/erc/memory"
@@ -21,7 +21,8 @@ const (
 // back into data that is useful to the software being run.
 //
 // Also, since I forget: gcr is short for "group coded recording".
-//  00    01    02    03    04    05    06    07    08    09    0a    0b    0c    0d    0e    0f
+//
+//	00    01    02    03    04    05    06    07    08    09    0a    0b    0c    0d    0e    0f
 var encGCR62 = []uint8{
 	0x96, 0x97, 0x9A, 0x9B, 0x9D, 0x9E, 0x9F, 0xA6, 0xA7, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, 0xB2, 0xB3, // 00
 	0xB4, 0xB5, 0xB6, 0xB7, 0xB9, 0xBA, 0xBB, 0xBC, 0xBD, 0xBE, 0xBF, 0xCB, 0xCD, 0xCE, 0xCF, 0xD3, // 10
@@ -38,17 +39,17 @@ var encPhysOrder = []int{
 // An encoder is a struct which defines the pieces we need to encode
 // logical data into a physical format.
 type encoder struct {
-	ls        *memory.Segment
-	ps        *memory.Segment
-	imageType int
-	loff      int
-	poff      int
+	logicalSegment  *memory.Segment
+	physicalSegment *memory.Segment
+	imageType       int
+	logicalOffset   int
+	physicalOffset  int
 }
 
 func newEncoder(logSize, physSize int) *encoder {
 	return &encoder{
-		ls: memory.NewSegment(logSize),
-		ps: memory.NewSegment(physSize),
+		logicalSegment:  memory.NewSegment(logSize),
+		physicalSegment: memory.NewSegment(physSize),
 	}
 }
 
@@ -57,17 +58,17 @@ func newEncoder(logSize, physSize int) *encoder {
 // structure.
 func Encode(imageType int, src *memory.Segment) (*memory.Segment, error) {
 	enc := &encoder{
-		ps:        memory.NewSegment(NibSize),
-		ls:        src,
-		imageType: imageType,
+		physicalSegment: memory.NewSegment(NibSize),
+		logicalSegment:  src,
+		imageType:       imageType,
 	}
 
 	for track := 0; track < NumTracks; track++ {
-		enc.poff = PhysTrackLen * track
+		enc.physicalOffset = PhysTrackLen * track
 		enc.writeTrack(track)
 	}
 
-	return enc.ps, nil
+	return enc.physicalSegment, nil
 }
 
 // Write will write a set of bytes into the destination segment at the
@@ -81,8 +82,8 @@ func (e *encoder) write(bytes []uint8) {
 // writeByte simply writes a single byte into the physical segment
 // without having to deal with passing around a slice
 func (e *encoder) writeByte(byt uint8) {
-	e.ps.Set(e.poff, byt)
-	e.poff++
+	e.physicalSegment.Set(e.physicalOffset, byt)
+	e.physicalOffset++
 }
 
 // encodeTrack will write a physically encoded track into the
@@ -93,17 +94,17 @@ func (e *encoder) writeTrack(track int) {
 
 	for sect := 0; sect < NumSectors; sect++ {
 		var (
-			logSect  = logicalSector(e.imageType, sect)
+			logSect  = LogicalSector(e.imageType, sect)
 			physSect = encPhysOrder[sect]
 		)
 
 		// The logical offset is based on logTrackOffset, with the
 		// sector length times the logical sector we should be copying
-		e.loff = logTrackOffset + (LogSectorLen * logSect)
+		e.logicalOffset = logTrackOffset + (LogSectorLen * logSect)
 
 		// However, the physical offset is based on the physical sector,
 		// which may need to be encoded in a different order
-		e.poff = physTrackOffset + (PhysSectorLen * physSect)
+		e.physicalOffset = physTrackOffset + (PhysSectorLen * physSect)
 
 		e.writeSector(track, sect)
 	}
@@ -153,7 +154,7 @@ func (e *encoder) writeSector(track, sect int) {
 	// Loop on the logical sector data block and build up the six-block
 	// and two-block buffers
 	for i := 0; i < 0x100; i++ {
-		byt := e.ls.Get(e.loff + i)
+		byt := e.logicalSegment.Get(e.logicalOffset + i)
 
 		// These are the final two bits, but their order is reversed
 		rev := ((byt & 2) >> 1) | ((byt & 1) << 1)

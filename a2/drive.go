@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/pevans/erc/a2/a2enc"
 	"github.com/pevans/erc/memory"
-	"github.com/pevans/erc/sixtwo"
 
 	"github.com/pkg/errors"
 )
@@ -51,7 +51,7 @@ func NewDrive() *Drive {
 	drive := new(Drive)
 
 	drive.Mode = ReadMode
-	drive.ImageType = sixtwo.DOS33
+	drive.ImageType = a2enc.DOS33
 
 	return drive
 }
@@ -59,7 +59,7 @@ func NewDrive() *Drive {
 // Position returns the segment position that the drive is currently at,
 // based upon track and sector position.
 func (d *Drive) Position() int {
-	return ((d.TrackPos / 2) * sixtwo.PhysTrackLen) + d.SectorPos
+	return ((d.TrackPos / 2) * a2enc.PhysTrackLen) + d.SectorPos
 }
 
 // Shift moves the sector position forward, or backward, depending on
@@ -73,7 +73,7 @@ func (d *Drive) Shift(offset int) {
 
 	d.SectorPos += offset
 
-	if d.SectorPos >= sixtwo.PhysTrackLen || d.SectorPos < 0 {
+	if d.SectorPos >= a2enc.PhysTrackLen || d.SectorPos < 0 {
 		d.SectorPos = 0
 	}
 }
@@ -86,8 +86,8 @@ func (d *Drive) Step(offset int) {
 	d.TrackPos += offset
 
 	switch {
-	case d.TrackPos > sixtwo.MaxSteps:
-		d.TrackPos = sixtwo.MaxSteps
+	case d.TrackPos > a2enc.MaxSteps:
+		d.TrackPos = a2enc.MaxSteps
 	case d.TrackPos < 0:
 		d.TrackPos = 0
 	}
@@ -172,11 +172,11 @@ func ImageType(file string) (int, error) {
 
 	switch {
 	case strings.HasSuffix(lower, ".do"), strings.HasSuffix(lower, ".dsk"):
-		return sixtwo.DOS33, nil
+		return a2enc.DOS33, nil
 	case strings.HasSuffix(lower, ".nib"):
 		return Nibble, nil
 	case strings.HasSuffix(lower, ".po"):
-		return sixtwo.ProDOS, nil
+		return a2enc.ProDOS, nil
 	}
 
 	return -1, fmt.Errorf("unrecognized suffix for file %s", file)
@@ -209,7 +209,7 @@ func (d *Drive) Load(r io.Reader, file string) error {
 	}
 
 	// Decode into the data segment
-	d.Data, err = sixtwo.Encode(d.ImageType, d.Image)
+	d.Data, err = a2enc.Encode(d.ImageType, d.Image)
 	if err != nil {
 		d.Image = nil
 		return errors.Wrapf(err, "failed to decode image")
