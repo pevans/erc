@@ -61,4 +61,8 @@ const (
 
 	// ProDOS indicates that the image type is ProDOS.
 	ProDOS
+
+	// Nibble images are physically formatted, rather than logically
+	// formatted
+	Nibble
 )

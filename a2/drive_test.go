@@ -156,7 +156,7 @@ func (s *a2Suite) TestImageType() {
 		},
 		"nib file": {
 			fname: "something.nib",
-			want:  Nibble,
+			want:  a2enc.Nibble,
 			efn:   assert.NoError,
 		},
 		"po file": {

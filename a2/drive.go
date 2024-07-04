@@ -13,13 +13,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-const (
-	// Nibble is the disk type for nibble (*.NIB) disk images.
-	// Although this is an image type, it's not something that actual
-	// disks would have been formatted in during the Apple II era.
-	Nibble = iota
-)
-
 // The drive mode helps us determine whether to read or write from
 // the disk, but is actually unrelated to write protect mode!
 const (
@@ -174,7 +167,7 @@ func ImageType(file string) (int, error) {
 	case strings.HasSuffix(lower, ".do"), strings.HasSuffix(lower, ".dsk"):
 		return a2enc.DOS33, nil
 	case strings.HasSuffix(lower, ".nib"):
-		return Nibble, nil
+		return a2enc.Nibble, nil
 	case strings.HasSuffix(lower, ".po"):
 		return a2enc.ProDOS, nil
 	}

@@ -22,3 +22,21 @@
 // tricks that software may use to read or store data in areas otherwise
 // reserved for padding by the encoding scheme.
 package a2enc
+
+import (
+	"fmt"
+
+	"github.com/pevans/erc/memory"
+)
+
+func Encode(imageType int, seg *memory.Segment) (*memory.Segment, error) {
+	switch imageType {
+	case DOS33, ProDOS:
+		return Encode62(imageType, seg)
+
+	case Nibble:
+		return seg, nil
+	}
+
+	return nil, fmt.Errorf("unknown image type: %v", imageType)
+}
