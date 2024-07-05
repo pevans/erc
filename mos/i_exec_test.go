@@ -1,4 +1,6 @@
-package mos65c02
+package mos_test
+
+import "github.com/pevans/erc/mos"
 
 const (
 	execAddr = uint16(0x4444)
@@ -8,8 +10,8 @@ const (
 
 func (s *mosSuite) TestBrk() {
 	s.Run("sets interrupt flag", func() {
-		s.op(Brk, with{pc: execPC, p: execP})
-		s.Equal(INTERRUPT, s.cpu.P&INTERRUPT)
+		s.op(mos.Brk, with{pc: execPC, p: execP})
+		s.Equal(mos.INTERRUPT, s.cpu.P&mos.INTERRUPT)
 	})
 
 	s.Run("sets PC register to new PC + 2", func() {
@@ -30,14 +32,14 @@ func (s *mosSuite) TestBrk() {
 
 func (s *mosSuite) TestJmp() {
 	s.Run("moves PC register to the new location", func() {
-		s.op(Jmp, with{pc: execPC, addr: execAddr})
+		s.op(mos.Jmp, with{pc: execPC, addr: execAddr})
 		s.Equal(execAddr, s.cpu.PC)
 	})
 }
 
 func (s *mosSuite) TestJsr() {
 	s.Run("moves PC register to the new location", func() {
-		s.op(Jsr, with{pc: execPC, addr: execAddr})
+		s.op(mos.Jsr, with{pc: execPC, addr: execAddr})
 		s.Equal(execAddr, s.cpu.PC)
 	})
 
@@ -60,7 +62,7 @@ func (s *mosSuite) TestRti() {
 
 		// Have to pass s: s.cpu.S, or else s.op will overwrite the s register
 		// value
-		s.op(Rti, with{s: s.cpu.S})
+		s.op(mos.Rti, with{s: s.cpu.S})
 
 		s.Equal(execP, s.cpu.P)
 		s.Equal(execPC, s.cpu.PC)
@@ -76,7 +78,7 @@ func (s *mosSuite) TestRts() {
 		s.cpu.PushStack(msb)
 		s.cpu.PushStack(lsb)
 
-		s.op(Rts, with{s: s.cpu.S})
+		s.op(mos.Rts, with{s: s.cpu.S})
 		s.Equal(pc+1, s.cpu.PC)
 	})
 }

@@ -1,4 +1,4 @@
-package mos65c02
+package mos
 
 import (
 	"fmt"

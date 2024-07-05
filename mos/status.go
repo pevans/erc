@@ -1,4 +1,4 @@
-package mos65c02
+package mos
 
 // This block defines the flags that we recognize within the status
 // register.

@@ -1,4 +1,4 @@
-package mos65c02
+package mos
 
 // Clc implements the CLC (clear carry) instruction, which unsets the
 // carry flag.

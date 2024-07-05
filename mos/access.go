@@ -1,4 +1,4 @@
-package mos65c02
+package mos
 
 // Get will return the byte at a given address.
 func (c *CPU) Get(addr uint16) uint8 {

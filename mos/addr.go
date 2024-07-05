@@ -1,4 +1,4 @@
-package mos65c02
+package mos
 
 import (
 	"reflect"
@@ -21,21 +21,21 @@ const AddrSpace = 0x10000
 
 const (
 	_     = iota // no address mode
-	amAcc        // accumulator
-	amAbs        // absolute
-	amAbx        // absolute x-index
-	amAby        // absolute y-index
-	amBy2        // Consume 2 bytes (for NP2)
-	amBy3        // Consume 3 bytes (for NP3)
-	amImm        // immediate
-	amImp        // implied
-	amInd        // indirect
-	amIdx        // x-index indirect
-	amIdy        // indirect y-index
-	amRel        // relative
-	amZpg        // zero page
-	amZpx        // zero page x-index
-	amZpy        // zero page y-index
+	AmACC        // accumulator
+	AmABS        // absolute
+	AmABX        // absolute x-index
+	AmABY        // absolute y-index
+	AmBY2        // Consume 2 bytes (for NP2)
+	AmBY3        // Consume 3 bytes (for NP3)
+	AmIMM        // immediate
+	AmIMP        // implied
+	AmIND        // indirect
+	AmIDX        // x-index indirect
+	AmIDY        // indirect y-index
+	AmREL        // relative
+	AmZPG        // zero page
+	AmZPX        // zero page x-index
+	AmZPY        // zero page y-index
 )
 
 // Below is an address mode table that maps mode functions to specific
@@ -106,7 +106,7 @@ func Acc(c *CPU) {
 	c.EffVal = c.A
 	c.EffAddr = 0
 	c.Operand = 0
-	c.AddrMode = amAcc
+	c.AddrMode = AmACC
 }
 
 // Abs resolves the Absolute address mode. Given a 16-bit operand, we
@@ -117,7 +117,7 @@ func Abs(c *CPU) {
 	c.EffAddr = c.Get16(c.PC + 1)
 	c.Operand = c.EffAddr
 	c.EffVal = c.Get(c.EffAddr)
-	c.AddrMode = amAbs
+	c.AddrMode = AmABS
 }
 
 // Abx resolves Absolute X address mode, which is like Absolute mode but
@@ -135,7 +135,7 @@ func Abx(c *CPU) {
 	c.Operand = c.Get16(c.PC + 1)
 	c.EffAddr = c.Operand + uint16(c.X)
 	c.EffVal = c.Get(c.EffAddr)
-	c.AddrMode = amAbx
+	c.AddrMode = AmABX
 }
 
 // Aby is much like ABX, except that it adds the Y register content.
@@ -152,7 +152,7 @@ func Aby(c *CPU) {
 	c.Operand = c.Get16(c.PC + 1)
 	c.EffAddr = c.Operand + uint16(c.Y)
 	c.EffVal = c.Get(c.EffAddr)
-	c.AddrMode = amAby
+	c.AddrMode = AmABY
 }
 
 // By2 is a placeholder mode
@@ -160,7 +160,7 @@ func By2(c *CPU) {
 	c.EffAddr = 0
 	c.EffVal = 0
 	c.Operand = 0
-	c.AddrMode = amBy2
+	c.AddrMode = AmBY2
 }
 
 // By3 is a placeholder mode
@@ -168,7 +168,7 @@ func By3(c *CPU) {
 	c.EffAddr = 0
 	c.EffVal = 0
 	c.Operand = 0
-	c.AddrMode = amBy3
+	c.AddrMode = AmBY3
 }
 
 // Imm resolves Immediate address mode. The operand is the literal
@@ -179,7 +179,7 @@ func Imm(c *CPU) {
 	c.EffAddr = 0
 	c.EffVal = c.Get(c.PC + 1)
 	c.Operand = uint16(c.EffVal)
-	c.AddrMode = amImm
+	c.AddrMode = AmIMM
 }
 
 // Imp resolves the implied address mode. IMP is used to handle cases
@@ -189,7 +189,7 @@ func Imp(c *CPU) {
 	c.EffVal = 0
 	c.EffAddr = 0
 	c.Operand = 0
-	c.AddrMode = amImp
+	c.AddrMode = AmIMP
 }
 
 // Ind resolves the indirect address mode. If you can imagine that the
@@ -204,7 +204,7 @@ func Ind(c *CPU) {
 	c.Operand = c.Get16(c.PC + 1)
 	c.EffAddr = c.Get16(c.Operand)
 	c.EffVal = c.Get(c.EffAddr)
-	c.AddrMode = amInd
+	c.AddrMode = AmIND
 }
 
 // Idx resolves the indexed indirect address mode, which resolves to a
@@ -226,7 +226,7 @@ func Idx(c *CPU) {
 	// address.
 	c.EffAddr = c.Get16(uint16(operand + c.X))
 	c.EffVal = c.Get(c.EffAddr)
-	c.AddrMode = amIdx
+	c.AddrMode = AmIDX
 }
 
 // Idy resolves the indirect indexed address mode, which is essentially
@@ -249,7 +249,7 @@ func Idy(c *CPU) {
 	// dereferenced address.
 	c.EffAddr = effAddr + uint16(c.Y)
 	c.EffVal = c.Get(c.EffAddr)
-	c.AddrMode = amIdy
+	c.AddrMode = AmIDY
 }
 
 // Rel resolves the relative address mode. This is only used by branch
@@ -285,7 +285,7 @@ func Rel(c *CPU) {
 
 	c.EffAddr = addr
 	c.EffVal = 0
-	c.AddrMode = amRel
+	c.AddrMode = AmREL
 }
 
 // Zpg resolves the zero page address mode. This is most analogous to ABS,
@@ -297,7 +297,7 @@ func Zpg(c *CPU) {
 	c.Operand = uint16(c.Get(c.PC + 1))
 	c.EffAddr = c.Operand
 	c.EffVal = c.Get(c.EffAddr)
-	c.AddrMode = amZpg
+	c.AddrMode = AmZPG
 }
 
 // Zpx resolves the zero page x address mode. This is analogous to ABX,
@@ -309,7 +309,7 @@ func Zpx(c *CPU) {
 	c.Operand = uint16(operand)
 	c.EffAddr = uint16(operand + c.X)
 	c.EffVal = c.Get(c.EffAddr)
-	c.AddrMode = amZpx
+	c.AddrMode = AmZPX
 }
 
 // Zpy resolves the zero page y address mode. This is analogous to ABY,
@@ -321,5 +321,5 @@ func Zpy(c *CPU) {
 	c.Operand = uint16(operand)
 	c.EffAddr = uint16(operand + c.Y)
 	c.EffVal = c.Get(c.EffAddr)
-	c.AddrMode = amZpy
+	c.AddrMode = AmZPY
 }

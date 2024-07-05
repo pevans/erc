@@ -1,4 +1,4 @@
-package mos65c02
+package mos
 
 // Adc implements the ADC (add with carry) instruction. ADC is used to
 // add integers to the accumulator; if the carry flag is set, then the
@@ -59,7 +59,7 @@ func Dec(c *CPU) {
 	c.EffVal--
 	c.ApplyNZ(c.EffVal)
 
-	if c.AddrMode == amAcc {
+	if c.AddrMode == AmACC {
 		c.A = c.EffVal
 		return
 	}
@@ -88,7 +88,7 @@ func Inc(c *CPU) {
 	c.EffVal++
 	c.ApplyNZ(c.EffVal)
 
-	if c.AddrMode == amAcc {
+	if c.AddrMode == AmACC {
 		c.A = c.EffVal
 		return
 	}

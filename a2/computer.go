@@ -6,7 +6,7 @@ import (
 	"github.com/pevans/erc/clock"
 	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/memory"
-	"github.com/pevans/erc/mos65c02"
+	"github.com/pevans/erc/mos"
 )
 
 // ReadMapFn is a function which can execute a soft switch procedure on
@@ -20,7 +20,7 @@ type WriteMapFn func(*Computer, int, uint8)
 // A Computer is our abstraction of an Apple //e ("enhanced") computer.
 type Computer struct {
 	// The CPU of the Apple //e was an MOS 65C02 processor.
-	CPU *mos65c02.CPU
+	CPU *mos.CPU
 
 	// There are three primary segments of memory in an Apple //e; main
 	// memory, read-only memory, and auxiliary memory. Each are
@@ -96,7 +96,7 @@ func NewComputer(hertz int64) *Computer {
 	comp.Drive2 = NewDrive()
 	comp.SelectedDrive = comp.Drive1
 
-	comp.CPU = new(mos65c02.CPU)
+	comp.CPU = new(mos.CPU)
 	comp.CPU.RMem = comp
 	comp.CPU.WMem = comp
 	comp.CPU.State = comp.State

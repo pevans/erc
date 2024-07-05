@@ -1,6 +1,7 @@
-package mos65c02
+package mos_test
 
 import (
+	"github.com/pevans/erc/mos"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,12 +21,12 @@ func (s *mosSuite) TestBcc() {
 		if c.on {
 			s.cpu.P = 0
 		} else {
-			s.cpu.P = CARRY
+			s.cpu.P = mos.CARRY
 		}
 
 		s.cpu.PC = c.pc
 		s.cpu.EffAddr = c.addr
-		Bcc(s.cpu)
+		mos.Bcc(s.cpu)
 
 		assert.Equal(s.T(), c.want, s.cpu.PC)
 	}
@@ -34,14 +35,14 @@ func (s *mosSuite) TestBcc() {
 func (s *mosSuite) TestBcs() {
 	for _, c := range branchCases {
 		if c.on {
-			s.cpu.P = CARRY
+			s.cpu.P = mos.CARRY
 		} else {
 			s.cpu.P = 0
 		}
 
 		s.cpu.PC = c.pc
 		s.cpu.EffAddr = c.addr
-		Bcs(s.cpu)
+		mos.Bcs(s.cpu)
 
 		assert.Equal(s.T(), c.want, s.cpu.PC)
 	}
@@ -50,14 +51,14 @@ func (s *mosSuite) TestBcs() {
 func (s *mosSuite) TestBeq() {
 	for _, c := range branchCases {
 		if c.on {
-			s.cpu.P = ZERO
+			s.cpu.P = mos.ZERO
 		} else {
 			s.cpu.P = 0
 		}
 
 		s.cpu.PC = c.pc
 		s.cpu.EffAddr = c.addr
-		Beq(s.cpu)
+		mos.Beq(s.cpu)
 
 		assert.Equal(s.T(), c.want, s.cpu.PC)
 	}
@@ -66,14 +67,14 @@ func (s *mosSuite) TestBeq() {
 func (s *mosSuite) TestBmi() {
 	for _, c := range branchCases {
 		if c.on {
-			s.cpu.P = NEGATIVE
+			s.cpu.P = mos.NEGATIVE
 		} else {
 			s.cpu.P = 0
 		}
 
 		s.cpu.PC = c.pc
 		s.cpu.EffAddr = c.addr
-		Bmi(s.cpu)
+		mos.Bmi(s.cpu)
 
 		assert.Equal(s.T(), c.want, s.cpu.PC)
 	}
@@ -84,12 +85,12 @@ func (s *mosSuite) TestBne() {
 		if c.on {
 			s.cpu.P = 0
 		} else {
-			s.cpu.P = ZERO
+			s.cpu.P = mos.ZERO
 		}
 
 		s.cpu.PC = c.pc
 		s.cpu.EffAddr = c.addr
-		Bne(s.cpu)
+		mos.Bne(s.cpu)
 
 		assert.Equal(s.T(), c.want, s.cpu.PC)
 	}
@@ -100,12 +101,12 @@ func (s *mosSuite) TestBpl() {
 		if c.on {
 			s.cpu.P = 0
 		} else {
-			s.cpu.P = NEGATIVE
+			s.cpu.P = mos.NEGATIVE
 		}
 
 		s.cpu.PC = c.pc
 		s.cpu.EffAddr = c.addr
-		Bpl(s.cpu)
+		mos.Bpl(s.cpu)
 
 		assert.Equal(s.T(), c.want, s.cpu.PC)
 	}
@@ -121,7 +122,7 @@ func (s *mosSuite) TestBra() {
 
 		s.cpu.PC = c.pc
 		s.cpu.EffAddr = c.addr
-		Bra(s.cpu)
+		mos.Bra(s.cpu)
 
 		assert.Equal(s.T(), c.want, s.cpu.PC)
 	}
@@ -132,12 +133,12 @@ func (s *mosSuite) TestBvc() {
 		if c.on {
 			s.cpu.P = 0
 		} else {
-			s.cpu.P = OVERFLOW
+			s.cpu.P = mos.OVERFLOW
 		}
 
 		s.cpu.PC = c.pc
 		s.cpu.EffAddr = c.addr
-		Bvc(s.cpu)
+		mos.Bvc(s.cpu)
 
 		assert.Equal(s.T(), c.want, s.cpu.PC)
 	}
@@ -146,14 +147,14 @@ func (s *mosSuite) TestBvc() {
 func (s *mosSuite) TestBvs() {
 	for _, c := range branchCases {
 		if c.on {
-			s.cpu.P = OVERFLOW
+			s.cpu.P = mos.OVERFLOW
 		} else {
 			s.cpu.P = 0
 		}
 
 		s.cpu.PC = c.pc
 		s.cpu.EffAddr = c.addr
-		Bvs(s.cpu)
+		mos.Bvs(s.cpu)
 
 		assert.Equal(s.T(), c.want, s.cpu.PC)
 	}

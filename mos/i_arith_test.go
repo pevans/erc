@@ -1,7 +1,9 @@
-package mos65c02
+package mos_test
 
 import (
 	"fmt"
+
+	"github.com/pevans/erc/mos"
 )
 
 func (s *mosSuite) TestAdc() {
@@ -17,7 +19,7 @@ func (s *mosSuite) TestAdc() {
 		s.cpu.A = d10
 		s.cpu.EffVal = offset
 		s.cpu.P = 0
-		Adc(s.cpu)
+		mos.Adc(s.cpu)
 
 		s.Equal(d10+offset, s.cpu.A)
 	})
@@ -25,8 +27,8 @@ func (s *mosSuite) TestAdc() {
 	s.Run("result is A + EffVal + 1 when carry is set", func() {
 		s.cpu.A = d10
 		s.cpu.EffVal = offset
-		s.cpu.P = CARRY
-		Adc(s.cpu)
+		s.cpu.P = mos.CARRY
+		mos.Adc(s.cpu)
 
 		s.Equal(d10+offset+one, s.cpu.A)
 	})
@@ -36,9 +38,9 @@ func (s *mosSuite) TestAdc() {
 		s.cpu.EffVal = offset
 		s.cpu.P = 0
 
-		Adc(s.cpu)
+		mos.Adc(s.cpu)
 		s.Equal(d250+offset, s.cpu.A)
-		s.Equal(CARRY, s.cpu.P&CARRY)
+		s.Equal(mos.CARRY, s.cpu.P&mos.CARRY)
 	})
 
 	s.Run("overflow is set when going from positive to negative", func() {
@@ -46,24 +48,24 @@ func (s *mosSuite) TestAdc() {
 		s.cpu.A = d127
 		s.cpu.EffVal = offset
 		s.cpu.P = 0
-		Adc(s.cpu)
+		mos.Adc(s.cpu)
 
 		s.Equal(d127+offset, s.cpu.A)
-		s.Equal(OVERFLOW, s.cpu.P&OVERFLOW)
+		s.Equal(mos.OVERFLOW, s.cpu.P&mos.OVERFLOW)
 	})
 
 	s.Run("overflow is set when going from negative to positive", func() {
 		s.cpu.A = d250
 		s.cpu.EffVal = offset
 		s.cpu.P = 0
-		Adc(s.cpu)
+		mos.Adc(s.cpu)
 
 		s.Equal(d250+offset, s.cpu.A)
-		s.Equal(OVERFLOW, s.cpu.P&OVERFLOW)
+		s.Equal(mos.OVERFLOW, s.cpu.P&mos.OVERFLOW)
 	})
 }
 
-func (s *mosSuite) testCompare(val *uint8, fn func(*CPU)) {
+func (s *mosSuite) testCompare(val *uint8, fn func(*mos.CPU)) {
 	var (
 		d10 uint8 = 10
 		d20 uint8 = 20
@@ -74,7 +76,7 @@ func (s *mosSuite) testCompare(val *uint8, fn func(*CPU)) {
 		s.cpu.EffVal = d10
 		fn(s.cpu)
 
-		s.Equal(ZERO, s.cpu.P&ZERO)
+		s.Equal(mos.ZERO, s.cpu.P&mos.ZERO)
 	})
 
 	s.Run("negative is set when effval > accum", func() {
@@ -82,7 +84,7 @@ func (s *mosSuite) testCompare(val *uint8, fn func(*CPU)) {
 		s.cpu.EffVal = d20
 		fn(s.cpu)
 
-		s.Equal(NEGATIVE, s.cpu.P&NEGATIVE)
+		s.Equal(mos.NEGATIVE, s.cpu.P&mos.NEGATIVE)
 	})
 
 	s.Run("carry is set when accum >= effval", func() {
@@ -90,32 +92,32 @@ func (s *mosSuite) testCompare(val *uint8, fn func(*CPU)) {
 		s.cpu.EffVal = d10
 		fn(s.cpu)
 
-		s.Equal(CARRY, s.cpu.P&CARRY)
+		s.Equal(mos.CARRY, s.cpu.P&mos.CARRY)
 
 		*val = d10
 		s.cpu.P = 0
 		fn(s.cpu)
-		s.Equal(CARRY, s.cpu.P&CARRY)
+		s.Equal(mos.CARRY, s.cpu.P&mos.CARRY)
 	})
 }
 
 func (s *mosSuite) TestCmp() {
-	s.testCompare(&s.cpu.A, Cmp)
+	s.testCompare(&s.cpu.A, mos.Cmp)
 }
 
 func (s *mosSuite) TestCpx() {
-	s.testCompare(&s.cpu.X, Cpx)
+	s.testCompare(&s.cpu.X, mos.Cpx)
 }
 
 func (s *mosSuite) TestCpy() {
-	s.testCompare(&s.cpu.Y, Cpy)
+	s.testCompare(&s.cpu.Y, mos.Cpy)
 }
 
 func (s *mosSuite) testDecrement(
 	funcName string,
-	setVal func(*CPU, uint8),
-	getVal func(*CPU) uint8,
-	fn func(*CPU),
+	setVal func(*mos.CPU, uint8),
+	getVal func(*mos.CPU) uint8,
+	fn func(*mos.CPU),
 ) {
 	var (
 		d1 uint8 = 1
@@ -137,60 +139,60 @@ func (s *mosSuite) testDecrement(
 		setVal(s.cpu, d0)
 		fn(s.cpu)
 
-		s.Equal(NEGATIVE, s.cpu.P&NEGATIVE)
+		s.Equal(mos.NEGATIVE, s.cpu.P&mos.NEGATIVE)
 	})
 
 	s.Run(runZero, func() {
 		setVal(s.cpu, d1)
 		fn(s.cpu)
 
-		s.Equal(ZERO, s.cpu.P&ZERO)
+		s.Equal(mos.ZERO, s.cpu.P&mos.ZERO)
 	})
 }
 
 func (s *mosSuite) TestDex() {
 	s.testDecrement("DEX",
-		func(c *CPU, b uint8) { c.X = b },
-		func(c *CPU) uint8 { return c.X },
-		Dex,
+		func(c *mos.CPU, b uint8) { c.X = b },
+		func(c *mos.CPU) uint8 { return c.X },
+		mos.Dex,
 	)
 }
 
 func (s *mosSuite) TestDey() {
 	s.testDecrement("DEY",
-		func(c *CPU, b uint8) { c.Y = b },
-		func(c *CPU) uint8 { return c.Y },
-		Dey,
+		func(c *mos.CPU, b uint8) { c.Y = b },
+		func(c *mos.CPU) uint8 { return c.Y },
+		mos.Dey,
 	)
 }
 
 // TestDec is a bit tricky, because DEC does two very different things based on
 // its address mode.
 func (s *mosSuite) TestDec() {
-	s.cpu.AddrMode = amAcc
+	s.cpu.AddrMode = mos.AmACC
 	s.testDecrement("DEC (accumulator)",
-		func(c *CPU, b uint8) { c.A = b; c.EffVal = b },
-		func(c *CPU) uint8 { return c.A },
-		Dec,
+		func(c *mos.CPU, b uint8) { c.A = b; c.EffVal = b },
+		func(c *mos.CPU) uint8 { return c.A },
+		mos.Dec,
 	)
 
 	var (
 		addr uint16 = 1
 	)
 
-	s.cpu.AddrMode = amAbs
+	s.cpu.AddrMode = mos.AmABS
 	s.testDecrement("DEC (memory)",
-		func(c *CPU, b uint8) { c.Set(addr, b); c.EffAddr = addr; c.EffVal = b },
-		func(c *CPU) uint8 { return c.Get(addr) },
-		Dec,
+		func(c *mos.CPU, b uint8) { c.Set(addr, b); c.EffAddr = addr; c.EffVal = b },
+		func(c *mos.CPU) uint8 { return c.Get(addr) },
+		mos.Dec,
 	)
 }
 
 func (s *mosSuite) testIncrement(
 	funcName string,
-	setVal func(*CPU, uint8),
-	getVal func(*CPU) uint8,
-	fn func(*CPU),
+	setVal func(*mos.CPU, uint8),
+	getVal func(*mos.CPU) uint8,
+	fn func(*mos.CPU),
 ) {
 	var (
 		d1   uint8 = 1
@@ -214,52 +216,52 @@ func (s *mosSuite) testIncrement(
 		setVal(s.cpu, d127)
 		fn(s.cpu)
 
-		s.Equal(NEGATIVE, s.cpu.P&NEGATIVE)
+		s.Equal(mos.NEGATIVE, s.cpu.P&mos.NEGATIVE)
 	})
 
 	s.Run(runZero, func() {
 		setVal(s.cpu, d255)
 		fn(s.cpu)
 
-		s.Equal(ZERO, s.cpu.P&ZERO)
+		s.Equal(mos.ZERO, s.cpu.P&mos.ZERO)
 	})
 }
 
 func (s *mosSuite) TestInx() {
 	s.testIncrement("INX",
-		func(c *CPU, b uint8) { c.X = b },
-		func(c *CPU) uint8 { return c.X },
-		Inx,
+		func(c *mos.CPU, b uint8) { c.X = b },
+		func(c *mos.CPU) uint8 { return c.X },
+		mos.Inx,
 	)
 }
 
 func (s *mosSuite) TestIny() {
 	s.testIncrement("INY",
-		func(c *CPU, b uint8) { c.Y = b },
-		func(c *CPU) uint8 { return c.Y },
-		Iny,
+		func(c *mos.CPU, b uint8) { c.Y = b },
+		func(c *mos.CPU) uint8 { return c.Y },
+		mos.Iny,
 	)
 }
 
 // Same deal as TestDec above -- the INC instruction does some very different
 // things based on address mode.
 func (s *mosSuite) TestInc() {
-	s.cpu.AddrMode = amAcc
+	s.cpu.AddrMode = mos.AmACC
 	s.testIncrement("INC",
-		func(c *CPU, b uint8) { c.A = b; c.EffVal = b },
-		func(c *CPU) uint8 { return c.A },
-		Inc,
+		func(c *mos.CPU, b uint8) { c.A = b; c.EffVal = b },
+		func(c *mos.CPU) uint8 { return c.A },
+		mos.Inc,
 	)
 
 	var (
 		addr uint16 = 1
 	)
 
-	s.cpu.AddrMode = amAbs
+	s.cpu.AddrMode = mos.AmABS
 	s.testIncrement("INC",
-		func(c *CPU, b uint8) { c.Set(addr, b); c.EffAddr = addr; c.EffVal = b },
-		func(c *CPU) uint8 { return c.Get(addr) },
-		Inc,
+		func(c *mos.CPU, b uint8) { c.Set(addr, b); c.EffAddr = addr; c.EffVal = b },
+		func(c *mos.CPU) uint8 { return c.Get(addr) },
+		mos.Inc,
 	)
 }
 
@@ -275,21 +277,21 @@ func (s *mosSuite) TestSbc() {
 	s.Run("subtracting with carry set results in A = A - EV", func() {
 		s.cpu.A = d127
 		s.cpu.EffVal = offset
-		s.cpu.P = CARRY
-		Sbc(s.cpu)
+		s.cpu.P = mos.CARRY
+		mos.Sbc(s.cpu)
 
 		s.Equal(d127-offset, s.cpu.A)
 	})
 
 	s.Run("subtraction with nonzero result sets carry", func() {
-		s.Equal(CARRY, s.cpu.P&CARRY)
+		s.Equal(mos.CARRY, s.cpu.P&mos.CARRY)
 	})
 
 	s.Run("subtracting without carry sets results in A = A - EV - 1", func() {
 		s.cpu.A = d127
 		s.cpu.EffVal = offset
 		s.cpu.P = 0
-		Sbc(s.cpu)
+		mos.Sbc(s.cpu)
 
 		s.Equal(d127-offset-one, s.cpu.A)
 	})
@@ -297,34 +299,34 @@ func (s *mosSuite) TestSbc() {
 	s.Run("subtracting a larger from a smaller number sets negative", func() {
 		s.cpu.A = d10
 		s.cpu.EffVal = offset
-		s.cpu.P = CARRY
-		Sbc(s.cpu)
+		s.cpu.P = mos.CARRY
+		mos.Sbc(s.cpu)
 
 		s.Equal(d10-offset, s.cpu.A)
-		s.Equal(NEGATIVE, s.cpu.P&NEGATIVE)
+		s.Equal(mos.NEGATIVE, s.cpu.P&mos.NEGATIVE)
 	})
 
 	s.Run("subtracting that flips the sign positive to negative sets overflow", func() {
-		s.Equal(OVERFLOW, s.cpu.P&OVERFLOW)
+		s.Equal(mos.OVERFLOW, s.cpu.P&mos.OVERFLOW)
 	})
 
 	s.Run("subtracting that flips the sign negative to positve sets overflow", func() {
 		s.cpu.A = d127 + offset
 		s.cpu.EffVal = offset
-		s.cpu.P = CARRY
-		Sbc(s.cpu)
+		s.cpu.P = mos.CARRY
+		mos.Sbc(s.cpu)
 
 		s.Equal(d127, s.cpu.A)
-		s.Equal(OVERFLOW, s.cpu.P&OVERFLOW)
+		s.Equal(mos.OVERFLOW, s.cpu.P&mos.OVERFLOW)
 	})
 
 	s.Run("subtracting that results in zero sets zero", func() {
 		s.cpu.A = d127
 		s.cpu.EffVal = d127
-		s.cpu.P = CARRY
-		Sbc(s.cpu)
+		s.cpu.P = mos.CARRY
+		mos.Sbc(s.cpu)
 
 		s.Equal(d0, s.cpu.A)
-		s.Equal(ZERO, s.cpu.P&ZERO)
+		s.Equal(mos.ZERO, s.cpu.P&mos.ZERO)
 	})
 }

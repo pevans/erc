@@ -1,11 +1,11 @@
-package mos65c02
+package mos
 
 // saveResult makes a decision on the instruction level where to save
 // the result of an operation. If we're in accumulator mode, then we
 // save the result in the A register; if not, then we save it in memory
 // at the effective address.
 func (c *CPU) saveResult(res uint8) {
-	if c.AddrMode == amAcc {
+	if c.AddrMode == AmACC {
 		c.A = res
 	} else {
 		c.Set(c.EffAddr, res)

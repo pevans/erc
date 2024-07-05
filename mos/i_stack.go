@@ -1,4 +1,4 @@
-package mos65c02
+package mos
 
 // stackAddr returns the address indicated by the current position of
 // the stack register.

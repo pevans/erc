@@ -1,4 +1,4 @@
-package mos65c02
+package mos
 
 import (
 	"fmt"
@@ -248,23 +248,23 @@ func formatOperand(
 	str := ""
 
 	switch mode {
-	case amAcc, amImp, amBy2, amBy3:
+	case AmACC, AmIMP, AmBY2, AmBY3:
 		break
-	case amAbs:
+	case AmABS:
 		str = fmt.Sprintf("$%04X", operand)
-	case amAbx:
+	case AmABX:
 		str = fmt.Sprintf("$%04X,X", operand)
-	case amAby:
+	case AmABY:
 		str = fmt.Sprintf("$%04X,Y", operand)
-	case amIdx:
+	case AmIDX:
 		str = fmt.Sprintf("($%02X,X)", operand)
-	case amIdy:
+	case AmIDY:
 		str = fmt.Sprintf("($%02X),Y", operand)
-	case amInd:
+	case AmIND:
 		str = fmt.Sprintf("($%04X)", operand)
-	case amImm:
+	case AmIMM:
 		str = fmt.Sprintf("#$%02X", operand)
-	case amRel:
+	case AmREL:
 		newAddr := pc + operand + 2
 
 		// It's signed, so the effect of the operand should be negative w/r/t
@@ -274,11 +274,11 @@ func formatOperand(
 		}
 
 		str = fmt.Sprintf("$%04X", newAddr)
-	case amZpg:
+	case AmZPG:
 		str = fmt.Sprintf("$%02X", operand)
-	case amZpx:
+	case AmZPX:
 		str = fmt.Sprintf("$%02X,X", operand)
-	case amZpy:
+	case AmZPY:
 		str = fmt.Sprintf("$%02X,Y", operand)
 	}
 

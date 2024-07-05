@@ -1,21 +1,22 @@
-package mos65c02
+package mos_test
 
 import (
 	"testing"
 
 	"github.com/pevans/erc/memory"
+	"github.com/pevans/erc/mos"
 	"github.com/stretchr/testify/suite"
 )
 
 type mosSuite struct {
 	suite.Suite
 
-	cpu *CPU
+	cpu *mos.CPU
 }
 
 func (s *mosSuite) SetupTest() {
 	seg := memory.NewSegment(0x10000)
-	s.cpu = new(CPU)
+	s.cpu = new(mos.CPU)
 	s.cpu.State = new(memory.StateMap)
 	s.cpu.RMem = seg
 	s.cpu.WMem = seg
@@ -36,7 +37,7 @@ func (s *mosSuite) TestAcc() {
 
 	for _, c := range cases {
 		s.cpu.A = c.want
-		Acc(s.cpu)
+		mos.Acc(s.cpu)
 
 		s.Equal(uint16(0), s.cpu.EffAddr)
 		s.Equal(c.want, s.cpu.EffVal)
@@ -57,7 +58,7 @@ func (s *mosSuite) TestAbs() {
 		s.cpu.Set16(s.cpu.PC+1, c.oper)
 		s.cpu.Set(c.oper, c.want)
 
-		Abs(s.cpu)
+		mos.Abs(s.cpu)
 
 		s.Equal(c.oper, s.cpu.EffAddr)
 		s.Equal(c.want, s.cpu.EffVal)
@@ -80,7 +81,7 @@ func (s *mosSuite) TestAbx() {
 		s.cpu.Set(c.oper+uint16(c.x), c.want)
 
 		s.cpu.X = c.x
-		Abx(s.cpu)
+		mos.Abx(s.cpu)
 
 		s.Equal(c.oper+uint16(c.x), s.cpu.EffAddr)
 		s.Equal(c.want, s.cpu.EffVal)
@@ -103,7 +104,7 @@ func (s *mosSuite) TestAby() {
 		s.cpu.Set(c.oper+uint16(c.y), c.want)
 
 		s.cpu.Y = c.y
-		Aby(s.cpu)
+		mos.Aby(s.cpu)
 
 		s.Equal(c.oper+uint16(c.y), s.cpu.EffAddr)
 		s.Equal(c.want, s.cpu.EffVal)
@@ -122,7 +123,7 @@ func (s *mosSuite) TestImm() {
 	for _, c := range cases {
 		s.cpu.Set(s.cpu.PC+1, c.want)
 
-		Imm(s.cpu)
+		mos.Imm(s.cpu)
 
 		s.Equal(uint16(0), s.cpu.EffAddr)
 		s.Equal(c.want, s.cpu.EffVal)
@@ -150,7 +151,7 @@ func (s *mosSuite) TestInd() {
 		// And, finally, the value.
 		s.cpu.Set(c.addr, c.want)
 
-		Ind(s.cpu)
+		mos.Ind(s.cpu)
 
 		s.Equal(c.addr, s.cpu.EffAddr)
 		s.Equal(c.want, s.cpu.EffVal)
@@ -179,7 +180,7 @@ func (s *mosSuite) TestIdx() {
 		s.cpu.Set(c.atOper, c.want)
 
 		s.cpu.X = c.x
-		Idx(s.cpu)
+		mos.Idx(s.cpu)
 
 		s.Equal(s.cpu.EffAddr, c.atOper)
 		s.Equal(s.cpu.EffVal, c.want)
@@ -210,7 +211,7 @@ func (s *mosSuite) TestIdy() {
 
 		// And now we resolve the address.
 		s.cpu.Y = c.y
-		Idy(s.cpu)
+		mos.Idy(s.cpu)
 
 		s.Equal(c.want, s.cpu.EffVal)
 		s.Equal(addr, s.cpu.EffAddr)
@@ -218,15 +219,15 @@ func (s *mosSuite) TestIdy() {
 }
 
 func (s *mosSuite) TestImp() {
-	Imp(s.cpu)
+	mos.Imp(s.cpu)
 	s.Equal(uint8(0), s.cpu.EffVal)
 	s.Equal(uint16(0), s.cpu.EffAddr)
 
-	By2(s.cpu)
+	mos.By2(s.cpu)
 	s.Equal(uint8(0), s.cpu.EffVal)
 	s.Equal(uint16(0), s.cpu.EffAddr)
 
-	By3(s.cpu)
+	mos.By3(s.cpu)
 	s.Equal(uint8(0), s.cpu.EffVal)
 	s.Equal(uint16(0), s.cpu.EffAddr)
 }
@@ -246,7 +247,7 @@ func (s *mosSuite) TestRel() {
 		s.cpu.PC = c.pc
 		s.cpu.Set(c.pc+1, c.next)
 
-		Rel(s.cpu)
+		mos.Rel(s.cpu)
 		s.Equal(c.want, s.cpu.EffAddr)
 	}
 }
@@ -268,7 +269,7 @@ func (s *mosSuite) TestZpg() {
 		// Set the value for `$NN`
 		s.cpu.Set(uint16(c.addr), c.want)
 
-		Zpg(s.cpu)
+		mos.Zpg(s.cpu)
 		s.Equal(uint16(c.addr), s.cpu.EffAddr)
 		s.Equal(c.want, s.cpu.EffVal)
 	}
@@ -295,7 +296,7 @@ func (s *mosSuite) TestZpx() {
 		s.cpu.Set(addr, c.want)
 
 		s.cpu.X = c.x
-		Zpx(s.cpu)
+		mos.Zpx(s.cpu)
 
 		s.Equal(addr, s.cpu.EffAddr)
 		s.Equal(c.want, s.cpu.EffVal)
@@ -323,7 +324,7 @@ func (s *mosSuite) TestZpy() {
 		s.cpu.Set(addr, c.want)
 
 		s.cpu.Y = c.y
-		Zpy(s.cpu)
+		mos.Zpy(s.cpu)
 
 		s.Equal(addr, s.cpu.EffAddr)
 		s.Equal(c.want, s.cpu.EffVal)

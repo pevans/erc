@@ -1,4 +1,4 @@
-package mos65c02
+package mos
 
 // jumpIf will jump to EffAddr if the value in bits is greater than
 // zero. The value of bits is typically computed with a bitwise

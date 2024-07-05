@@ -1,4 +1,4 @@
-package mos65c02
+package mos
 
 // Lda implements the LDA (load A) instruction, which saves the EffVal
 // into the A register.

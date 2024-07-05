@@ -2,7 +2,7 @@ package a2
 
 import (
 	"github.com/pevans/erc/a2/a2state"
-	"github.com/pevans/erc/mos65c02"
+	"github.com/pevans/erc/mos"
 )
 
 func (s *a2Suite) TestBoot() {
@@ -25,7 +25,7 @@ func (s *a2Suite) TestReset() {
 	c.Reset()
 
 	s.Equal(
-		mos65c02.INTERRUPT|mos65c02.BREAK|mos65c02.UNUSED,
+		mos.INTERRUPT|mos.BREAK|mos.UNUSED,
 		c.CPU.P,
 	)
 	s.Equal(c.CPU.Get16(ResetPC), c.CPU.PC)

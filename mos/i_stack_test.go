@@ -1,24 +1,8 @@
-package mos65c02
+package mos_test
 
 import (
 	"github.com/stretchr/testify/assert"
 )
-
-func (s *mosSuite) TestStackAddr() {
-	cases := []struct {
-		s    uint8
-		want uint16
-	}{
-		{0, 0x100},
-		{0xFF, 0x1FF},
-		{0x82, 0x182},
-	}
-
-	for _, cc := range cases {
-		s.cpu.S = cc.s
-		assert.Equal(s.T(), cc.want, s.cpu.stackAddr())
-	}
-}
 
 func (s *mosSuite) TestPushStack() {
 	cases := []struct {
@@ -36,7 +20,7 @@ func (s *mosSuite) TestPushStack() {
 		s.cpu.PushStack(cc.want)
 
 		s.cpu.S++
-		assert.Equal(s.T(), cc.want, s.cpu.Get(s.cpu.stackAddr()))
+		assert.Equal(s.T(), cc.want, s.cpu.Get(uint16(0x100)+uint16(s.cpu.S)))
 	}
 }
 
@@ -53,7 +37,7 @@ func (s *mosSuite) TestPopStack() {
 	s.cpu.S = 0xFF
 
 	for _, cc := range cases {
-		s.cpu.Set(s.cpu.stackAddr(), cc.want)
+		s.cpu.Set(uint16(0x100)+uint16(s.cpu.S), cc.want)
 		s.cpu.S--
 
 		assert.Equal(s.T(), cc.want, s.cpu.PopStack())
