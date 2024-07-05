@@ -68,6 +68,10 @@ func execute(comp *a2.Computer, cmd string) {
 	case "until":
 		until(comp, tokens)
 
+		// simulation
+	case "keypress":
+		keypress(comp, tokens)
+
 		// the rest
 	case "disk":
 		disk(comp, tokens)
@@ -97,6 +101,8 @@ func help() {
 	say("  [execution]")
 	say("    step <times> ....... execute <times> instructions")
 	say("    until <instruction>  execute until <instruction>")
+	say("  [simulation]")
+	say("    keypress <val> ..... simulate a keypress with hex ascii code <val>")
 	say("  [the rest]")
 	say("    disk <file> ........ load <file> into drive")
 	say("    help ............... print this message")
