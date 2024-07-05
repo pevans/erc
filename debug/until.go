@@ -31,7 +31,7 @@ func until(comp *a2.Computer, tokens []string) {
 
 		say(comp.CPU.LastInstruction())
 
-		if strings.HasPrefix(comp.CPU.LastInstruction(), instruction) {
+		if strings.Contains(comp.CPU.LastInstruction(), instruction) {
 			say(fmt.Sprintf("stepped over %v instructions", i+1))
 			return
 		}
