@@ -1,6 +1,9 @@
 package gfx
 
-import "github.com/hajimehoshi/ebiten/v2"
+import (
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/pevans/erc/input"
+)
 
 var keyRunes = map[ebiten.Key]rune{
 	ebiten.KeyA:            'A',
@@ -58,10 +61,41 @@ var keyRunes = map[ebiten.Key]rune{
 	ebiten.KeyZ:            'Z',
 }
 
-func KeyToRune(key ebiten.Key) rune {
-	if r, ok := keyRunes[key]; ok {
-		return r
+var shiftKeyRunes = map[ebiten.Key]rune{
+	ebiten.KeyBackquote:    '~',
+	ebiten.KeyBackslash:    '|',
+	ebiten.KeyBracketLeft:  '{',
+	ebiten.KeyBracketRight: '}',
+	ebiten.KeyComma:        '<',
+	ebiten.KeyDigit0:       ')',
+	ebiten.KeyDigit1:       '!',
+	ebiten.KeyDigit2:       '@',
+	ebiten.KeyDigit3:       '#',
+	ebiten.KeyDigit4:       '$',
+	ebiten.KeyDigit5:       '%',
+	ebiten.KeyDigit6:       '^',
+	ebiten.KeyDigit7:       '&',
+	ebiten.KeyDigit8:       '*',
+	ebiten.KeyDigit9:       '(',
+	ebiten.KeyEqual:        '+',
+	ebiten.KeyMinus:        '_',
+	ebiten.KeyPeriod:       '>',
+	ebiten.KeyQuote:        '"',
+	ebiten.KeySemicolon:    ':',
+	ebiten.KeySlash:        '?',
+}
+
+func KeyToRune(key ebiten.Key, modifier int) rune {
+	if modifier == input.ModShift {
+		if r, ok := shiftKeyRunes[key]; ok {
+			return r
+		}
 	}
 
-	return rune(0)
+	r, ok := keyRunes[key]
+	if !ok {
+		return rune(0)
+	}
+
+	return r
 }

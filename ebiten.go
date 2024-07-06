@@ -72,12 +72,13 @@ func (g *game) pushInputEvent() {
 		// If we see a modifier among the keys, we set the input event's
 		// modifier. It's possible we've seen multiple modifiers -- if
 		// so, the previous modifier is clobbered.
-		if mod := modifier(k); mod != input.ModNone {
+		mod := modifier(k)
+		if mod != input.ModNone {
 			g.inputEvent.Modifier = mod
 			continue
 		}
 
-		g.inputEvent.Key = gfx.KeyToRune(k)
+		g.inputEvent.Key = gfx.KeyToRune(k, g.inputEvent.Modifier)
 	}
 
 	// Don't allow repeat keystrokes
