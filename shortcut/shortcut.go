@@ -11,7 +11,7 @@ func Check(ev input.Event, comp *a2.Computer) bool {
 		return false
 	}
 
-	if ev.Key == 'd' {
+	if ev.Key == 'd' || ev.Key == 'D' {
 		comp.State.SetBool(a2state.Debugger, true)
 		return true
 	}
