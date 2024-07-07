@@ -217,20 +217,28 @@ func displaySwitchWrite(a int, val uint8, stm *memory.StateMap) {
 
 	switch a {
 	case onAltChar:
+		metrics.Increment("soft_display_altchar_on", 1)
 		stm.SetBool(a2state.DisplayAltChar, true)
 	case on80Col:
+		metrics.Increment("soft_display_80col_on", 1)
 		stm.SetBool(a2state.DisplayCol80, true)
 	case on80Store:
+		metrics.Increment("soft_display_80store_on", 1)
 		stm.SetBool(a2state.DisplayStore80, true)
 	case onIOUDis:
+		metrics.Increment("soft_display_ioudis_on", 1)
 		stm.SetBool(a2state.DisplayIou, true)
 	case offAltChar:
+		metrics.Increment("soft_display_altchar_off", 1)
 		stm.SetBool(a2state.DisplayAltChar, false)
 	case off80Col:
+		metrics.Increment("soft_display_80col_off", 1)
 		stm.SetBool(a2state.DisplayCol80, false)
 	case off80Store:
+		metrics.Increment("soft_display_80store_off", 1)
 		stm.SetBool(a2state.DisplayStore80, false)
 	case offIOUDis:
+		metrics.Increment("soft_display_ioudis_off", 1)
 		stm.SetBool(a2state.DisplayIou, false)
 	}
 }
