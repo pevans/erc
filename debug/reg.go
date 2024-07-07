@@ -12,7 +12,7 @@ func reg(comp *a2.Computer, tokens []string) {
 		return
 	}
 
-	val, err := hex(tokens[2], 8)
+	val, err := hex(tokens[2], 16)
 	if err != nil {
 		say(fmt.Sprintf("invalid value: %v", err))
 		return
