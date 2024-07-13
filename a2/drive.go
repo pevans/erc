@@ -208,6 +208,10 @@ func (d *Drive) Load(r io.Reader, file string) error {
 		return errors.Wrapf(err, "failed to decode image")
 	}
 
+	// Reset the sector position, but leave track alone; the drive head
+	// has not shifted since replacing the disk.
+	d.SectorPos = 0
+
 	return nil
 }
 
