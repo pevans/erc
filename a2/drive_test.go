@@ -67,7 +67,7 @@ func (s *a2Suite) TestDriveStep() {
 	d.SectorPos = 123
 	d.Step(2)
 	s.Equal(2, d.TrackPos)
-	s.Equal(0, d.SectorPos)
+	s.Equal(123, d.SectorPos)
 
 	// Negative step
 	d.Step(-1)

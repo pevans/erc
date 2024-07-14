@@ -84,9 +84,6 @@ func (d *Drive) Step(offset int) {
 	case d.TrackPos < 0:
 		d.TrackPos = 0
 	}
-
-	// The sector position also resets when the drive motor steps
-	d.SectorPos = 0
 }
 
 // Phase returns the motor phase based upon the given address.
