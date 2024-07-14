@@ -2,6 +2,9 @@ package asm
 
 import "fmt"
 
+// Line is a representation of some line of assembly to output. There
+// are many kinds of assembly; this is intended to model that of a
+// 6502-style system.
 type Line struct {
 	Address     int
 	Instruction string
