@@ -83,24 +83,6 @@ func (s *a2Suite) TestDriveStep() {
 	s.Equal(0, d.TrackPos)
 }
 
-func (s *a2Suite) TestDrivePhase() {
-	for i := 0x0; i < 0x10; i++ {
-		p := Phase(uint16(i))
-		switch i {
-		case 0x1:
-			s.Equal(1, p)
-		case 0x3:
-			s.Equal(2, p)
-		case 0x5:
-			s.Equal(3, p)
-		case 0x7:
-			s.Equal(4, p)
-		default:
-			s.Equal(-1, p)
-		}
-	}
-}
-
 /*
 func (s *a2Suite) TestDriveStepPhase() {
 	d := NewDrive()

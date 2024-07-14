@@ -86,24 +86,6 @@ func (d *Drive) Step(offset int) {
 	}
 }
 
-// Phase returns the motor phase based upon the given address.
-func Phase(addr uint16) int {
-	phase := -1
-
-	switch addr & 0xF {
-	case 0x1:
-		phase = 1
-	case 0x3:
-		phase = 2
-	case 0x5:
-		phase = 3
-	case 0x7:
-		phase = 4
-	}
-
-	return phase
-}
-
 // SwitchPhase will figure out what phase we should be moving to based on a
 // given address.
 func (d *Drive) SwitchPhase(addr int) {
