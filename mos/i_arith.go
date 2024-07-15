@@ -12,15 +12,11 @@ func Adc(c *CPU) {
 	res16 += uint16(c.EffVal)
 	res16 += uint16(c.P & CARRY)
 
-	// TODO: it's possible for ADC to be executed in decimal, rather than
-	// binary, mode; but our current code only handles the latter.
-
 	// But we mostly care about the 8-bit result, even if the unsigned
 	// 8-bit value overflows
 	res8 := uint8(res16)
 
-	c.ApplyNZ(res8)
-	c.ApplyStatus(res16 > 0xFF, CARRY)
+	c.ApplyN(res8)
 
 	// That said, bear in mind that "overflow" in the MOS6502 means that
 	// the value went from positive to negative, or from negative to
@@ -30,6 +26,23 @@ func Adc(c *CPU) {
 			(accum >= 0x80 && res8 < 0x80),
 		OVERFLOW,
 	)
+
+	if c.P&DECIMAL > 0 {
+		decimalAccumulator := NewDecimal(int(c.A))
+		decimalAccumulator.Add(
+			NewDecimal(int(c.EffVal)),
+			NewDecimal(int(c.P&CARRY)),
+		)
+
+		c.ApplyStatus(decimalAccumulator.Carry, CARRY)
+		c.ApplyStatus(decimalAccumulator.Result == 0, ZERO)
+
+		c.A = uint8(decimalAccumulator.Binary())
+		return
+	}
+
+	c.ApplyZ(res8)
+	c.ApplyStatus(res16 > 0xFF, CARRY)
 
 	c.A = res8
 }
@@ -56,15 +69,15 @@ func Cpy(c *CPU) {
 // from the A register (if in the amAcc address mode), or can decrement
 // from any address (depending on the other address modes used).
 func Dec(c *CPU) {
-	c.EffVal--
-	c.ApplyNZ(c.EffVal)
+	effVal := c.EffVal - 1
+	c.ApplyNZ(effVal)
 
 	if c.AddrMode == AmACC {
-		c.A = c.EffVal
+		c.A = effVal
 		return
 	}
 
-	c.Set(c.EffAddr, c.EffVal)
+	c.Set(c.EffAddr, effVal)
 }
 
 // Dex implements the DEX (decrement X) instruction. DEX decrements only
@@ -85,15 +98,15 @@ func Dey(c *CPU) {
 // increment from the A register or from any address in memory,
 // depending on the addr mode.
 func Inc(c *CPU) {
-	c.EffVal++
-	c.ApplyNZ(c.EffVal)
+	effVal := c.EffVal + 1
+	c.ApplyNZ(effVal)
 
 	if c.AddrMode == AmACC {
-		c.A = c.EffVal
+		c.A = effVal
 		return
 	}
 
-	c.Set(c.EffAddr, c.EffVal)
+	c.Set(c.EffAddr, effVal)
 }
 
 // Inx implements the INX (increment X) instruction. INX can only
@@ -125,14 +138,34 @@ func Sbc(c *CPU) {
 
 	res8 := uint8(res)
 
-	c.ApplyZ(res8)
-	c.ApplyStatus(res < 0, NEGATIVE)
-	c.ApplyStatus(res >= 0, CARRY)
 	c.ApplyStatus(
 		(accum < 0x80 && res8 >= 0x80) ||
 			(accum >= 0x80 && res8 < 0x80),
 		OVERFLOW,
 	)
+
+	if c.P&DECIMAL > 0 {
+		decimalAccumulator := NewDecimal(int(c.A))
+		decimalAccumulator.Subtract(
+			NewDecimal(int(c.EffVal)),
+		)
+
+		if c.P&CARRY == 0 {
+			decimalAccumulator.Subtract(NewDecimal(1))
+		}
+
+		c.ApplyZ(uint8(decimalAccumulator.Result))
+		c.ApplyStatus(decimalAccumulator.Negative, NEGATIVE)
+		c.ApplyStatus(decimalAccumulator.Result >= 0, CARRY)
+
+		c.A = uint8(decimalAccumulator.Binary())
+		return
+	}
+
+	c.ApplyZ(res8)
+	c.ApplyStatus(res < 0, NEGATIVE)
+
+	c.ApplyStatus(res >= 0, CARRY)
 
 	c.A = res8
 }

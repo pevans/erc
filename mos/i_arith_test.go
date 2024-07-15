@@ -2,9 +2,23 @@ package mos_test
 
 import (
 	"fmt"
+	"testing"
 
 	"github.com/pevans/erc/mos"
+	"github.com/stretchr/testify/assert"
 )
+
+func TestNewDecimal(t *testing.T) {
+	assert.Equal(t, mos.Decimal{Result: 3}, mos.NewDecimal(0b00000011))
+	assert.Equal(t, mos.Decimal{Result: 13}, mos.NewDecimal(0b00010011))
+	assert.Equal(t, mos.Decimal{Result: 99}, mos.NewDecimal(0b10011001))
+
+	d := mos.NewDecimal(0b00001010)
+	assert.Error(t, d.Error)
+
+	d = mos.NewDecimal(0b10100000)
+	assert.Error(t, d.Error)
+}
 
 func (s *mosSuite) TestAdc() {
 	var (
@@ -62,6 +76,15 @@ func (s *mosSuite) TestAdc() {
 
 		s.Equal(d250+offset, s.cpu.A)
 		s.Equal(mos.OVERFLOW, s.cpu.P&mos.OVERFLOW)
+	})
+
+	s.Run("decimal works", func() {
+		s.cpu.A = 0x6
+		s.cpu.EffVal = 0x6
+		s.cpu.P = mos.DECIMAL
+
+		mos.Adc(s.cpu)
+		s.Equal(uint8(0x12), s.cpu.A)
 	})
 }
 
@@ -328,5 +351,14 @@ func (s *mosSuite) TestSbc() {
 
 		s.Equal(d0, s.cpu.A)
 		s.Equal(mos.ZERO, s.cpu.P&mos.ZERO)
+	})
+
+	s.Run("decimal works", func() {
+		s.cpu.A = 0x16
+		s.cpu.EffVal = 0x7
+		s.cpu.P = mos.DECIMAL | mos.CARRY
+
+		mos.Sbc(s.cpu)
+		s.Equal(uint8(0x9), s.cpu.A)
 	})
 }
