@@ -24,12 +24,12 @@ func And(c *CPU) {
 // bit is 1, then the carry flag is set. Don't ask why it's
 // "arithmetic", because it doesn't make any sense to me.
 func Asl(c *CPU) {
-	res := c.EffVal << 1
+	res := int(c.EffVal) << 1
 
-	c.ApplyNZ(res)
-	c.ApplyStatus(c.EffVal&0x80 > 0, CARRY)
+	c.ApplyNZ(uint8(res))
+	c.ApplyStatus(res > 0xFF, CARRY)
 
-	c.saveResult(res)
+	c.saveResult(uint8(res))
 }
 
 // Bit implements the BIT instruction, which performs several "bit"
@@ -96,16 +96,16 @@ func Ora(c *CPU) {
 // You can think of the rotate operation as a kind of nine-bit rotation,
 // where the ninth bit is the carry flag.
 func Rol(c *CPU) {
-	res := c.EffVal << 1
+	res := int(c.EffVal) << 1
 
 	if c.P&CARRY > 0 {
 		res |= 0x1
 	}
 
-	c.ApplyStatus(c.EffVal&0x80 > 0, CARRY)
-	c.ApplyNZ(res)
+	c.ApplyStatus(res > 0xFF, CARRY)
+	c.ApplyNZ(uint8(res))
 
-	c.saveResult(res)
+	c.saveResult(uint8(res))
 }
 
 // Ror implements the ROR (rotate right) instruction, which rotates
