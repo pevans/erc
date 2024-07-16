@@ -177,7 +177,6 @@ func (s *mosSuite) TestTxs() {
 		s.cpu.X = c.want
 		mos.Txs(s.cpu)
 
-		assert.Equal(s.T(), c.p, s.cpu.P)
 		assert.Equal(s.T(), c.want, s.cpu.S)
 	}
 }

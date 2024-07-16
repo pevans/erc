@@ -128,7 +128,6 @@ func Txa(c *CPU) {
 // Txs implements the TXS (transfer X to S) instruction, which sets the
 // S register equal to the value of the X register.
 func Txs(c *CPU) {
-	c.ApplyNZ(c.X)
 	c.S = c.X
 }
 
