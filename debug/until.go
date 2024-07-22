@@ -8,7 +8,7 @@ import (
 )
 
 func until(comp *a2.Computer, tokens []string) {
-	const maxIterations = 100000
+	const maxIterations = 10_000_000
 
 	if len(tokens) < 2 {
 		say("you must provide an instruction to step until")
@@ -22,6 +22,10 @@ func until(comp *a2.Computer, tokens []string) {
 			"you must provide a valid instruction (\"%v\" given)", instruction,
 		))
 		return
+	}
+
+	if len(tokens) > 2 {
+		instruction = strings.Join(tokens[1:], " ")
 	}
 
 	for i := 0; i < maxIterations; i++ {
