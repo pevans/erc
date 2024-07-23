@@ -195,6 +195,10 @@ func (d *Drive) Load(r io.Reader, file string) error {
 }
 
 func (d *Drive) Read() uint8 {
+	if d.Data == nil {
+		return 0xFF
+	}
+
 	// Set the latch value to the byte at our current position, then
 	// shift our position by one place
 	d.Latch = d.Data.Get(d.Position())
@@ -205,6 +209,10 @@ func (d *Drive) Read() uint8 {
 }
 
 func (d *Drive) Write() {
+	if d.Data == nil {
+		return
+	}
+
 	// We can only write our latch value if the high-bit is set
 	if d.Latch&0x80 > 0 {
 		d.Data.Set(d.Position(), d.Latch)
