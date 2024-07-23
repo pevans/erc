@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/pevans/erc/a2"
+	"github.com/pevans/erc/asm"
 )
 
 func step(comp *a2.Computer, tokens []string) {
@@ -25,13 +26,17 @@ func step(comp *a2.Computer, tokens []string) {
 		return
 	}
 
+	callmap := make(asm.CallMap)
+
 	for i := 0; i < step; i++ {
 		if _, err := comp.Process(); err != nil {
 			panic(fmt.Sprintf("could not step instruction: %v", err))
 		}
 
-		say(comp.CPU.LastInstruction())
+		callmap.Add(comp.CPU.LastInstruction())
 	}
+
+	callmap.WriteToFile("callmap.txt")
 
 	say(fmt.Sprintf("executed %v times, current state is now", step))
 	status(comp)

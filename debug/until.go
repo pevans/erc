@@ -8,7 +8,7 @@ import (
 )
 
 func until(comp *a2.Computer, tokens []string) {
-	const maxIterations = 10_000_000
+	const maxIterations = 100_000_000
 
 	if len(tokens) < 2 {
 		say("you must provide an instruction to step until")
