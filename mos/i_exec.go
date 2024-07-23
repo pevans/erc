@@ -32,6 +32,8 @@ func Brk(c *CPU) {
 // Jmp implements the JMP instruction, which sets the program counter to
 // the effective address.
 func Jmp(c *CPU) {
+	// FIXME: in opcode 0x7C, there may be inaccurate behavior on the
+	// 65C02 processor.
 	c.PC = c.EffAddr
 }
 
