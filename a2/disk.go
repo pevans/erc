@@ -2,11 +2,60 @@ package a2
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/memory"
 )
+
+type DiskRead struct {
+	HalfTrack   int
+	Sector      int
+	Byte        uint8
+	Instruction string
+}
+
+type DiskLog struct {
+	Reads []DiskRead
+	Name  string
+}
+
+func NewDiskLog(name string) *DiskLog {
+	log := new(DiskLog)
+	log.Name = name
+
+	return log
+}
+
+func (l *DiskLog) Add(read *DiskRead) {
+	l.Reads = append(l.Reads, *read)
+}
+
+func (l *DiskLog) WriteToFile() error {
+	file := fmt.Sprintf("%v.disklog", l.Name)
+
+	fp, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		return err
+	}
+
+	defer fp.Close()
+
+	for _, read := range l.Reads {
+		logLine := fmt.Sprintf(
+			"track %02v (%02v) sector %04v byte $%02X | %v\n",
+			read.HalfTrack>>1, read.HalfTrack,
+			read.Sector, read.Byte, read.Instruction,
+		)
+
+		if _, err := fp.WriteString(logLine); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
 
 func diskUseDefaults(c *Computer) {
 	c.State.SetAny(a2state.DiskComputer, c) // :cry:
@@ -48,6 +97,16 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 	case 0xC:
 		if c.SelectedDrive.Mode == ReadMode || c.SelectedDrive.WriteProtect {
 			*val = c.SelectedDrive.Read()
+
+			if c.diskLog != nil {
+				c.diskLog.Add(&DiskRead{
+					HalfTrack:   c.SelectedDrive.TrackPos,
+					Sector:      c.SelectedDrive.SectorPos,
+					Byte:        *val,
+					Instruction: c.CPU.LastInstruction(),
+				})
+			}
+
 			metrics.Increment("disk_read", 1)
 		} else if c.SelectedDrive.Mode == WriteMode {
 			// Write the value currently in the latch

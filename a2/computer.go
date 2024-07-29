@@ -32,6 +32,7 @@ type Computer struct {
 	Drive1        *Drive
 	Drive2        *Drive
 	SelectedDrive *Drive
+	diskLog       *DiskLog
 
 	smap  *memory.SoftMap
 	State *memory.StateMap

@@ -27,5 +27,9 @@ func (c *Computer) Shutdown() error {
 		fmt.Printf("%v = %v\n", key, mets[key])
 	}
 
+	if c.diskLog != nil {
+		c.diskLog.WriteToFile()
+	}
+
 	return nil
 }

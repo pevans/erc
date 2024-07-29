@@ -14,6 +14,7 @@ const (
 	BankWriteRAM
 	Debugger
 	DebuggerLookAhead
+	DebugImage
 	DiskComputer
 	DisplayAltChar
 	DisplayAuxSegment
@@ -55,6 +56,7 @@ var keyStringMap = map[int]string{
 	BankWriteRAM:        "BankWriteRAM",
 	Debugger:            "Debugger",
 	DebuggerLookAhead:   "DebuggerLookAhead",
+	DebugImage:          "DebugImage",
 	DiskComputer:        "DiskComputer",
 	DisplayAltChar:      "DisplayAltChar",
 	DisplayAuxSegment:   "DisplayAuxSegment",

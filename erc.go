@@ -8,6 +8,7 @@ import (
 
 	"github.com/alecthomas/kong"
 	"github.com/pevans/erc/a2"
+	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/input"
 	"github.com/pevans/erc/shortcut"
@@ -16,9 +17,10 @@ import (
 )
 
 type cli struct {
-	Profile bool   `help:"Write out a profile trace"`
-	Image   string `arg`
-	Speed   int    `default:"1" help:"Starting speed of the emulator (more is faster)"`
+	Profile    bool   `help:"Write out a profile trace"`
+	DebugImage bool   `debug-image:"Write out debugging files to debug image loading"`
+	Image      string `arg`
+	Speed      int    `default:"1" help:"Starting speed of the emulator (more is faster)"`
 }
 
 // ConfigFile is the default (relative) location of our configuration file.
@@ -52,6 +54,8 @@ func main() {
 		comp.Shutdown()
 		os.Exit(1)
 	}()
+
+	comp.State.SetBool(a2state.DebugImage, cli.DebugImage)
 
 	inputFile := cli.Image
 	data, err := os.OpenFile(inputFile, os.O_RDWR, 0644)
