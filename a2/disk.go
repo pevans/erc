@@ -44,7 +44,7 @@ func (l *DiskLog) WriteToFile() error {
 
 	for _, read := range l.Reads {
 		logLine := fmt.Sprintf(
-			"track %02v (%02v) sector %04v byte $%02X | %v\n",
+			"track %02X (%02X) sector %04X byte $%02X | %v\n",
 			read.HalfTrack>>1, read.HalfTrack,
 			read.Sector, read.Byte, read.Instruction,
 		)
