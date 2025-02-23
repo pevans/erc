@@ -9,6 +9,7 @@ type Line struct {
 	Address     int
 	Instruction string
 	Operand     string
+	Opcode      uint8
 	Comment     string
 }
 
@@ -18,6 +19,8 @@ type Line struct {
 // for now.
 func (ln Line) String() string {
 	linefmt := "$%04X" + // address
+		"%3s" +
+		"%02X" +
 		"%3s" + // spacing
 		"%s " + // instruction
 		"%-10s" + // operand
@@ -26,6 +29,7 @@ func (ln Line) String() string {
 	str := fmt.Sprintf(
 		linefmt,
 		ln.Address, " ",
+		ln.Opcode, " ",
 		ln.Instruction, ln.Operand, " ",
 	)
 
