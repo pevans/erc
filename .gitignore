@@ -5,6 +5,9 @@
 # Ignore any image files that I might be testing with
 *.dsk
 *.nib
+*.callmap
+*.disklog
+*.physical
 
 # Ignore any build of the erc binary
 /erc
