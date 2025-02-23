@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/pevans/erc/a2/a2enc"
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/memory"
@@ -44,9 +45,10 @@ func (l *DiskLog) WriteToFile() error {
 
 	for _, read := range l.Reads {
 		logLine := fmt.Sprintf(
-			"track %02X (%02X) sector %04X byte $%02X | %v\n",
-			read.HalfTrack>>1, read.HalfTrack,
-			read.Sector, read.Byte, read.Instruction,
+			"track %02X (%02X) sector %04X offset %05X byte $%02X | %v\n",
+			read.HalfTrack>>1, read.HalfTrack, read.Sector,
+			((read.HalfTrack>>1)*a2enc.PhysTrackLen)+read.Sector,
+			read.Byte, read.Instruction,
 		)
 
 		if _, err := fp.WriteString(logLine); err != nil {
