@@ -176,6 +176,7 @@ func (c *CPU) LastInstruction() string {
 	ln := asm.Line{
 		Address:     int(c.LastPC),
 		Instruction: instructions[c.Opcode].String(),
+		Opcode:      c.Opcode,
 		Operand: formatOperand(
 			c.AddrMode, c.Operand, c.LastPC,
 		),
@@ -280,6 +281,10 @@ func formatOperand(
 		str = fmt.Sprintf("$%02X,X", operand)
 	case AmZPY:
 		str = fmt.Sprintf("$%02X,Y", operand)
+	}
+
+	if str == "" {
+		return fmt.Sprintf("mode=%v operand=%x", mode, operand)
 	}
 
 	return str
