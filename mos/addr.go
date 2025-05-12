@@ -205,6 +205,9 @@ func Ind(c *CPU) {
 	c.EffAddr = c.Get16(c.Operand)
 	c.EffVal = c.Get(c.EffAddr)
 	c.AddrMode = AmIND
+
+	// TODO: according to AppleWin, we should be adding a cycle of complexity
+	// if Operand ends in 0xFF
 }
 
 // Idx resolves the indexed indirect address mode, which resolves to a
