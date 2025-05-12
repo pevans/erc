@@ -98,17 +98,6 @@ func (m AddrMode) String() string {
 	return strings.ToUpper(parts[len(parts)-1])
 }
 
-// Acc will resolve the Accumulator address mode, which is very simple:
-// the effective value is the data within the A register.
-//
-// Ex. INC increments the A register
-func Acc(c *CPU) {
-	c.EffVal = c.A
-	c.EffAddr = 0
-	c.Operand = 0
-	c.AddrMode = AmACC
-}
-
 // Abs resolves the Absolute address mode. Given a 16-bit operand, we
 // dereference that for our effective value.
 //
@@ -153,6 +142,17 @@ func Aby(c *CPU) {
 	c.EffAddr = c.Operand + uint16(c.Y)
 	c.EffVal = c.Get(c.EffAddr)
 	c.AddrMode = AmABY
+}
+
+// Acc will resolve the Accumulator address mode, which is very simple:
+// the effective value is the data within the A register.
+//
+// Ex. INC increments the A register
+func Acc(c *CPU) {
+	c.EffVal = c.A
+	c.EffAddr = 0
+	c.Operand = 0
+	c.AddrMode = AmACC
 }
 
 // By2 is a placeholder mode
