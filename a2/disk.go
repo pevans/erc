@@ -41,7 +41,7 @@ func (l *DiskLog) WriteToFile() error {
 		return err
 	}
 
-	defer fp.Close()
+	defer fp.Close() //nolint:errcheck
 
 	for _, read := range l.Reads {
 		logLine := fmt.Sprintf(

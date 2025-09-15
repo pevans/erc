@@ -115,7 +115,7 @@ func TestWriteFile(t *testing.T) {
 	ns := NewSegment(size)
 	assert.NoError(t, ns.ReadFile(file))
 	assert.Equal(t, uint8(value), ns.Get(0))
-	os.Remove(file)
+	assert.NoError(t, os.Remove(file))
 }
 
 func TestReadFile(t *testing.T) {

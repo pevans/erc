@@ -46,7 +46,11 @@ func newLoresBlock(clr color.RGBA) *gfx.FrameBuffer {
 
 	for y := uint(0); y < loresBlockHeight; y++ {
 		for x := uint(0); x < loresBlockWidth; x++ {
-			fbuf.SetCell(x, y, clr)
+			err := fbuf.SetCell(x, y, clr)
+			if err != nil {
+				// This should really never happen...
+				panic(err)
+			}
 		}
 	}
 

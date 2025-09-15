@@ -18,7 +18,7 @@ func (c *Computer) Shutdown() error {
 	mets := metrics.Export()
 	keys := []string{}
 
-	for name, _ := range mets {
+	for name := range mets {
 		keys = append(keys, name)
 	}
 
@@ -28,7 +28,7 @@ func (c *Computer) Shutdown() error {
 	}
 
 	if c.diskLog != nil {
-		c.diskLog.WriteToFile()
+		return c.diskLog.WriteToFile()
 	}
 
 	return nil

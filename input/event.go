@@ -45,7 +45,7 @@ func Listen(listen EventListener) {
 		select {
 		case e := <-eventChannel:
 			listen(e)
-		case _ = <-shutdown:
+		case <-shutdown:
 			return
 		}
 	}

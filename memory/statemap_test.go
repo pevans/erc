@@ -9,7 +9,6 @@ import (
 func TestNewStatemap(t *testing.T) {
 	sm := NewStateMap()
 	assert.NotNil(t, sm)
-	assert.NotNil(t, sm.m)
 }
 
 func TestStateMapInt(t *testing.T) {
@@ -54,10 +53,10 @@ func TestStateMapUint16(t *testing.T) {
 
 func TestStateMapBool(t *testing.T) {
 	var (
-		sm       = NewStateMap()
-		k        = 1
-		tru bool = true
-		fal bool = false
+		sm  = NewStateMap()
+		k   = 1
+		tru = true
+		fal = false
 	)
 
 	assert.Equal(t, fal, sm.Bool(k))

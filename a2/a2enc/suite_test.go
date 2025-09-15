@@ -1,7 +1,6 @@
 package a2enc_test
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -51,7 +50,7 @@ func TestSuite(t *testing.T) {
 }
 
 func loadFile(seg *memory.Segment, path string) error {
-	bytes, err := ioutil.ReadFile(path)
+	bytes, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}

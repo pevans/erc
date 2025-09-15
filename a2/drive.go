@@ -3,7 +3,6 @@ package a2
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -167,7 +166,7 @@ func (d *Drive) Load(r io.Reader, file string) error {
 	}
 
 	// Read the bytes from the file into a buffer
-	bytes, err := ioutil.ReadAll(r)
+	bytes, err := io.ReadAll(r)
 	if err != nil {
 		return errors.Wrapf(err, "failed to read file %s", file)
 	}

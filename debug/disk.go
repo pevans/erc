@@ -27,5 +27,4 @@ func disk(comp *a2.Computer, tokens []string) {
 	}
 
 	say(fmt.Sprintf("loaded %v into drive", image))
-	return
 }

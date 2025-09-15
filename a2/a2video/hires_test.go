@@ -10,7 +10,7 @@ import (
 
 func TestPrepareHiresRow(t *testing.T) {
 	c := a2.NewComputer(123)
-	c.Boot()
+	assert.NoError(t, c.Boot())
 
 	dots := make([]a2video.HiresDot, 280)
 	emptyDots := []a2video.HiresDot{}

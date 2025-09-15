@@ -19,7 +19,7 @@ import (
 type cli struct {
 	Profile    bool   `help:"Write out a profile trace"`
 	DebugImage bool   `debug-image:"Write out debugging files to debug image loading"`
-	Image      string `arg`
+	Image      string `arg:""`
 	Speed      int    `default:"1" help:"Starting speed of the emulator (more is faster)"`
 }
 
@@ -51,7 +51,11 @@ func main() {
 		sig := <-signals
 
 		fmt.Printf("Received signal %v", sig)
-		comp.Shutdown()
+		err := comp.Shutdown()
+		if err != nil {
+			fail(fmt.Sprintf("shutdown was not clean: %v", err))
+		}
+
 		os.Exit(1)
 	}()
 

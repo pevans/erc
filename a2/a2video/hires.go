@@ -51,9 +51,18 @@ func RenderHires(seg memory.Getter, start, end int) {
 	dots := make([]HiresDot, 280)
 
 	for y := uint(0); y < 192; y++ {
-		PrepareHiresRow(seg, y, dots)
+		err := PrepareHiresRow(seg, y, dots)
+		if err != nil {
+			// This should really never happen...
+			panic(err)
+		}
+
 		for x, dot := range dots {
-			gfx.Screen.SetCell(uint(x), y, dot.Color)
+			err := gfx.Screen.SetCell(uint(x), y, dot.Color)
+			if err != nil {
+				// This should really never happen...
+				panic(err)
+			}
 		}
 	}
 }
@@ -70,7 +79,7 @@ func PrepareHiresRow(seg memory.Getter, row uint, dots []HiresDot) error {
 	// This is technically a double scan of the row. We could probably
 	// make this faster, but on modern hardware, this hasn't been a
 	// problem worth solving.
-	for i, _ := range dots {
+	for i := range dots {
 		thisOn := dots[i].On
 		prevOn := (i-1 >= 0) && dots[i-1].On
 		colors := purpleGreen

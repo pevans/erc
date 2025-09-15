@@ -25,7 +25,7 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 
 	if c.State.Bool(a2state.DebugImage) {
 		c.diskLog = NewDiskLog(fileName)
-		c.Drive1.Data.WriteFile(fmt.Sprintf("%v.physical", fileName))
+		return c.Drive1.Data.WriteFile(fmt.Sprintf("%v.physical", fileName))
 	}
 
 	return nil

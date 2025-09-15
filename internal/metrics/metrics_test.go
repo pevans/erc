@@ -12,17 +12,17 @@ func TestIncrement(t *testing.T) {
 	// Does it set the key and value?
 	Increment("abc", 6)
 	assert.Contains(t, metricMap, "abc")
-	val, _ := metricMap["abc"]
+	val := metricMap["abc"]
 	assert.Equal(t, val, 6)
 
 	// Does add to an existing key?
 	Increment("abc", 1)
-	val, _ = metricMap["abc"]
+	val = metricMap["abc"]
 	assert.Equal(t, val, 7)
 
 	// Does it add whatever we give it?
 	Increment("abc", 3)
-	val, _ = metricMap["abc"]
+	val = metricMap["abc"]
 	assert.Equal(t, val, 10)
 }
 
@@ -35,7 +35,7 @@ func TestExport(t *testing.T) {
 	assert.NotSame(t, exp, metricMap)
 
 	// Does the value we set earlier exist in the cloned map?
-	val, _ := exp["fffffff"]
+	val := exp["fffffff"]
 	assert.Equal(t, val, 111)
 }
 

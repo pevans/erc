@@ -14,8 +14,8 @@ func (s *a2Suite) TestMemSwitcherUseDefaults() {
 
 func (s *a2Suite) TestMemSwitcherSwitchRead() {
 	var (
-		c013 int   = 0xC013
-		c014 int   = 0xC014
+		c013       = 0xC013
+		c014       = 0xC014
 		hi   uint8 = 0x80
 		lo   uint8 = 0x00
 	)
@@ -39,10 +39,10 @@ func (s *a2Suite) TestMemSwitcherSwitchRead() {
 
 func (s *a2Suite) TestMemSwitcherSwitchWrite() {
 	var (
-		c002 int = 0xC002
-		c003 int = 0xC003
-		c004 int = 0xC004
-		c005 int = 0xC005
+		c002 = 0xC002
+		c003 = 0xC003
+		c004 = 0xC004
+		c005 = 0xC005
 	)
 
 	s.Run("set aux works", func() {

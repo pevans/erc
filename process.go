@@ -15,7 +15,7 @@ import (
 // error, or if some external process issues an Exit command to the OS.
 func processLoop(comp *a2.Computer) {
 	line := liner.NewLiner()
-	defer line.Close()
+	defer line.Close() //nolint:errcheck
 
 	for {
 		if comp.State.Bool(a2state.Debugger) {

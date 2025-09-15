@@ -125,7 +125,7 @@ func (s *a2Suite) TestSwitchWrite() {
 	var (
 		d123 uint8 = 123
 		d45  uint8 = 45
-		addr int   = 0x11
+		addr       = 0x11
 	)
 
 	s.Run("switching main to aux", func() {

@@ -38,7 +38,7 @@ func (s *a2Suite) TestKBSwitchRead() {
 	var (
 		in  uint8 = 0x55
 		hi  uint8 = 0x80
-		out uint8 = in | hi
+		out       = in | hi
 	)
 
 	s.Run("data and strobe", func() {

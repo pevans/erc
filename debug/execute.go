@@ -46,7 +46,10 @@ func execute(comp *a2.Computer, cmd string) {
 	case "help":
 		help()
 	case "quit":
-		comp.Shutdown()
+		err := comp.Shutdown()
+		if err != nil {
+			say(fmt.Sprintf("shutdown was not clean: %v", err))
+		}
 		os.Exit(0)
 	case "resume":
 		comp.State.SetBool(a2state.Debugger, false)

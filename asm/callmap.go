@@ -37,7 +37,7 @@ func (cm CallMap) WriteToFile(file string) error {
 		return err
 	}
 
-	defer fp.Close()
+	defer fp.Close() //nolint:errcheck
 
 	for _, line := range lines {
 		if _, err := fp.WriteString(line); err != nil {

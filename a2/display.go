@@ -309,24 +309,24 @@ func (c *Computer) Render() {
 	switch {
 	case c.State.Bool(a2state.DisplayText):
 		var (
-			start int = 0x400
-			end   int = 0x800
+			start = 0x400
+			end   = 0x800
 		)
 
 		a2video.RenderText(c, c.SysFont, start, end)
 
 	case c.State.Bool(a2state.DisplayHires):
 		var (
-			start int = 0x2000
-			end   int = 0x4000
+			start = 0x2000
+			end   = 0x4000
 		)
 
 		a2video.RenderHires(c, start, end)
 
 	default:
 		var (
-			start int = 0x400
-			end   int = 0x800
+			start = 0x400
+			end   = 0x800
 		)
 
 		a2video.RenderLores(c, start, end)

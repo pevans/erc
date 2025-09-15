@@ -36,7 +36,10 @@ func step(comp *a2.Computer, tokens []string) {
 		callmap.Add(comp.CPU.LastInstruction())
 	}
 
-	callmap.WriteToFile("callmap.txt")
+	err = callmap.WriteToFile("callmap.txt")
+	if err != nil {
+		say(fmt.Sprintf("could not write callmap: %v", err))
+	}
 
 	say(fmt.Sprintf("executed %v times, current state is now", step))
 	status(comp)

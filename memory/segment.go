@@ -2,7 +2,7 @@ package memory
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 )
 
 // A Segment is a block of memory divided into uint8s.
@@ -103,13 +103,13 @@ func (s *Segment) WriteFile(path string) error {
 		bytes[i] = byte(b)
 	}
 
-	return ioutil.WriteFile(path, bytes, 0644)
+	return os.WriteFile(path, bytes, 0644)
 }
 
 // ReadFile will read the contents of a given file into the segment
 // receiver.
 func (s *Segment) ReadFile(path string) error {
-	data, err := ioutil.ReadFile(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
