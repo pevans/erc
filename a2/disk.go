@@ -144,6 +144,12 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 	case 0xE:
 		// Set the selected drive mode to read
 		c.SelectedDrive.Mode = ReadMode
+
+		// We also need to return the state of write protection
+		if c.SelectedDrive.WriteProtect {
+			*val = 0x80
+		}
+
 		metrics.Increment("disk_read_mode", 1)
 
 	case 0xF:
