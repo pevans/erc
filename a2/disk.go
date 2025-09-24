@@ -65,9 +65,14 @@ func diskUseDefaults(c *Computer) {
 
 func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 	var (
-		nib = addr & 0xF
-		c   = stm.Any(a2state.DiskComputer).(*Computer)
+		nib       = addr & 0xF
+		c         = stm.Any(a2state.DiskComputer).(*Computer)
+		lastCycle = stm.Int(a2state.DiskCycleOfLastAccess)
 	)
+
+	if lastCycle == 0 {
+		lastCycle = c.CPU.CycleCount
+	}
 
 	switch nib {
 	case 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7:
@@ -88,6 +93,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 	case 0x9:
 		// Turn only the selected drive on
 		c.SelectedDrive.Online = true
+		stm.SetInt(a2state.DiskCycleOfLastAccess, 0)
 		metrics.Increment("disk_selected_drive_online", 1)
 
 	case 0xA:
@@ -103,9 +109,24 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 	case 0xC:
 		// This is the SHIFT operation, which might write a byte, but might
 		// also read a byte, depending on the drive state.
+
+		// Default behavior is often that we return 0 -- if the drive isn't
+		// on, etc.
+		*val = 0
+
 		if !c.SelectedDrive.Online {
 			break
 		}
+
+		// As the cycles go by, the disk will keep spinning even if it's been
+		// a while since we last read or wrote to it.
+		spinOffset := c.CPU.CyclesSince(lastCycle) >> 5
+		if spinOffset > 0 {
+			c.SelectedDrive.Shift(spinOffset)
+			metrics.Increment("disk_spin_offset", spinOffset)
+		}
+
+		stm.SetInt(a2state.DiskCycleOfLastAccess, c.CPU.CycleCount)
 
 		if c.SelectedDrive.Mode == ReadMode || c.SelectedDrive.WriteProtect {
 			*val = c.SelectedDrive.Read()

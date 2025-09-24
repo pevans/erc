@@ -162,6 +162,8 @@ func (c *CPU) Execute() error {
 		c.ClockEmulator.WaitForCycles(int64(cycles[c.Opcode]), time.Sleep)
 	}
 
+	c.CycleCount += int(cycles[c.Opcode])
+
 	return nil
 }
 
