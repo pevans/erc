@@ -72,14 +72,18 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 	switch nib {
 	case 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7:
 		// Set the drive phase, thus adjusting the track position
+		if !c.SelectedDrive.Online {
+			break
+		}
+
 		c.SelectedDrive.SwitchPhase(nib)
 		metrics.Increment(fmt.Sprintf("disk_switch_phase_%01x", nib), 1)
 
 	case 0x8:
-		// Turn both drives on
-		c.Drive1.Online = true
-		c.Drive2.Online = true
-		metrics.Increment("disk_drive1_drive2_online", 1)
+		// Turn both drives off
+		c.Drive1.Online = false
+		c.Drive2.Online = false
+		metrics.Increment("disk_drives_off", 1)
 
 	case 0x9:
 		// Turn only the selected drive on
@@ -97,6 +101,12 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 		metrics.Increment("disk_drive_2", 1)
 
 	case 0xC:
+		// This is the SHIFT operation, which might write a byte, but might
+		// also read a byte, depending on the drive state.
+		if !c.SelectedDrive.Online {
+			break
+		}
+
 		if c.SelectedDrive.Mode == ReadMode || c.SelectedDrive.WriteProtect {
 			*val = c.SelectedDrive.Read()
 
@@ -120,6 +130,10 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 
 	case 0xD:
 		// Set the latch value (for writes) to val
+		if !c.SelectedDrive.Online {
+			break
+		}
+
 		if c.SelectedDrive.Mode == WriteMode {
 			c.SelectedDrive.Latch = *val
 			metrics.Increment("disk_write_latch", 1)
