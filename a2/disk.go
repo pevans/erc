@@ -120,8 +120,11 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 
 		// As the cycles go by, the disk will keep spinning even if it's been
 		// a while since we last read or wrote to it.
-		spinOffset := c.CPU.CyclesSince(lastCycle) >> 5
+		cyclesSince := c.CPU.CyclesSince(lastCycle)
+		spinOffset := cyclesSince >> 5
+
 		if spinOffset > 0 {
+			// We need to shift ahead by one or more bytes
 			c.SelectedDrive.Shift(spinOffset)
 			metrics.Increment("disk_spin_offset", spinOffset)
 		}
@@ -129,7 +132,15 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 		stm.SetInt(a2state.DiskCycleOfLastAccess, c.CPU.CycleCount)
 
 		if c.SelectedDrive.Mode == ReadMode || c.SelectedDrive.WriteProtect {
-			*val = c.SelectedDrive.Read()
+			bits := 0
+			if cyclesSince >= 4 && cyclesSince <= 6 {
+				// The program may be expecting a partial value since the disk
+				// technically has spun away from the byte's starting position
+				// in the sector.
+				bits = 1
+			}
+
+			*val = c.SelectedDrive.Read() >> bits
 
 			if c.diskLog != nil {
 				c.diskLog.Add(&DiskRead{
