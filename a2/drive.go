@@ -200,7 +200,7 @@ func (d *Drive) Read() uint8 {
 
 	// Set the latch value to the byte at our current position, then
 	// shift our position by one place
-	d.Latch = d.Data.Get(d.Position())
+	d.Latch = d.Data.DirectGet(d.Position())
 
 	d.Shift(1)
 
@@ -214,7 +214,7 @@ func (d *Drive) Write() {
 
 	// We can only write our latch value if the high-bit is set
 	if d.Latch&0x80 > 0 {
-		d.Data.Set(d.Position(), d.Latch)
+		d.Data.DirectSet(d.Position(), d.Latch)
 		d.Shift(1)
 	}
 }
