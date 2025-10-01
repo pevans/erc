@@ -180,7 +180,7 @@ func (d *Drive) Load(r io.Reader, file string) error {
 	}
 
 	// Decode into the data segment
-	d.Data, err = a2enc.Encode62(d.ImageType, d.Image)
+	d.Data, err = a2enc.Encode(d.ImageType, d.Image)
 	if err != nil {
 		d.Image = nil
 		return errors.Wrapf(err, "failed to decode image")
