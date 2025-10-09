@@ -43,6 +43,8 @@ func execute(comp *a2.Computer, cmd string) {
 		// the rest
 	case "disk":
 		disk(comp, tokens)
+	case "writeprotect":
+		writeProtect(comp, tokens)
 	case "help":
 		help()
 	case "quit":
@@ -76,6 +78,7 @@ func help() {
 	say("    keypress <val> ..... simulate a keypress with hex ascii code <val>")
 	say("  [the rest]")
 	say("    disk <file> ........ load <file> into drive")
+	say("    writeprotect ....... toggle write protect on drive 1")
 	say("    help ............... print this message")
 	say("    quit ............... quit the emulator")
 	say("    resume ............. resume emulation")

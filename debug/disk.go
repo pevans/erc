@@ -28,3 +28,17 @@ func disk(comp *a2.Computer, tokens []string) {
 
 	say(fmt.Sprintf("loaded %v into drive", image))
 }
+
+// Toggle write protection on drive 1. This is _probably_ not the right
+// interface to toggle write protection, but it's easy to implement for
+// testing.
+func writeProtect(comp *a2.Computer, tokens []string) {
+	comp.Drive1.WriteProtect = !comp.Drive1.WriteProtect
+
+	status := "OFF"
+	if comp.Drive1.WriteProtect {
+		status = "ON"
+	}
+
+	say(fmt.Sprintf("write protect on drive 1 is %v", status))
+}
