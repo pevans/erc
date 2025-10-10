@@ -3,6 +3,7 @@ package mos
 import (
 	"math"
 
+	"github.com/pevans/erc/asm"
 	"github.com/pevans/erc/clock"
 	"github.com/pevans/erc/memory"
 )
@@ -12,6 +13,10 @@ type CPU struct {
 	RMem  memory.Getter
 	WMem  memory.Setter
 	State *memory.StateMap
+
+	// A map of instructions that we have executed. This is only used when
+	// we're debugging an image.
+	InstructionLog asm.CallMap
 
 	ClockEmulator *clock.Emulator
 

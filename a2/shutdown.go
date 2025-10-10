@@ -8,6 +8,8 @@ import (
 	"github.com/pevans/erc/internal/metrics"
 )
 
+const InstructionLogName = "./instruction_log.asm"
+
 // Shutdown will execute whatever is necessary to basically cease operation of
 // the computer.
 func (c *Computer) Shutdown() error {
@@ -25,6 +27,13 @@ func (c *Computer) Shutdown() error {
 	sort.Strings(keys)
 	for _, key := range keys {
 		fmt.Printf("%v = %v\n", key, mets[key])
+	}
+
+	if c.CPU.InstructionLog != nil {
+		err := c.CPU.InstructionLog.WriteToFile(InstructionLogName)
+		if err != nil {
+			return err
+		}
 	}
 
 	if c.diskLog != nil {
