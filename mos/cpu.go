@@ -16,7 +16,7 @@ type CPU struct {
 
 	// A map of instructions that we have executed. This is only used when
 	// we're debugging an image.
-	InstructionLog asm.CallMap
+	InstructionLog *asm.CallMap
 
 	ClockEmulator *clock.Emulator
 

@@ -26,7 +26,7 @@ func step(comp *a2.Computer, tokens []string) {
 		return
 	}
 
-	callmap := make(asm.CallMap)
+	callmap := asm.NewCallMap()
 
 	for i := 0; i < step; i++ {
 		if _, err := comp.Process(); err != nil {

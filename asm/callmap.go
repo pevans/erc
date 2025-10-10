@@ -4,23 +4,40 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"sync"
 )
 
-type CallMap map[string]int
+type CallMap struct {
+	m  map[string]int
+	mu sync.Mutex
+}
 
-func (cm CallMap) Add(line string) {
-	if _, ok := cm[line]; !ok {
-		cm[line] = 1
+func NewCallMap() *CallMap {
+	return &CallMap{
+		m:  make(map[string]int),
+		mu: sync.Mutex{},
+	}
+}
+
+func (cm *CallMap) Add(line string) {
+	cm.mu.Lock()
+	defer cm.mu.Unlock()
+
+	if _, ok := cm.m[line]; !ok {
+		cm.m[line] = 1
 		return
 	}
 
-	cm[line]++
+	cm.m[line]++
 }
 
-func (cm CallMap) Lines() []string {
-	lines := make([]string, len(cm))
+func (cm *CallMap) Lines() []string {
+	cm.mu.Lock()
+	defer cm.mu.Unlock()
 
-	for line, count := range cm {
+	lines := make([]string, len(cm.m))
+
+	for line, count := range cm.m {
 		lines = append(lines, fmt.Sprintf("%v (%v)\n", line, count))
 	}
 
@@ -29,7 +46,7 @@ func (cm CallMap) Lines() []string {
 	return lines
 }
 
-func (cm CallMap) WriteToFile(file string) error {
+func (cm *CallMap) WriteToFile(file string) error {
 	lines := cm.Lines()
 
 	fp, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE, 0644)
