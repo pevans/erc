@@ -36,7 +36,7 @@ func (cm *CallMap) Lines() []string {
 
 	lines := make([]string, len(cm.m))
 
-	for line, count := range cm.m {
+	for line, _ := range cm.m {
 		lines = append(lines, line+"\n")
 	}
 
