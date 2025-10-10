@@ -18,7 +18,7 @@ import (
 
 type cli struct {
 	Profile    bool   `help:"Write out a profile trace"`
-	DebugImage bool   `debug-image:"Write out debugging files to debug image loading"`
+	DebugImage bool   `help:"Write out debugging files to debug image loading"`
 	Image      string `arg:""`
 	Speed      int    `default:"1" help:"Starting speed of the emulator (more is faster)"`
 }
