@@ -289,10 +289,6 @@ func formatOperand(
 		str = fmt.Sprintf("$%02X,Y", operand)
 	}
 
-	if str == "" {
-		return fmt.Sprintf("mode=%v operand=%x", mode, operand)
-	}
-
 	return str
 }
 
