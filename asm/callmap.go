@@ -1,7 +1,6 @@
 package asm
 
 import (
-	"fmt"
 	"os"
 	"sort"
 	"sync"
@@ -38,7 +37,7 @@ func (cm *CallMap) Lines() []string {
 	lines := make([]string, len(cm.m))
 
 	for line, count := range cm.m {
-		lines = append(lines, fmt.Sprintf("%v (%v)\n", line, count))
+		lines = append(lines, line+"\n")
 	}
 
 	sort.Strings(lines)
@@ -49,7 +48,7 @@ func (cm *CallMap) Lines() []string {
 func (cm *CallMap) WriteToFile(file string) error {
 	lines := cm.Lines()
 
-	fp, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE, 0644)
+	fp, err := os.Create(file)
 	if err != nil {
 		return err
 	}
