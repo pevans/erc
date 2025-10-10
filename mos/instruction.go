@@ -158,6 +158,10 @@ func (c *CPU) Execute() error {
 	// observance for how other emulators have handled this step.
 	c.P |= UNUSED | BREAK
 
+	if c.State.Bool(a2state.DebugImage) {
+		c.InstructionLog.Add(c.LastInstruction())
+	}
+
 	if c.ClockEmulator != nil {
 		c.ClockEmulator.WaitForCycles(int64(cycles[c.Opcode]), time.Sleep)
 	}
