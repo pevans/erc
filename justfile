@@ -1,6 +1,9 @@
 test pkg="./...":
     - go test {{pkg}}
 
+build:
+    - go build -o erc .
+
 run image:
     - go run . --speed 2 {{image}}
 
