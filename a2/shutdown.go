@@ -29,8 +29,8 @@ func (c *Computer) Shutdown() error {
 		fmt.Printf("%v = %v\n", key, mets[key])
 	}
 
-	if c.CPU.InstructionLog != nil {
-		err := c.CPU.InstructionLog.WriteToFile(InstructionLogName)
+	if c.InstructionLog != nil {
+		err := c.InstructionLog.WriteToFile(InstructionLogName)
 		if err != nil {
 			return err
 		}

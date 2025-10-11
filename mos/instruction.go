@@ -159,7 +159,11 @@ func (c *CPU) Execute() error {
 	c.P |= UNUSED | BREAK
 
 	if c.State.Bool(a2state.DebugImage) {
-		c.InstructionLog.Add(c.LastInstruction())
+		if c.InstructionChannel == nil {
+			c.InstructionChannel = make(chan *asm.Line, 100)
+		}
+
+		c.InstructionChannel <- c.LastInstructionLine()
 	}
 
 	if c.ClockEmulator != nil {
@@ -178,8 +182,8 @@ func (c *CPU) Status() string {
 	)
 }
 
-func (c *CPU) LastInstruction() string {
-	ln := asm.Line{
+func (c *CPU) LastInstructionLine() *asm.Line {
+	return &asm.Line{
 		Address:     int(c.LastPC),
 		Instruction: instructions[c.Opcode].String(),
 		Opcode:      c.Opcode,
@@ -188,6 +192,10 @@ func (c *CPU) LastInstruction() string {
 		),
 		Comment: c.explainInstruction(c.Opcode),
 	}
+}
+
+func (c *CPU) LastInstruction() string {
+	ln := c.LastInstructionLine()
 
 	return ln.String()
 }

@@ -18,6 +18,10 @@ type CPU struct {
 	// we're debugging an image.
 	InstructionLog *asm.CallMap
 
+	// A channel of instructions we're sending to interested listeners (e.g.
+	// if they wish to log them).
+	InstructionChannel chan *asm.Line
+
 	ClockEmulator *clock.Emulator
 
 	// The total number of cycles executed by the CPU. This can overflow, so

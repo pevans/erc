@@ -3,6 +3,7 @@ package a2
 import (
 	"github.com/pevans/erc/a2/a2font"
 	"github.com/pevans/erc/a2/a2state"
+	"github.com/pevans/erc/asm"
 	"github.com/pevans/erc/clock"
 	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/memory"
@@ -36,6 +37,8 @@ type Computer struct {
 
 	smap  *memory.SoftMap
 	State *memory.StateMap
+
+	InstructionLog *asm.CallMap
 
 	// MemMode is a collection of bit flags which tell us what state of
 	// memory we have.
