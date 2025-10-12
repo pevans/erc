@@ -248,6 +248,12 @@ func (c *CPU) explainInstruction(opcode uint8) string {
 		return ws.String()
 	}
 
+	if c.AddrMode == AmZPG || c.AddrMode == AmABS {
+		if variable := a2sym.Variable(addr); variable != "" {
+			return fmt.Sprintf("variable %v", variable)
+		}
+	}
+
 	return ""
 }
 
