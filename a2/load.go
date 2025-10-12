@@ -27,30 +27,32 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 	if c.State.Bool(a2state.DebugImage) {
 		c.InstructionLog = asm.NewCallMap()
 
-		go func() {
-			for {
-				select {
-				case line := <-c.CPU.InstructionChannel:
-					// Skip anything for slot ROM
-					if line.Address >= 0xC000 && line.Address <= 0xD000 {
-						break
-					}
-
-					// Also skip system ROM
-					if !c.State.Bool(a2state.BankReadRAM) && line.Address >= 0xD000 {
-						break
-					}
-
-					c.InstructionLog.Add(line.String())
-				default:
-					break
-				}
-			}
-		}()
+		go MaybeLogInstructions(c)
 
 		c.diskLog = NewDiskLog(fileName)
 		return c.Drive1.Data.WriteFile(fmt.Sprintf("%v.physical", fileName))
 	}
 
 	return nil
+}
+
+func MaybeLogInstructions(c *Computer) {
+	for {
+		select {
+		case line := <-c.CPU.InstructionChannel:
+			// Skip anything for slot ROM
+			if line.Address >= 0xC000 && line.Address <= 0xD000 {
+				break
+			}
+
+			// Also skip system ROM
+			if !c.State.Bool(a2state.BankReadRAM) && line.Address >= 0xD000 {
+				break
+			}
+
+			c.InstructionLog.Add(line.String())
+		default:
+			break
+		}
+	}
 }
