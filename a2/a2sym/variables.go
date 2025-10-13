@@ -26,10 +26,10 @@ var variablesMap = map[int]string{
 	0x0033: "PROMPT",
 	0x0034: "YSAV",
 	0x0035: "YSAV1",
-	0x0036: "CSWL",
-	0x0037: "CSWH",
-	0x0038: "KSWL",
-	0x0039: "KSWH",
+	0x0036: "CSWL", // character output switch (lo)
+	0x0037: "CSWH", // character output switch (hi)
+	0x0038: "KSWL", // keyboard input switch (lo)
+	0x0039: "KSWH", // keyboard input switch (hi)
 	0x003A: "PCL",
 	0x003B: "PCH",
 	0x003C: "A1L",
