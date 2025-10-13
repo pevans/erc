@@ -5,6 +5,7 @@
 # Ignore any image files that I might be testing with
 *.dsk
 *.nib
+*.asm
 *.callmap
 *.disklog
 *.physical
