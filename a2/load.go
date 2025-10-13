@@ -26,6 +26,7 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 
 	if c.State.Bool(a2state.DebugImage) {
 		c.InstructionLog = asm.NewCallMap()
+		c.InstructionLogFileName = fmt.Sprintf("%v.asm", fileName)
 
 		go MaybeLogInstructions(c)
 

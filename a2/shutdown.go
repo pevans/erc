@@ -30,7 +30,7 @@ func (c *Computer) Shutdown() error {
 	}
 
 	if c.InstructionLog != nil {
-		err := c.InstructionLog.WriteToFile(InstructionLogName)
+		err := c.InstructionLog.WriteToFile(c.InstructionLogFileName)
 		if err != nil {
 			return err
 		}

@@ -40,6 +40,9 @@ type Computer struct {
 
 	InstructionLog *asm.CallMap
 
+	// Where to write the instruction log
+	InstructionLogFileName string
+
 	// MemMode is a collection of bit flags which tell us what state of
 	// memory we have.
 	MemMode int
