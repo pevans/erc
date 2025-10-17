@@ -1,8 +1,8 @@
-# Ignore vim swap files
+# Vim swap files
 *.swp
 *.swo
 
-# Ignore any image files that I might be testing with
+# Image files that I might be testing with
 *.dsk
 *.nib
 *.asm
@@ -10,12 +10,13 @@
 *.disklog
 *.physical
 
-# Ignore any build of the erc binary
+# erc binary
 /erc
 
-# Ignore any IDE stuff
+# IDE / OS stuff
 .idea
 .vscode
+.DS_Store
 
 # Notes that I keep
 .notes
