@@ -64,7 +64,7 @@ func (s *mosSuite) TestRti() {
 		// value
 		s.op(mos.Rti, with{s: s.cpu.S})
 
-		s.Equal(execP, s.cpu.P)
+		s.Equal(execP|mos.BREAK|mos.UNUSED, s.cpu.P)
 		s.Equal(execPC, s.cpu.PC)
 	})
 }

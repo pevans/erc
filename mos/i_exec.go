@@ -83,6 +83,10 @@ func Np3(c *CPU) {
 func Rti(c *CPU) {
 	c.P = c.PopStack()
 
+	// These two flags are always set after we return from interrupt
+	c.P |= BREAK
+	c.P |= UNUSED
+
 	// Since we saved the bytes in BRK in order of msb, then lsb, we
 	// need to pop them in the reverse order; lsb, then msb.
 	lsb := uint16(c.PopStack())
