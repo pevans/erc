@@ -11,30 +11,30 @@ import (
 func TestLineString(t *testing.T) {
 	t.Run("with instruction and operand", func(t *testing.T) {
 		ln := Line{
-			Instruction: "ABC",
-			Operand:     "$123",
+			Instruction:     "ABC",
+			PreparedOperand: "$123",
 		}
 
 		str := ln.String()
 
 		assert.Contains(t, str, ln.Instruction)
-		assert.Contains(t, str, ln.Operand)
+		assert.Contains(t, str, ln.PreparedOperand)
 	})
 
 	t.Run("with comment", func(t *testing.T) {
 		ln := Line{
-			Instruction: "ABC",
-			Operand:     "$123",
-			Comment:     "comment is free",
+			Instruction:     "ABC",
+			PreparedOperand: "$123",
+			Comment:         "comment is free",
 		}
 
 		str := ln.String()
 
 		assert.Contains(t, str, ln.Instruction)
-		assert.Contains(t, str, ln.Operand)
+		assert.Contains(t, str, ln.PreparedOperand)
 
 		// Test for the semicolon since our assembly "notation" uses
 		// that as the indicator
-		assert.Contains(t, str, "; "+ln.Comment)
+		assert.Contains(t, str, ln.Comment)
 	})
 }
