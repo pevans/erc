@@ -247,19 +247,16 @@ func (c *CPU) explainInstruction(line *asm.Line, pc uint16) {
 	if c.State.Bool(a2state.InstructionReadOp) {
 		if rs := a2sym.ReadSwitch(addr); rs.Mode != a2sym.ModeNone {
 			line.Comment = rs.String()
-			return
 		}
 	}
 
 	if ws := a2sym.WriteSwitch(addr); ws.Mode != a2sym.ModeNone {
 		line.Comment = ws.String()
-		return
 	}
 
 	if c.AddrMode == AmZPG || c.AddrMode == AmABS {
 		if variable := a2sym.Variable(addr); variable != "" {
 			line.PreparedOperand = variable
-			return
 		}
 	}
 }
