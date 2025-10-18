@@ -61,7 +61,7 @@ func (ln Line) String() string {
 	}
 
 	// Add line padding for what seem to be the end of a subroutine.
-	if ln.Instruction == "JMP" || ln.Instruction == "RTS" {
+	if ln.Instruction == "JMP" || ln.Instruction == "RTS" || ln.Instruction == "RTI" {
 		str += "\n"
 	}
 
