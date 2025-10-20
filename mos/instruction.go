@@ -182,6 +182,20 @@ func (c *CPU) Status() string {
 	)
 }
 
+func (c *CPU) ThisInstruction() string {
+	line := &asm.Line{
+		Address:     int(c.PC),
+		Instruction: instructions[c.Opcode].String(),
+	}
+
+	c.prepareOperand(line, c.PC)
+
+	return fmt.Sprintf(
+		"%04X:%v %v",
+		line.Address, line.Instruction, line.PreparedOperand,
+	)
+}
+
 func (c *CPU) LastInstructionLine() *asm.Line {
 	line := &asm.Line{
 		Address:     int(c.LastPC),

@@ -65,7 +65,7 @@ func diskUseDefaults(c *Computer) {
 
 func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 	var (
-		nib       = addr & 0xF
+		nib       = uint8(addr & 0xF)
 		c         = stm.Any(a2state.DiskComputer).(*Computer)
 		lastCycle = stm.Int(a2state.DiskCycleOfLastAccess)
 	)
@@ -81,29 +81,36 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 			break
 		}
 
-		c.SelectedDrive.SwitchPhase(nib)
+		c.SelectedDrive.SwitchPhase(int(nib))
+
+		*val = 0xFF - nib
+
 		metrics.Increment(fmt.Sprintf("disk_switch_phase_%01x", nib), 1)
 
 	case 0x8:
 		// Turn both drives off
 		c.Drive1.Online = false
 		c.Drive2.Online = false
+		*val = 0xFF - nib
 		metrics.Increment("disk_drives_off", 1)
 
 	case 0x9:
 		// Turn only the selected drive on
 		c.SelectedDrive.Online = true
 		stm.SetInt(a2state.DiskCycleOfLastAccess, 0)
+		*val = 0xFF - nib
 		metrics.Increment("disk_selected_drive_online", 1)
 
 	case 0xA:
 		// Set the selected drive to drive 1
 		c.SelectedDrive = c.Drive1
+		*val = 0
 		metrics.Increment("disk_drive_1", 1)
 
 	case 0xB:
 		// Set the selected drive to drive 2
 		c.SelectedDrive = c.Drive2
+		*val = 0
 		metrics.Increment("disk_drive_2", 1)
 
 	case 0xC:
@@ -147,7 +154,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 					HalfTrack:   c.SelectedDrive.TrackPos,
 					Sector:      c.SelectedDrive.SectorPos,
 					Byte:        *val,
-					Instruction: c.CPU.LastInstruction(),
+					Instruction: c.CPU.ThisInstruction(),
 				})
 			}
 
@@ -177,6 +184,8 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 		// Set the selected drive mode to read
 		c.SelectedDrive.Mode = ReadMode
 
+		*val = 0x80 - nib
+
 		// We also need to return the state of write protection
 		if c.SelectedDrive.WriteProtect {
 			*val = 0x80
@@ -187,12 +196,13 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 	case 0xF:
 		// Set the selected drive mode to write
 		c.SelectedDrive.Mode = WriteMode
+		*val = 0xFF - nib
 		metrics.Increment("disk_write_mode", 1)
 	}
 
 	if nib%2 == 0 {
-		*val = c.SelectedDrive.Latch
-		metrics.Increment("disk_read_latch", 1)
+		//*val = c.SelectedDrive.Latch
+		//metrics.Increment("disk_read_latch", 1)
 	}
 }
 
