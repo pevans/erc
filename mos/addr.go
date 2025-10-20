@@ -103,10 +103,10 @@ func (m AddrMode) String() string {
 //
 // Ex. INC $1234 increments the byte at $1234
 func Abs(c *CPU) {
+	c.AddrMode = AmABS
 	c.EffAddr = c.Get16(c.PC + 1)
 	c.Operand = c.EffAddr
 	c.EffVal = c.Get(c.EffAddr)
-	c.AddrMode = AmABS
 }
 
 // Abx resolves Absolute X address mode, which is like Absolute mode but
@@ -114,6 +114,7 @@ func Abs(c *CPU) {
 //
 // Ex. INC $1234,X increments the byte at $1234 + X
 func Abx(c *CPU) {
+	c.AddrMode = AmABX
 	// Indexed instructions can cause _false reads_ when done across
 	// page boundaries, so we simulate that here.
 	if !c.State.Bool(a2state.DebuggerLookAhead) {
@@ -124,13 +125,14 @@ func Abx(c *CPU) {
 	c.Operand = c.Get16(c.PC + 1)
 	c.EffAddr = c.Operand + uint16(c.X)
 	c.EffVal = c.Get(c.EffAddr)
-	c.AddrMode = AmABX
 }
 
 // Aby is much like ABX, except that it adds the Y register content.
 //
 // Ex. INC $1234,Y increments the byte at $1234 + Y
 func Aby(c *CPU) {
+	c.AddrMode = AmABY
+
 	// Indexed instructions can cause _false reads_ when done across
 	// page boundaries, so we simulate that here.
 	if !c.State.Bool(a2state.DebuggerLookAhead) {
@@ -141,7 +143,6 @@ func Aby(c *CPU) {
 	c.Operand = c.Get16(c.PC + 1)
 	c.EffAddr = c.Operand + uint16(c.Y)
 	c.EffVal = c.Get(c.EffAddr)
-	c.AddrMode = AmABY
 }
 
 // Acc will resolve the Accumulator address mode, which is very simple:
@@ -149,26 +150,26 @@ func Aby(c *CPU) {
 //
 // Ex. INC increments the A register
 func Acc(c *CPU) {
+	c.AddrMode = AmACC
 	c.EffVal = c.A
 	c.EffAddr = 0
 	c.Operand = 0
-	c.AddrMode = AmACC
 }
 
 // By2 is a placeholder mode
 func By2(c *CPU) {
+	c.AddrMode = AmBY2
 	c.EffAddr = 0
 	c.EffVal = 0
 	c.Operand = 0
-	c.AddrMode = AmBY2
 }
 
 // By3 is a placeholder mode
 func By3(c *CPU) {
+	c.AddrMode = AmBY3
 	c.EffAddr = 0
 	c.EffVal = 0
 	c.Operand = 0
-	c.AddrMode = AmBY3
 }
 
 // Imm resolves Immediate address mode. The operand is the literal
@@ -176,20 +177,20 @@ func By3(c *CPU) {
 //
 // Ex. ADC #$12 adds $12 to the A register
 func Imm(c *CPU) {
+	c.AddrMode = AmIMM
 	c.EffAddr = 0
 	c.EffVal = c.Get(c.PC + 1)
 	c.Operand = uint16(c.EffVal)
-	c.AddrMode = AmIMM
 }
 
 // Imp resolves the implied address mode. IMP is used to handle cases
 // where whatever the opcode does has an implied, singular purpose, and
 // cannot be modified by any operand.
 func Imp(c *CPU) {
+	c.AddrMode = AmIMP
 	c.EffVal = 0
 	c.EffAddr = 0
 	c.Operand = 0
-	c.AddrMode = AmIMP
 }
 
 // Ind resolves the indirect address mode. If you can imagine that the
@@ -199,12 +200,13 @@ func Imp(c *CPU) {
 // Ex. JMP ($NNNN) resolves the address at $NNNN, then jumps to that
 // address.
 func Ind(c *CPU) {
+	c.AddrMode = AmIND
+
 	// The inner part of the operand `$NNNN` is the address of... yet
 	// another address; so we derefence that `($NNNN)` to get the value.
 	c.Operand = c.Get16(c.PC + 1)
 	c.EffAddr = c.Get16(c.Operand)
 	c.EffVal = c.Get(c.EffAddr)
-	c.AddrMode = AmIND
 
 	// TODO: according to AppleWin, we should be adding a cycle of complexity
 	// if Operand ends in 0xFF
@@ -222,14 +224,22 @@ func Ind(c *CPU) {
 // and resolves that to <addr2>; the effective address becomes <addr2>,
 // and the effective value is the byte at <addr2>.
 func Idx(c *CPU) {
+	c.AddrMode = AmIDX
+
 	operand := c.Get(c.PC + 1)
 	c.Operand = uint16(operand)
 
+	plusX := uint16(operand+c.X) & 0xFF
+	if plusX == 0xFF {
+		c.EffAddr = uint16(c.Get(0)<<8) | uint16(c.Get(0xFF))
+	} else {
+		c.EffAddr = c.Get16(plusX)
+	}
+
 	// Our effective address is the dereferenced value found at the base
 	// address.
-	c.EffAddr = c.Get16(uint16(operand + c.X))
+
 	c.EffVal = c.Get(c.EffAddr)
-	c.AddrMode = AmIDX
 }
 
 // Idy resolves the indirect indexed address mode, which is essentially
@@ -240,6 +250,8 @@ func Idx(c *CPU) {
 // up <addr1>, and resolves that + Y as <addr2>; then saves <addr2> as
 // the effective address and the looked-up byte at <addr2>.
 func Idy(c *CPU) {
+	c.AddrMode = AmIDY
+
 	// The base address for the instruction; the `$NN` part of the
 	// operand.
 	c.Operand = uint16(c.Get(c.PC + 1))
@@ -251,8 +263,12 @@ func Idy(c *CPU) {
 	// And here we account for the `,Y` part; Y is added to the
 	// dereferenced address.
 	c.EffAddr = effAddr + uint16(c.Y)
-	c.EffVal = c.Get(c.EffAddr)
-	c.AddrMode = AmIDY
+
+	if c.EffAddr == 0xFF {
+		c.EffVal = c.Get(uint16(c.Get(0)<<8) | uint16(c.Get(0xFF)))
+	} else {
+		c.EffVal = c.Get(c.EffAddr)
+	}
 }
 
 // Rel resolves the relative address mode. This is only used by branch
@@ -267,6 +283,8 @@ func Idy(c *CPU) {
 // otherwise, no action is taken besides stepping past the branch
 // instruction.
 func Rel(c *CPU) {
+	c.AddrMode = AmREL
+
 	// The next byte is the signed offset of where we're going; positive
 	// = forward, negative = backward.
 	c.Operand = uint16(c.Get(c.PC + 1))
@@ -288,7 +306,6 @@ func Rel(c *CPU) {
 
 	c.EffAddr = addr
 	c.EffVal = 0
-	c.AddrMode = AmREL
 }
 
 // Zpg resolves the zero page address mode. This is most analogous to ABS,
@@ -297,10 +314,10 @@ func Rel(c *CPU) {
 //
 // Ex. INC $12 increments the byte at $12 by one.
 func Zpg(c *CPU) {
+	c.AddrMode = AmZPG
 	c.Operand = uint16(c.Get(c.PC + 1))
 	c.EffAddr = c.Operand
 	c.EffVal = c.Get(c.EffAddr)
-	c.AddrMode = AmZPG
 }
 
 // Zpx resolves the zero page x address mode. This is analogous to ABX,
@@ -308,11 +325,11 @@ func Zpg(c *CPU) {
 //
 // Ex. INC $12,X increments the byte at $12 + X by one.
 func Zpx(c *CPU) {
+	c.AddrMode = AmZPX
 	operand := c.Get(c.PC + 1)
 	c.Operand = uint16(operand)
-	c.EffAddr = uint16(operand + c.X)
+	c.EffAddr = uint16(operand+c.X) & 0xFF
 	c.EffVal = c.Get(c.EffAddr)
-	c.AddrMode = AmZPX
 }
 
 // Zpy resolves the zero page y address mode. This is analogous to ABY,
@@ -320,9 +337,9 @@ func Zpx(c *CPU) {
 //
 // Ex. INC $12,Y increments the byte at $12 + Y by one.
 func Zpy(c *CPU) {
+	c.AddrMode = AmZPY
 	operand := c.Get(c.PC + 1)
 	c.Operand = uint16(operand)
-	c.EffAddr = uint16(operand + c.Y)
+	c.EffAddr = uint16(operand+c.Y) & 0xFF
 	c.EffVal = c.Get(c.EffAddr)
-	c.AddrMode = AmZPY
 }
