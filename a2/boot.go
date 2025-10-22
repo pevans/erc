@@ -1,6 +1,8 @@
 package a2
 
 import (
+	"time"
+
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/asm"
 	"github.com/pevans/erc/mos"
@@ -77,6 +79,8 @@ func (c *Computer) Reset() {
 	memUseDefaults(c)
 	pcUseDefaults(c)
 	diskUseDefaults(c)
+
+	c.BootTime = time.Now()
 
 	// Jump to the reset PC address; note this must happen _after_ we
 	// set our modes above, or else we might pull the PC value from the

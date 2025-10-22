@@ -3,6 +3,7 @@ package a2
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/internal/metrics"
@@ -10,6 +11,7 @@ import (
 )
 
 type DiskRead struct {
+	Elapsed     time.Duration
 	HalfTrack   int
 	Sector      int
 	Byte        uint8
@@ -44,9 +46,10 @@ func (l *DiskLog) WriteToFile() error {
 
 	for _, read := range l.Reads {
 		logLine := fmt.Sprintf(
-			"track %02X (half %02X) sect %01X (pos %04X) byte $%02X | %v\n",
-			read.HalfTrack>>1, read.HalfTrack, // track and half
-			read.Sector/0x1A0, read.Sector, // sect and pos
+			"[%-10v] T:%02X S:%01X P:%04X B:$%02X | %v\n",
+			read.Elapsed.Round(time.Millisecond), // time since boot
+			read.HalfTrack>>1,                    // track
+			read.Sector/0x1A0, read.Sector,       // sect and pos
 			read.Byte, read.Instruction,
 		)
 
@@ -135,6 +138,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 
 			if c.diskLog != nil {
 				c.diskLog.Add(&DiskRead{
+					Elapsed:     time.Since(c.BootTime),
 					HalfTrack:   c.SelectedDrive.TrackPos,
 					Sector:      sectorPos,
 					Byte:        *val,

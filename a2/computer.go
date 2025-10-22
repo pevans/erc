@@ -1,6 +1,8 @@
 package a2
 
 import (
+	"time"
+
 	"github.com/pevans/erc/a2/a2font"
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/asm"
@@ -22,6 +24,8 @@ type WriteMapFn func(*Computer, int, uint8)
 type Computer struct {
 	// The CPU of the Apple //e was an MOS 65C02 processor.
 	CPU *mos.CPU
+
+	BootTime time.Time
 
 	// There are three primary segments of memory in an Apple //e; main
 	// memory, read-only memory, and auxiliary memory. Each are
