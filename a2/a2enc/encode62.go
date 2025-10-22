@@ -30,12 +30,6 @@ var encGCR62 = []uint8{
 	0xED, 0xEE, 0xEF, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF, // 30
 }
 
-// Define the physical sector order in which we write encoded data
-var encPhysOrder = []int{
-	0x0, 0xD, 0xB, 0x9, 0x7, 0x5, 0x3, 0x1,
-	0xE, 0xC, 0xA, 0x8, 0x6, 0x4, 0x2, 0xF,
-}
-
 // An encoder is a struct which defines the pieces we need to encode
 // logical data into a physical format.
 type encoder struct {
@@ -93,10 +87,7 @@ func (e *encoder) writeTrack(track int) {
 	physTrackOffset := PhysTrackLen * track
 
 	for sect := 0; sect < NumSectors; sect++ {
-		var (
-			logSect  = LogicalSector(e.imageType, sect)
-			physSect = encPhysOrder[sect]
-		)
+		logSect := LogicalSector(e.imageType, sect)
 
 		// The logical offset is based on logTrackOffset, with the
 		// sector length times the logical sector we should be copying
@@ -104,7 +95,7 @@ func (e *encoder) writeTrack(track int) {
 
 		// However, the physical offset is based on the physical sector,
 		// which may need to be encoded in a different order
-		e.physicalOffset = physTrackOffset + (PhysSectorLen * physSect)
+		e.physicalOffset = physTrackOffset + (PhysSectorLen * sect)
 
 		e.writeSector(track, sect)
 	}

@@ -42,7 +42,7 @@ func (d *decoder) writeTrack(track int) {
 	for sect := 0; sect < NumSectors; sect++ {
 		var (
 			logSect  = LogicalSector(d.imageType, sect)
-			physSect = encPhysOrder[sect]
+			physSect = sect
 		)
 
 		// The logical offset is based on logTrackOffset, with the
