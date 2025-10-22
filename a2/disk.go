@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/pevans/erc/a2/a2enc"
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/memory"
@@ -45,9 +44,9 @@ func (l *DiskLog) WriteToFile() error {
 
 	for _, read := range l.Reads {
 		logLine := fmt.Sprintf(
-			"track %02X (%02X) sector %04X offset %05X byte $%02X | %v\n",
-			read.HalfTrack>>1, read.HalfTrack, read.Sector,
-			((read.HalfTrack>>1)*a2enc.PhysTrackLen)+read.Sector,
+			"track %02X (half %02X) sect %01X (pos %04X) byte $%02X | %v\n",
+			read.HalfTrack>>1, read.HalfTrack, // track and half
+			read.Sector/0x1A0, read.Sector, // sect and pos
 			read.Byte, read.Instruction,
 		)
 
@@ -125,34 +124,19 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 			break
 		}
 
-		// As the cycles go by, the disk will keep spinning even if it's been
-		// a while since we last read or wrote to it.
-		cyclesSince := c.CPU.CyclesSince(lastCycle)
-		spinOffset := cyclesSince >> 5
-
-		if spinOffset > 0 {
-			// We need to shift ahead by one or more bytes
-			c.SelectedDrive.Shift(spinOffset)
-			metrics.Increment("disk_spin_offset", spinOffset)
-		}
-
 		stm.SetInt(a2state.DiskCycleOfLastAccess, c.CPU.CycleCount)
 
 		if c.SelectedDrive.Mode == ReadMode || c.SelectedDrive.WriteProtect {
-			bits := 0
-			if cyclesSince >= 4 && cyclesSince <= 6 {
-				// The program may be expecting a partial value since the disk
-				// technically has spun away from the byte's starting position
-				// in the sector.
-				bits = 1
-			}
+			// Record this now for the disk log because a read on the drive
+			// will alter the sector pos
+			sectorPos := c.SelectedDrive.SectorPos
 
-			*val = c.SelectedDrive.Read() >> bits
+			*val = c.SelectedDrive.Read()
 
 			if c.diskLog != nil {
 				c.diskLog.Add(&DiskRead{
 					HalfTrack:   c.SelectedDrive.TrackPos,
-					Sector:      c.SelectedDrive.SectorPos,
+					Sector:      sectorPos,
 					Byte:        *val,
 					Instruction: c.CPU.ThisInstruction(),
 				})
