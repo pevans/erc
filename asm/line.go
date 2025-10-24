@@ -21,6 +21,28 @@ type Line struct {
 
 	Opcode  uint8
 	Comment string
+
+	Cycles int
+}
+
+func (ln Line) ShortString() string {
+	linefmt := "%04X" + // address
+		" | " + // spacing
+		"%s " + // instruction
+		"%-10s" // operand
+
+	str := fmt.Sprintf(
+		linefmt,
+		ln.Address,
+		ln.Instruction, ln.PreparedOperand,
+	)
+
+	// Add line padding for what seem to be the end of a subroutine.
+	if ln.Instruction == "JMP" || ln.Instruction == "RTS" || ln.Instruction == "RTI" {
+		str += "\n"
+	}
+
+	return str
 }
 
 // String returns some representation of a line of assembly. There's no
