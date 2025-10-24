@@ -3,6 +3,7 @@ package a2
 import (
 	"fmt"
 	"io"
+	"math/rand/v2"
 	"os"
 	"strings"
 
@@ -217,4 +218,8 @@ func (d *Drive) Write() {
 		d.Data.DirectSet(d.Position(), d.Latch)
 		d.Shift(1)
 	}
+}
+
+func (d *Drive) RandomByte() uint8 {
+	return uint8(rand.IntN(0xFF))
 }

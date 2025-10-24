@@ -85,7 +85,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 
 		c.SelectedDrive.SwitchPhase(int(nib))
 
-		*val = 0xFF - nib
+		*val = c.Drive1.RandomByte()
 
 		metrics.Increment(fmt.Sprintf("disk_switch_phase_%01x", nib), 1)
 
@@ -93,14 +93,14 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 		// Turn both drives off
 		c.Drive1.Online = false
 		c.Drive2.Online = false
-		*val = 0xFF - nib
+		*val = c.Drive1.RandomByte()
 		metrics.Increment("disk_drives_off", 1)
 
 	case 0x9:
 		// Turn only the selected drive on
 		c.SelectedDrive.Online = true
 		stm.SetInt(a2state.DiskCycleOfLastAccess, 0)
-		*val = 0xFF - nib
+		*val = c.Drive1.RandomByte()
 		metrics.Increment("disk_selected_drive_online", 1)
 
 	case 0xA:
@@ -172,7 +172,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 		// Set the selected drive mode to read
 		c.SelectedDrive.Mode = ReadMode
 
-		*val = 0x80 - nib
+		*val = c.Drive1.RandomByte()
 
 		// We also need to return the state of write protection
 		if c.SelectedDrive.WriteProtect {
@@ -184,7 +184,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 	case 0xF:
 		// Set the selected drive mode to write
 		c.SelectedDrive.Mode = WriteMode
-		*val = 0xFF - nib
+		*val = c.Drive1.RandomByte()
 		metrics.Increment("disk_write_mode", 1)
 	}
 
