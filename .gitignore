@@ -9,6 +9,7 @@
 *.callmap
 *.disklog
 *.physical
+*.time
 
 # erc binary
 /erc
