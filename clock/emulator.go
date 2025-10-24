@@ -12,7 +12,7 @@ type Emulator struct {
 
 	// For any given rate of hertz, this is the time we would expect to
 	// be consumed by a single cycle.
-	timePerCycle time.Duration
+	TimePerCycle time.Duration
 
 	// The time that our wait period began. Periods are roughly a
 	// second.
@@ -26,7 +26,7 @@ type Emulator struct {
 func NewEmulator(hz int64) *Emulator {
 	emu := &Emulator{
 		hertz:        hz,
-		timePerCycle: (1 * time.Second) / time.Duration(hz),
+		TimePerCycle: (1 * time.Second) / time.Duration(hz),
 	}
 
 	return emu
@@ -47,7 +47,7 @@ func (e *Emulator) WaitForCycles(cycles int64, waitFunc func(d time.Duration)) {
 
 	// idealCycles is the estimated number of cycles that should
 	// have ran within a period
-	idealCycles := int64(time.Since(e.lastPeriod) / e.timePerCycle)
+	idealCycles := int64(time.Since(e.lastPeriod) / e.TimePerCycle)
 
 	// If we've executed more cycles in the period than are ideal, then
 	// wait for some length of time that seems necessary to catch up to
@@ -55,7 +55,7 @@ func (e *Emulator) WaitForCycles(cycles int64, waitFunc func(d time.Duration)) {
 	if e.periodCycles > idealCycles {
 		waitFunc(
 			time.Since(e.lastPeriod) -
-				(time.Duration(idealCycles) * e.timePerCycle),
+				(time.Duration(idealCycles) * e.TimePerCycle),
 		)
 	}
 

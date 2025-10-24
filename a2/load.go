@@ -28,6 +28,9 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 		c.InstructionLog = asm.NewCallMap()
 		c.InstructionLogFileName = fmt.Sprintf("%v.asm", fileName)
 
+		c.TimeSet = asm.NewTimeset(c.CPU.ClockEmulator.TimePerCycle)
+		c.TimeSetFileName = fmt.Sprintf("%v.time", fileName)
+
 		go MaybeLogInstructions(c)
 
 		c.diskLog = NewDiskLog(fileName)
@@ -52,6 +55,8 @@ func MaybeLogInstructions(c *Computer) {
 			}
 
 			c.InstructionLog.Add(line.String())
+
+			c.TimeSet.Record(line.ShortString(), line.Cycles)
 		default:
 			break
 		}

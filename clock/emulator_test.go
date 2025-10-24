@@ -15,7 +15,7 @@ func TestWaitForCycles(t *testing.T) {
 	var (
 		emu = NewEmulator(12345)
 
-		wantDiff                 = emu.timePerCycle * 8
+		wantDiff                 = emu.TimePerCycle * 8
 		actualDiff time.Duration = 0
 	)
 

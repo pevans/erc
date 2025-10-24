@@ -36,6 +36,13 @@ func (c *Computer) Shutdown() error {
 		}
 	}
 
+	if c.TimeSet != nil {
+		err := c.TimeSet.WriteToFile(c.TimeSetFileName)
+		if err != nil {
+			return err
+		}
+	}
+
 	if c.diskLog != nil {
 		return c.diskLog.WriteToFile()
 	}

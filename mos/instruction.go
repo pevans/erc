@@ -163,7 +163,7 @@ func (c *CPU) Execute() error {
 			c.InstructionChannel = make(chan *asm.Line, 100)
 		}
 
-		c.InstructionChannel <- c.LastInstructionLine()
+		c.InstructionChannel <- c.LastInstructionLine(int(cycles[c.Opcode]))
 	}
 
 	if c.ClockEmulator != nil {
@@ -196,11 +196,12 @@ func (c *CPU) ThisInstruction() string {
 	)
 }
 
-func (c *CPU) LastInstructionLine() *asm.Line {
+func (c *CPU) LastInstructionLine(cycles int) *asm.Line {
 	line := &asm.Line{
 		Address:     int(c.LastPC),
 		Instruction: instructions[c.Opcode].String(),
 		Opcode:      c.Opcode,
+		Cycles:      cycles,
 	}
 
 	c.prepareOperand(line, c.LastPC)
@@ -210,7 +211,7 @@ func (c *CPU) LastInstructionLine() *asm.Line {
 }
 
 func (c *CPU) LastInstruction() string {
-	ln := c.LastInstructionLine()
+	ln := c.LastInstructionLine(0)
 
 	return ln.String()
 }

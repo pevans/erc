@@ -47,6 +47,9 @@ type Computer struct {
 	// Where to write the instruction log
 	InstructionLogFileName string
 
+	TimeSet         *asm.TimeSet
+	TimeSetFileName string
+
 	// MemMode is a collection of bit flags which tell us what state of
 	// memory we have.
 	MemMode int
