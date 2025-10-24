@@ -246,12 +246,7 @@ func (c *CPU) NextInstruction() string {
 func (c *CPU) explainInstruction(line *asm.Line, pc uint16) {
 	addr := int(c.EffAddr)
 
-	// Starting point for most programs
-	if pc == 0x0801 {
-		line.Label = "MAIN"
-	}
-
-	if isJSR(line.Opcode) {
+	if maybeRoutine(line.Opcode, c.AddrMode) {
 		if routine := a2sym.Subroutine(addr); routine != "" {
 			line.PreparedOperand = routine
 			return
@@ -273,10 +268,18 @@ func (c *CPU) explainInstruction(line *asm.Line, pc uint16) {
 			line.PreparedOperand = variable
 		}
 	}
+
+	if routine := a2sym.Subroutine(int(pc)); routine != "" {
+		line.Label = routine
+	}
 }
 
-func isJSR(opcode uint8) bool {
-	return opcode == 0x20
+func maybeRoutine(opcode uint8, addrMode int) bool {
+	return opcode == 0x20 || // JSR
+		opcode == 0x4C || // JMP (ABS)
+		opcode == 0x6C || // JMP (IND)
+		opcode == 0x7C || // JMP (ABX)
+		addrMode == AmREL // any branch
 }
 
 func (c *CPU) prepareOperand(line *asm.Line, pc uint16) {

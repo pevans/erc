@@ -1,13 +1,32 @@
 package a2sym
 
 var subroutineMap = map[int]string{
+	// the start point for any program
+	0x0801: "MAIN",
+
 	// RWTS routines (read/write track/sector)
 	0xB7B5: "RWTS",
 	0xB800: "PRENIBBLE",
-	0xB82A: "WRITE",
+	0xB82A: "WRITE16",
+	0xB8B8: "WRITEBYTE",
 	0xB8C2: "POSTNIBBLE",
 	0xB8DC: "READ",
 	0xB944: "RDADDR",
+	0xB9A0: "SEEKABS",
+	0xBA00: "ARMDELAY",
+	0xBD00: "RWTSMAIN",
+	0xBD34: "SAMESLOT",
+	0xBDAB: "TRYTRK",
+	0xBDED: "RDRIGHT",
+	0xBE04: "DRVERR",
+	0xBE0D: "FORMDSK",
+	0xBE10: "RTTRK",
+	0xBE26: "CRCTVOL",
+	0xBE46: "ALLDONE",
+	0xBE48: "HNDLERR",
+	0xBE51: "WRITE",
+	0xBE5A: "MYSEEK",
+	0xBE8E: "XTOY",
 
 	// peripheral ROM subroutines
 	0xC305: "BASICIN",
