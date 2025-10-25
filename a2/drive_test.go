@@ -195,16 +195,16 @@ func (s *a2Suite) TestDriveWrite() {
 	dat, _ := os.Open("../data/logical.disk")
 	s.NoError(d.Load(dat, "something.dsk"))
 
-	// If Latch < 0x80, Write should do nothing
+	// If Latch < 0x80, Write should not write data, but position still shifts
 	d.Latch = 0x11
 	d.SectorPos = 0
 	d.Write()
-	s.Equal(0, d.SectorPos)
-	s.NotEqual(d.Latch, d.Data.Get(d.Position()))
+	s.Equal(1, d.SectorPos)
+	s.NotEqual(d.Latch, d.Data.Get(d.Position()-1))
 
 	// Write should do something here
 	d.Latch = 0x81
 	d.Write()
-	s.Equal(1, d.SectorPos)
+	s.Equal(2, d.SectorPos)
 	s.Equal(d.Latch, d.Data.Get(d.Position()-1))
 }

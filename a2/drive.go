@@ -128,9 +128,9 @@ func (d *Drive) PhaseTransition(phase int) {
 
 	offset := phaseTable[(d.Phase*5)+phase]
 
-	// Because of the above check, we can assert that the formula we use for the
-	// phase transition ((curPhase * 5) + phase) will match something, so we
-	// step immediately.
+	// Because of the above check, we can assert that the formula we use for
+	// the phase transition ((curPhase * 5) + phase) will match something, so
+	// we step immediately.
 	d.Step(offset)
 
 	// We also have to update our current phase
@@ -216,8 +216,9 @@ func (d *Drive) Write() {
 	// We can only write our latch value if the high-bit is set
 	if d.Latch&0x80 > 0 {
 		d.Data.DirectSet(d.Position(), d.Latch)
-		d.Shift(1)
 	}
+
+	d.Shift(1)
 }
 
 func (d *Drive) RandomByte() uint8 {
