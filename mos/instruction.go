@@ -270,6 +270,19 @@ func (c *CPU) explainInstruction(line *asm.Line, pc uint16) {
 		}
 	}
 
+	if variable := a2sym.Variable(int(c.Operand)); variable != "" {
+		switch c.AddrMode {
+		case AmIDX:
+			line.PreparedOperand = fmt.Sprintf("(%v,X)", variable)
+		case AmIDY:
+			line.PreparedOperand = fmt.Sprintf("(%v),Y", variable)
+		case AmZPX:
+			line.PreparedOperand = fmt.Sprintf("%v,X", variable)
+		case AmZPY:
+			line.PreparedOperand = fmt.Sprintf("%v,Y", variable)
+		}
+	}
+
 	if routine := a2sym.Subroutine(int(pc)); routine != "" {
 		line.Label = routine
 	}
