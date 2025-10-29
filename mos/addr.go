@@ -231,7 +231,7 @@ func Idx(c *CPU) {
 
 	plusX := uint16(operand+c.X) & 0xFF
 	if plusX == 0xFF {
-		c.EffAddr = uint16(c.Get(0)<<8) | uint16(c.Get(0xFF))
+		c.EffAddr = (uint16(c.Get(0)) << 8) | uint16(c.Get(0xFF))
 	} else {
 		c.EffAddr = c.Get16(plusX)
 	}
@@ -258,17 +258,18 @@ func Idy(c *CPU) {
 
 	// This dereferences the base address, essentially resolving the
 	// `()` part of the operand.
-	effAddr := c.Get16(c.Operand)
+	effAddr := uint16(0)
+
+	if c.Operand == 0xFF {
+		effAddr = (uint16(c.Get(0)) << 8) | uint16(c.Get(0xFF))
+	} else {
+		effAddr = c.Get16(c.Operand)
+	}
 
 	// And here we account for the `,Y` part; Y is added to the
 	// dereferenced address.
 	c.EffAddr = effAddr + uint16(c.Y)
-
-	if c.EffAddr == 0xFF {
-		c.EffVal = c.Get(uint16(c.Get(0)<<8) | uint16(c.Get(0xFF)))
-	} else {
-		c.EffVal = c.Get(c.EffAddr)
-	}
+	c.EffVal = c.Get(c.EffAddr)
 }
 
 // Rel resolves the relative address mode. This is only used by branch

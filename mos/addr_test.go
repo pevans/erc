@@ -160,61 +160,86 @@ func (s *mosSuite) TestInd() {
 
 func (s *mosSuite) TestIdx() {
 	cases := []struct {
+		name   string
 		oper   uint8
-		atOper uint16
 		x      uint8
-		want   uint8
+		atOper uint16 // The 16-bit pointer value
+		want   uint8  // The value at the target address
 	}{
-		{0x05, 0x3333, 0x03, 0x34},
-		{0xD0, 0x4444, 0xFF, 0x33},
+		{"normal case", 0x05, 0x03, 0x3333, 0x34},
+		{"normal case 2", 0xD0, 0xFF, 0x4444, 0x33},
+		{"zero page boundary", 0xFE, 0x01, 0x1234, 0xAB}, // oper+x = 0xFF
 	}
 
 	for _, c := range cases {
-		// Set the operand `$NN`.
-		s.cpu.Set(s.cpu.PC+1, c.oper)
+		s.Run(c.name, func() {
+			// Set the operand `$NN`.
+			s.cpu.Set(s.cpu.PC+1, c.oper)
 
-		// And at the operand (+ X).
-		s.cpu.Set16(uint16(c.oper+c.x), c.atOper)
+			// Set the 16-bit pointer at (oper + x) location
+			// We need to handle the zero page boundary case where oper+x = 0xFF
+			zpAddr := uint16(c.oper+c.x) & 0xFF
+			if zpAddr == 0xFF {
+				// Low byte at 0xFF, high byte wraps to 0x00
+				s.cpu.Set(0xFF, uint8(c.atOper&0xFF))
+				s.cpu.Set(0x00, uint8(c.atOper>>8))
+			} else {
+				// Normal case: set the 16-bit pointer
+				s.cpu.Set16(zpAddr, c.atOper)
+			}
 
-		// Finally, the value we want to see.
-		s.cpu.Set(c.atOper, c.want)
+			// Set the value we want to see at the target address
+			s.cpu.Set(c.atOper, c.want)
 
-		s.cpu.X = c.x
-		mos.Idx(s.cpu)
+			s.cpu.X = c.x
+			mos.Idx(s.cpu)
 
-		s.Equal(s.cpu.EffAddr, c.atOper)
-		s.Equal(s.cpu.EffVal, c.want)
+			s.Equal(c.atOper, s.cpu.EffAddr)
+			s.Equal(c.want, s.cpu.EffVal)
+		})
 	}
 }
 
 func (s *mosSuite) TestIdy() {
 	cases := []struct {
-		oper   uint8
-		atOper uint16
-		y      uint8
-		want   uint8
+		name     string
+		oper     uint8  // The zero page address
+		baseAddr uint16 // The 16-bit pointer value at oper
+		y        uint8  // Y register value
+		want     uint8  // The value at (baseAddr + y)
 	}{
-		{0x05, 0x3102, 0x03, 0x34},
-		{0xD0, 0x3156, 0xFF, 0x33},
+		{"normal case", 0x05, 0x3102, 0x03, 0x34},
+		{"normal case 2", 0xD0, 0x3156, 0xFF, 0x33},
+		{"zero page boundary", 0xFF, 0x2000, 0x10, 0xCD}, // oper = 0xFF
 	}
 
 	for _, c := range cases {
-		// Set the `$NN` part of the operand
-		s.cpu.Set(s.cpu.PC+1, c.oper)
+		s.Run(c.name, func() {
+			// Set the `$NN` part of the operand
+			s.cpu.Set(s.cpu.PC+1, c.oper)
 
-		// Now set the base address we want at `$NN`
-		s.cpu.Set16(uint16(c.oper), c.atOper)
+			// Set the 16-bit base address pointer at the operand location
+			// Handle the zero page boundary case where oper = 0xFF
+			if c.oper == 0xFF {
+				// Low byte at 0xFF, high byte wraps to 0x00
+				s.cpu.Set(0xFF, uint8(c.baseAddr&0xFF))
+				s.cpu.Set(0x00, uint8(c.baseAddr>>8))
+			} else {
+				// Normal case: set the 16-bit pointer
+				s.cpu.Set16(uint16(c.oper), c.baseAddr)
+			}
 
-		// The value we want to see will be set at the base address + Y
-		addr := c.atOper + uint16(c.y)
-		s.cpu.Set(addr, c.want)
+			// The final target address is base + Y
+			targetAddr := c.baseAddr + uint16(c.y)
+			s.cpu.Set(targetAddr, c.want)
 
-		// And now we resolve the address.
-		s.cpu.Y = c.y
-		mos.Idy(s.cpu)
+			// And now we resolve the address.
+			s.cpu.Y = c.y
+			mos.Idy(s.cpu)
 
-		s.Equal(c.want, s.cpu.EffVal)
-		s.Equal(addr, s.cpu.EffAddr)
+			s.Equal(c.want, s.cpu.EffVal)
+			s.Equal(targetAddr, s.cpu.EffAddr)
+		})
 	}
 }
 
