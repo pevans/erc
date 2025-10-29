@@ -25,22 +25,6 @@ type addressField struct {
 	Checksum uint8
 }
 
-var addressFieldPrologue = []uint8{
-	0xD5, 0xAA, 0x96,
-}
-
-var addressFieldEpilogue = []uint8{
-	0xDE, 0xAA, 0xEB,
-}
-
-var dataFieldPrologue = []uint8{
-	0xD5, 0xAA, 0xAD,
-}
-
-var dataFieldEpilogue = []uint8{
-	0xDE, 0xAA, 0xEB,
-}
-
 // Decode62 returns a new segment that is the six-and-two decoded form
 // (translating a physical to a logical data structure), based on a kind
 // of input image and segment.
