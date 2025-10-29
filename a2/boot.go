@@ -28,16 +28,12 @@ const (
 // only when the computer is switched from a powered-off to a powered-on
 // state.
 func (c *Computer) Boot() error {
-	// Fetch the slice of bytes for system ROM and for peripheral ROM
-	// (they go to together).
-	rom, err := obj.Slice(0, RomMemorySize-1)
+	_, err := c.ROM.CopySlice(0, obj.SystemROM())
 	if err != nil {
 		return err
 	}
 
-	// Copy the ROM bytes into the ROM segment. This copies not only
-	// system ROM; it also copies in peripheral ROM.
-	_, err = c.ROM.CopySlice(0, rom)
+	_, err = c.ROM.CopySlice(len(obj.SystemROM()), obj.PeripheralROM())
 	if err != nil {
 		return err
 	}
