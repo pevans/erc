@@ -22,17 +22,11 @@ const (
 	LogTrackLen = 0x1000
 
 	// PhysSectorLen is the length of a physical sector
-	PhysSectorLen = 0x1A0
-
-	// PhysSectorHeader is the length of a sector header
-	PhysSectorHeader = 0x46
+	PhysSectorLen = 0x18C
 
 	// PhysTrackLen is the length of a physical track, consisting of 16
-	// physical sectors.
-	PhysTrackLen = 0x1A00
-
-	// PhysTrackHeader is the length of a track header.
-	PhysTrackHeader = 0x30
+	// physical sectors plus gap 1 bytes
+	PhysTrackLen = 0x18F0
 
 	// MaxSteps is the maximum number of steps we can move the drive
 	// head before running out of tracks on the disk. (Note that steps
@@ -49,7 +43,7 @@ const (
 	// NibSize is the capacity of the segment we will create for
 	// nibblized data, whether from 140k logical data or just any-old
 	// NIB file.
-	NibSize = 234640
+	NibSize = 223440
 )
 
 const (

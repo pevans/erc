@@ -13,6 +13,30 @@ const (
 	TwoBlock = 0x56
 )
 
+// self-sync bytes that are at the beginning of every track
+var gap1 = []uint8{
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+}
+
+// self-sync bytes that separate the address and data fields of a sector
+var gap2 = []uint8{
+	0xFF, 0xFF, 0xFF,
+	0xFF, 0xFF, 0xFF,
+}
+
+// self-sync bytes that are written after every data field
+var gap3 = []uint8{
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+	0xFF, 0xFF, 0xFF,
+}
+
 // This is the table that holds the bytes that represent 6-and-2 encoded
 // memory. Note the table goes from $00..$3F; that is the amount of values
 // that six bits can hold. Each of those six-bit combinations maps to a
@@ -84,7 +108,10 @@ func (e *encoder) writeByte(byt uint8) {
 // destination segment based on a logically encoded source.
 func (e *encoder) writeTrack(track int) {
 	logTrackOffset := LogTrackLen * track
-	physTrackOffset := PhysTrackLen * track
+	physTrackOffset := (PhysTrackLen * track) + len(gap1)
+
+	// We need to write the gap1 bytes before we do anything.
+	e.write(gap1)
 
 	for sect := 0; sect < NumSectors; sect++ {
 		logSect := LogicalSector(e.imageType, sect)
@@ -93,57 +120,40 @@ func (e *encoder) writeTrack(track int) {
 		// sector length times the logical sector we should be copying
 		e.logicalOffset = logTrackOffset + (LogSectorLen * logSect)
 
-		// However, the physical offset is based on the physical sector,
-		// which may need to be encoded in a different order
+		// The physical offset for which we need to write will need to account
+		// for the gap1 bytes that we wrote before the loop
 		e.physicalOffset = physTrackOffset + (PhysSectorLen * sect)
 
 		e.writeSector(track, sect)
 	}
 }
 
-// encode4n4 writes the given byte in 4-and-4 encoded form, which is
-// used in sector headers.
-func (e *encoder) write4n4(val uint8) {
+func (e *encoder) writeAddressField(track, sect int) {
+	// Write the address field, starting with the prologue bytes
 	e.write([]uint8{
-		((val >> 1) & 0x55) | 0xAA,
-		(val & 0x55) | 0xAA,
-	})
-}
-
-// encodeSector writes a physically encoded sector into the destination
-// segment based on the logically encoded source segment.
-func (e *encoder) writeSector(track, sect int) {
-	six := make([]uint8, SixBlock)
-	two := make([]uint8, TwoBlock)
-
-	// Write the initial padding and sector header prologue
-	e.write([]uint8{
-		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-
 		0xD5, 0xAA, 0x96,
 	})
 
-	// Write the metadata
+	// The address field consists of metadata that tells the software where to
+	// organize this sector (e.g. which sector, which track)
 	e.write4n4(VolumeMarker)
 	e.write4n4(uint8(track))
 	e.write4n4(uint8(sect))
 	e.write4n4(uint8(VolumeMarker ^ track ^ sect))
 
-	// Write the sector header epilogue, plus some padding, plus the
-	// data marker
 	e.write([]uint8{
+		// These are the epilogue of the address field, which tells the
+		// software that the field is completed
 		0xDE, 0xAA, 0xEB,
+	})
+}
 
-		// Other tools out there insert more padding than we do, but that
-		// doesn't seem to be a meaningful difference
-		0xFF, 0xFF, 0xFF,
-		0xFF, 0xFF,
+func (e *encoder) writeDataField(track, sect int) {
+	six := make([]uint8, SixBlock)
+	two := make([]uint8, TwoBlock)
 
+	e.write([]uint8{
+		// These 3 bytes mark the beginning of the data field
 		0xD5, 0xAA, 0xAD,
 	})
 
@@ -183,8 +193,26 @@ func (e *encoder) writeSector(track, sect int) {
 	// but here, there's no need to XOR since there's no other byte.
 	e.writeByte(encGCR62[six[SixBlock-1]])
 
-	// Finally, we write the end marker for sector memory.
+	// Finally, we write the end marker
 	e.write([]uint8{
 		0xDE, 0xAA, 0xEB,
 	})
+}
+
+// encode4n4 writes the given byte in 4-and-4 encoded form, which is
+// used in sector headers.
+func (e *encoder) write4n4(val uint8) {
+	e.write([]uint8{
+		((val >> 1) & 0x55) | 0xAA,
+		(val & 0x55) | 0xAA,
+	})
+}
+
+// encodeSector writes a physically encoded sector into the destination
+// segment based on the logically encoded source segment.
+func (e *encoder) writeSector(track, sect int) {
+	e.writeAddressField(track, sect)
+	e.write(gap2)
+	e.writeDataField(track, sect)
+	e.write(gap3)
 }
