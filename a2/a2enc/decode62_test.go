@@ -1,24 +1,28 @@
 package a2enc_test
 
 import (
+	"fmt"
+
 	"github.com/pevans/erc/a2/a2enc"
 )
 
-func (s *sixtwoSuite) TestDecode62() {
-	return
-	ls, err := a2enc.Decode62(s.imageType, s.physDisk)
-
-	s.NoError(err)
-	s.NotNil(ls)
-	s.Equal(a2enc.DosSize, ls.Size())
-}
-
 func (s *sixtwoSuite) TestDecode62RoundTrip() {
-	return
 	encoded, err := a2enc.Encode62(s.imageType, s.logDisk)
 	s.NoError(err)
+	s.NotNil(encoded)
 
 	decoded, err := a2enc.Decode62(s.imageType, encoded)
 	s.NoError(err)
-	s.Equal(s.logDisk, decoded)
+	s.NotNil(decoded)
+
+	s.Equal(s.logDisk.Size(), decoded.Size())
+
+	for i := 0; i < s.logDisk.Size(); i++ {
+		s.Equal(
+			s.logDisk.Get(i), decoded.Get(i),
+			fmt.Sprintf(
+				"byte mismatch at offset %v", i,
+			),
+		)
+	}
 }
