@@ -280,6 +280,8 @@ func (c *CPU) explainInstruction(line *asm.Line, pc uint16) {
 			line.PreparedOperand = fmt.Sprintf("%v,X", variable)
 		case AmZPY:
 			line.PreparedOperand = fmt.Sprintf("%v,Y", variable)
+		case AmIND:
+			line.PreparedOperand = fmt.Sprintf("(%v)", variable)
 		}
 	}
 
