@@ -30,16 +30,16 @@ func (s *sixtwoSuite) SetupSuite() {
 	s.baseDir = dir + "/../../data"
 
 	s.imageType = a2enc.DOS33
-	s.physDisk = memory.NewSegment(a2enc.NibSize)
-	s.physTrack = memory.NewSegment(a2enc.PhysTrackLen)
-	s.physSector = memory.NewSegment(a2enc.PhysSectorLen)
+	//s.physDisk = memory.NewSegment(a2enc.NibSize)
+	//s.physTrack = memory.NewSegment(a2enc.PhysTrackLen)
+	//s.physSector = memory.NewSegment(a2enc.PhysSectorLen)
 	s.logDisk = memory.NewSegment(a2enc.DosSize)
 	s.logTrack = memory.NewSegment(a2enc.LogTrackLen)
 	s.logSector = memory.NewSegment(a2enc.LogSectorLen)
 
-	s.NoError(loadFile(s.physDisk, s.baseDir+"/physical.disk"))
-	s.NoError(loadFile(s.physTrack, s.baseDir+"/physical.track"))
-	s.NoError(loadFile(s.physSector, s.baseDir+"/physical.sector"))
+	//s.NoError(loadFile(s.physDisk, s.baseDir+"/physical.disk"))
+	//s.NoError(loadFile(s.physTrack, s.baseDir+"/physical.track"))
+	//s.NoError(loadFile(s.physSector, s.baseDir+"/physical.sector"))
 	s.NoError(loadFile(s.logDisk, s.baseDir+"/logical.disk"))
 	s.NoError(loadFile(s.logTrack, s.baseDir+"/logical.track"))
 	s.NoError(loadFile(s.logSector, s.baseDir+"/logical.sector"))

@@ -89,7 +89,7 @@ func (d *decoder) writeSector(track, sect int) {
 
 	// There's going to be some opening metadata bytes that we will want
 	// to skip.
-	d.physicalOffset += PhysSectorHeader
+	//d.physicalOffset += PhysSectorHeader
 
 	checksum := d.logByte(d.physicalSegment.Get(d.physicalOffset))
 	two[0] = checksum
