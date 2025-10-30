@@ -21,7 +21,6 @@ Erc is able to emulate Apple II DOS-order software, although not well. It can:
 - Some software takes a surprisingly long time to load (e.g. Ultima III)
 - Some software does not load correctly
 - A lot of software has not been tested at all (WOZ, NIB, and PO files particularly)
-- Write emulation has not been well tested
 - Low-resolution graphics have not been well tested
 
 ## Opportunities
