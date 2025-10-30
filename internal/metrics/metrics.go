@@ -1,6 +1,13 @@
 package metrics
 
-import "sync"
+import (
+	"fmt"
+	"os"
+	"slices"
+	"sync"
+
+	"golang.org/x/exp/maps"
+)
 
 var (
 	metricMap   = map[string]int{}
@@ -41,4 +48,29 @@ func Clear() {
 	metricMap = map[string]int{}
 
 	metricMutex.Unlock()
+}
+
+func WriteToFile(file string) error {
+	metricMutex.Lock()
+	defer metricMutex.Unlock()
+
+	keys := maps.Keys(metricMap)
+	slices.Sort(keys)
+
+	fp, err := os.Create(file)
+	if err != nil {
+		return err
+	}
+
+	defer fp.Close() //nolint:errcheck
+
+	for _, key := range keys {
+		line := fmt.Sprintf("%v = %v\n", key, metricMap[key])
+
+		if _, err := fp.WriteString(line); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

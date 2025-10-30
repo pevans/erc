@@ -31,6 +31,8 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 		c.TimeSet = asm.NewTimeset(c.ClockEmulator.TimePerCycle)
 		c.TimeSetFileName = fmt.Sprintf("%v.time", fileName)
 
+		c.MetricsFileName = fmt.Sprintf("%v.metrics", fileName)
+
 		go MaybeLogInstructions(c)
 
 		c.diskLog = asm.NewDiskLog(fileName)

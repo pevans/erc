@@ -52,6 +52,8 @@ type Computer struct {
 	TimeSet         *asm.TimeSet
 	TimeSetFileName string
 
+	MetricsFileName string
+
 	// MemMode is a collection of bit flags which tell us what state of
 	// memory we have.
 	MemMode int
