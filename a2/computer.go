@@ -25,6 +25,8 @@ type Computer struct {
 	// The CPU of the Apple //e was an MOS 65C02 processor.
 	CPU *mos.CPU
 
+	ClockEmulator *clock.Emulator
+
 	BootTime time.Time
 
 	// There are three primary segments of memory in an Apple //e; main
@@ -120,7 +122,7 @@ func NewComputer(hertz int64) *Computer {
 	// might have run. I've found that if I use 1.023 MHz, the Apple IIe
 	// speed, things feel much slower than I'd expect. In practice,
 	// something approximately double that number feels more right.
-	comp.CPU.ClockEmulator = clock.NewEmulator(hertz)
+	comp.ClockEmulator = clock.NewEmulator(hertz)
 
 	comp.SetFont(a2font.SystemFont())
 
@@ -147,6 +149,6 @@ func (c *Computer) NeedsRender() bool {
 	return c.State.Bool(a2state.DisplayRedraw)
 }
 
-//func (c *Computer) State() map[string]any {
-//	return c.state.Map(a2state.KeyToString)
-//}
+func (c *Computer) StateMap() *memory.StateMap {
+	return c.State
+}

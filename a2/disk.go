@@ -69,12 +69,12 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 	var (
 		nib       = uint8(addr & 0xF)
 		c         = stm.Any(a2state.DiskComputer).(*Computer)
-		lastCycle = stm.Int(a2state.DiskCycleOfLastAccess)
+		lastCycle = stm.Int64(a2state.DiskCycleOfLastAccess)
 		debugging = stm.Bool(a2state.DebuggerLookAhead)
 	)
 
 	if lastCycle == 0 {
-		lastCycle = c.CPU.CycleCount
+		lastCycle = c.ClockEmulator.TotalCycles
 	}
 
 	switch nib {
@@ -100,7 +100,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 		// Turn only the selected drive on
 		if !debugging {
 			c.SelectedDrive.Online = true
-			stm.SetInt(a2state.DiskCycleOfLastAccess, 0)
+			stm.SetInt64(a2state.DiskCycleOfLastAccess, 0)
 			metrics.Increment("disk_selected_drive_online", 1)
 		}
 
@@ -137,7 +137,9 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 			break
 		}
 
-		stm.SetInt(a2state.DiskCycleOfLastAccess, c.CPU.CycleCount)
+		stm.SetInt64(
+			a2state.DiskCycleOfLastAccess, c.ClockEmulator.TotalCycles,
+		)
 
 		if c.SelectedDrive.Mode == ReadMode || c.SelectedDrive.WriteProtect {
 			// Record this now for the disk log because a read on the drive

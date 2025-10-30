@@ -24,6 +24,19 @@ func (sm *StateMap) SetInt(k, v int) {
 	sm.m.Store(k, v)
 }
 
+func (sm *StateMap) Int64(k int) int64 {
+	v, ok := sm.m.Load(k)
+	if !ok {
+		return 0
+	}
+
+	return v.(int64)
+}
+
+func (sm *StateMap) SetInt64(k int, v int64) {
+	sm.m.Store(k, v)
+}
+
 func (sm *StateMap) Uint8(k int) uint8 {
 	v, ok := sm.m.Load(k)
 	if !ok {

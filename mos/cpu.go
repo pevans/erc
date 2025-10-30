@@ -1,10 +1,7 @@
 package mos
 
 import (
-	"math"
-
 	"github.com/pevans/erc/asm"
-	"github.com/pevans/erc/clock"
 	"github.com/pevans/erc/memory"
 )
 
@@ -21,12 +18,6 @@ type CPU struct {
 	// A channel of instructions we're sending to interested listeners (e.g.
 	// if they wish to log them).
 	InstructionChannel chan *asm.Line
-
-	ClockEmulator *clock.Emulator
-
-	// The total number of cycles executed by the CPU. This can overflow, so
-	// code that cares about the cycle count needs to bear that in mind.
-	CycleCount int
 
 	// This is the current address mode that the CPU is operating
 	// within. The address mode affects how the CPU will determine the
@@ -88,13 +79,4 @@ type CPU struct {
 	// value is treated as an offset from $100. S will begin at $FF and
 	// decrease as the stack depth increases.
 	S uint8
-}
-
-func (c *CPU) CyclesSince(lastCycle int) int {
-	// if CycleCount is less than lastCycle, we probably overflowed
-	if c.CycleCount < lastCycle {
-		return c.CycleCount + (math.MaxInt - lastCycle)
-	}
-
-	return c.CycleCount - lastCycle
 }

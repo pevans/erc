@@ -5,7 +5,6 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
-	"time"
 
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/a2/a2sym"
@@ -165,12 +164,6 @@ func (c *CPU) Execute() error {
 
 		c.InstructionChannel <- c.LastInstructionLine(int(cycles[c.Opcode]))
 	}
-
-	if c.ClockEmulator != nil {
-		c.ClockEmulator.WaitForCycles(int64(cycles[c.Opcode]), time.Sleep)
-	}
-
-	c.CycleCount += int(cycles[c.Opcode])
 
 	return nil
 }

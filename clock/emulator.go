@@ -1,7 +1,12 @@
 package clock
 
 import (
+	"fmt"
+	"log/slog"
 	"time"
+
+	"github.com/pevans/erc/a2/a2state"
+	"github.com/pevans/erc/emu"
 )
 
 // Emulator is a device which you can use to simulate a slower
@@ -14,12 +19,15 @@ type Emulator struct {
 	// be consumed by a single cycle.
 	TimePerCycle time.Duration
 
-	// The time that our wait period began. Periods are roughly a
-	// second.
-	lastPeriod time.Time
+	// When the emulator first began
+	StartTime time.Time
 
-	// The number of cycles we've recorded within a period
-	periodCycles int64
+	// When execution was last resumed (which may equal StartTime, and which
+	// may be later than StartTime)
+	ResumeTime time.Time
+
+	// The number of cycles we've executed since the start of emulation
+	TotalCycles int64
 }
 
 // NewEmulator returns a new emulator based on some number of hertz
@@ -32,36 +40,35 @@ func NewEmulator(hz int64) *Emulator {
 	return emu
 }
 
-// WaitForCycles will wait for a period of time that would allow the
-// emulator to slow down the current thread based on its hertz. Whatever
-// "waiting" means is up to the caller. Note that this function is not
-// perfect; I've observed situations where the cycle rate can overclock
-// a bit. The point is merely to get close to the correct rate.
-func (e *Emulator) WaitForCycles(cycles int64, waitFunc func(d time.Duration)) {
-	// If we've never ran this before, we should start a new period
-	if e.lastPeriod.IsZero() {
-		e.lastPeriod = time.Now()
-	}
+func (e *Emulator) ProcessLoop(comp emu.Computer, debugfn func()) {
+	e.StartTime = time.Now()
+	e.ResumeTime = e.StartTime
+	state := comp.StateMap()
 
-	e.periodCycles += cycles
+	for {
+		if state.Bool(a2state.Debugger) {
+			debugfn()
 
-	// idealCycles is the estimated number of cycles that should
-	// have ran within a period
-	idealCycles := int64(time.Since(e.lastPeriod) / e.TimePerCycle)
+			// Reset ResumeTime so that we don't think we're far behind on
+			// cycle time just because we sat in the debugger for a while
+			e.ResumeTime = time.Now()
 
-	// If we've executed more cycles in the period than are ideal, then
-	// wait for some length of time that seems necessary to catch up to
-	// the ideal rate
-	if e.periodCycles > idealCycles {
-		waitFunc(
-			time.Since(e.lastPeriod) -
-				(time.Duration(idealCycles) * e.TimePerCycle),
-		)
-	}
+			continue
+		}
 
-	// Reset the wait period
-	if time.Since(e.lastPeriod) >= 1*time.Second {
-		e.periodCycles = 0
-		e.lastPeriod = time.Now()
+		elapsed := time.Since(e.ResumeTime)
+		wantedCycles := int64(elapsed / e.TimePerCycle)
+
+		// We know how much time has elapsed, so we need to execute the cycles
+		// necessary for the speed at which we're operating
+		for e.TotalCycles < wantedCycles {
+			cycles, err := comp.Process()
+			if err != nil {
+				slog.Error(fmt.Sprintf("process execution failed: %v", err))
+				return
+			}
+
+			e.TotalCycles += int64(cycles)
+		}
 	}
 }
