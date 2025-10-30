@@ -14,6 +14,7 @@ Erc is able to emulate Apple II DOS-order software, although not well. It can:
 - render high resolution graphics and 40-column text
 - reasonably emulate cycles (although precise cycle emulation is not a goal)
 - at any point drop into a debugger and record a log of disk access
+- produce reasonably complete debugging output to examine what software does
 
 ## Problems
 
@@ -30,4 +31,3 @@ Erc is able to emulate Apple II DOS-order software, although not well. It can:
 - Mockingboard sound support
 - State file support
 - Mouse support
-- Reintroduce disassembly support
