@@ -149,9 +149,11 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 
 		*val = c.Drive1.RandomByte()
 
-		// We also need to return the state of write protection
+		// We also need to return the state of write protection in bit 7
 		if c.SelectedDrive.WriteProtect {
-			*val = 0x80
+			*val |= 0x80
+		} else {
+			*val &^= 0x80
 		}
 
 	case 0xF:
