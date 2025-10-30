@@ -1,4 +1,4 @@
-package main
+package render
 
 import (
 	"fmt"
@@ -11,8 +11,7 @@ import (
 	"github.com/pevans/erc/input"
 )
 
-// A game is just a small struct which ebiten will use to run the draw loop for
-// us.
+// A game is just a small struct which ebiten will use to run the draw loop for us.
 type game struct {
 	comp           *a2.Computer
 	keys           []ebiten.Key
@@ -20,9 +19,9 @@ type game struct {
 	lastInputEvent input.Event
 }
 
-// drawLoop executes the logic to render our graphics according to some cadence
+// DrawLoop executes the logic to render our graphics according to some cadence
 // (which is generally x frames per second).
-func drawLoop(comp *a2.Computer) error {
+func DrawLoop(comp *a2.Computer) error {
 	w, h := comp.Dimensions()
 
 	ebiten.SetWindowSize(w*3, h*3)
