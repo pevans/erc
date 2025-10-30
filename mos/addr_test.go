@@ -355,3 +355,34 @@ func (s *mosSuite) TestZpy() {
 		s.Equal(c.want, s.cpu.EffVal)
 	}
 }
+
+func (s *mosSuite) TestAddrModeName() {
+	tests := []struct {
+		mode int
+		want string
+	}{
+		{mos.AmACC, "ACC"},
+		{mos.AmABS, "ABS"},
+		{mos.AmABX, "ABX"},
+		{mos.AmABY, "ABY"},
+		{mos.AmBY2, "BY2"},
+		{mos.AmBY3, "BY3"},
+		{mos.AmIMM, "IMM"},
+		{mos.AmIMP, "IMP"},
+		{mos.AmIND, "IND"},
+		{mos.AmIDX, "IDX"},
+		{mos.AmIDY, "IDY"},
+		{mos.AmREL, "REL"},
+		{mos.AmZPG, "ZPG"},
+		{mos.AmZPX, "ZPX"},
+		{mos.AmZPY, "ZPY"},
+		{999, "???"}, // Unknown mode
+	}
+
+	for _, tt := range tests {
+		s.Run(tt.want, func() {
+			got := mos.AddrModeName(tt.mode)
+			s.Equal(tt.want, got)
+		})
+	}
+}

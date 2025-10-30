@@ -38,6 +38,33 @@ const (
 	AmZPY        // zero page y-index
 )
 
+// addrModeNames maps address mode constants to their string representations
+var addrModeNames = map[int]string{
+	AmACC: "ACC",
+	AmABS: "ABS",
+	AmABX: "ABX",
+	AmABY: "ABY",
+	AmBY2: "BY2",
+	AmBY3: "BY3",
+	AmIMM: "IMM",
+	AmIMP: "IMP",
+	AmIND: "IND",
+	AmIDX: "IDX",
+	AmIDY: "IDY",
+	AmREL: "REL",
+	AmZPG: "ZPG",
+	AmZPX: "ZPX",
+	AmZPY: "ZPY",
+}
+
+// AddrModeName returns the string representation of an address mode
+func AddrModeName(mode int) string {
+	if name, ok := addrModeNames[mode]; ok {
+		return name
+	}
+	return "???"
+}
+
 // Below is an address mode table that maps mode functions to specific
 // opcodes.
 //
