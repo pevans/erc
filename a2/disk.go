@@ -2,64 +2,13 @@ package a2
 
 import (
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/pevans/erc/a2/a2state"
+	"github.com/pevans/erc/asm"
 	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/memory"
 )
-
-type DiskRead struct {
-	Elapsed     time.Duration
-	HalfTrack   int
-	Sector      int
-	Byte        uint8
-	Instruction string
-}
-
-type DiskLog struct {
-	Reads []DiskRead
-	Name  string
-}
-
-func NewDiskLog(name string) *DiskLog {
-	log := new(DiskLog)
-	log.Name = name
-
-	return log
-}
-
-func (l *DiskLog) Add(read *DiskRead) {
-	l.Reads = append(l.Reads, *read)
-}
-
-func (l *DiskLog) WriteToFile() error {
-	file := fmt.Sprintf("%v.disklog", l.Name)
-
-	fp, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE, 0644)
-	if err != nil {
-		return err
-	}
-
-	defer fp.Close() //nolint:errcheck
-
-	for _, read := range l.Reads {
-		logLine := fmt.Sprintf(
-			"[%-10v] T:%02X S:%01X P:%04X B:$%02X | %v\n",
-			read.Elapsed.Round(time.Millisecond), // time since boot
-			read.HalfTrack>>1,                    // track
-			read.Sector/0x1A0, read.Sector,       // sect and pos
-			read.Byte, read.Instruction,
-		)
-
-		if _, err := fp.WriteString(logLine); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
 
 func diskUseDefaults(c *Computer) {
 	c.State.SetAny(a2state.DiskComputer, c) // :cry:
@@ -153,7 +102,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 			}
 
 			if c.diskLog != nil {
-				c.diskLog.Add(&DiskRead{
+				c.diskLog.Add(&asm.DiskRead{
 					Elapsed:     time.Since(c.BootTime),
 					HalfTrack:   c.SelectedDrive.TrackPos,
 					Sector:      sectorPos,

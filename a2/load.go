@@ -33,7 +33,7 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 
 		go MaybeLogInstructions(c)
 
-		c.diskLog = NewDiskLog(fileName)
+		c.diskLog = asm.NewDiskLog(fileName)
 		return c.Drive1.Data.WriteFile(fmt.Sprintf("%v.physical", fileName))
 	}
 
