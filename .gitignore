@@ -13,6 +13,7 @@
 
 # erc binary
 /erc
+/work/*
 
 # IDE / OS stuff
 .idea
