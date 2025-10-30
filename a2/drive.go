@@ -79,8 +79,8 @@ func (d *Drive) Step(offset int) {
 	d.TrackPos += offset
 
 	switch {
-	case d.TrackPos > a2enc.MaxSteps:
-		d.TrackPos = a2enc.MaxSteps
+	case d.TrackPos >= a2enc.MaxSteps:
+		d.TrackPos = a2enc.MaxSteps - 1
 	case d.TrackPos < 0:
 		d.TrackPos = 0
 	}
