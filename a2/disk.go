@@ -70,6 +70,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 		nib       = uint8(addr & 0xF)
 		c         = stm.Any(a2state.DiskComputer).(*Computer)
 		lastCycle = stm.Int(a2state.DiskCycleOfLastAccess)
+		debugging = stm.Bool(a2state.DebuggerLookAhead)
 	)
 
 	if lastCycle == 0 {
@@ -78,42 +79,50 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 
 	switch nib {
 	case 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7:
-		// Set the drive phase, thus adjusting the track position
-		if !c.SelectedDrive.Online {
-			break
+		if !debugging {
+			c.SelectedDrive.SwitchPhase(int(nib))
+			metrics.Increment(fmt.Sprintf("disk_switch_phase_%01x", nib), 1)
 		}
 
-		c.SelectedDrive.SwitchPhase(int(nib))
-
 		*val = c.Drive1.RandomByte()
-
-		metrics.Increment(fmt.Sprintf("disk_switch_phase_%01x", nib), 1)
 
 	case 0x8:
 		// Turn both drives off
-		c.Drive1.Online = false
-		c.Drive2.Online = false
+		if !debugging {
+			c.Drive1.Online = false
+			c.Drive2.Online = false
+			metrics.Increment("disk_drives_off", 1)
+		}
+
 		*val = c.Drive1.RandomByte()
-		metrics.Increment("disk_drives_off", 1)
 
 	case 0x9:
 		// Turn only the selected drive on
-		c.SelectedDrive.Online = true
-		stm.SetInt(a2state.DiskCycleOfLastAccess, 0)
+		if !debugging {
+			c.SelectedDrive.Online = true
+			stm.SetInt(a2state.DiskCycleOfLastAccess, 0)
+			metrics.Increment("disk_selected_drive_online", 1)
+		}
+
 		*val = c.Drive1.RandomByte()
-		metrics.Increment("disk_selected_drive_online", 1)
 
 	case 0xA:
 		// Set the selected drive to drive 1
-		c.SelectedDrive = c.Drive1
-		*val = 0
-		metrics.Increment("disk_drive_1", 1)
+		if !debugging {
+			c.SelectedDrive = c.Drive1
+			metrics.Increment("disk_drive_1", 1)
+		}
+
+		*val = c.SelectedDrive.RandomByte()
 
 	case 0xB:
 		// Set the selected drive to drive 2
-		c.SelectedDrive = c.Drive2
-		*val = 0
-		metrics.Increment("disk_drive_2", 1)
+		if !debugging {
+			c.SelectedDrive = c.Drive2
+			metrics.Increment("disk_drive_2", 1)
+		}
+
+		*val = c.SelectedDrive.RandomByte()
 
 	case 0xC:
 		// This is the SHIFT operation, which might write a byte, but might
@@ -124,6 +133,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 		*val = 0
 
 		if !c.SelectedDrive.Online {
+			c.SelectedDrive.Shift(1)
 			break
 		}
 
@@ -135,6 +145,10 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 			sectorPos := c.SelectedDrive.SectorPos
 
 			*val = c.SelectedDrive.Read()
+
+			if debugging {
+				c.SelectedDrive.Shift(-1)
+			}
 
 			if c.diskLog != nil {
 				c.diskLog.Add(&DiskRead{
@@ -149,10 +163,15 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 			metrics.Increment("disk_read", 1)
 		} else if c.SelectedDrive.Mode == WriteMode {
 			// Write the value currently in the latch
-			c.SelectedDrive.Write()
-			metrics.Increment("disk_write", 1)
+			if !debugging {
+				c.SelectedDrive.Write()
+				metrics.Increment("disk_write", 1)
+			}
 		} else {
-			metrics.Increment("disk_failed_readwrites", 1)
+			if !debugging {
+				c.SelectedDrive.Shift(1)
+				metrics.Increment("disk_failed_readwrites", 1)
+			}
 		}
 
 	case 0xD:
@@ -161,16 +180,21 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 			break
 		}
 
-		if c.SelectedDrive.Mode == WriteMode {
-			c.SelectedDrive.Latch = *val
-			metrics.Increment("disk_write_latch", 1)
-		} else {
-			metrics.Increment("disk_failed_latch", 1)
+		if !debugging {
+			if c.SelectedDrive.Mode == WriteMode {
+				c.SelectedDrive.Latch = *val
+				metrics.Increment("disk_write_latch", 1)
+			} else {
+				metrics.Increment("disk_failed_latch", 1)
+			}
 		}
 
 	case 0xE:
 		// Set the selected drive mode to read
-		c.SelectedDrive.Mode = ReadMode
+		if !debugging {
+			c.SelectedDrive.Mode = ReadMode
+			metrics.Increment("disk_read_mode", 1)
+		}
 
 		*val = c.Drive1.RandomByte()
 
@@ -179,13 +203,14 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 			*val = 0x80
 		}
 
-		metrics.Increment("disk_read_mode", 1)
-
 	case 0xF:
 		// Set the selected drive mode to write
-		c.SelectedDrive.Mode = WriteMode
+		if !debugging {
+			c.SelectedDrive.Mode = WriteMode
+			metrics.Increment("disk_write_mode", 1)
+		}
+
 		*val = c.Drive1.RandomByte()
-		metrics.Increment("disk_write_mode", 1)
 	}
 
 	if nib%2 == 0 {
