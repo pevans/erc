@@ -22,15 +22,12 @@ would not exist.
 ## What's in here?
 
 - The main command (erc) is located in this directory (`erc.go`).
-- Code for the MOS 65c02 processor is in `mos65c02`.
+- Code for the MOS 65c02 processor is in `mos`.
 - Code for the Apple II architecture is in `a2`.
-- There's random other code for things generally within other subdirectories.
 
 ## What can I do here?
 
-You can:
+Erc uses `just` as a command runner. With it, you can:
 
-- Build the executable `erc` by running `go build`.
-- Run various tests, including:
-  - `task lint` for linting (requires [Task](https://taskfile.dev/))
-  - `go test ./...` for unit tests
+- Build the executable with `just build`
+- Test with images by running `just run` or `just debug`. Useful if you're poking around in the source code and want to see what changes.
