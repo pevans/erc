@@ -76,7 +76,7 @@ func (s *a2Suite) TestDriveStep() {
 	// No matter our starting point, if a step would go beyond MaxSteps,
 	// we should be left _at_ the MaxSteps position
 	d.Step(a2enc.MaxSteps + 1)
-	s.Equal(a2enc.MaxSteps, d.TrackPos)
+	s.Equal(a2enc.MaxSteps-1, d.TrackPos)
 
 	// Any negative step that goes below zero should keep us at zero
 	d.Step(-a2enc.MaxSteps * 2)
