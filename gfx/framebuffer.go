@@ -18,10 +18,6 @@ type FrameBuffer struct {
 	Height uint
 }
 
-// Screen is the frame buffer which tracks the state of the main
-// emulator screen.
-var Screen *FrameBuffer
-
 // NewFrameBuffer returns a new frame buffer that contains a set of
 // logical rows and columns. These rows and columns should match
 // whatever system you are emulating, as opposed to what might
