@@ -37,13 +37,13 @@ const (
 // font.
 var fontNames = map[Name]info{
 	A2System: {
-		byts: a2sFont,
+		byts: apple2SystemFont,
 		size: image.Point{X: 8, Y: 9},
 		mask: 0x7F,
 	},
 
 	A2Inverted: {
-		byts: a2iFont,
+		byts: apple2InverseFont,
 		size: image.Point{X: 8, Y: 9},
 		mask: 0x7F,
 	},

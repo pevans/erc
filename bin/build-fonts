@@ -4,149 +4,151 @@ import os
 from PIL import Image
 
 glyphmap = {
-        "0": "0",
-        "1": "1",
-        "2": "2",
-        "3": "3",
-        "4": "4",
-        "5": "5",
-        "6": "6",
-        "7": "7",
-        "8": "8",
-        "9": "9",
-        "al": "a",
-        "ampersand": "&",
-        "apostrophe": "'",
-        "apple": 1,
-        "arrow-down": 3,
-        "arrow-down-lines": 2,
-        "arrow-left": 5,
-        "arrow-left-lines": 4,
-        "arrow-return": 6,
-        "arrow-right": 8,
-        "arrow-right-lines": 7,
-        "arrow-up": 11,
-        "arrow-up-lines": 9,
-        "asterisk": "*",
-        "at": "@",
-        "au": "A",
-        "backslash": "\\",
-        "bar": "|",
-        "bl": "b",
-        "blank": " ",
-        "bu": "B",
-        "caret": "^",
-        "check": 13,
-        "check-inverse": 12,
-        "checkerboard1": 14,
-        "checkerboard2": 15,
-        "cl": "c",
-        "colon": ":",
-        "comma": ",",
-        "crosshairs": 16,
-        "cu": "C",
-        "diamond": 17,
-        "dl": "d",
-        "dollar": "$",
-        "du": "D",
-        "el": "e",
-        "ellipsis": 18,
-        "emark": "!",
-        "equal": "=",
-        "eu": "E",
-        "file-left": 19,
-        "file-right": 20,
-        "finger": 21,
-        "fl": "f",
-        "fu": "F",
-        "gl": "g",
-        "grave": "`",
-        "gu": "G",
-        "hl": "h",
-        "hourglass": 22,
-        "hu": "H",
-        "hyphen": "-",
-        "il": "i",
-        "iu": "I",
-        "jl": "j",
-        "ju": "J",
-        "kl": "k",
-        "ku": "K",
-        "langle": "<",
-        "lbrace": "{",
-        "lbracket": "[",
-        "line-box": 23,
-        "line-left": 25,
-        "line-left-bottom": 24,
-        "line-middle": 26,
-        "line-right": 28,
-        "line-right-inverse": 27,
-        "line-top": 30,
-        "line-top-bottom": 29,
-        "ll": "l",
-        "lparen": "(",
-        "lu": "L",
-        "mailbox": 31,
-        "ml": "m",
-        "mu": "M",
-        "nl": "n",
-        "nu": "N",
-        "ol": "o",
-        "open-apple": 0,
-        "ou": "O",
-        "percent": "%",
-        "perfcurs": 10,
-        "period": ".",
-        "pl": "p",
-        "plus": "+",
-        "pointer": 127,
-        "pound": "#",
-        "pu": "P",
-        "ql": "q",
-        "qmark": "?",
-        "qu": "Q",
-        "quote": '"',
-        "rangle": ">",
-        "rbrace": "}",
-        "rbracket": "]", 
-        "rl": "r",
-        "rparen": ")",
-        "ru": "R",
-        "semicolon": ";",
-        "sl": "s",
-        "slash": "/",
-        "su": "S",
-        "tilde": "~",
-        "tl": "t",
-        "tu": "T",
-        "ul": "u",
-        "underscore": "_",
-        "uu": "U",
-        "vl": "v",
-        "vu": "V",
-        "wl": "w",
-        "wu": "W",
-        "xl": "x",
-        "xu": "X",
-        "yl": "y",
-        "yu": "Y",
-        "zl": "z",
-        "zu": "Z",
-        }
+    "0": "0",
+    "1": "1",
+    "2": "2",
+    "3": "3",
+    "4": "4",
+    "5": "5",
+    "6": "6",
+    "7": "7",
+    "8": "8",
+    "9": "9",
+    "al": "a",
+    "ampersand": "&",
+    "apostrophe": "'",
+    "apple": 1,
+    "arrow-down": 3,
+    "arrow-down-lines": 2,
+    "arrow-left": 5,
+    "arrow-left-lines": 4,
+    "arrow-return": 6,
+    "arrow-right": 8,
+    "arrow-right-lines": 7,
+    "arrow-up": 11,
+    "arrow-up-lines": 9,
+    "asterisk": "*",
+    "at": "@",
+    "au": "A",
+    "backslash": "\\",
+    "bar": "|",
+    "bl": "b",
+    "blank": " ",
+    "bu": "B",
+    "caret": "^",
+    "check": 13,
+    "check-inverse": 12,
+    "checkerboard1": 14,
+    "checkerboard2": 15,
+    "cl": "c",
+    "colon": ":",
+    "comma": ",",
+    "crosshairs": 16,
+    "cu": "C",
+    "diamond": 17,
+    "dl": "d",
+    "dollar": "$",
+    "du": "D",
+    "el": "e",
+    "ellipsis": 18,
+    "emark": "!",
+    "equal": "=",
+    "eu": "E",
+    "file-left": 19,
+    "file-right": 20,
+    "finger": 21,
+    "fl": "f",
+    "fu": "F",
+    "gl": "g",
+    "grave": "`",
+    "gu": "G",
+    "hl": "h",
+    "hourglass": 22,
+    "hu": "H",
+    "hyphen": "-",
+    "il": "i",
+    "iu": "I",
+    "jl": "j",
+    "ju": "J",
+    "kl": "k",
+    "ku": "K",
+    "langle": "<",
+    "lbrace": "{",
+    "lbracket": "[",
+    "line-box": 23,
+    "line-left": 25,
+    "line-left-bottom": 24,
+    "line-middle": 26,
+    "line-right": 28,
+    "line-right-inverse": 27,
+    "line-top": 30,
+    "line-top-bottom": 29,
+    "ll": "l",
+    "lparen": "(",
+    "lu": "L",
+    "mailbox": 31,
+    "ml": "m",
+    "mu": "M",
+    "nl": "n",
+    "nu": "N",
+    "ol": "o",
+    "open-apple": 0,
+    "ou": "O",
+    "percent": "%",
+    "perfcurs": 10,
+    "period": ".",
+    "pl": "p",
+    "plus": "+",
+    "pointer": 127,
+    "pound": "#",
+    "pu": "P",
+    "ql": "q",
+    "qmark": "?",
+    "qu": "Q",
+    "quote": '"',
+    "rangle": ">",
+    "rbrace": "}",
+    "rbracket": "]",
+    "rl": "r",
+    "rparen": ")",
+    "ru": "R",
+    "semicolon": ";",
+    "sl": "s",
+    "slash": "/",
+    "su": "S",
+    "tilde": "~",
+    "tl": "t",
+    "tu": "T",
+    "ul": "u",
+    "underscore": "_",
+    "uu": "U",
+    "vl": "v",
+    "vu": "V",
+    "wl": "w",
+    "wu": "W",
+    "xl": "x",
+    "xu": "X",
+    "yl": "y",
+    "yu": "Y",
+    "zl": "z",
+    "zu": "Z",
+}
+
 
 def build_font(name, path, gridfiles):
     img = Image.new("RGB", (112, 64))
     pix = img.load()
     for gridfile in gridfiles:
         with open(os.path.join(path, gridfile)) as openf:
-            glyphname = gridfile.split('.')[0]
+            glyphname = gridfile.split(".")[0]
             glyphchar = name_to_char(glyphname)
             render(glyph_coords(glyphchar), glyphchar, openf.read(), pix)
-    img.save('./data/fonts/' + name + '.bmp')
+    img.save("./font/" + name + ".png")
+
 
 def name_to_char(name):
     if not glyphmap[name] and glyphmap[name] != 0:
-        raise Exception('unknown glyph')
+        raise Exception("unknown glyph")
     return glyphmap[name]
 
 
@@ -158,9 +160,10 @@ def glyph_coords(ch):
     else:
         code = ord(ch)
 
-    row = (code & 0xf0) >> 4
-    col = code & 0x0f
+    row = (code & 0xF0) >> 4
+    col = code & 0x0F
     return (row, col)
+
 
 def render_row(offset, row, line, pix):
     row_offset, col_offset = offset
@@ -168,9 +171,10 @@ def render_row(offset, row, line, pix):
     col_offset = col_offset * 7
     col = 0
     for c in line[1:]:
-        if c == 'o':
+        if c == "o":
             pix[col_offset + col, row_offset + row] = (255, 255, 255)
         col = col + 1
+
 
 def render(offset, ch, grid, pix):
     row, col = glyph_coords(ch)
@@ -184,8 +188,9 @@ def render(offset, ch, grid, pix):
     render_row(offset, 6, lines[7], pix)
     render_row(offset, 7, lines[8], pix)
 
-for root, subdirs, subfiles in os.walk('./data/fonts'):
+
+for root, subdirs, subfiles in os.walk("./data/fonts"):
     if subdirs == []:
-        fontname = root.replace('./data/fonts/', '')
-        fontname = fontname.replace('/', '-')
+        fontname = root.replace("./data/fonts/", "")
+        fontname = fontname.replace("/", "-")
         build_font(fontname, root, subfiles)
