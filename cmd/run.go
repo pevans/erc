@@ -55,7 +55,7 @@ func runEmulator(image string) {
 		addrs := strings.Split(debugBreakFlag, ",")
 		for _, addrStr := range addrs {
 			addrStr = strings.TrimSpace(addrStr)
-			addr, err := strconv.ParseInt(addrStr, 16, 16)
+			addr, err := strconv.ParseInt(addrStr, 16, 17)
 			if err != nil {
 				fail(fmt.Sprintf("invalid breakpoint address '%s': %v", addrStr, err))
 			}
