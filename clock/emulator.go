@@ -28,6 +28,9 @@ type Emulator struct {
 
 	// The number of cycles we've executed since the start of emulation
 	TotalCycles int64
+
+	EnterDebuggerFunc   func()
+	CheckBreakpointFunc func()
 }
 
 // NewEmulator returns a new emulator based on some number of hertz
@@ -40,14 +43,16 @@ func NewEmulator(hz int64) *Emulator {
 	return emu
 }
 
-func (e *Emulator) ProcessLoop(comp emu.Computer, debugfn func()) {
+func (e *Emulator) ProcessLoop(comp emu.Computer) {
 	e.StartTime = time.Now()
 	e.ResumeTime = e.StartTime
 	state := comp.StateMap()
 
 	for {
+		e.CheckBreakpointFunc()
+
 		if state.Bool(a2state.Debugger) {
-			debugfn()
+			e.EnterDebuggerFunc()
 
 			// Reset ResumeTime so that we don't think we're far behind on
 			// cycle time just because we sat in the debugger for a while

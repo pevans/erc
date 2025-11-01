@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strconv"
+	"strings"
 	"syscall"
 
 	"github.com/peterh/liner"
@@ -20,6 +22,7 @@ import (
 var (
 	profileFlag    bool
 	debugImageFlag bool
+	debugBreakFlag string
 	speedFlag      int
 )
 
@@ -38,12 +41,26 @@ func init() {
 
 	runCmd.Flags().BoolVar(&profileFlag, "profile", false, "Write out a profile trace")
 	runCmd.Flags().BoolVar(&debugImageFlag, "debug-image", false, "Write out debugging files to debug image loading")
+	runCmd.Flags().StringVar(&debugBreakFlag, "debug-break", "", "Set breakpoints for a comma-separated list of addresses (eg 3FC8,9D94)")
 	runCmd.Flags().IntVar(&speedFlag, "speed", 1, "Starting speed of the emulator (more is faster)")
 }
 
 func runEmulator(image string) {
 	if profileFlag {
 		defer profile.Start().Stop()
+	}
+
+	// Parse and add breakpoints if provided
+	if debugBreakFlag != "" {
+		addrs := strings.Split(debugBreakFlag, ",")
+		for _, addrStr := range addrs {
+			addrStr = strings.TrimSpace(addrStr)
+			addr, err := strconv.ParseInt(addrStr, 16, 16)
+			if err != nil {
+				fail(fmt.Sprintf("invalid breakpoint address '%s': %v", addrStr, err))
+			}
+			debug.AddBreakpoint(int(addr))
+		}
 	}
 
 	// Build the computer and screen objects
@@ -94,12 +111,18 @@ func runEmulator(image string) {
 	line := liner.NewLiner()
 	defer line.Close() //nolint:errcheck
 
-	debugFunc := func() {
+	emulator := comp.ClockEmulator
+	emulator.EnterDebuggerFunc = func() {
 		debug.Prompt(comp, line)
 	}
 
-	emulator := comp.ClockEmulator
-	go emulator.ProcessLoop(comp, debugFunc)
+	emulator.CheckBreakpointFunc = func() {
+		if debug.HasBreakpoint(int(comp.CPU.PC)) {
+			comp.State.SetBool(a2state.Debugger, true)
+		}
+	}
+
+	go emulator.ProcessLoop(comp)
 
 	// Run the draw loop in the main thread
 	if err := render.DrawLoop(comp); err != nil {
