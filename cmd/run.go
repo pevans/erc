@@ -10,7 +10,6 @@ import (
 	"github.com/pevans/erc/a2"
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/debug"
-	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/input"
 	"github.com/pevans/erc/render"
 	"github.com/pevans/erc/shortcut"
@@ -49,7 +48,6 @@ func runEmulator(image string) {
 
 	// Build the computer and screen objects
 	comp := a2.NewComputer(clockspeed(speedFlag))
-	gfx.Screen = a2.NewScreen()
 
 	// Set up a signal handler for graceful shutdown
 	signals := make(chan os.Signal, 1)

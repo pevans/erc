@@ -18,6 +18,6 @@ func (s *a2Suite) TestNewComputer() {
 
 func (s *a2Suite) TestDimensions() {
 	w, h := s.comp.Dimensions()
-	s.Equal(280, w)
-	s.Equal(192, h)
+	s.Equal(uint(280), w)
+	s.Equal(uint(192), h)
 }

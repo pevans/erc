@@ -24,7 +24,7 @@ type game struct {
 func DrawLoop(comp *a2.Computer) error {
 	w, h := comp.Dimensions()
 
-	ebiten.SetWindowSize(w*3, h*3)
+	ebiten.SetWindowSize(int(w*4), int(h*4))
 	ebiten.SetWindowTitle("erc")
 
 	g := &game{
@@ -37,7 +37,8 @@ func DrawLoop(comp *a2.Computer) error {
 
 // Layout returns the logical dimensions that ebiten should use.
 func (g *game) Layout(outWidth, outHeight int) (scrWidth, scrHeight int) {
-	return g.comp.Dimensions()
+	w, h := g.comp.Dimensions()
+	return int(w), int(h)
 }
 
 // Draw executes the render logic for the framebuffer.

@@ -3,44 +3,43 @@ package a2
 import (
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/a2/a2video"
+	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/memory"
 )
 
 const (
-	// These are R7 actions, meaning they are switches you read from that return
-	// bit 7 high when the modes are on, and low if not.
-	rd80Col   = int(0xC01F)
+	// These are R7 actions, meaning they are switches you read from that
+	// return bit 7 high when the modes are on, and low if not.
 	rd80Store = int(0xC018)
-	rdAltChar = int(0xC01E)
-	rdDHires  = int(0xC07F)
-	rdHires   = int(0xC01D)
-	rdIOUDis  = int(0xC07E)
+	rdText    = int(0xC01A)
 	rdMixed   = int(0xC01B)
 	rdPage2   = int(0xC01C)
-	rdText    = int(0xC01A)
+	rdHires   = int(0xC01D)
+	rdAltChar = int(0xC01E)
+	rd80Col   = int(0xC01F)
+	rdIOUDis  = int(0xC07E)
+	rdDHires  = int(0xC07F)
 
-	// These switches turn on modes
-	on80Col   = int(0xC00D) // W
-	on80Store = int(0xC001) // W
-	onAltChar = int(0xC00F) // W
-	onDHires  = int(0xC05F) // R/W
-	onHires   = int(0xC057) // R/W
-	onIOUDis  = int(0xC07F) // W
-	onMixed   = int(0xC053) // R/W
-	onPage2   = int(0xC055) // R/W
-	onText    = int(0xC051) // R/W
-
-	// And these switches turn them off.
-	off80Col   = int(0xC00C) // W
+	// Toggle switches
 	off80Store = int(0xC000) // W
+	on80Store  = int(0xC001) // W
+	off80Col   = int(0xC00C) // W
+	on80Col    = int(0xC00D) // W
 	offAltChar = int(0xC00E) // W
-	offDHires  = int(0xC05E) // R/W
-	offHires   = int(0xC056) // R/W
-	offIOUDis  = int(0xC07E) // W
-	offMixed   = int(0xC052) // R/W
-	offPage2   = int(0xC054) // R/W
+	onAltChar  = int(0xC00F) // W
 	offText    = int(0xC050) // R/W
+	onText     = int(0xC051) // R/W
+	offMixed   = int(0xC052) // R/W
+	onMixed    = int(0xC053) // R/W
+	offPage2   = int(0xC054) // R/W
+	onPage2    = int(0xC055) // R/W
+	offHires   = int(0xC056) // R/W
+	onHires    = int(0xC057) // R/W
+	onDHires   = int(0xC05E) // R/W -- interesting the order is reversed
+	offDHires  = int(0xC05F) // R/W
+	offIOUDis  = int(0xC07E) // W
+	onIOUDis   = int(0xC07F) // W
 )
 
 func displayReadSwitches() []int {
@@ -108,6 +107,8 @@ func displayUseDefaults(c *Computer) {
 }
 
 func displayOnOrOffReadWrite(a int, stm *memory.StateMap) bool {
+	comp := stm.Any(a2state.DiskComputer).(*Computer)
+
 	switch a {
 	case onPage2:
 		metrics.Increment("soft_display_page_2_on", 1)
@@ -129,6 +130,7 @@ func displayOnOrOffReadWrite(a int, stm *memory.StateMap) bool {
 		metrics.Increment("soft_display_dhires_on", 1)
 		if stm.Bool(a2state.DisplayIou) {
 			stm.SetBool(a2state.DisplayDoubleHigh, true)
+			gfx.Screen = comp.Screen560
 		}
 		return true
 	case offPage2:

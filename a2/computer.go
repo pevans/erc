@@ -27,6 +27,9 @@ type Computer struct {
 
 	ClockEmulator *clock.Emulator
 
+	// When did the computer boot? This also includes when the computer is
+	// soft-booted (i.e. reset with a blank context after having been running
+	// for a while).
 	BootTime time.Time
 
 	// There are three primary segments of memory in an Apple //e; main
@@ -35,6 +38,9 @@ type Computer struct {
 	Main *memory.Segment
 	ROM  *memory.Segment
 	Aux  *memory.Segment
+
+	Screen280 *gfx.FrameBuffer
+	Screen560 *gfx.FrameBuffer
 
 	Drive1        *Drive
 	Drive2        *Drive
@@ -90,8 +96,9 @@ const (
 // These are the absolute dimensions of a screen for the apple II in a
 // pixel (or "dot") form.
 const (
-	screenWidth  = 280
-	screenHeight = 192
+	screenWidth280 uint = 280
+	screenWidth560 uint = 560
+	screenHeight   uint = 192
 )
 
 // NewComputer returns an Apple //e computer value, which essentially
@@ -128,6 +135,10 @@ func NewComputer(hertz int64) *Computer {
 
 	comp.SetFont(a2font.SystemFont())
 
+	comp.Screen280 = gfx.NewFrameBuffer(screenWidth280, screenHeight)
+	comp.Screen560 = gfx.NewFrameBuffer(screenWidth560, screenHeight)
+	gfx.Screen = comp.Screen280
+
 	return comp
 }
 
@@ -137,14 +148,13 @@ func (c *Computer) SetFont(f *gfx.Font) {
 }
 
 // Dimensions returns the screen dimensions of an Apple II.
-func (c *Computer) Dimensions() (width, height int) {
-	return screenWidth, screenHeight
-}
+func (c *Computer) Dimensions() (width, height uint) {
+	if c.State.Bool(a2state.DisplayDoubleHigh) ||
+		c.State.Bool(a2state.DisplayCol80) {
+		return screenWidth560, screenHeight
+	}
 
-// NewScreen returns a new frame buffer ready to hold the data that an
-// Apple II would need to render itself.
-func NewScreen() *gfx.FrameBuffer {
-	return gfx.NewFrameBuffer(uint(screenWidth), uint(screenHeight))
+	return screenWidth280, screenHeight
 }
 
 func (c *Computer) NeedsRender() bool {
