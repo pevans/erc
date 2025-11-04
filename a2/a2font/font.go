@@ -16,6 +16,11 @@ const (
 	// effectively double the size of the original glyphs.
 	sysFont40Width  = 14
 	sysFont40Height = 16
+
+	// The dimensions of a font rendered for 80-column text, which are
+	// double the height but the same width as the original glyphs.
+	sysFont80Width  = 7
+	sysFont80Height = 16
 )
 
 type maskFunc func([]byte) []byte

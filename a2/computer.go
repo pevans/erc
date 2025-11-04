@@ -67,8 +67,9 @@ type Computer struct {
 	// (For example, text mode, hires, lores, etc.)
 	DisplayMode int
 
-	// SysFont is the system font for the Apple II
-	SysFont *gfx.Font
+	// We use two different fonts for 40-column and 80-column text
+	Font40 *gfx.Font
+	Font80 *gfx.Font
 }
 
 const (
@@ -132,17 +133,13 @@ func NewComputer(hertz int64) *Computer {
 	// something approximately double that number feels more right.
 	comp.ClockEmulator = clock.NewEmulator(hertz)
 
-	comp.SetFont(a2font.SystemFont40())
+	comp.Font40 = a2font.SystemFont40()
+	comp.Font80 = a2font.SystemFont80()
 
 	comp.Screen = gfx.NewFrameBuffer(screenWidth, screenHeight)
 	gfx.Screen = comp.Screen
 
 	return comp
-}
-
-// SetFont will take the accepted font and treat it as our system font
-func (c *Computer) SetFont(f *gfx.Font) {
-	c.SysFont = f
 }
 
 // Dimensions returns the screen dimensions of an Apple II.
