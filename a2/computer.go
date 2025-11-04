@@ -39,8 +39,7 @@ type Computer struct {
 	ROM  *memory.Segment
 	Aux  *memory.Segment
 
-	Screen280 *gfx.FrameBuffer
-	Screen560 *gfx.FrameBuffer
+	Screen *gfx.FrameBuffer
 
 	Drive1        *Drive
 	Drive2        *Drive
@@ -93,12 +92,12 @@ const (
 	SysRomOffset = 0xC000
 )
 
-// These are the absolute dimensions of a screen for the apple II in a
-// pixel (or "dot") form.
 const (
-	screenWidth280 uint = 280
-	screenWidth560 uint = 560
-	screenHeight   uint = 192
+	// This width and height is actually double the size of a typical Apple II
+	// display. We're doing this so that it's easier for us to manage
+	// 80 column text and double-high resolution.
+	screenWidth  uint = 560
+	screenHeight uint = 384
 )
 
 // NewComputer returns an Apple //e computer value, which essentially
@@ -133,11 +132,10 @@ func NewComputer(hertz int64) *Computer {
 	// something approximately double that number feels more right.
 	comp.ClockEmulator = clock.NewEmulator(hertz)
 
-	comp.SetFont(a2font.SystemFont())
+	comp.SetFont(a2font.SystemFont40())
 
-	comp.Screen280 = gfx.NewFrameBuffer(screenWidth280, screenHeight)
-	comp.Screen560 = gfx.NewFrameBuffer(screenWidth560, screenHeight)
-	gfx.Screen = comp.Screen280
+	comp.Screen = gfx.NewFrameBuffer(screenWidth, screenHeight)
+	gfx.Screen = comp.Screen
 
 	return comp
 }
@@ -149,12 +147,7 @@ func (c *Computer) SetFont(f *gfx.Font) {
 
 // Dimensions returns the screen dimensions of an Apple II.
 func (c *Computer) Dimensions() (width, height uint) {
-	if c.State.Bool(a2state.DisplayDoubleHigh) ||
-		c.State.Bool(a2state.DisplayCol80) {
-		return screenWidth560, screenHeight
-	}
-
-	return screenWidth280, screenHeight
+	return screenWidth, screenHeight
 }
 
 func (c *Computer) NeedsRender() bool {

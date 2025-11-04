@@ -13,8 +13,8 @@ import (
 // column spans in memory encode two rows at a time.
 
 const (
-	loresBlockWidth  = 7
-	loresBlockHeight = 4
+	loresBlockWidth  = 14
+	loresBlockHeight = 8
 )
 
 var (
@@ -83,6 +83,6 @@ func RenderLores(seg memory.Getter, start, end int) {
 		// should show the low-order nibble in the top row, and
 		// high-order nibble in the bottom row.
 		_ = gfx.Screen.Blit(x, y, LoresBlock(byt&0xf))
-		_ = gfx.Screen.Blit(x, y+4, LoresBlock(byt>>4))
+		_ = gfx.Screen.Blit(x, y+8, LoresBlock(byt>>4))
 	}
 }

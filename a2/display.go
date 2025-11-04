@@ -130,7 +130,7 @@ func displayOnOrOffReadWrite(a int, stm *memory.StateMap) bool {
 		metrics.Increment("soft_display_dhires_on", 1)
 		if stm.Bool(a2state.DisplayIou) {
 			stm.SetBool(a2state.DisplayDoubleHigh, true)
-			gfx.Screen = comp.Screen560
+			gfx.Screen = comp.Screen
 		}
 		return true
 	case offPage2:

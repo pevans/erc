@@ -24,7 +24,7 @@ type game struct {
 func DrawLoop(comp *a2.Computer) error {
 	w, h := comp.Dimensions()
 
-	ebiten.SetWindowSize(int(w*4), int(h*4))
+	ebiten.SetWindowSize(int(w*2), int(h*2))
 	ebiten.SetWindowTitle("erc")
 
 	g := &game{

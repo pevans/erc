@@ -58,11 +58,12 @@ func RenderHires(seg memory.Getter, start, end int) {
 		}
 
 		for x, dot := range dots {
-			err := gfx.Screen.SetCell(uint(x), y, dot.Color)
-			if err != nil {
-				// This should really never happen...
-				panic(err)
-			}
+			xpos := x * 2
+			ypos := y * 2
+			_ = gfx.Screen.SetCell(uint(xpos), ypos, dot.Color)
+			_ = gfx.Screen.SetCell(uint(xpos), ypos+1, dot.Color)
+			_ = gfx.Screen.SetCell(uint(xpos+1), ypos, dot.Color)
+			_ = gfx.Screen.SetCell(uint(xpos+1), ypos+1, dot.Color)
 		}
 	}
 }
