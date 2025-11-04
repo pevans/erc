@@ -2,17 +2,8 @@ package a2font
 
 import "github.com/pevans/erc/gfx"
 
-func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
-	defg := func(b []byte) {
-		if mask != nil {
-			b = mask(b)
-		}
-
-		f.DefineGlyph(offset, b)
-		offset++
-	}
-
-	defg([]byte{ // SP
+func fontSpecial(f *gfx.Font, offset int, mask maskFunc, defg glyphFunc) {
+	defg(f, offset, mask, []byte{ // SP
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
@@ -22,8 +13,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // !
+	defg(f, offset, mask, []byte{ // !
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 1, 0, 0, 0,
@@ -33,8 +25,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 1, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // "
+	defg(f, offset, mask, []byte{ // "
 		0, 0, 1, 0, 1, 0, 0,
 		0, 0, 1, 0, 1, 0, 0,
 		0, 0, 1, 0, 1, 0, 0,
@@ -44,8 +37,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // #
+	defg(f, offset, mask, []byte{ // #
 		0, 0, 1, 0, 1, 0, 0,
 		0, 0, 1, 0, 1, 0, 0,
 		0, 1, 1, 1, 1, 1, 0,
@@ -55,8 +49,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 1, 0, 1, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // $
+	defg(f, offset, mask, []byte{ // $
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 1, 1, 1, 0, 0,
 		0, 1, 0, 1, 0, 0, 0,
@@ -66,8 +61,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // %
+	defg(f, offset, mask, []byte{ // %
 		0, 1, 1, 0, 0, 0, 0,
 		0, 1, 1, 0, 0, 1, 0,
 		0, 0, 0, 0, 1, 0, 0,
@@ -77,8 +73,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 0, 1, 1, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // &
+	defg(f, offset, mask, []byte{ // &
 		0, 0, 1, 0, 0, 0, 0,
 		0, 1, 0, 1, 0, 0, 0,
 		0, 1, 0, 1, 0, 0, 0,
@@ -88,8 +85,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 1, 1, 0, 1, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // '
+	defg(f, offset, mask, []byte{ // '
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 1, 0, 0, 0,
@@ -99,8 +97,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // (
+	defg(f, offset, mask, []byte{ // (
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 1, 0, 0, 0, 0,
 		0, 1, 0, 0, 0, 0, 0,
@@ -110,8 +109,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // )
+	defg(f, offset, mask, []byte{ // )
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 0, 1, 0, 0,
 		0, 0, 0, 0, 0, 1, 0,
@@ -121,8 +121,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // *
+	defg(f, offset, mask, []byte{ // *
 		0, 0, 0, 1, 0, 0, 0,
 		0, 1, 0, 1, 0, 1, 0,
 		0, 0, 1, 1, 1, 0, 0,
@@ -132,8 +133,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // +
+	defg(f, offset, mask, []byte{ // +
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 1, 0, 0, 0,
@@ -143,8 +145,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // ,
+	defg(f, offset, mask, []byte{ // ,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
@@ -154,8 +157,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 1, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // -
+	defg(f, offset, mask, []byte{ // -
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
@@ -165,8 +169,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // .
+	defg(f, offset, mask, []byte{ // .
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
@@ -176,8 +181,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // /
+	defg(f, offset, mask, []byte{ // /
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 1, 0,
 		0, 0, 0, 0, 1, 0, 0,
@@ -187,8 +193,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // 0
+	defg(f, offset, mask, []byte{ // 0
 		0, 0, 1, 1, 1, 0, 0,
 		0, 1, 0, 0, 0, 1, 0,
 		0, 1, 0, 0, 1, 1, 0,
@@ -198,8 +205,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 1, 1, 1, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // 1
+	defg(f, offset, mask, []byte{ // 1
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 1, 1, 0, 0, 0,
 		0, 0, 0, 1, 0, 0, 0,
@@ -209,8 +217,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 1, 1, 1, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // 2
+	defg(f, offset, mask, []byte{ // 2
 		0, 0, 1, 1, 1, 0, 0,
 		0, 1, 0, 0, 0, 1, 0,
 		0, 0, 0, 0, 0, 1, 0,
@@ -220,8 +229,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 1, 1, 1, 1, 1, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // 3
+	defg(f, offset, mask, []byte{ // 3
 		0, 1, 1, 1, 1, 1, 0,
 		0, 0, 0, 0, 0, 1, 0,
 		0, 0, 0, 0, 1, 0, 0,
@@ -231,8 +241,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 1, 1, 1, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // 4
+	defg(f, offset, mask, []byte{ // 4
 		0, 0, 0, 0, 1, 0, 0,
 		0, 0, 0, 1, 1, 0, 0,
 		0, 0, 1, 0, 1, 0, 0,
@@ -242,8 +253,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 0, 1, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // 5
+	defg(f, offset, mask, []byte{ // 5
 		0, 1, 1, 1, 1, 1, 0,
 		0, 1, 0, 0, 0, 0, 0,
 		0, 1, 1, 1, 1, 0, 0,
@@ -253,8 +265,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 1, 1, 1, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // 6
+	defg(f, offset, mask, []byte{ // 6
 		0, 0, 0, 1, 1, 1, 0,
 		0, 0, 1, 0, 0, 0, 0,
 		0, 1, 0, 0, 0, 0, 0,
@@ -264,8 +277,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 1, 1, 1, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // 7
+	defg(f, offset, mask, []byte{ // 7
 		0, 1, 1, 1, 1, 1, 0,
 		0, 0, 0, 0, 0, 1, 0,
 		0, 0, 0, 0, 1, 0, 0,
@@ -275,8 +289,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // 8
+	defg(f, offset, mask, []byte{ // 8
 		0, 0, 1, 1, 1, 0, 0,
 		0, 1, 0, 0, 0, 1, 0,
 		0, 1, 0, 0, 0, 1, 0,
@@ -286,8 +301,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 1, 1, 1, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // 9
+	defg(f, offset, mask, []byte{ // 9
 		0, 0, 1, 1, 1, 0, 0,
 		0, 1, 0, 0, 0, 1, 0,
 		0, 1, 0, 0, 0, 1, 0,
@@ -297,8 +313,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 1, 1, 1, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // :
+	defg(f, offset, mask, []byte{ // :
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 1, 0, 0, 0,
@@ -308,8 +325,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // ;
+	defg(f, offset, mask, []byte{ // ;
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 1, 0, 0, 0,
@@ -319,8 +337,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 1, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // <
+	defg(f, offset, mask, []byte{ // <
 		0, 0, 0, 0, 1, 0, 0,
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 1, 0, 0, 0, 0,
@@ -330,8 +349,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 0, 1, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // =
+	defg(f, offset, mask, []byte{ // =
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 1, 1, 1, 1, 1, 0,
@@ -341,8 +361,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // >
+	defg(f, offset, mask, []byte{ // >
 		0, 0, 1, 0, 0, 0, 0,
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 0, 1, 0, 0,
@@ -352,8 +373,9 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 1, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // ?
+	defg(f, offset, mask, []byte{ // ?
 		0, 0, 1, 1, 1, 0, 0,
 		0, 1, 0, 0, 0, 1, 0,
 		0, 0, 0, 0, 1, 0, 0,
@@ -363,4 +385,5 @@ func fontSpecial(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 }

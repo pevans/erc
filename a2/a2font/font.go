@@ -6,35 +6,24 @@ package a2font
 import "github.com/pevans/erc/gfx"
 
 const (
-	sysFontWidth  uint = 7
-	sysFontHeight uint = 8
+	// These are the dimensions of any glyph we define in this package,
+	// regardless of how it might be rendered on screen. You can think of the
+	// units for these numbers as "dots" as they'd be rendered on a screen.
+	glyphWidth  = 7
+	glyphHeight = 8
+
+	// The dimensions of a font rendered for 40-column text, which are
+	// effectively double the size of the original glyphs.
+	sysFont40Width  = 14
+	sysFont40Height = 16
 )
 
 type maskFunc func([]byte) []byte
+type glyphFunc func(*gfx.Font, int, maskFunc, []byte)
 
-// SystemFont returns a font object that contains all the glyphs of the Apple II
-// system font
-func SystemFont() *gfx.Font {
-	f := gfx.NewFont(
-		sysFontWidth,
-		sysFontHeight,
-	)
-
-	fontUpperCase(f, 0x00, invert)
-	fontSpecial(f, 0x20, invert)
-
-	// TODO: these should be "flashing" characters
-	fontUpperCase(f, 0x40, invert)
-	fontSpecial(f, 0x60, invert)
-
-	fontUpperCase(f, 0x80, nil)
-	fontSpecial(f, 0xa0, nil)
-	fontUpperCase(f, 0xc0, nil)
-	fontLowerCase(f, 0xe0, nil)
-
-	return f
-}
-
+// Apply a mask to the font so that the dots are inverted from their
+// definition (e.g. instead of an white "A" rendered a black field, a black
+// "A" rendered on a white field).
 func invert(b []byte) []byte {
 	for i := range b {
 		b[i] ^= 1

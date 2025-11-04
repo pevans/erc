@@ -7,6 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSystemFont(t *testing.T) {
-	assert.NotNil(t, a2font.SystemFont())
+func TestSystemFont40(t *testing.T) {
+	assert.NotNil(t, a2font.SystemFont40())
 }

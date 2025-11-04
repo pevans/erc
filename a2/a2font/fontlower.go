@@ -2,17 +2,8 @@ package a2font
 
 import "github.com/pevans/erc/gfx"
 
-func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
-	defg := func(b []byte) {
-		if mask != nil {
-			b = mask(b)
-		}
-
-		f.DefineGlyph(offset, b)
-		offset++
-	}
-
-	defg([]byte{ // `
+func fontLowerCase(f *gfx.Font, offset int, mask maskFunc, defg glyphFunc) {
+	defg(f, offset, mask, []byte{ // `
 		0, 1, 0, 0, 0, 0, 0,
 		0, 0, 1, 0, 0, 0, 0,
 		0, 0, 0, 1, 0, 0, 0,
@@ -22,8 +13,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // a
+	defg(f, offset, mask, []byte{ // a
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 1, 1, 1, 0, 0,
@@ -33,8 +25,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 1, 1, 1, 1, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // b
+	defg(f, offset, mask, []byte{ // b
 		0, 1, 0, 0, 0, 0, 0,
 		0, 1, 0, 0, 0, 0, 0,
 		0, 1, 1, 1, 1, 0, 0,
@@ -44,8 +37,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 1, 1, 1, 1, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // c
+	defg(f, offset, mask, []byte{ // c
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 1, 1, 1, 1, 0,
@@ -55,8 +49,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 1, 1, 1, 1, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // d
+	defg(f, offset, mask, []byte{ // d
 		0, 0, 0, 0, 0, 1, 0,
 		0, 0, 0, 0, 0, 1, 0,
 		0, 0, 1, 1, 1, 1, 0,
@@ -66,8 +61,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 1, 1, 1, 1, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // e
+	defg(f, offset, mask, []byte{ // e
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 1, 1, 1, 0, 0,
@@ -77,8 +73,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 1, 1, 1, 1, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // f
+	defg(f, offset, mask, []byte{ // f
 		0, 0, 0, 1, 1, 0, 0,
 		0, 0, 1, 0, 0, 1, 0,
 		0, 0, 1, 0, 0, 0, 0,
@@ -88,8 +85,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 1, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // g
+	defg(f, offset, mask, []byte{ // g
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 1, 1, 1, 0, 0,
@@ -99,8 +97,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 0, 0, 1, 0,
 		0, 0, 1, 1, 1, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // h
+	defg(f, offset, mask, []byte{ // h
 		0, 1, 0, 0, 0, 0, 0,
 		0, 1, 0, 0, 0, 0, 0,
 		0, 1, 1, 1, 1, 0, 0,
@@ -110,8 +109,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 1, 0, 0, 0, 1, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // i
+	defg(f, offset, mask, []byte{ // i
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 1, 1, 0, 0, 0,
@@ -121,8 +121,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 1, 1, 1, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // j
+	defg(f, offset, mask, []byte{ // j
 		0, 0, 0, 0, 1, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 1, 0, 0,
@@ -132,8 +133,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 1, 0, 0, 1, 0, 0,
 		0, 0, 1, 1, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // k
+	defg(f, offset, mask, []byte{ // k
 		0, 1, 0, 0, 0, 0, 0,
 		0, 1, 0, 0, 0, 0, 0,
 		0, 1, 0, 0, 0, 1, 0,
@@ -143,8 +145,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 1, 0, 0, 0, 1, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // l
+	defg(f, offset, mask, []byte{ // l
 		0, 0, 1, 1, 0, 0, 0,
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 1, 0, 0, 0,
@@ -154,8 +157,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 1, 1, 1, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // m
+	defg(f, offset, mask, []byte{ // m
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 1, 1, 0, 1, 1, 0,
@@ -165,8 +169,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 1, 0, 0, 0, 1, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // n
+	defg(f, offset, mask, []byte{ // n
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 1, 1, 1, 1, 0, 0,
@@ -176,8 +181,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 1, 0, 0, 0, 1, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // o
+	defg(f, offset, mask, []byte{ // o
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 1, 1, 1, 0, 0,
@@ -187,8 +193,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 1, 1, 1, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // p
+	defg(f, offset, mask, []byte{ // p
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 1, 1, 1, 1, 0, 0,
@@ -198,8 +205,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 1, 0, 0, 0, 0, 0,
 		0, 1, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // q
+	defg(f, offset, mask, []byte{ // q
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 1, 1, 1, 1, 0,
@@ -209,8 +217,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 0, 0, 1, 0,
 		0, 0, 0, 0, 0, 1, 0,
 	})
+	offset++
 
-	defg([]byte{ // r
+	defg(f, offset, mask, []byte{ // r
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 1, 0, 1, 1, 1, 0,
@@ -220,8 +229,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 1, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // s
+	defg(f, offset, mask, []byte{ // s
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 1, 1, 1, 1, 0,
@@ -231,8 +241,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 1, 1, 1, 1, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // t
+	defg(f, offset, mask, []byte{ // t
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 1, 0, 0, 0, 0,
 		0, 1, 1, 1, 1, 0, 0,
@@ -242,8 +253,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 1, 1, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // u
+	defg(f, offset, mask, []byte{ // u
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 1, 0, 0, 0, 1, 0,
@@ -253,8 +265,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 1, 1, 0, 1, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // v
+	defg(f, offset, mask, []byte{ // v
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 1, 0, 0, 0, 1, 0,
@@ -264,8 +277,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // w
+	defg(f, offset, mask, []byte{ // w
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 1, 0, 0, 0, 1, 0,
@@ -275,8 +289,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 1, 1, 0, 1, 1, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // x
+	defg(f, offset, mask, []byte{ // x
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 1, 0, 0, 0, 1, 0,
@@ -286,8 +301,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 1, 0, 0, 0, 1, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // y
+	defg(f, offset, mask, []byte{ // y
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 1, 0, 0, 0, 1, 0,
@@ -297,8 +313,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 0, 0, 1, 0,
 		0, 0, 1, 1, 1, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // z
+	defg(f, offset, mask, []byte{ // z
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 1, 1, 1, 1, 1, 0,
@@ -308,8 +325,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 1, 1, 1, 1, 1, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // {
+	defg(f, offset, mask, []byte{ // {
 		0, 0, 1, 1, 1, 0, 0,
 		0, 1, 1, 0, 0, 0, 0,
 		0, 1, 1, 0, 0, 0, 0,
@@ -319,8 +337,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 1, 1, 1, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // |
+	defg(f, offset, mask, []byte{ // |
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 1, 0, 0, 0,
@@ -330,8 +349,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 1, 0, 0, 0,
 		0, 0, 0, 1, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // }
+	defg(f, offset, mask, []byte{ // }
 		0, 0, 1, 1, 1, 0, 0,
 		0, 0, 0, 0, 1, 1, 0,
 		0, 0, 0, 0, 1, 1, 0,
@@ -341,8 +361,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 1, 1, 1, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // ~
+	defg(f, offset, mask, []byte{ // ~
 		0, 0, 1, 1, 0, 1, 0,
 		0, 1, 0, 1, 1, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
@@ -352,8 +373,9 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 
-	defg([]byte{ // DEL
+	defg(f, offset, mask, []byte{ // DEL
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
@@ -363,4 +385,5 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc) {
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
+	offset++
 }
