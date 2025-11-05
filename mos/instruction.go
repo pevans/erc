@@ -171,7 +171,7 @@ func (c *CPU) Execute() error {
 func (c *CPU) Status() string {
 	return fmt.Sprintf(
 		"A:$%02X X:$%02X Y:$%02X S:$%02X P:$%02X (%s) PC:$%04X EA:$%04X EV:$%02X",
-		c.A, c.X, c.Y, c.P, c.S, formatStatus(c.P), c.PC, c.EffAddr, c.EffVal,
+		c.A, c.X, c.Y, c.S, c.P, formatStatus(c.P), c.PC, c.EffAddr, c.EffVal,
 	)
 }
 
