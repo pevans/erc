@@ -2,6 +2,7 @@ package debug
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/pevans/erc/a2"
 )
@@ -13,7 +14,7 @@ func status(comp *a2.Computer) {
 		nextfmt = "next instruction ... %s"
 	)
 
-	say(fmt.Sprintf(regfmt, comp.CPU.Status()))
-	say(fmt.Sprintf(lastfmt, comp.CPU.LastInstruction()))
-	say(fmt.Sprintf(nextfmt, comp.CPU.NextInstruction()))
+	say(fmt.Sprintf(regfmt, strings.TrimSpace(comp.CPU.Status())))
+	say(fmt.Sprintf(lastfmt, strings.TrimSpace(comp.CPU.LastInstruction())))
+	say(fmt.Sprintf(nextfmt, strings.TrimSpace(comp.CPU.NextInstruction())))
 }
