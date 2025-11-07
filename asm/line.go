@@ -22,6 +22,8 @@ type Line struct {
 	OperandMSB *uint8
 	OperandLSB *uint8
 
+	Operand uint16
+
 	Opcode  uint8
 	Comment string
 
@@ -49,7 +51,6 @@ func (ln Line) ShortString() string {
 // for now.
 func (ln Line) String() string {
 	linefmt := "%s" + // address
-		" | " + // spacing
 		"%-8s " + // label
 		"%s " + // instruction
 		"%-10s" + // operand
@@ -78,7 +79,7 @@ func (ln Line) OnlyAddress() string {
 		return ""
 	}
 
-	return fmt.Sprintf("%04X", *ln.Address)
+	return fmt.Sprintf("%04X | ", *ln.Address)
 }
 
 func (ln Line) FullAddress() string {
@@ -101,7 +102,7 @@ func (ln Line) FullAddress() string {
 
 	addrfmt := "%04X" + // address
 		":%02X" + // opcode
-		" %-5s" // operand
+		" %-5s | " // operand
 
 	return fmt.Sprintf(addrfmt, *ln.Address, ln.Opcode, fmtOper)
 }

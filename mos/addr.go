@@ -69,7 +69,7 @@ func AddrModeName(mode int) string {
 // opcodes.
 //
 //	00   01   02   03   04   05   06   07   08   09   0A   0B   0C   0D   0E   0F
-var addrModes = [256]AddrMode{
+var addrModeFuncs = [256]AddrMode{
 	Imp, Idx, By2, Imp, Zpg, Zpg, Zpg, Imp, Imp, Imm, Acc, Imp, Abs, Abs, Abs, Imp, // 0x
 	Rel, Idy, Zpg, Imp, Zpg, Zpx, Zpx, Imp, Imp, Aby, Acc, Imp, Abs, Abx, Abx, Imp, // 1x
 	Abs, Idx, By2, Imp, Zpg, Zpg, Zpg, Imp, Imp, Imm, Acc, Imp, Abs, Abs, Abs, Imp, // 2x
@@ -86,6 +86,28 @@ var addrModes = [256]AddrMode{
 	Rel, Idy, Zpg, Imp, By2, Zpx, Zpx, Imp, Imp, Aby, Imp, Imp, By3, Abx, Abx, Imp, // Dx
 	Imm, Idx, By2, Imp, Zpg, Zpg, Zpg, Imp, Imp, Imm, Imp, Imp, Abs, Abs, Abs, Imp, // Ex
 	Rel, Idy, Zpg, Imp, By2, Zpx, Zpx, Imp, Imp, Aby, Imp, Imp, By3, Abx, Abx, Imp, // Fx
+}
+
+// Like the above table, only it maps opcodes to the symbolic constants.
+//
+//	00     01     02     03     04     05     06     07     08     09     0A     0B     0C     0D     0E     0F
+var addrModes = [256]int{
+	AmIMP, AmIDX, AmBY2, AmIMP, AmZPG, AmZPG, AmZPG, AmIMP, AmIMP, AmIMM, AmACC, AmIMP, AmABS, AmABS, AmABS, AmIMP, // 0x
+	AmREL, AmIDY, AmZPG, AmIMP, AmZPG, AmZPX, AmZPX, AmIMP, AmIMP, AmABY, AmACC, AmIMP, AmABS, AmABX, AmABX, AmIMP, // 1x
+	AmABS, AmIDX, AmBY2, AmIMP, AmZPG, AmZPG, AmZPG, AmIMP, AmIMP, AmIMM, AmACC, AmIMP, AmABS, AmABS, AmABS, AmIMP, // 2x
+	AmREL, AmIDY, AmZPG, AmIMP, AmZPX, AmZPX, AmZPX, AmIMP, AmIMP, AmABY, AmACC, AmIMP, AmABX, AmABX, AmABX, AmIMP, // 3x
+	AmIMP, AmIDX, AmBY2, AmIMP, AmBY2, AmZPG, AmZPG, AmIMP, AmIMP, AmIMM, AmACC, AmIMP, AmABS, AmABS, AmABS, AmIMP, // 4x
+	AmREL, AmIDY, AmZPG, AmIMP, AmBY2, AmZPX, AmZPX, AmIMP, AmIMP, AmABY, AmIMP, AmIMP, AmBY3, AmABX, AmABX, AmIMP, // 5x
+	AmIMP, AmIDX, AmBY2, AmIMP, AmZPG, AmZPG, AmZPG, AmIMP, AmIMP, AmIMM, AmACC, AmIMP, AmIND, AmABS, AmABS, AmIMP, // 6x
+	AmREL, AmIDY, AmZPG, AmIMP, AmZPX, AmZPX, AmZPX, AmIMP, AmIMP, AmABY, AmIMP, AmIMP, AmABX, AmABX, AmABX, AmIMP, // 7x
+	AmREL, AmIDX, AmBY2, AmIMP, AmZPG, AmZPG, AmZPG, AmIMP, AmIMP, AmIMM, AmIMP, AmIMP, AmABS, AmABS, AmABS, AmIMP, // 8x
+	AmREL, AmIDY, AmZPG, AmIMP, AmZPX, AmZPX, AmZPY, AmIMP, AmIMP, AmABY, AmIMP, AmIMP, AmABS, AmABX, AmABX, AmIMP, // 9x
+	AmIMM, AmIDX, AmIMM, AmIMP, AmZPG, AmZPG, AmZPG, AmIMP, AmIMP, AmIMM, AmIMP, AmIMP, AmABS, AmABS, AmABS, AmIMP, // Ax
+	AmREL, AmIDY, AmZPG, AmIMP, AmZPX, AmZPX, AmZPY, AmIMP, AmIMP, AmABY, AmIMP, AmIMP, AmABX, AmABX, AmABY, AmIMP, // Bx
+	AmIMM, AmIDX, AmBY2, AmIMP, AmZPG, AmZPG, AmZPG, AmIMP, AmIMP, AmIMM, AmIMP, AmIMP, AmABS, AmABS, AmABS, AmIMP, // Cx
+	AmREL, AmIDY, AmZPG, AmIMP, AmBY2, AmZPX, AmZPX, AmIMP, AmIMP, AmABY, AmIMP, AmIMP, AmBY3, AmABX, AmABX, AmIMP, // Dx
+	AmIMM, AmIDX, AmBY2, AmIMP, AmZPG, AmZPG, AmZPG, AmIMP, AmIMP, AmIMM, AmIMP, AmIMP, AmABS, AmABS, AmABS, AmIMP, // Ex
+	AmREL, AmIDY, AmZPG, AmIMP, AmBY2, AmZPX, AmZPX, AmIMP, AmIMP, AmABY, AmIMP, AmIMP, AmBY3, AmABX, AmABX, AmIMP, // Fx
 }
 
 // The offsets table defines the number of bytes we must increment the
@@ -123,6 +145,22 @@ func (m AddrMode) String() string {
 	)
 
 	return strings.ToUpper(parts[len(parts)-1])
+}
+
+// OpcodeAddrMode returns the address mode constant for a given opcode
+func OpcodeAddrMode(opcode uint8) int {
+	return addrModes[opcode]
+}
+
+func OperandSize(opcode uint8) int {
+	switch addrModes[opcode] {
+	case AmABS, AmABX, AmABY, AmIND:
+		return 2
+	case AmACC, AmBY2, AmBY3, AmIMP:
+		return 0
+	}
+
+	return 1
 }
 
 // Abs resolves the Absolute address mode. Given a 16-bit operand, we

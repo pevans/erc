@@ -129,7 +129,7 @@ func (c *CPU) Execute() error {
 	c.LastPC = c.PC
 
 	c.Opcode = c.Get(c.PC)
-	mode = addrModes[c.Opcode]
+	mode = addrModeFuncs[c.Opcode]
 	inst = instructions[c.Opcode]
 
 	c.State.SetBool(
@@ -160,7 +160,7 @@ func (c *CPU) Execute() error {
 	if c.State.Bool(a2state.DebugImage) && c.InstructionChannel != nil {
 		select {
 		case c.InstructionChannel <- c.LastInstructionLine(int(cycles[c.Opcode])):
-			// Sent successfully
+		// Sent successfully
 		default:
 			// Channel full, drop this instruction log
 		}
@@ -178,12 +178,14 @@ func (c *CPU) Status() string {
 
 func (c *CPU) ThisInstruction() string {
 	pc := int(c.PC)
+
 	line := &asm.Line{
 		Address:     &pc,
 		Instruction: instructions[c.Opcode].String(),
+		Operand:     c.Operand,
 	}
 
-	c.prepareOperand(line, c.PC)
+	PrepareOperand(line, c.PC)
 
 	return fmt.Sprintf(
 		"%04X:%v %v",
@@ -197,10 +199,11 @@ func (c *CPU) LastInstructionLine(cycles int) *asm.Line {
 		Address:     &lastPC,
 		Instruction: instructions[c.Opcode].String(),
 		Opcode:      c.Opcode,
+		Operand:     c.Operand,
 		Cycles:      cycles,
 	}
 
-	c.prepareOperand(line, c.LastPC)
+	PrepareOperand(line, c.LastPC)
 	c.explainInstruction(line, c.LastPC)
 
 	return line
@@ -216,7 +219,7 @@ func (c *CPU) LastInstruction() string {
 // would be executed
 func (c *CPU) NextInstruction() string {
 	opcode := c.Get(c.PC)
-	mode := addrModes[opcode]
+	mode := addrModeFuncs[opcode]
 
 	// Copy the CPU so we don't alter our own operand, effective
 	// address, etc.
@@ -233,9 +236,10 @@ func (c *CPU) NextInstruction() string {
 	ln := &asm.Line{
 		Address:     &pc,
 		Instruction: instructions[opcode].String(),
+		Operand:     c.Operand,
 	}
 
-	c.prepareOperand(ln, c.PC)
+	PrepareOperand(ln, c.PC)
 	c.explainInstruction(ln, c.PC)
 
 	return ln.String()
@@ -295,57 +299,58 @@ func maybeRoutine(opcode uint8, addrMode int) bool {
 		addrMode == AmREL // any branch
 }
 
-func (c *CPU) prepareOperand(line *asm.Line, pc uint16) {
-	lsb := uint8(c.Operand & 0xFF)
-	msb := uint8(c.Operand >> 8)
+func PrepareOperand(line *asm.Line, pc uint16) {
+	addrMode := OpcodeAddrMode(line.Opcode)
+	lsb := uint8(line.Operand & 0xFF)
+	msb := uint8(line.Operand >> 8)
 
-	switch c.AddrMode {
+	switch addrMode {
 	case AmACC, AmIMP, AmBY2, AmBY3:
 		break
 	case AmABS:
-		line.PreparedOperand = fmt.Sprintf("$%04X", c.Operand)
+		line.PreparedOperand = fmt.Sprintf("$%04X", line.Operand)
 		line.OperandLSB = &lsb
 		line.OperandMSB = &msb
 	case AmABX:
-		line.PreparedOperand = fmt.Sprintf("$%04X,X", c.Operand)
+		line.PreparedOperand = fmt.Sprintf("$%04X,X", line.Operand)
 		line.OperandLSB = &lsb
 		line.OperandMSB = &msb
 	case AmABY:
-		line.PreparedOperand = fmt.Sprintf("$%04X,Y", c.Operand)
+		line.PreparedOperand = fmt.Sprintf("$%04X,Y", line.Operand)
 		line.OperandLSB = &lsb
 		line.OperandMSB = &msb
 	case AmIDX:
-		line.PreparedOperand = fmt.Sprintf("($%02X,X)", c.Operand)
+		line.PreparedOperand = fmt.Sprintf("($%02X,X)", line.Operand)
 		line.OperandLSB = &lsb
 	case AmIDY:
-		line.PreparedOperand = fmt.Sprintf("($%02X),Y", c.Operand)
+		line.PreparedOperand = fmt.Sprintf("($%02X),Y", line.Operand)
 		line.OperandLSB = &lsb
 	case AmIND:
-		line.PreparedOperand = fmt.Sprintf("($%04X)", c.Operand)
+		line.PreparedOperand = fmt.Sprintf("($%04X)", line.Operand)
 		line.OperandLSB = &lsb
 		line.OperandMSB = &msb
 	case AmIMM:
-		line.PreparedOperand = fmt.Sprintf("#$%02X", c.Operand)
+		line.PreparedOperand = fmt.Sprintf("#$%02X", line.Operand)
 		line.OperandLSB = &lsb
 	case AmREL:
-		newAddr := pc + c.Operand + 2
+		newAddr := pc + line.Operand + 2
 
 		// It's signed, so the effect of the operand should be negative w/r/t
 		// two's complement.
-		if c.Operand >= 0x80 {
+		if line.Operand >= 0x80 {
 			newAddr -= 256
 		}
 
 		line.PreparedOperand = fmt.Sprintf("$%04X", newAddr)
 		line.OperandLSB = &lsb
 	case AmZPG:
-		line.PreparedOperand = fmt.Sprintf("$%02X", c.Operand)
+		line.PreparedOperand = fmt.Sprintf("$%02X", line.Operand)
 		line.OperandLSB = &lsb
 	case AmZPX:
-		line.PreparedOperand = fmt.Sprintf("$%02X,X", c.Operand)
+		line.PreparedOperand = fmt.Sprintf("$%02X,X", line.Operand)
 		line.OperandLSB = &lsb
 	case AmZPY:
-		line.PreparedOperand = fmt.Sprintf("$%02X,Y", c.Operand)
+		line.PreparedOperand = fmt.Sprintf("$%02X,Y", line.Operand)
 		line.OperandLSB = &lsb
 	}
 }
@@ -361,4 +366,8 @@ func formatStatus(p uint8) string {
 	}
 
 	return string(pstatus)
+}
+
+func OpcodeInstruction(opcode uint8) string {
+	return instructions[opcode].String()
 }
