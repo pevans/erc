@@ -181,8 +181,9 @@ func (c *CPU) Status() string {
 }
 
 func (c *CPU) ThisInstruction() string {
+	pc := int(c.PC)
 	line := &asm.Line{
-		Address:     int(c.PC),
+		Address:     &pc,
 		Instruction: instructions[c.Opcode].String(),
 	}
 
@@ -195,8 +196,9 @@ func (c *CPU) ThisInstruction() string {
 }
 
 func (c *CPU) LastInstructionLine(cycles int) *asm.Line {
+	lastPC := int(c.LastPC)
 	line := &asm.Line{
-		Address:     int(c.LastPC),
+		Address:     &lastPC,
 		Instruction: instructions[c.Opcode].String(),
 		Opcode:      c.Opcode,
 		Cycles:      cycles,
@@ -231,8 +233,9 @@ func (c *CPU) NextInstruction() string {
 	mode(copyOfCPU)
 	copyOfCPU.State.SetBool(a2state.DebuggerLookAhead, false)
 
+	pc := int(c.PC)
 	ln := &asm.Line{
-		Address:     int(c.PC),
+		Address:     &pc,
 		Instruction: instructions[opcode].String(),
 	}
 
