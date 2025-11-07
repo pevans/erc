@@ -1,8 +1,9 @@
-package a2disk
+package a2disk_test
 
 import (
 	"testing"
 
+	"github.com/pevans/erc/a2/a2disk"
 	"github.com/pevans/erc/a2/a2enc"
 	"github.com/pevans/erc/memory"
 	"github.com/stretchr/testify/assert"
@@ -12,7 +13,7 @@ func TestVTOC_Parse(t *testing.T) {
 	cases := []struct {
 		name     string
 		setup    func(*memory.Segment)
-		expected VTOC
+		expected a2disk.VTOC
 	}{
 		{
 			name: "typical DOS 3.3 VTOC",
@@ -34,7 +35,7 @@ func TestVTOC_Parse(t *testing.T) {
 				seg.Set(offset+0x38, 0xFF)
 				seg.Set(offset+0x39, 0xFF)
 			},
-			expected: VTOC{
+			expected: a2disk.VTOC{
 				FirstCatalogSectorTrackNumber:  0x11,
 				FirstCatalogSectorSectorNumber: 0x0F,
 				ReleaseNumberOfDOS:             0x03,
@@ -70,7 +71,7 @@ func TestVTOC_Parse(t *testing.T) {
 				seg.Set(offset+0x38, 0x33)
 				seg.Set(offset+0x39, 0x22)
 			},
-			expected: VTOC{
+			expected: a2disk.VTOC{
 				FirstCatalogSectorTrackNumber:  0x11,
 				FirstCatalogSectorSectorNumber: 0x0F,
 				ReleaseNumberOfDOS:             0x03,
@@ -106,7 +107,7 @@ func TestVTOC_Parse(t *testing.T) {
 				seg.Set(offset+0x38, 0x00)
 				seg.Set(offset+0x39, 0x55)
 			},
-			expected: VTOC{
+			expected: a2disk.VTOC{
 				FirstCatalogSectorTrackNumber:  0x11,
 				FirstCatalogSectorSectorNumber: 0x0F,
 				ReleaseNumberOfDOS:             0x03,
@@ -130,7 +131,7 @@ func TestVTOC_Parse(t *testing.T) {
 			seg := memory.NewSegment(a2enc.LogTrackLen * 35)
 			c.setup(seg)
 
-			var vtoc VTOC
+			var vtoc a2disk.VTOC
 
 			err := vtoc.Parse(seg)
 			assert.NoError(t, err)
@@ -153,12 +154,12 @@ func TestVTOC_Parse(t *testing.T) {
 func TestVTOC_Valid(t *testing.T) {
 	cases := []struct {
 		name   string
-		vtoc   VTOC
+		vtoc   a2disk.VTOC
 		testfn assert.BoolAssertionFunc
 	}{
 		{
 			name: "valid VTOC with typical DOS 3.3 values",
-			vtoc: VTOC{
+			vtoc: a2disk.VTOC{
 				DisketteVolume:      0xFE,
 				MaxTrackSectorPairs: 122,
 			},
@@ -166,7 +167,7 @@ func TestVTOC_Valid(t *testing.T) {
 		},
 		{
 			name: "invalid VTOC with wrong diskette volume",
-			vtoc: VTOC{
+			vtoc: a2disk.VTOC{
 				DisketteVolume:      0x01,
 				MaxTrackSectorPairs: 122,
 			},
@@ -174,7 +175,7 @@ func TestVTOC_Valid(t *testing.T) {
 		},
 		{
 			name: "invalid VTOC with wrong max track sector pairs",
-			vtoc: VTOC{
+			vtoc: a2disk.VTOC{
 				DisketteVolume:      0xFE,
 				MaxTrackSectorPairs: 100,
 			},
@@ -182,7 +183,7 @@ func TestVTOC_Valid(t *testing.T) {
 		},
 		{
 			name: "invalid VTOC with both wrong",
-			vtoc: VTOC{
+			vtoc: a2disk.VTOC{
 				DisketteVolume:      0x00,
 				MaxTrackSectorPairs: 0,
 			},

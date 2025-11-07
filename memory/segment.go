@@ -60,6 +60,17 @@ func (s *Segment) CopySlice(start int, bytes []uint8) (int, error) {
 	return toWrite, nil
 }
 
+// Take the bytes from a given segment, at some position and for some length,
+// and pull that into our the receiver segment. Think of this as taking a
+// chunk of the from segment and making that its own segment.
+func (s *Segment) ExtractFrom(from *Segment, start, end int) (int, error) {
+	if start < 0 || end > len(from.Mem) {
+		return 0, fmt.Errorf("destination slice is out of bounds: %v, %v", start, end)
+	}
+
+	return s.CopySlice(0, from.Mem[start:end])
+}
+
 // Set will set the value at a given cell. If a write function is
 // registered for this cell, then we will call that and exit.
 func (s *Segment) Set(addr int, val uint8) {

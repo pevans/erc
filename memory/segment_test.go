@@ -130,3 +130,89 @@ func TestReadFile(t *testing.T) {
 	// Make sure we have some real data
 	assert.NotEqual(t, uint8(0), s.Get(0))
 }
+
+func TestExtractFrom(t *testing.T) {
+	type test struct {
+		destSize  int
+		srcSize   int
+		start     int
+		end       int
+		written   int
+		errfn     assert.ErrorAssertionFunc
+	}
+
+	cases := map[string]test{
+		"negative start": {
+			destSize: 10,
+			srcSize:  10,
+			start:    -1,
+			end:      5,
+			written:  0,
+			errfn:    assert.Error,
+		},
+		"end beyond source": {
+			destSize: 10,
+			srcSize:  10,
+			start:    5,
+			end:      15,
+			written:  0,
+			errfn:    assert.Error,
+		},
+		"normal extraction": {
+			destSize: 10,
+			srcSize:  20,
+			start:    5,
+			end:      10,
+			written:  5,
+			errfn:    assert.NoError,
+		},
+		"full segment": {
+			destSize: 10,
+			srcSize:  10,
+			start:    0,
+			end:      10,
+			written:  10,
+			errfn:    assert.NoError,
+		},
+		"empty range": {
+			destSize: 10,
+			srcSize:  10,
+			start:    5,
+			end:      5,
+			written:  0,
+			errfn:    assert.NoError,
+		},
+		"destination too small": {
+			destSize: 3,
+			srcSize:  10,
+			start:    0,
+			end:      5,
+			written:  0,
+			errfn:    assert.Error,
+		},
+	}
+
+	for desc, c := range cases {
+		t.Run(desc, func(t *testing.T) {
+			src := NewSegment(c.srcSize)
+			dest := NewSegment(c.destSize)
+
+			// Fill source with test data
+			for i := 0; i < c.srcSize; i++ {
+				src.Set(i, uint8(i+100))
+			}
+
+			writ, err := dest.ExtractFrom(src, c.start, c.end)
+			assert.Equal(t, c.written, writ)
+			c.errfn(t, err)
+
+			// Verify data was copied correctly on success
+			if err == nil && c.written > 0 {
+				for i := 0; i < c.written; i++ {
+					assert.Equal(t, uint8(c.start+i+100), dest.Get(i),
+						"byte at position %d should match source", i)
+				}
+			}
+		})
+	}
+}
