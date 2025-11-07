@@ -43,24 +43,12 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 }
 
 func MaybeLogInstructions(c *Computer) {
-	for {
-		select {
-		case line := <-c.CPU.InstructionChannel:
-			// Skip anything for slot ROM
-			if line.Address >= 0xC000 && line.Address <= 0xD000 {
-				break
-			}
-
-			// Also skip system ROM
-			if !c.State.Bool(a2state.BankReadRAM) && line.Address >= 0xD000 {
-				break
-			}
-
+	for line := range c.CPU.InstructionChannel {
+		if c.InstructionLog != nil {
 			c.InstructionLog.Add(line.String())
-
+		}
+		if c.TimeSet != nil {
 			c.TimeSet.Record(line.ShortString(), line.Cycles)
-		default:
-			break
 		}
 	}
 }

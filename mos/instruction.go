@@ -162,7 +162,12 @@ func (c *CPU) Execute() error {
 			c.InstructionChannel = make(chan *asm.Line, 100)
 		}
 
-		c.InstructionChannel <- c.LastInstructionLine(int(cycles[c.Opcode]))
+		select {
+		case c.InstructionChannel <- c.LastInstructionLine(int(cycles[c.Opcode])):
+			// Sent successfully
+		default:
+			// Channel full, drop this instruction log
+		}
 	}
 
 	return nil
