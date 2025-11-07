@@ -59,6 +59,18 @@ func (v *VTOC) Parse(seg *memory.Segment) error {
 	return nil
 }
 
+func (v *VTOC) Valid() bool {
+	// This is a really peculiar set of criteria for a "valid" VTOC. It was
+	// chosen because:
+	// - $FE is essentially always the "volume" of a disk when reading tracks
+	// - 122 is the number for 256 byte sectors
+	//
+	// The idea is, if we see other values here, this is likely to be a disk
+	// that happens to use track 17 for other kinds of data. It may not be
+	// corrupted data, but it's not a VTOC.
+	return v.DisketteVolume == 0xFE && v.MaxTrackSectorPairs == 122
+}
+
 // If every sector were free, we'd show the template below.
 const freeSectorTemplate = "FEDCBA98 76543210"
 

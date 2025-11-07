@@ -9,7 +9,7 @@ import (
 )
 
 func TestVTOC_Parse(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		name     string
 		setup    func(*memory.Segment)
 		expected VTOC
@@ -124,28 +124,75 @@ func TestVTOC_Parse(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
 			// Create a segment large enough to hold a disk image
 			seg := memory.NewSegment(a2enc.LogTrackLen * 35)
-			tt.setup(seg)
+			c.setup(seg)
 
 			var vtoc VTOC
 
 			err := vtoc.Parse(seg)
 			assert.NoError(t, err)
 
-			assert.Equal(t, tt.expected.FirstCatalogSectorTrackNumber, vtoc.FirstCatalogSectorTrackNumber)
-			assert.Equal(t, tt.expected.FirstCatalogSectorSectorNumber, vtoc.FirstCatalogSectorSectorNumber)
-			assert.Equal(t, tt.expected.ReleaseNumberOfDOS, vtoc.ReleaseNumberOfDOS)
-			assert.Equal(t, tt.expected.DisketteVolume, vtoc.DisketteVolume)
-			assert.Equal(t, tt.expected.MaxTrackSectorPairs, vtoc.MaxTrackSectorPairs)
-			assert.Equal(t, tt.expected.LastTrackAllocated, vtoc.LastTrackAllocated)
-			assert.Equal(t, tt.expected.DirectionOfAllocation, vtoc.DirectionOfAllocation)
-			assert.Equal(t, tt.expected.TracksPerDiskette, vtoc.TracksPerDiskette)
-			assert.Equal(t, tt.expected.SectorsPerTrack, vtoc.SectorsPerTrack)
-			assert.Equal(t, tt.expected.BytesPerSector, vtoc.BytesPerSector)
-			assert.Equal(t, tt.expected.FreeSectors[0], vtoc.FreeSectors[0])
+			assert.Equal(t, c.expected.FirstCatalogSectorTrackNumber, vtoc.FirstCatalogSectorTrackNumber)
+			assert.Equal(t, c.expected.FirstCatalogSectorSectorNumber, vtoc.FirstCatalogSectorSectorNumber)
+			assert.Equal(t, c.expected.ReleaseNumberOfDOS, vtoc.ReleaseNumberOfDOS)
+			assert.Equal(t, c.expected.DisketteVolume, vtoc.DisketteVolume)
+			assert.Equal(t, c.expected.MaxTrackSectorPairs, vtoc.MaxTrackSectorPairs)
+			assert.Equal(t, c.expected.LastTrackAllocated, vtoc.LastTrackAllocated)
+			assert.Equal(t, c.expected.DirectionOfAllocation, vtoc.DirectionOfAllocation)
+			assert.Equal(t, c.expected.TracksPerDiskette, vtoc.TracksPerDiskette)
+			assert.Equal(t, c.expected.SectorsPerTrack, vtoc.SectorsPerTrack)
+			assert.Equal(t, c.expected.BytesPerSector, vtoc.BytesPerSector)
+			assert.Equal(t, c.expected.FreeSectors[0], vtoc.FreeSectors[0])
+		})
+	}
+}
+
+func TestVTOC_Valid(t *testing.T) {
+	cases := []struct {
+		name   string
+		vtoc   VTOC
+		testfn assert.BoolAssertionFunc
+	}{
+		{
+			name: "valid VTOC with typical DOS 3.3 values",
+			vtoc: VTOC{
+				DisketteVolume:      0xFE,
+				MaxTrackSectorPairs: 122,
+			},
+			testfn: assert.True,
+		},
+		{
+			name: "invalid VTOC with wrong diskette volume",
+			vtoc: VTOC{
+				DisketteVolume:      0x01,
+				MaxTrackSectorPairs: 122,
+			},
+			testfn: assert.False,
+		},
+		{
+			name: "invalid VTOC with wrong max track sector pairs",
+			vtoc: VTOC{
+				DisketteVolume:      0xFE,
+				MaxTrackSectorPairs: 100,
+			},
+			testfn: assert.False,
+		},
+		{
+			name: "invalid VTOC with both wrong",
+			vtoc: VTOC{
+				DisketteVolume:      0x00,
+				MaxTrackSectorPairs: 0,
+			},
+			testfn: assert.False,
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			c.testfn(t, c.vtoc.Valid())
 		})
 	}
 }

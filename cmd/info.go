@@ -51,7 +51,7 @@ func displayInfo(imagePath string) {
 		fail(fmt.Sprintf("could not parse VTOC: %v", err))
 	}
 
-	if vtoc.DisketteVolume != 254 && vtoc.MaxTrackSectorPairs != 122 {
+	if !vtoc.Valid() {
 		fail(`file does not contain a valid volume table of contents.
 this does not mean the disk is bad! it's normal for disks 
 to omit this data, e.g. to increase free space on the disk.`,
