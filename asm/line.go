@@ -29,7 +29,7 @@ type Line struct {
 }
 
 func (ln Line) ShortString() string {
-	linefmt := "%04X" + // address
+	linefmt := "%s" + // address
 		" | " + // spacing
 		"%s " + // instruction
 		"%-10s" // operand
