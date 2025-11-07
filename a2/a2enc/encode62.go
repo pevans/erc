@@ -57,7 +57,7 @@ func Encode62(imageType int, src *memory.Segment) (*memory.Segment, error) {
 		imageType:       imageType,
 	}
 
-	for track := 0; track < NumTracks; track++ {
+	for track := range NumTracks {
 		enc.physicalOffset = PhysTrackLen * track
 		enc.writeTrack(track)
 	}
@@ -89,7 +89,7 @@ func (e *encoder) writeTrack(track int) {
 	// We need to write the gap1 bytes before we do anything.
 	e.write(gap1)
 
-	for sect := 0; sect < NumSectors; sect++ {
+	for sect := range NumSectors {
 		logSect := LogicalSector(e.imageType, sect)
 
 		// The logical offset is based on logTrackOffset, with the
@@ -135,7 +135,7 @@ func (e *encoder) writeDataField(track, sect int) {
 
 	// Loop on the logical sector data block and build up the six-block
 	// and two-block buffers
-	for i := 0; i < 0x100; i++ {
+	for i := range 0x100 {
 		byt := e.logicalSegment.Get(e.logicalOffset + i)
 
 		// These are the final two bits, but their order is reversed

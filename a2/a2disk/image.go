@@ -19,7 +19,7 @@ type Image struct {
 func (img *Image) Parse(seg *memory.Segment) error {
 	maxTracks := a2enc.MaxSteps / 2
 
-	for track := 0; track < maxTracks; track++ {
+	for track := range maxTracks {
 		tseg := memory.NewSegment(a2enc.LogTrackLen)
 
 		count, err := tseg.ExtractFrom(seg, track*a2enc.LogTrackLen, (track+1)*a2enc.LogTrackLen)

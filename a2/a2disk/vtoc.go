@@ -78,7 +78,7 @@ func freeSectors(bitmap1, bitmap2 uint8) string {
 	asBinary := fmt.Sprintf("%08b %08b", bitmap1, bitmap2)
 	asSectors := ""
 
-	for i := 0; i < len(asBinary); i++ {
+	for i := range len(asBinary) {
 		if asBinary[i] == '1' || asBinary[i] == ' ' {
 			asSectors += string(freeSectorTemplate[i])
 		} else {

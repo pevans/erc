@@ -13,13 +13,13 @@ func font40Glyph(original []byte) []byte {
 	doubled := make([]byte, sysFont40Width*sysFont40Height)
 	dpos := 0
 
-	for row := 0; row < 8; row++ {
+	for row := range 8 {
 		rowStart := row * 7
 
 		// We're going to copy the column row twice. We don't really need to
 		// use i at all; we only need to run the column copy loop twice.
-		for i := 0; i < 2; i++ {
-			for col := 0; col < 7; col++ {
+		for range 2 {
+			for col := range 7 {
 				dot := original[rowStart+col]
 
 				doubled[dpos] = dot

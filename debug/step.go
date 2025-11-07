@@ -25,7 +25,7 @@ func step(comp *a2.Computer, tokens []string) {
 		return
 	}
 
-	for i := 0; i < step; i++ {
+	for range step {
 		if _, err := comp.Process(); err != nil {
 			panic(fmt.Sprintf("could not step instruction: %v", err))
 		}

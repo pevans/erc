@@ -133,12 +133,12 @@ func TestReadFile(t *testing.T) {
 
 func TestExtractFrom(t *testing.T) {
 	type test struct {
-		destSize  int
-		srcSize   int
-		start     int
-		end       int
-		written   int
-		errfn     assert.ErrorAssertionFunc
+		destSize int
+		srcSize  int
+		start    int
+		end      int
+		written  int
+		errfn    assert.ErrorAssertionFunc
 	}
 
 	cases := map[string]test{
@@ -198,7 +198,7 @@ func TestExtractFrom(t *testing.T) {
 			dest := NewSegment(c.destSize)
 
 			// Fill source with test data
-			for i := 0; i < c.srcSize; i++ {
+			for i := range c.srcSize {
 				src.Set(i, uint8(i+100))
 			}
 
@@ -208,7 +208,7 @@ func TestExtractFrom(t *testing.T) {
 
 			// Verify data was copied correctly on success
 			if err == nil && c.written > 0 {
-				for i := 0; i < c.written; i++ {
+				for i := range c.written {
 					assert.Equal(t, uint8(c.start+i+100), dest.Get(i),
 						"byte at position %d should match source", i)
 				}

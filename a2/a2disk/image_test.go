@@ -20,7 +20,7 @@ func TestImage_Parse(t *testing.T) {
 			name: "valid full DOS 3.3 disk image",
 			size: a2enc.DosSize,
 			setup: func(seg *memory.Segment) {
-				for i := 0; i < seg.Size(); i++ {
+				for i := range seg.Size() {
 					seg.Set(i, uint8(i%256))
 				}
 			},
@@ -30,7 +30,7 @@ func TestImage_Parse(t *testing.T) {
 			name: "segment too small",
 			size: a2enc.LogTrackLen - 1,
 			setup: func(seg *memory.Segment) {
-				for i := 0; i < seg.Size(); i++ {
+				for i := range seg.Size() {
 					seg.Set(i, 0xFF)
 				}
 			},
@@ -47,7 +47,7 @@ func TestImage_Parse(t *testing.T) {
 			name: "single track",
 			size: a2enc.LogTrackLen,
 			setup: func(seg *memory.Segment) {
-				for i := 0; i < seg.Size(); i++ {
+				for i := range seg.Size() {
 					seg.Set(i, 0xAA)
 				}
 			},
@@ -57,7 +57,7 @@ func TestImage_Parse(t *testing.T) {
 			name: "partial disk image",
 			size: a2enc.LogTrackLen * 20,
 			setup: func(seg *memory.Segment) {
-				for i := 0; i < seg.Size(); i++ {
+				for i := range seg.Size() {
 					seg.Set(i, uint8(i&0xFF))
 				}
 			},

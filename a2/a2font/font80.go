@@ -10,12 +10,12 @@ func font80Glyph(original []byte) []byte {
 	doubled := make([]byte, sysFont80Width*sysFont80Height)
 	dpos := 0
 
-	for row := 0; row < 8; row++ {
+	for row := range 8 {
 		rowStart := row * 7
 
 		// We're going to copy each row twice to double the height
-		for i := 0; i < 2; i++ {
-			for col := 0; col < 7; col++ {
+		for range 2 {
+			for col := range 7 {
 				dot := original[rowStart+col]
 
 				doubled[dpos] = dot

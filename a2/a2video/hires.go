@@ -124,7 +124,7 @@ func fillHiresDots(seg memory.Getter, row uint, dots []HiresDot) error {
 
 	addr := hiresAddrs[row]
 
-	for byteOffset := 0; byteOffset < 40; byteOffset++ {
+	for byteOffset := range 40 {
 		byt := seg.Get(int(addr) + byteOffset)
 		pal := PalettePurpleGreen
 
@@ -137,7 +137,7 @@ func fillHiresDots(seg memory.Getter, row uint, dots []HiresDot) error {
 		dotOffset := int(byteOffset) * 7
 
 		// Loop through the bits and set dots to on or off for each bit.
-		for byteColumn := 0; byteColumn < 7; byteColumn++ {
+		for byteColumn := range 7 {
 			dots[dotOffset+byteColumn].On = byte(byt&1) > 0
 			dots[dotOffset+byteColumn].Palette = pal
 

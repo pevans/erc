@@ -17,7 +17,7 @@ func (s *sixtwoSuite) TestDecode62RoundTrip() {
 
 	s.Equal(s.logDisk.Size(), decoded.Size())
 
-	for i := 0; i < s.logDisk.Size(); i++ {
+	for i := range s.logDisk.Size() {
 		s.Equal(
 			s.logDisk.Get(i), decoded.Get(i),
 			fmt.Sprintf(

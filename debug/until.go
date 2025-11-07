@@ -28,7 +28,7 @@ func until(comp *a2.Computer, tokens []string) {
 		instruction = strings.Join(tokens[1:], " ")
 	}
 
-	for i := 0; i < maxIterations; i++ {
+	for i := range maxIterations {
 		if _, err := comp.Process(); err != nil {
 			panic(fmt.Sprintf("failed execution while stepping over: %v", err))
 		}

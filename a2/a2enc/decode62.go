@@ -36,7 +36,7 @@ func Decode62(imageType int, src *memory.Segment) (*memory.Segment, error) {
 		decodeMap:       newDecodeMap(),
 	}
 
-	for track := 0; track < NumTracks; track++ {
+	for track := range NumTracks {
 		if err := dec.writeTrack(track); err != nil {
 			return nil, err
 		}
@@ -49,7 +49,7 @@ func (d *decoder) writeTrack(track int) error {
 	logTrackOffset := LogTrackLen * track
 	physTrackOffset := PhysTrackLen * track
 
-	for sect := 0; sect < NumSectors; sect++ {
+	for sect := range NumSectors {
 		var (
 			logSect  = LogicalSector(d.imageType, sect)
 			physSect = sect
@@ -201,7 +201,7 @@ func (d *decoder) decodeDataField() ([]uint8, error) {
 		two[i] = checksum
 	}
 
-	for i := 0; i < SixBlock; i++ {
+	for i := range SixBlock {
 		lb := d.logByte(d.readByte())
 		checksum ^= lb
 		six[i] = checksum
@@ -220,7 +220,7 @@ func (d *decoder) decodeDataField() ([]uint8, error) {
 	// Now we need to put the 256-byte sector together from the six and two
 	// blocks
 	data := make([]uint8, SixBlock)
-	for i := 0; i < SixBlock; i++ {
+	for i := range SixBlock {
 		var (
 			div = i / TwoBlock
 			rem = i % TwoBlock

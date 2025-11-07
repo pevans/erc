@@ -108,7 +108,7 @@ to omit this data, e.g. to increase free space on the disk.`,
 	fmt.Println("\nTrack   Free  Sectors")
 	fmt.Println("----- -----------------")
 
-	for track := 0; track < int(vtoc.TracksPerDiskette); track++ {
+	for track := range int(vtoc.TracksPerDiskette) {
 		if freeSectors, ok := vtoc.FreeSectors[track*4]; ok {
 			fmt.Printf("%2d    %s\n", track, freeSectors)
 		}
