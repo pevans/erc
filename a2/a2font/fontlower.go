@@ -385,5 +385,4 @@ func fontLowerCase(f *gfx.Font, offset int, mask maskFunc, defg glyphFunc) {
 		0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0,
 	})
-	offset++
 }
