@@ -33,6 +33,7 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 
 		c.MetricsFileName = fmt.Sprintf("%v.metrics", fileName)
 
+		c.CPU.InstructionChannel = make(chan *asm.Line, 100)
 		go MaybeLogInstructions(c)
 
 		c.diskLog = asm.NewDiskLog(fileName)

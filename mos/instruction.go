@@ -157,11 +157,7 @@ func (c *CPU) Execute() error {
 	// observance for how other emulators have handled this step.
 	c.P |= UNUSED | BREAK
 
-	if c.State.Bool(a2state.DebugImage) {
-		if c.InstructionChannel == nil {
-			c.InstructionChannel = make(chan *asm.Line, 100)
-		}
-
+	if c.State.Bool(a2state.DebugImage) && c.InstructionChannel != nil {
 		select {
 		case c.InstructionChannel <- c.LastInstructionLine(int(cycles[c.Opcode])):
 			// Sent successfully
