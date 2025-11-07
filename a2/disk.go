@@ -18,13 +18,8 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 	var (
 		nib       = uint8(addr & 0xF)
 		c         = stm.Any(a2state.DiskComputer).(*Computer)
-		lastCycle = stm.Int64(a2state.DiskCycleOfLastAccess)
 		debugging = stm.Bool(a2state.DebuggerLookAhead)
 	)
-
-	if lastCycle == 0 {
-		lastCycle = c.ClockEmulator.TotalCycles
-	}
 
 	switch nib {
 	case 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7:
@@ -164,11 +159,6 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 		}
 
 		*val = c.Drive1.RandomByte()
-	}
-
-	if nib%2 == 0 {
-		//*val = c.SelectedDrive.Latch
-		//metrics.Increment("disk_read_latch", 1)
 	}
 }
 
