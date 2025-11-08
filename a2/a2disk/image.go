@@ -48,12 +48,15 @@ func (img *Image) Parse(seg *memory.Segment) error {
 }
 
 func (img *Image) Disassemble() error {
-	for _, track := range img.Tracks {
+	for trackNum, track := range img.Tracks {
 		offset := 0
+		if trackNum == 0 {
+			offset = 1
+		}
 		for offset < a2enc.LogTrackLen {
 			line, read, err := img.DisassembleNextInstruction(track, offset)
 			if err != nil {
-				return err
+				break
 			}
 
 			img.Code = append(img.Code, line)
@@ -67,12 +70,14 @@ func (img *Image) Disassemble() error {
 func (img *Image) DisassembleNextInstruction(track *memory.Segment, offset int) (asm.Line, int, error) {
 	line := asm.Line{}
 	read := 0
+	zeroaddr := 0
 
 	if offset+read >= track.Size() {
 		return line, 0, fmt.Errorf("offset %d is beyond track size %d", offset, track.Size())
 	}
 
 	opcode := track.Get(offset + read)
+	line.Address = &zeroaddr
 	line.Opcode = opcode
 	line.Instruction = mos.OpcodeInstruction(opcode)
 	read++
