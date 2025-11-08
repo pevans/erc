@@ -13,18 +13,11 @@ func (c *CPU) Set(addr uint16, val uint8) {
 // Get16 returns a 16-bit value at a given address, which is read in
 // little-endian order.
 func (c *CPU) Get16(addr uint16) uint16 {
-	lsb := c.RMem.Get(int(addr))
-	msb := c.RMem.Get(int(addr) + 1)
-
-	return (uint16(msb) << 8) | uint16(lsb)
+	return c.RMem.Get16(int(addr))
 }
 
 // Set16 sets the two bytes beginning at the given address to the given
 // value. The bytes are set in little-endian order.
 func (c *CPU) Set16(addr uint16, val uint16) {
-	lsb := uint8(val & 0xFF)
-	msb := uint8(val >> 8)
-
-	c.WMem.Set(int(addr), lsb)
-	c.WMem.Set(int(addr)+1, msb)
+	c.WMem.Set16(int(addr), val)
 }

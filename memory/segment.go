@@ -5,10 +5,20 @@ import (
 	"os"
 )
 
+// You could make an argument that this should be Endianness, and I would nod
+// my head
+type Endian int
+
+const (
+	BigEndian    Endian = 0 // bytes [0x11, 0x22] are represented as 16-bit $1122
+	LittleEndian Endian = 1 // bytes [0x11, 0x22] are represented as 16-bit $2211
+)
+
 // A Segment is a block of memory divided into uint8s.
 type Segment struct {
-	Mem  []uint8
-	smap *SoftMap
+	Mem        []uint8
+	smap       *SoftMap
+	Endianness Endian
 }
 
 type SegmentReader interface {
@@ -22,17 +32,22 @@ type SegmentWriter interface {
 // A Getter can return a byte from a given address.
 type Getter interface {
 	Get(int) uint8
+	Get16(int) uint16
 }
 
 // A Setter can set the value at a given address to a given byte.
 type Setter interface {
 	Set(int, uint8)
+	Set16(int, uint16)
 }
 
 // NewSegment will return a new memory segment with for a given size.
 func NewSegment(size int) *Segment {
 	s := new(Segment)
 	s.Mem = make([]uint8, size)
+
+	// Segments default to LittleEndian because that's how the Apple II works.
+	s.Endianness = LittleEndian
 
 	return s
 }
@@ -84,6 +99,32 @@ func (s *Segment) Set(addr int, val uint8) {
 	s.Mem[addr] = val
 }
 
+// Sets a 16-bit value with respect given to the endianness of the segment
+func (s *Segment) Set16(addr int, val uint16) {
+	if s.Endianness == LittleEndian {
+		s.Set16LittleEndian(addr, val)
+		return
+	}
+
+	s.Set16BigEndian(addr, val)
+}
+
+func (s *Segment) Set16BigEndian(addr int, val uint16) {
+	lsb := uint8(val & 0xFF)
+	msb := uint8(val >> 8)
+
+	s.Set(addr+1, lsb)
+	s.Set(addr, msb)
+}
+
+func (s *Segment) Set16LittleEndian(addr int, val uint16) {
+	lsb := uint8(val & 0xFF)
+	msb := uint8(val >> 8)
+
+	s.Set(addr, lsb)
+	s.Set(addr+1, msb)
+}
+
 func (s *Segment) DirectSet(addr int, val uint8) {
 	s.Mem[addr] = val
 }
@@ -100,6 +141,29 @@ func (s *Segment) Get(addr int) uint8 {
 	}
 
 	return s.Mem[addr]
+}
+
+// Gets a 16-bit value with respect given to the endianness of the segment
+func (s *Segment) Get16(addr int) uint16 {
+	if s.Endianness == LittleEndian {
+		return s.Get16LittleEndian(addr)
+	}
+
+	return s.Get16BigEndian(addr)
+}
+
+func (s *Segment) Get16BigEndian(addr int) uint16 {
+	lsb := s.Get(addr + 1)
+	msb := s.Get(addr)
+
+	return (uint16(msb) << 8) | uint16(lsb)
+}
+
+func (s *Segment) Get16LittleEndian(addr int) uint16 {
+	lsb := s.Get(addr)
+	msb := s.Get(addr + 1)
+
+	return (uint16(msb) << 8) | uint16(lsb)
 }
 
 func (s *Segment) DirectGet(addr int) uint8 {

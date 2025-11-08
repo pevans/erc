@@ -88,10 +88,18 @@ func (c *Computer) Get(addr int) uint8 {
 	return ReadSegment(c.State).Get(addr)
 }
 
+func (c *Computer) Get16(addr int) uint16 {
+	return ReadSegment(c.State).Get16(addr)
+}
+
 // Set will set the byte at addr to val, or will execute a write switch
 // if one is present at the given address.
 func (c *Computer) Set(addr int, val uint8) {
 	WriteSegment(c.State).Set(addr, val)
+}
+
+func (c *Computer) Set16(addr int, val uint16) {
+	WriteSegment(c.State).Set16(addr, val)
 }
 
 // MapRange will, given a range of addresses (from..to), set the read
