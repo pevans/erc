@@ -183,13 +183,14 @@ func (c *CPU) ThisInstruction() string {
 		Address:     &pc,
 		Instruction: instructions[c.Opcode].String(),
 		Operand:     c.Operand,
+		Opcode:      c.Opcode,
 	}
 
 	PrepareOperand(line, c.PC)
 
 	return fmt.Sprintf(
 		"%04X:%v %v",
-		line.Address, line.Instruction, line.PreparedOperand,
+		*line.Address, line.Instruction, line.PreparedOperand,
 	)
 }
 
