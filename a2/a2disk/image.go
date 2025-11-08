@@ -85,14 +85,11 @@ func (img *Image) DisassembleNextInstruction(track *memory.Segment, offset int) 
 
 	switch width {
 	case 2:
-		lsb := track.Get(offset + read)
-		msb := track.Get(offset + read + 1)
-		line.Operand = (uint16(msb) << 8) | uint16(lsb)
+		line.Operand = track.Get16(offset + read)
 		read += 2
 
 	case 1:
-		lsb := track.Get(offset + read)
-		line.Operand = uint16(lsb)
+		line.Operand = uint16(track.Get(offset + read))
 		read++
 	}
 
