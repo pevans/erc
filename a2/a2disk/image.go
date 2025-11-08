@@ -50,9 +50,15 @@ func (img *Image) Parse(seg *memory.Segment) error {
 func (img *Image) Disassemble() error {
 	for trackNum, track := range img.Tracks {
 		offset := 0
+
+		// The first sector of track 0 is always loaded into $0800 by the
+		// Apple's bootstrap disk code. But it jumps to $0801 afterward; the
+		// first byte is never executed. We should assume this is the point we
+		// should be interpreting machine code.
 		if trackNum == 0 {
 			offset = 1
 		}
+
 		for offset < a2enc.LogTrackLen {
 			line, read, err := img.DisassembleNextInstruction(track, offset)
 			if err != nil {
