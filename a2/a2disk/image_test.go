@@ -199,9 +199,12 @@ func TestImage_Disassemble(t *testing.T) {
 		}
 
 		// Create a disk image with one track containing the program
+		// Note: Track 0, Sector 0 is loaded to $0800, but execution starts at $0801
+		// So we place the program starting at offset 1
 		seg := memory.NewSegment(a2enc.DosSize)
+		seg.Set(0, 0x00)
 		for i, b := range program {
-			seg.Set(i, b)
+			seg.Set(i+1, b)
 		}
 
 		img := a2disk.NewImage()
@@ -227,10 +230,12 @@ func TestImage_Disassemble(t *testing.T) {
 	t.Run("disassembles multiple tracks", func(t *testing.T) {
 		seg := memory.NewSegment(a2enc.DosSize)
 
-		// Put a JMP instruction at the start of track 0
-		seg.Set(0, 0x4C) // JMP $1234
-		seg.Set(1, 0x34)
-		seg.Set(2, 0x12)
+		// Put a JMP instruction at the start of track 0, but not at the first
+		// byte
+		seg.Set(0, 0x00) // First byte is skipped (placeholder)
+		seg.Set(1, 0x4C) // JMP $1234
+		seg.Set(2, 0x34)
+		seg.Set(3, 0x12)
 
 		// Put an LDA instruction at the start of track 1
 		seg.Set(a2enc.LogTrackLen, 0xA9) // LDA #$FF
