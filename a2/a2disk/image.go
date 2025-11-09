@@ -88,7 +88,7 @@ func (img *Image) DisassembleNextInstruction(track *memory.Segment, offset int) 
 	line.Instruction = mos.OpcodeInstruction(opcode)
 	read++
 
-	width := mos.OperandSize(opcode)
+	width := int(mos.OperandSize(opcode))
 
 	if offset+read+width > track.Size() {
 		return line, read, fmt.Errorf("instruction should have an operand but no data left")

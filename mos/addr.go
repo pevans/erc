@@ -65,77 +65,6 @@ func AddrModeName(mode int) string {
 	return "???"
 }
 
-// Below is an address mode table that maps mode functions to specific
-// opcodes.
-//
-//	00   01   02   03   04   05   06   07   08   09   0A   0B   0C   0D   0E   0F
-var addrModeFuncs = [256]AddrMode{
-	Imp, Idx, By2, Imp, Zpg, Zpg, Zpg, Imp, Imp, Imm, Acc, Imp, Abs, Abs, Abs, Imp, // 0x
-	Rel, Idy, Zpg, Imp, Zpg, Zpx, Zpx, Imp, Imp, Aby, Acc, Imp, Abs, Abx, Abx, Imp, // 1x
-	Abs, Idx, By2, Imp, Zpg, Zpg, Zpg, Imp, Imp, Imm, Acc, Imp, Abs, Abs, Abs, Imp, // 2x
-	Rel, Idy, Zpg, Imp, Zpx, Zpx, Zpx, Imp, Imp, Aby, Acc, Imp, Abx, Abx, Abx, Imp, // 3x
-	Imp, Idx, By2, Imp, By2, Zpg, Zpg, Imp, Imp, Imm, Acc, Imp, Abs, Abs, Abs, Imp, // 4x
-	Rel, Idy, Zpg, Imp, By2, Zpx, Zpx, Imp, Imp, Aby, Imp, Imp, By3, Abx, Abx, Imp, // 5x
-	Imp, Idx, By2, Imp, Zpg, Zpg, Zpg, Imp, Imp, Imm, Acc, Imp, Ind, Abs, Abs, Imp, // 6x
-	Rel, Idy, Zpg, Imp, Zpx, Zpx, Zpx, Imp, Imp, Aby, Imp, Imp, Abx, Abx, Abx, Imp, // 7x
-	Rel, Idx, By2, Imp, Zpg, Zpg, Zpg, Imp, Imp, Imm, Imp, Imp, Abs, Abs, Abs, Imp, // 8x
-	Rel, Idy, Zpg, Imp, Zpx, Zpx, Zpy, Imp, Imp, Aby, Imp, Imp, Abs, Abx, Abx, Imp, // 9x
-	Imm, Idx, Imm, Imp, Zpg, Zpg, Zpg, Imp, Imp, Imm, Imp, Imp, Abs, Abs, Abs, Imp, // Ax
-	Rel, Idy, Zpg, Imp, Zpx, Zpx, Zpy, Imp, Imp, Aby, Imp, Imp, Abx, Abx, Aby, Imp, // Bx
-	Imm, Idx, By2, Imp, Zpg, Zpg, Zpg, Imp, Imp, Imm, Imp, Imp, Abs, Abs, Abs, Imp, // Cx
-	Rel, Idy, Zpg, Imp, By2, Zpx, Zpx, Imp, Imp, Aby, Imp, Imp, By3, Abx, Abx, Imp, // Dx
-	Imm, Idx, By2, Imp, Zpg, Zpg, Zpg, Imp, Imp, Imm, Imp, Imp, Abs, Abs, Abs, Imp, // Ex
-	Rel, Idy, Zpg, Imp, By2, Zpx, Zpx, Imp, Imp, Aby, Imp, Imp, By3, Abx, Abx, Imp, // Fx
-}
-
-// Like the above table, only it maps opcodes to the symbolic constants.
-//
-//	00     01     02     03     04     05     06     07     08     09     0A     0B     0C     0D     0E     0F
-var addrModes = [256]int{
-	AmIMP, AmIDX, AmBY2, AmIMP, AmZPG, AmZPG, AmZPG, AmIMP, AmIMP, AmIMM, AmACC, AmIMP, AmABS, AmABS, AmABS, AmIMP, // 0x
-	AmREL, AmIDY, AmZPG, AmIMP, AmZPG, AmZPX, AmZPX, AmIMP, AmIMP, AmABY, AmACC, AmIMP, AmABS, AmABX, AmABX, AmIMP, // 1x
-	AmABS, AmIDX, AmBY2, AmIMP, AmZPG, AmZPG, AmZPG, AmIMP, AmIMP, AmIMM, AmACC, AmIMP, AmABS, AmABS, AmABS, AmIMP, // 2x
-	AmREL, AmIDY, AmZPG, AmIMP, AmZPX, AmZPX, AmZPX, AmIMP, AmIMP, AmABY, AmACC, AmIMP, AmABX, AmABX, AmABX, AmIMP, // 3x
-	AmIMP, AmIDX, AmBY2, AmIMP, AmBY2, AmZPG, AmZPG, AmIMP, AmIMP, AmIMM, AmACC, AmIMP, AmABS, AmABS, AmABS, AmIMP, // 4x
-	AmREL, AmIDY, AmZPG, AmIMP, AmBY2, AmZPX, AmZPX, AmIMP, AmIMP, AmABY, AmIMP, AmIMP, AmBY3, AmABX, AmABX, AmIMP, // 5x
-	AmIMP, AmIDX, AmBY2, AmIMP, AmZPG, AmZPG, AmZPG, AmIMP, AmIMP, AmIMM, AmACC, AmIMP, AmIND, AmABS, AmABS, AmIMP, // 6x
-	AmREL, AmIDY, AmZPG, AmIMP, AmZPX, AmZPX, AmZPX, AmIMP, AmIMP, AmABY, AmIMP, AmIMP, AmABX, AmABX, AmABX, AmIMP, // 7x
-	AmREL, AmIDX, AmBY2, AmIMP, AmZPG, AmZPG, AmZPG, AmIMP, AmIMP, AmIMM, AmIMP, AmIMP, AmABS, AmABS, AmABS, AmIMP, // 8x
-	AmREL, AmIDY, AmZPG, AmIMP, AmZPX, AmZPX, AmZPY, AmIMP, AmIMP, AmABY, AmIMP, AmIMP, AmABS, AmABX, AmABX, AmIMP, // 9x
-	AmIMM, AmIDX, AmIMM, AmIMP, AmZPG, AmZPG, AmZPG, AmIMP, AmIMP, AmIMM, AmIMP, AmIMP, AmABS, AmABS, AmABS, AmIMP, // Ax
-	AmREL, AmIDY, AmZPG, AmIMP, AmZPX, AmZPX, AmZPY, AmIMP, AmIMP, AmABY, AmIMP, AmIMP, AmABX, AmABX, AmABY, AmIMP, // Bx
-	AmIMM, AmIDX, AmBY2, AmIMP, AmZPG, AmZPG, AmZPG, AmIMP, AmIMP, AmIMM, AmIMP, AmIMP, AmABS, AmABS, AmABS, AmIMP, // Cx
-	AmREL, AmIDY, AmZPG, AmIMP, AmBY2, AmZPX, AmZPX, AmIMP, AmIMP, AmABY, AmIMP, AmIMP, AmBY3, AmABX, AmABX, AmIMP, // Dx
-	AmIMM, AmIDX, AmBY2, AmIMP, AmZPG, AmZPG, AmZPG, AmIMP, AmIMP, AmIMM, AmIMP, AmIMP, AmABS, AmABS, AmABS, AmIMP, // Ex
-	AmREL, AmIDY, AmZPG, AmIMP, AmBY2, AmZPX, AmZPX, AmIMP, AmIMP, AmABY, AmIMP, AmIMP, AmBY3, AmABX, AmABX, AmIMP, // Fx
-}
-
-// The offsets table defines the number of bytes we must increment the
-// PC register after a given instruction. The bytes vary based on
-// address mode, rather than the specific instruction. In cases where
-// the instruction would change the PC due to its defined behavior, the
-// offset is given as zero.
-//
-//	0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-var offsets = [256]uint16{
-	1, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1, 1, 3, 3, 3, 1, // 0x
-	0, 2, 2, 1, 2, 2, 2, 1, 1, 3, 1, 1, 3, 3, 3, 1, // 1x
-	0, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1, 1, 3, 3, 3, 1, // 2x
-	0, 2, 2, 1, 2, 2, 2, 1, 1, 3, 1, 1, 3, 3, 3, 1, // 3x
-	0, 2, 3, 1, 3, 2, 2, 1, 1, 2, 1, 1, 0, 3, 3, 1, // 4x
-	0, 2, 2, 1, 3, 2, 2, 1, 1, 3, 1, 1, 4, 3, 3, 1, // 5x
-	0, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1, 1, 0, 3, 3, 1, // 6x
-	0, 2, 2, 1, 2, 2, 2, 1, 1, 3, 1, 1, 0, 3, 3, 1, // 7x
-	0, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1, 1, 3, 3, 3, 1, // 8x
-	0, 2, 2, 1, 2, 2, 2, 1, 1, 3, 1, 1, 3, 3, 3, 1, // 9x
-	2, 2, 2, 1, 2, 2, 2, 1, 1, 2, 1, 1, 3, 3, 3, 1, // Ax
-	0, 2, 2, 1, 2, 2, 2, 1, 1, 3, 1, 1, 3, 3, 3, 1, // Bx
-	2, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1, 1, 3, 3, 3, 1, // Cx
-	0, 2, 2, 1, 3, 2, 2, 1, 1, 3, 1, 1, 4, 3, 3, 1, // Dx
-	2, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1, 1, 3, 3, 3, 1, // Ex
-	0, 2, 2, 1, 3, 2, 2, 1, 1, 3, 1, 1, 4, 3, 3, 1, // Fx
-}
-
 // String will figure out what address mode function this is and return
 // it in string form.
 func (m AddrMode) String() string {
@@ -152,7 +81,7 @@ func OpcodeAddrMode(opcode uint8) int {
 	return addrModes[opcode]
 }
 
-func OperandSize(opcode uint8) int {
+func OperandSize(opcode uint8) uint16 {
 	switch addrModes[opcode] {
 	case AmABS, AmABX, AmABY, AmIND:
 		return 2

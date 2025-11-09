@@ -28,6 +28,11 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 		c.InstructionLog = asm.NewCallMap()
 		c.InstructionLogFileName = fmt.Sprintf("%v.asm", fileName)
 
+		// Share the instruction log with the CPU in case it needs to access
+		// it for some reason (e.g. for speculation). We could alternatively
+		// put this into the state map.
+		c.CPU.InstructionLog = c.InstructionLog
+
 		c.TimeSet = asm.NewTimeset(c.ClockEmulator.TimePerCycle)
 		c.TimeSetFileName = fmt.Sprintf("%v.time", fileName)
 
@@ -46,7 +51,7 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 func MaybeLogInstructions(c *Computer) {
 	for line := range c.CPU.InstructionChannel {
 		if c.InstructionLog != nil {
-			c.InstructionLog.Add(line.String())
+			c.InstructionLog.Add(line)
 		}
 		if c.TimeSet != nil {
 			c.TimeSet.Record(line.ShortString(), line.Cycles)

@@ -28,6 +28,12 @@ type Line struct {
 	Comment string
 
 	Cycles int
+
+	// When true, this line should be considered as "speculative" execution:
+	// an instruction that did not run, but _would have,_ had the conditions
+	// been right. Some branches are not taken in the code, but had they been,
+	// this line would represent an instruction from that block.
+	Speculative bool
 }
 
 func (ln Line) ShortString() string {
@@ -54,22 +60,15 @@ func (ln Line) String() string {
 		"%-8s " + // label
 		"%s " + // instruction
 		"%-10s" + // operand
-		"%5s" // spacing
+		"%5s" + // spacing
+		"%s" // comment
 
 	str := fmt.Sprintf(
 		linefmt,
 		ln.FullAddress(),
-		ln.Label, ln.Instruction, ln.PreparedOperand, " ",
+		ln.Label, ln.Instruction, ln.PreparedOperand,
+		" ", ln.Comment,
 	)
-
-	if ln.Comment != "" {
-		return str + ln.Comment
-	}
-
-	// Add line padding for what seem to be the end of a subroutine.
-	if ln.Instruction == "JMP" || ln.Instruction == "RTS" || ln.Instruction == "RTI" {
-		str += "\n"
-	}
 
 	return str
 }

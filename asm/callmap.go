@@ -7,37 +7,55 @@ import (
 )
 
 type CallMap struct {
-	m  map[string]int
+	m  map[string]*Line
 	mu sync.Mutex
 }
 
 func NewCallMap() *CallMap {
 	return &CallMap{
-		m:  make(map[string]int),
+		m:  make(map[string]*Line),
 		mu: sync.Mutex{},
 	}
 }
 
-func (cm *CallMap) Add(line string) {
+func (cm *CallMap) Add(line *Line) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
-	if _, ok := cm.m[line]; !ok {
-		cm.m[line] = 1
+	str := line.String()
+	existing, ok := cm.m[str]
+	if !ok {
+		cm.m[str] = line
 		return
 	}
 
-	cm.m[line]++
+	// If the line exists in the callmap, and it's speculative, we want to
+	// replace it.
+	if existing.Speculative && !line.Speculative {
+		cm.m[str] = line
+	}
+}
+
+func (cm *CallMap) Exists(line *Line) bool {
+	cm.mu.Lock()
+	defer cm.mu.Unlock()
+
+	_, ok := cm.m[line.String()]
+	return ok
 }
 
 func (cm *CallMap) Lines() []string {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
-	lines := make([]string, len(cm.m))
+	lines := make([]string, 0, len(cm.m))
 
-	for line := range cm.m {
-		lines = append(lines, line+"\n")
+	for str, line := range cm.m {
+		if line.Speculative {
+			str += " SP"
+		}
+
+		lines = append(lines, str+"\n")
 	}
 
 	sort.Strings(lines)

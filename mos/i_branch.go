@@ -1,5 +1,7 @@
 package mos
 
+import "github.com/pevans/erc/a2/a2state"
+
 // jumpIf will jump to EffAddr if the value in bits is greater than
 // zero. The value of bits is typically computed with a bitwise
 // operation, so we can say that if bits is non-zero then the operation
@@ -7,9 +9,17 @@ package mos
 func (c *CPU) jumpIf(bits uint8) {
 	if bits > 0 {
 		c.PC = c.EffAddr
-	} else {
-		c.PC += 2
+		return
 	}
+
+	// If we're not branching, and we're debugging an image, then we should do
+	// a speculate on the branch not taken. (I'm sorry for the gratuitous
+	// Robert Frost reference.)
+	if c.State.Bool(a2state.DebugImage) {
+		c.Speculate(c.EffAddr)
+	}
+
+	c.PC += 2
 }
 
 // Bcc implements the BCC (branch on carry clear) instruction.

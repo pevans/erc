@@ -15,49 +15,6 @@ import (
 // An Instruction is a function that performs an operation on the CPU.
 type Instruction func(c *CPU)
 
-// Below is a table of instructions that are mapped to opcodes. For
-// corresponding address modes, see addr.go.
-//
-//	00   01   02   03   04   05   06   07   08   09   0A   0B   0C   0D   0E   0F
-var instructions = [256]Instruction{
-	Brk, Ora, Np2, Nop, Tsb, Ora, Asl, Nop, Php, Ora, Asl, Nop, Tsb, Ora, Asl, Nop, // 0x
-	Bpl, Ora, Ora, Nop, Trb, Ora, Asl, Nop, Clc, Ora, Inc, Nop, Trb, Ora, Asl, Nop, // 1x
-	Jsr, And, Np2, Nop, Bit, And, Rol, Nop, Plp, And, Rol, Nop, Bit, And, Rol, Nop, // 2x
-	Bmi, And, And, Nop, Bit, And, Rol, Nop, Sec, And, Dec, Nop, Bit, And, Rol, Nop, // 3x
-	Rti, Eor, Np2, Nop, Np2, Eor, Lsr, Nop, Pha, Eor, Lsr, Nop, Jmp, Eor, Lsr, Nop, // 4x
-	Bvc, Eor, Eor, Nop, Np2, Eor, Lsr, Nop, Cli, Eor, Phy, Nop, Np3, Eor, Lsr, Nop, // 5x
-	Rts, Adc, Np2, Nop, Stz, Adc, Ror, Nop, Pla, Adc, Ror, Nop, Jmp, Adc, Ror, Nop, // 6x
-	Bvs, Adc, Adc, Nop, Stz, Adc, Ror, Nop, Sei, Adc, Ply, Nop, Jmp, Adc, Ror, Nop, // 7x
-	Bra, Sta, Np2, Nop, Sty, Sta, Stx, Nop, Dey, Bim, Txa, Nop, Sty, Sta, Stx, Nop, // 8x
-	Bcc, Sta, Sta, Nop, Sty, Sta, Stx, Nop, Tya, Sta, Txs, Nop, Stz, Sta, Stz, Nop, // 9x
-	Ldy, Lda, Ldx, Nop, Ldy, Lda, Ldx, Nop, Tay, Lda, Tax, Nop, Ldy, Lda, Ldx, Nop, // Ax
-	Bcs, Lda, Lda, Nop, Ldy, Lda, Ldx, Nop, Clv, Lda, Tsx, Nop, Ldy, Lda, Ldx, Nop, // Bx
-	Cpy, Cmp, Np2, Nop, Cpy, Cmp, Dec, Nop, Iny, Cmp, Dex, Nop, Cpy, Cmp, Dec, Nop, // Cx
-	Bne, Cmp, Cmp, Nop, Np2, Cmp, Dec, Nop, Cld, Cmp, Phx, Nop, Np3, Cmp, Dec, Nop, // Dx
-	Cpx, Sbc, Np2, Nop, Cpx, Sbc, Inc, Nop, Inx, Sbc, Nop, Nop, Cpx, Sbc, Inc, Nop, // Ex
-	Beq, Sbc, Sbc, Nop, Np2, Sbc, Inc, Nop, Sed, Sbc, Plx, Nop, Np3, Sbc, Inc, Nop, // Fx
-}
-
-// 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-var cycles = [256]uint8{
-	7, 6, 2, 1, 5, 3, 5, 1, 3, 2, 2, 1, 6, 4, 6, 1, // 0x
-	2, 5, 5, 1, 5, 4, 6, 1, 2, 4, 2, 1, 6, 4, 6, 1, // 1x
-	6, 6, 2, 1, 3, 3, 5, 1, 4, 2, 2, 1, 4, 4, 6, 1, // 2x
-	2, 5, 5, 1, 4, 4, 6, 1, 2, 4, 2, 1, 4, 4, 6, 1, // 3x
-	6, 6, 2, 1, 3, 3, 5, 1, 3, 2, 2, 1, 3, 4, 6, 1, // 4x
-	2, 5, 5, 1, 4, 4, 6, 1, 2, 4, 3, 1, 8, 4, 6, 1, // 5x
-	6, 6, 2, 1, 3, 3, 5, 1, 4, 2, 2, 1, 6, 4, 6, 1, // 6x
-	2, 5, 5, 1, 4, 4, 6, 1, 2, 4, 4, 1, 6, 4, 6, 1, // 7x
-	2, 6, 2, 1, 3, 3, 3, 1, 2, 2, 2, 1, 4, 4, 4, 1, // 8x
-	2, 6, 5, 1, 4, 4, 4, 1, 2, 5, 2, 1, 4, 5, 5, 1, // 9x
-	2, 6, 2, 1, 3, 3, 3, 1, 2, 2, 2, 1, 4, 4, 4, 1, // Ax
-	2, 5, 5, 1, 4, 4, 4, 1, 2, 4, 2, 1, 4, 4, 4, 1, // Bx
-	2, 6, 2, 1, 3, 3, 5, 1, 2, 2, 2, 1, 4, 4, 6, 1, // Cx
-	2, 5, 5, 1, 4, 4, 6, 1, 2, 4, 3, 1, 4, 4, 7, 1, // Dx
-	2, 6, 2, 1, 3, 3, 5, 1, 2, 2, 2, 1, 4, 4, 6, 1, // Ex
-	2, 5, 5, 1, 4, 4, 6, 1, 2, 4, 4, 1, 4, 4, 7, 1, // Fx
-}
-
 // String composes an instruction function into a string and returns
 // that
 func (i Instruction) String() string {
@@ -205,7 +162,7 @@ func (c *CPU) LastInstructionLine(cycles int) *asm.Line {
 	}
 
 	PrepareOperand(line, c.LastPC)
-	c.explainInstruction(line, c.LastPC)
+	ExplainInstruction(line, c.LastPC, c.EffAddr)
 
 	return line
 }
@@ -241,22 +198,25 @@ func (c *CPU) NextInstruction() string {
 	}
 
 	PrepareOperand(ln, c.PC)
-	c.explainInstruction(ln, c.PC)
+	ExplainInstruction(ln, c.PC, c.EffAddr)
 
 	return ln.String()
 }
 
-func (c *CPU) explainInstruction(line *asm.Line, pc uint16) {
-	addr := int(c.EffAddr)
+func ExplainInstruction(line *asm.Line, pc uint16, effAddr uint16) {
+	addr := int(effAddr)
+	addrMode := addrModes[line.Opcode]
 
-	if maybeRoutine(line.Opcode, c.AddrMode) {
+	if maybeRoutine(line.Opcode) {
 		if routine := a2sym.Subroutine(addr); routine != "" {
 			line.PreparedOperand = routine
 			return
 		}
 	}
 
-	if c.State.Bool(a2state.InstructionReadOp) {
+	// FIXME: this is a pretty bad hack so we don't have to test the
+	// InstructionReadOp state in the CPU
+	if addrMode == AmABX || addrMode == AmABY {
 		if rs := a2sym.ReadSwitch(addr); rs.Mode != a2sym.ModeNone {
 			line.Comment = rs.String()
 		}
@@ -266,14 +226,14 @@ func (c *CPU) explainInstruction(line *asm.Line, pc uint16) {
 		line.Comment = ws.String()
 	}
 
-	if c.AddrMode == AmZPG || c.AddrMode == AmABS {
+	if addrMode == AmZPG || addrMode == AmABS {
 		if variable := a2sym.Variable(addr); variable != "" {
 			line.PreparedOperand = variable
 		}
 	}
 
-	if variable := a2sym.Variable(int(c.Operand)); variable != "" {
-		switch c.AddrMode {
+	if variable := a2sym.Variable(int(line.Operand)); variable != "" {
+		switch addrMode {
 		case AmIDX:
 			line.PreparedOperand = fmt.Sprintf("(%v,X)", variable)
 		case AmIDY:
@@ -292,12 +252,12 @@ func (c *CPU) explainInstruction(line *asm.Line, pc uint16) {
 	}
 }
 
-func maybeRoutine(opcode uint8, addrMode int) bool {
+func maybeRoutine(opcode uint8) bool {
 	return opcode == 0x20 || // JSR
 		opcode == 0x4C || // JMP (ABS)
 		opcode == 0x6C || // JMP (IND)
 		opcode == 0x7C || // JMP (ABX)
-		addrMode == AmREL // any branch
+		addrModes[opcode] == AmREL // any branch
 }
 
 func PrepareOperand(line *asm.Line, pc uint16) {

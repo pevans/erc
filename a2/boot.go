@@ -3,8 +3,6 @@ package a2
 import (
 	"time"
 
-	"github.com/pevans/erc/a2/a2state"
-	"github.com/pevans/erc/asm"
 	"github.com/pevans/erc/mos"
 	"github.com/pevans/erc/obj"
 )
@@ -44,11 +42,6 @@ func (c *Computer) Boot() error {
 
 	// Set up all the soft switches we'll need
 	c.MapSoftSwitches()
-
-	// Initialize our instruction log if we're debugging an image
-	if c.State.Bool(a2state.DebugImage) {
-		c.CPU.InstructionLog = asm.NewCallMap()
-	}
 
 	// Now run the warm start code.
 	c.Reset()
