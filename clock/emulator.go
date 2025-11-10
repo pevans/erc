@@ -29,6 +29,10 @@ type Emulator struct {
 	// The number of cycles we've executed since the start of emulation
 	TotalCycles int64
 
+	// There are times when we want to disable cycle-time emulation and go as
+	// fast as we can
+	FullSpeed bool
+
 	EnterDebuggerFunc   func()
 	CheckBreakpointFunc func()
 }
@@ -57,6 +61,7 @@ func (e *Emulator) ProcessLoop(comp emu.Computer) {
 			// Reset ResumeTime so that we don't think we're far behind on
 			// cycle time just because we sat in the debugger for a while
 			e.ResumeTime = time.Now()
+			e.TotalCycles = 0
 
 			continue
 		}
@@ -64,9 +69,12 @@ func (e *Emulator) ProcessLoop(comp emu.Computer) {
 		elapsed := time.Since(e.ResumeTime)
 		wantedCycles := int64(elapsed / e.TimePerCycle)
 
-		// We know how much time has elapsed, so we need to execute the cycles
-		// necessary for the speed at which we're operating
-		for e.TotalCycles < wantedCycles {
+		// There are times when we ignore cycle timing and want to emulate as
+		// fast as possible -- should that happen, it's up to the instructions
+		// we're processing to unset FullSpeed.
+		for e.TotalCycles < wantedCycles || e.FullSpeed {
+			wereFullSpeed := e.FullSpeed
+
 			cycles, err := comp.Process()
 			if err != nil {
 				slog.Error(fmt.Sprintf("process execution failed: %v", err))
@@ -74,6 +82,12 @@ func (e *Emulator) ProcessLoop(comp emu.Computer) {
 			}
 
 			e.TotalCycles += int64(cycles)
+
+			if wereFullSpeed && !e.FullSpeed {
+				e.ResumeTime = time.Now()
+				e.TotalCycles = 0
+				break
+			}
 		}
 	}
 }

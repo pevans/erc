@@ -35,6 +35,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 		if !debugging {
 			c.Drive1.Online = false
 			c.Drive2.Online = false
+			c.ClockEmulator.FullSpeed = false
 			metrics.Increment("disk_drives_off", 1)
 		}
 
@@ -44,6 +45,19 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 		// Turn only the selected drive on
 		if !debugging {
 			c.SelectedDrive.Online = true
+
+			// While the drive is on, we want to emulate without regard to
+			// cycle-timing. This is so that any timing loops in software
+			// (which would assume a disk is spinning and is trying to time
+			// reads to when certain bytes should be found) can be quickly
+			// executed, rather than require the user to wait.
+			//
+			// Another way of putting this is that it's not a goal of ours to
+			// perfectly emulate disk spin, and because we can't help the fact
+			// that timing loops exist in the software, this is our
+			// compromise.
+			c.ClockEmulator.FullSpeed = true
+
 			stm.SetInt64(a2state.DiskCycleOfLastAccess, 0)
 			metrics.Increment("disk_selected_drive_online", 1)
 		}
