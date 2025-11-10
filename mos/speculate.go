@@ -97,7 +97,7 @@ func (c *CPU) SpeculateInstuction(addr uint16) (*asm.Line, uint16) {
 	line.Address = &lineAddress
 
 	line.Opcode = opcode
-	line.Instruction = opcodeNames[opcode]
+	line.Instruction = instructionNames[opcode]
 
 	width := OperandSize(opcode)
 

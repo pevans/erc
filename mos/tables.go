@@ -1,7 +1,6 @@
 package mos
 
-// Below is a table of instructions that are mapped to opcodes. For
-// corresponding address modes, see addr.go.
+// A table of opcodes mapped to instruction functions.
 //
 //	00   01   02   03   04   05   06   07   08   09   0A   0B   0C   0D   0E   0F
 var instructions = [256]Instruction{
@@ -23,8 +22,9 @@ var instructions = [256]Instruction{
 	Beq, Sbc, Sbc, Nop, Np2, Sbc, Inc, Nop, Sed, Sbc, Plx, Nop, Np3, Sbc, Inc, Nop, // Fx
 }
 
-// The names of the instructions according to their opcodes
-var opcodeNames = [256]string{
+// Like the above table, only we map opcodes to the string representations of
+// each instruction.
+var instructionNames = [256]string{
 	"BRK", "ORA", "NP2", "NOP", "TSB", "ORA", "ASL", "NOP", "PHP", "ORA", "ASL", "NOP", "TSB", "ORA", "ASL", "NOP", // 0x
 	"BPL", "ORA", "ORA", "NOP", "TRB", "ORA", "ASL", "NOP", "CLC", "ORA", "INC", "NOP", "TRB", "ORA", "ASL", "NOP", // 1x
 	"JSR", "AND", "NP2", "NOP", "BIT", "AND", "ROL", "NOP", "PLP", "AND", "ROL", "NOP", "BIT", "AND", "ROL", "NOP", // 2x
@@ -43,7 +43,11 @@ var opcodeNames = [256]string{
 	"BEQ", "SBC", "SBC", "NOP", "NP2", "SBC", "INC", "NOP", "SED", "SBC", "PLX", "NOP", "NP3", "SBC", "INC", "NOP", // Fx
 }
 
-// 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
+// We map opcodes to the cycles they consume. This is a somewhat imprecise
+// table (some emulators may differ on what cycles are consumed); the goal is
+// to capture the rough feeling rather than precise timing.
+//
+//	0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
 var cycles = [256]uint8{
 	7, 6, 2, 1, 5, 3, 5, 1, 3, 2, 2, 1, 6, 4, 6, 1, // 0x
 	2, 5, 5, 1, 5, 4, 6, 1, 2, 4, 2, 1, 6, 4, 6, 1, // 1x
@@ -63,8 +67,8 @@ var cycles = [256]uint8{
 	2, 5, 5, 1, 4, 4, 6, 1, 2, 4, 4, 1, 4, 4, 7, 1, // Fx
 }
 
-// Below is an address mode table that maps mode functions to specific
-// opcodes.
+// Here we map opcodes to address mode functions, which we'll use to resolve
+// effective addresses and values in each operation.
 //
 //	00   01   02   03   04   05   06   07   08   09   0A   0B   0C   0D   0E   0F
 var addrModeFuncs = [256]AddrMode{
@@ -86,7 +90,8 @@ var addrModeFuncs = [256]AddrMode{
 	Rel, Idy, Zpg, Imp, By2, Zpx, Zpx, Imp, Imp, Aby, Imp, Imp, By3, Abx, Abx, Imp, // Fx
 }
 
-// Like the above table, only it maps opcodes to the symbolic constants.
+// Like the above table, only it maps opcodes to the symbolic constants that
+// represent each address mode.
 //
 //	00     01     02     03     04     05     06     07     08     09     0A     0B     0C     0D     0E     0F
 var addrModes = [256]int{
