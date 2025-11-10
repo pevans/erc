@@ -207,6 +207,8 @@ func ExplainInstruction(line *asm.Line, pc uint16, effAddr uint16) {
 	addr := int(effAddr)
 	addrMode := addrModes[line.Opcode]
 
+	line.EndOfBlock = endsBlock(line.Opcode)
+
 	if maybeRoutine(line.Opcode) {
 		if routine := a2sym.Subroutine(addr); routine != "" {
 			line.PreparedOperand = routine
@@ -331,4 +333,12 @@ func formatStatus(p uint8) string {
 
 func OpcodeInstruction(opcode uint8) string {
 	return instructions[opcode].String()
+}
+
+func endsBlock(opcode uint8) bool {
+	return opcode == 0x40 || // RTI
+		opcode == 0x60 || // RTS
+		opcode == 0x4C || // JMP (ABS)
+		opcode == 0x6C || // JMP (IND)
+		opcode == 0x7C // JMP (ABX)
 }

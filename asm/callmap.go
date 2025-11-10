@@ -52,7 +52,12 @@ func (cm *CallMap) Lines() []string {
 
 	for str, line := range cm.m {
 		if line.Speculative {
-			str += " SP"
+			str += " (speculative)"
+		}
+
+		// Visually mark the end of a block with an additional newline
+		if line.EndOfBlock {
+			str += "\n"
 		}
 
 		lines = append(lines, str+"\n")
@@ -126,6 +131,22 @@ func writePreamble(fp *os.File) error {
 *
 * "this is a comment!" is, as you might guess, a comment. In some notations,
 * anything that followed the operand was treated as a comment and ignored.
+*
+* Some lines may end in "(speculative)". If a branch could be taken, but
+* wasn't, Erc attempts to "speculate" what might happen if it _was_
+* taken. These instructions are never executed -- they are only viewed and
+* printed in the log. You should note that speculation isn't perfect; you
+* might see lines printed twice -- one speculatively, once really executed --
+* because of how control flow has happened in the software.
+*
+* The purpose of such speculation is to allow you to see as much of the code in
+* memory as is feasible. This isn't a perfect technique for such an end; we
+* infer that code that may be branched is real code, but it's possible that
+* the code author never intended for the branch to be taken, and we might
+* speculate on what amounts to data, not code. Bear that in mind as you read
+* the code. Bear also in mind that we don't speculate on code after a branch
+* instruction that we _do_ take, for similar reasons: the author may have
+* intended that the branch always be taken, and what follows it may be data.
 *
 * Program begins below:
 

@@ -89,6 +89,8 @@ func (c *CPU) SpeculateInstuction(addr uint16) (*asm.Line, uint16) {
 
 	opcode := c.Get(addr)
 
+	line.EndOfBlock = endsBlock(opcode)
+
 	// Since we need to point to an integer, we need to make a copy of addr,
 	// then reference it
 	lineAddress := int(addr)

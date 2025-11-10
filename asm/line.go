@@ -34,6 +34,11 @@ type Line struct {
 	// been right. Some branches are not taken in the code, but had they been,
 	// this line would represent an instruction from that block.
 	Speculative bool
+
+	// If you wish to define some particular segment of lines as a "block" of
+	// code, then EndOfBlock can be used to allow the line printer to mark the
+	// end of the block in some way.
+	EndOfBlock bool
 }
 
 func (ln Line) ShortString() string {
