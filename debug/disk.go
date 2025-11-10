@@ -15,7 +15,7 @@ func disk(comp *a2.Computer, tokens []string) {
 
 	image := tokens[1]
 
-	data, err := os.OpenFile(image, os.O_RDWR, 0644)
+	data, err := os.OpenFile(image, os.O_RDWR, 0o644)
 	if err != nil {
 		say(fmt.Sprintf("couldn't open file %v: %v", image, err))
 		return

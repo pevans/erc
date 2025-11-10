@@ -178,7 +178,7 @@ func (s *Segment) WriteFile(path string) error {
 		bytes[i] = byte(b)
 	}
 
-	return os.WriteFile(path, bytes, 0644)
+	return os.WriteFile(path, bytes, 0o644)
 }
 
 // ReadFile will read the contents of a given file into the segment

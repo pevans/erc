@@ -12,9 +12,7 @@ type Decimal struct {
 	Error    error
 }
 
-var (
-	ErrInvalid error = errors.New("invalid bcd format")
-)
+var ErrInvalid error = errors.New("invalid bcd format")
 
 // NewDecimal returns a new Decimal type with integer as the starting
 // result.

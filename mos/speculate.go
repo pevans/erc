@@ -114,7 +114,7 @@ func (c *CPU) SpeculateInstuction(addr uint16) (*asm.Line, uint16) {
 	}
 
 	PrepareOperand(line, addr)
-	//ExplainInstruction(line, addr, addr)
+	// ExplainInstruction(line, addr, addr)
 
 	return line, width + 1
 }

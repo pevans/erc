@@ -85,7 +85,7 @@ func runEmulator(image string) {
 	// Load the image file
 	comp.State.SetBool(a2state.DebugImage, debugImageFlag)
 
-	data, err := os.OpenFile(image, os.O_RDWR, 0644)
+	data, err := os.OpenFile(image, os.O_RDWR, 0o644)
 	if err != nil {
 		fail(fmt.Sprintf("could not open file %s: %v", image, err))
 	}

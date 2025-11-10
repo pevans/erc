@@ -23,8 +23,10 @@ const (
 	sysFont80Height = 16
 )
 
-type maskFunc func([]byte) []byte
-type glyphFunc func(*gfx.Font, int, maskFunc, []byte)
+type (
+	maskFunc  func([]byte) []byte
+	glyphFunc func(*gfx.Font, int, maskFunc, []byte)
+)
 
 // Apply a mask to the font so that the dots are inverted from their
 // definition (e.g. instead of an white "A" rendered a black field, a black

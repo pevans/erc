@@ -11,9 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	outputFlag string
-)
+var outputFlag string
 
 var encodeCmd = &cobra.Command{
 	Use:   "encode [image]",

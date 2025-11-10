@@ -17,28 +17,26 @@ const (
 	loresBlockHeight = 8
 )
 
-var (
-	// Although there are 16 color blocks, technically Gray1 and Gray2
-	// are the same color mask
-	loresColors = []*gfx.FrameBuffer{
-		/* loresBlockBlack      */ newLoresBlock(color.RGBA{0x00, 0x00, 0x00, 0x00}),
-		/* loresBlockMagenta    */ newLoresBlock(color.RGBA{0x90, 0x17, 0x40, 0x00}),
-		/* loresBlockDarkBlue   */ newLoresBlock(color.RGBA{0x40, 0x2c, 0xa5, 0x00}),
-		/* loresBlockPurple     */ newLoresBlock(color.RGBA{0xd0, 0x43, 0xe5, 0x00}),
-		/* loresBlockDarkGreen  */ newLoresBlock(color.RGBA{0x00, 0x69, 0x40, 0x00}),
-		/* loresBlockGray1      */ newLoresBlock(color.RGBA{0x80, 0x80, 0x80, 0x00}),
-		/* loresBlockMediumBlue */ newLoresBlock(color.RGBA{0x2f, 0x95, 0xe5, 0x00}),
-		/* loresBlockLightBlue  */ newLoresBlock(color.RGBA{0xbf, 0xab, 0xff, 0x00}),
-		/* loresBlockBrown      */ newLoresBlock(color.RGBA{0x40, 0x54, 0x00, 0x00}),
-		/* loresBlockOrange     */ newLoresBlock(color.RGBA{0xd0, 0x6a, 0x1a, 0x00}),
-		/* loresBlockGray2      */ newLoresBlock(color.RGBA{0x80, 0x80, 0x80, 0x00}),
-		/* loresBlockPink       */ newLoresBlock(color.RGBA{0xff, 0x96, 0xbf, 0x00}),
-		/* loresBlockLightGreen */ newLoresBlock(color.RGBA{0x2f, 0xbc, 0x1a, 0x00}),
-		/* loresBlockYellow     */ newLoresBlock(color.RGBA{0xbf, 0xd3, 0x5a, 0x00}),
-		/* loresBlockAquamarine */ newLoresBlock(color.RGBA{0x6f, 0xe8, 0xbf, 0x00}),
-		/* loresBlockWhite      */ newLoresBlock(color.RGBA{0xff, 0xff, 0xff, 0x00}),
-	}
-)
+// Although there are 16 color blocks, technically Gray1 and Gray2
+// are the same color mask
+var loresColors = []*gfx.FrameBuffer{
+	/* loresBlockBlack      */ newLoresBlock(color.RGBA{0x00, 0x00, 0x00, 0x00}),
+	/* loresBlockMagenta    */ newLoresBlock(color.RGBA{0x90, 0x17, 0x40, 0x00}),
+	/* loresBlockDarkBlue   */ newLoresBlock(color.RGBA{0x40, 0x2c, 0xa5, 0x00}),
+	/* loresBlockPurple     */ newLoresBlock(color.RGBA{0xd0, 0x43, 0xe5, 0x00}),
+	/* loresBlockDarkGreen  */ newLoresBlock(color.RGBA{0x00, 0x69, 0x40, 0x00}),
+	/* loresBlockGray1      */ newLoresBlock(color.RGBA{0x80, 0x80, 0x80, 0x00}),
+	/* loresBlockMediumBlue */ newLoresBlock(color.RGBA{0x2f, 0x95, 0xe5, 0x00}),
+	/* loresBlockLightBlue  */ newLoresBlock(color.RGBA{0xbf, 0xab, 0xff, 0x00}),
+	/* loresBlockBrown      */ newLoresBlock(color.RGBA{0x40, 0x54, 0x00, 0x00}),
+	/* loresBlockOrange     */ newLoresBlock(color.RGBA{0xd0, 0x6a, 0x1a, 0x00}),
+	/* loresBlockGray2      */ newLoresBlock(color.RGBA{0x80, 0x80, 0x80, 0x00}),
+	/* loresBlockPink       */ newLoresBlock(color.RGBA{0xff, 0x96, 0xbf, 0x00}),
+	/* loresBlockLightGreen */ newLoresBlock(color.RGBA{0x2f, 0xbc, 0x1a, 0x00}),
+	/* loresBlockYellow     */ newLoresBlock(color.RGBA{0xbf, 0xd3, 0x5a, 0x00}),
+	/* loresBlockAquamarine */ newLoresBlock(color.RGBA{0x6f, 0xe8, 0xbf, 0x00}),
+	/* loresBlockWhite      */ newLoresBlock(color.RGBA{0xff, 0xff, 0xff, 0x00}),
+}
 
 // Return a solid rectangle composed of a given color
 func newLoresBlock(clr color.RGBA) *gfx.FrameBuffer {

@@ -199,9 +199,7 @@ func (s *mosSuite) TestDec() {
 		mos.Dec,
 	)
 
-	var (
-		addr uint16 = 1
-	)
+	var addr uint16 = 1
 
 	s.cpu.AddrMode = mos.AmABS
 	s.testDecrement("DEC (memory)",
@@ -276,9 +274,7 @@ func (s *mosSuite) TestInc() {
 		mos.Inc,
 	)
 
-	var (
-		addr uint16 = 1
-	)
+	var addr uint16 = 1
 
 	s.cpu.AddrMode = mos.AmABS
 	s.testIncrement("INC",
