@@ -13,7 +13,7 @@ type CPU struct {
 
 	// A map of instructions that we have executed. This is only used when
 	// we're debugging an image.
-	InstructionLog *asm.CallMap
+	InstructionLog *asm.InstructionMap
 
 	// A channel of instructions we're sending to interested listeners (e.g.
 	// if they wish to log them).

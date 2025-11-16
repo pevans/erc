@@ -49,7 +49,7 @@ type Computer struct {
 	smap  *memory.SoftMap
 	State *memory.StateMap
 
-	InstructionLog *asm.CallMap
+	InstructionLog *asm.InstructionMap
 
 	// Where to write the instruction log
 	InstructionLogFileName string

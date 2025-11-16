@@ -6,13 +6,13 @@ import (
 	"sync"
 )
 
-type CallMap struct {
+type InstructionMap struct {
 	m  map[uint64]*Line
 	mu sync.Mutex
 }
 
-func NewCallMap() *CallMap {
-	return &CallMap{
+func NewCallMap() *InstructionMap {
+	return &InstructionMap{
 		m:  make(map[uint64]*Line),
 		mu: sync.Mutex{},
 	}
@@ -24,7 +24,7 @@ func NewCallMap() *CallMap {
 // [ address | 16bits ][ operand | 16 bits ][ opcode | 8 bits ]
 //
 // This ends up taking 40 bits, so we produce a 64-bit key.
-func callMapKey(line *Line) uint64 {
+func instructionMapKey(line *Line) uint64 {
 	key := uint64(line.Opcode)
 	key |= uint64(line.Operand) << 8
 
@@ -35,11 +35,11 @@ func callMapKey(line *Line) uint64 {
 	return key
 }
 
-func (cm *CallMap) Add(line *Line) {
+func (cm *InstructionMap) Add(line *Line) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
-	key := callMapKey(line)
+	key := instructionMapKey(line)
 	existing, ok := cm.m[key]
 	if !ok {
 		cm.m[key] = line
@@ -53,15 +53,15 @@ func (cm *CallMap) Add(line *Line) {
 	}
 }
 
-func (cm *CallMap) Exists(line *Line) bool {
+func (cm *InstructionMap) Exists(line *Line) bool {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
-	_, ok := cm.m[callMapKey(line)]
+	_, ok := cm.m[instructionMapKey(line)]
 	return ok
 }
 
-func (cm *CallMap) Lines() []string {
+func (cm *InstructionMap) Lines() []string {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
@@ -86,7 +86,7 @@ func (cm *CallMap) Lines() []string {
 	return lines
 }
 
-func (cm *CallMap) WriteToFile(file string) error {
+func (cm *InstructionMap) WriteToFile(file string) error {
 	lines := cm.Lines()
 
 	fp, err := os.Create(file)
