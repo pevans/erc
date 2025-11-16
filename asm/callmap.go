@@ -7,32 +7,49 @@ import (
 )
 
 type CallMap struct {
-	m  map[string]*Line
+	m  map[uint64]*Line
 	mu sync.Mutex
 }
 
 func NewCallMap() *CallMap {
 	return &CallMap{
-		m:  make(map[string]*Line),
+		m:  make(map[uint64]*Line),
 		mu: sync.Mutex{},
 	}
+}
+
+// A key in a callmap is a packed integer that encodes distinctive parts of
+// the machine code that was executed. The structure looks like this:
+//
+// [ address | 16bits ][ operand | 16 bits ][ opcode | 8 bits ]
+//
+// This ends up taking 40 bits, so we produce a 64-bit key.
+func callMapKey(line *Line) uint64 {
+	key := uint64(line.Opcode)
+	key |= uint64(line.Operand) << 8
+
+	if line.Address != nil {
+		key |= uint64(*line.Address) << 24
+	}
+
+	return key
 }
 
 func (cm *CallMap) Add(line *Line) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
-	str := line.String()
-	existing, ok := cm.m[str]
+	key := callMapKey(line)
+	existing, ok := cm.m[key]
 	if !ok {
-		cm.m[str] = line
+		cm.m[key] = line
 		return
 	}
 
 	// If the line exists in the callmap, and it's speculative, we want to
 	// replace it.
 	if existing.Speculative && !line.Speculative {
-		cm.m[str] = line
+		cm.m[key] = line
 	}
 }
 
@@ -40,7 +57,7 @@ func (cm *CallMap) Exists(line *Line) bool {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
-	_, ok := cm.m[line.String()]
+	_, ok := cm.m[callMapKey(line)]
 	return ok
 }
 
@@ -50,7 +67,8 @@ func (cm *CallMap) Lines() []string {
 
 	lines := make([]string, 0, len(cm.m))
 
-	for str, line := range cm.m {
+	for _, line := range cm.m {
+		str := line.String()
 		if line.Speculative {
 			str += " (speculative)"
 		}
