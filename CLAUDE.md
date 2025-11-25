@@ -71,3 +71,39 @@ Erc's goals are to:
   the package API.
 - erc uses cobra to provide subcommands. The `run` command is used to run an
   image file.
+
+## Debug files
+
+- When using the `just debug` command, you can produce a large number of
+  files useful for debugging issues or learning more about what the image
+  being emulated is doing. These files conventionally are named for the disk
+  image, but have an additional extension added at the end of the filename.
+  Here's an example: `image.dsk.ext`.
+- An instruction log is a file that looks like `image.dsk.asm`. It contains a
+  listing of instructions that were executed, sorted by the address in memory
+  where they were executed from. Each line has the instruction's memory
+  address, opcode byte, optionally any operand bytes, the instruction name,
+  the operand formatted with respect to the instruction's address mode, and
+  optionally comments about the code being run. Note that in MOS 6502
+  assembly, a comment is anything that follows the operand; some assembly may
+  use a comment character like `;`, but not all assemblers required it.
+- A disk log is a file that looks like `image.dsk.disklog`. It contains an
+  accounting of what bytes were read, and at what positions, on the disk. It
+  also shows the instruction that was responsible for reading the byte, along
+  with the address in memory. It is important to note that this will show
+  bytes that are _encoded_ for the Apple II, and there will not be a 1:1
+  correlation to bytes in the disk image that was loaded. For that, youw ould
+  need to look at `image.dsk.physical`, which is a record of the encoded disk
+  image.
+- A timeset is a file that looks like `image.dsk.time`. It shows how much
+  time is spent in total for each instruction as it has been executed, and how
+  many times it has been executed. You can use this to build a model of where
+  the "hot paths" are in a program, and potentially where there may be a bug.
+  It is important to note that some software intentionally has written some
+  loops that effectively waste time, because the software may be trying to
+  acquire a certain timing based on disk spin. Because erc doesn't emulate
+  disk spin, we emulate instructions at full speed when the disk is spinning
+  so that those loops go by quickly.
+- A metrics file looks like `image.dsk.metrics`. It shows an accounting of the
+  total number certain events have been observed while the disk image was
+  running; for example, the number of bytes read.
