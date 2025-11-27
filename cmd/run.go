@@ -20,10 +20,11 @@ import (
 )
 
 var (
-	profileFlag    bool
-	debugImageFlag bool
-	debugBreakFlag string
-	speedFlag      int
+	debugImageFlag   bool
+	debugBreakFlag   string
+	profileFlag      bool
+	speedFlag        int
+	writeProtectFlag bool
 )
 
 var runCmd = &cobra.Command{
@@ -39,10 +40,11 @@ var runCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(runCmd)
 
-	runCmd.Flags().BoolVar(&profileFlag, "profile", false, "Write out a profile trace")
 	runCmd.Flags().BoolVar(&debugImageFlag, "debug-image", false, "Write out debugging files to debug image loading")
 	runCmd.Flags().StringVar(&debugBreakFlag, "debug-break", "", "Set breakpoints for a comma-separated list of addresses (eg 3FC8,9D94)")
+	runCmd.Flags().BoolVar(&profileFlag, "profile", false, "Write out a profile trace")
 	runCmd.Flags().IntVar(&speedFlag, "speed", 1, "Starting speed of the emulator (more is faster)")
+	runCmd.Flags().BoolVar(&writeProtectFlag, "write-protect", false, "Whether to write-protect the image")
 }
 
 func runEmulator(image string) {
@@ -92,6 +94,10 @@ func runEmulator(image string) {
 
 	if err := comp.Load(data, image); err != nil {
 		fail(fmt.Sprintf("could not load file %s: %v", image, err))
+	}
+
+	if writeProtectFlag {
+		comp.Drive1.WriteProtect = true
 	}
 
 	if err := comp.Boot(); err != nil {
