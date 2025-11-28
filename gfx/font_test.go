@@ -103,8 +103,7 @@ func TestFontWrite(t *testing.T) {
 	t.Run("write a string to framebuffer", func(t *testing.T) {
 		fb := NewFrameBuffer(10, 2)
 
-		err := f.Write("AB", 0, 0, fb)
-		assert.NoError(t, err)
+		assert.NoError(t, f.Write("AB", 0, 0, fb))
 
 		c, _ := fb.getCell(0, 0)
 		assert.Equal(t, red, c)
@@ -116,7 +115,7 @@ func TestFontWrite(t *testing.T) {
 	t.Run("cursor advances correctly", func(t *testing.T) {
 		fb := NewFrameBuffer(10, 2)
 
-		f.Write("AB", 1, 0, fb)
+		assert.NoError(t, f.Write("AB", 1, 0, fb))
 
 		c, _ := fb.getCell(0, 0)
 		assert.Equal(t, black, c)
@@ -131,7 +130,6 @@ func TestFontWrite(t *testing.T) {
 	t.Run("writing out of bounds returns error", func(t *testing.T) {
 		fb := NewFrameBuffer(2, 2)
 
-		err := f.Write("AB", 0, 0, fb)
-		assert.Error(t, err)
+		assert.Error(t, f.Write("AB", 0, 0, fb))
 	})
 }
