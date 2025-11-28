@@ -54,8 +54,7 @@ func runEmulator(image string) {
 
 	// Parse and add breakpoints if provided
 	if debugBreakFlag != "" {
-		addrs := strings.Split(debugBreakFlag, ",")
-		for _, addrStr := range addrs {
+		for addrStr := range strings.SplitSeq(debugBreakFlag, ",") {
 			addrStr = strings.TrimSpace(addrStr)
 			addr, err := strconv.ParseInt(addrStr, 16, 17)
 			if err != nil {
