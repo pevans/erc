@@ -357,7 +357,7 @@ func (s *mosSuite) TestZpy() {
 }
 
 func (s *mosSuite) TestAddrModeName() {
-	tests := []struct {
+	cases := []struct {
 		mode int
 		want string
 	}{
@@ -379,10 +379,10 @@ func (s *mosSuite) TestAddrModeName() {
 		{999, "???"}, // Unknown mode
 	}
 
-	for _, tt := range tests {
-		s.Run(tt.want, func() {
-			got := mos.AddrModeName(tt.mode)
-			s.Equal(tt.want, got)
+	for _, c := range cases {
+		s.Run(c.want, func() {
+			got := mos.AddrModeName(c.mode)
+			s.Equal(c.want, got)
 		})
 	}
 }
