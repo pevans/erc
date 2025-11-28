@@ -55,11 +55,11 @@ Erc's goals are to:
 - Comments should only be added if you believe the intent of the code isn't
   obvious and you must explain why the code is there. Comments that merely
   explain what the code does is not very valuable.
-- Tests should effectively encode the behavior of the functions being tested.
-  For example, if there was a factorial function, you don't need a test for
-  every integer you could possibly pass in; you only need a test for every
-  conditional behavior the factorial function may exhibit. A good and fast
-  overview of testing is Kent Beck's article, [Test
+- Test logic, not data. If there is a function with four conditional paths
+  that could be taken, you should write 4 test cases for that function. You
+  don't need to test every possible data input that may be provided. Focus on
+  boundaries and edge cases. A good and fast overview of testing is Kent
+  Beck's article, [Test
   Desiderata](https://medium.com/@kentbeck_7670/test-desiderata-94150638a4b3).
 - You should use table-driven tests if you have 3 or more behaviors you want
   to test; otherwise, you can use sub-tests without needing a table structure
