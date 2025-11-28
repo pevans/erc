@@ -32,6 +32,7 @@ type Drive struct {
 	Data         *memory.Segment
 	Image        *memory.Segment
 	ImageType    int
+	ImageName    string
 	Stream       *os.File
 	Online       bool
 	Mode         int
@@ -191,7 +192,24 @@ func (d *Drive) Load(r io.Reader, file string) error {
 	// has not shifted since replacing the disk.
 	d.SectorPos = 0
 
+	d.ImageName = file
+
 	return nil
+}
+
+// Write the contents of the drive's disk back to the filesystem
+func (d *Drive) Save() error {
+	// There's no file, so there's nothing to save.
+	if d.ImageName == "" || d.Data == nil {
+		return nil
+	}
+
+	logSegment, err := a2enc.Decode(d.ImageType, d.Data)
+	if err != nil {
+		return fmt.Errorf("could not decode image: %w", err)
+	}
+
+	return logSegment.WriteFile(d.ImageName)
 }
 
 func (d *Drive) Read() uint8 {

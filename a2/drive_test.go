@@ -2,9 +2,11 @@ package a2
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/pevans/erc/a2/a2enc"
+	"github.com/pevans/erc/memory"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -207,4 +209,86 @@ func (s *a2Suite) TestDriveWrite() {
 	d.Write()
 	s.Equal(2, d.SectorPos)
 	s.Equal(d.Latch, d.Data.Get(d.Position()-1))
+}
+
+func (s *a2Suite) TestDriveSave() {
+	logSeg := memory.NewSegment(a2enc.DosSize)
+	for i := range logSeg.Size() {
+		logSeg.Set(i, uint8(i%256))
+	}
+
+	encodedDOS33, err := a2enc.Encode(a2enc.DOS33, logSeg)
+	s.NoError(err)
+
+	encodedProDOS, err := a2enc.Encode(a2enc.ProDOS, logSeg)
+	s.NoError(err)
+
+	cases := []struct {
+		name          string
+		imageName     string
+		imageType     int
+		data          *memory.Segment
+		checkFileStat bool
+		errfn         assert.ErrorAssertionFunc
+	}{
+		{
+			name:          "empty ImageName does nothing",
+			imageName:     "",
+			imageType:     a2enc.DOS33,
+			data:          encodedDOS33,
+			checkFileStat: false,
+			errfn:         assert.NoError,
+		},
+		{
+			name:          "empty Data does nothing",
+			imageName:     "something!",
+			imageType:     a2enc.DOS33,
+			data:          nil,
+			checkFileStat: false,
+			errfn:         assert.NoError,
+		},
+		{
+			name:          "DOS33 saves successfully",
+			imageName:     filepath.Join(s.T().TempDir(), "test_dos33.dsk"),
+			imageType:     a2enc.DOS33,
+			data:          encodedDOS33,
+			checkFileStat: true,
+			errfn:         assert.NoError,
+		},
+		{
+			name:          "ProDOS saves successfully",
+			imageName:     filepath.Join(s.T().TempDir(), "test_prodos.po"),
+			imageType:     a2enc.ProDOS,
+			data:          encodedProDOS,
+			checkFileStat: true,
+			errfn:         assert.NoError,
+		},
+		{
+			name:          "invalid image type returns error",
+			imageName:     filepath.Join(s.T().TempDir(), "test_invalid.dsk"),
+			imageType:     99,
+			data:          encodedDOS33,
+			checkFileStat: false,
+			errfn:         assert.Error,
+		},
+	}
+
+	for _, c := range cases {
+		s.Run(c.name, func() {
+			d := NewDrive()
+
+			d.ImageName = c.imageName
+			d.ImageType = c.imageType
+			d.Image = logSeg
+			d.Data = c.data
+
+			err := d.Save()
+			c.errfn(s.T(), err)
+
+			if c.checkFileStat {
+				_, statErr := os.Stat(c.imageName)
+				s.NoError(statErr)
+			}
+		})
+	}
 }

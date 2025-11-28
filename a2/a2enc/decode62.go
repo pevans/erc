@@ -144,7 +144,7 @@ func (d *decoder) decodeAddressField() (*addressField, error) {
 	checksum := d.decode4n4()
 
 	if !d.scanForBytes(addressFieldEpilogue) {
-		return nil, fmt.Errorf("address field prologue not found")
+		return nil, fmt.Errorf("address field epilogue not found")
 	}
 
 	metadata := &addressField{

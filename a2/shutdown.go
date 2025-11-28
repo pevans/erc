@@ -1,6 +1,8 @@
 package a2
 
 import (
+	"fmt"
+
 	"github.com/pevans/erc/input"
 	"github.com/pevans/erc/internal/metrics"
 )
@@ -11,6 +13,10 @@ const InstructionLogName = "./instruction_log.asm"
 // the computer.
 func (c *Computer) Shutdown() error {
 	input.Shutdown()
+
+	if err := c.Drive1.Save(); err != nil {
+		return fmt.Errorf("could not save image: %w", err)
+	}
 
 	if c.MetricsFileName != "" {
 		err := metrics.WriteToFile(c.MetricsFileName)

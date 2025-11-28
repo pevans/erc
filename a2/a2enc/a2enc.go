@@ -90,6 +90,8 @@ var gap3 = []uint8{
 	0xFF, 0xFF, 0xFF,
 }
 
+// Given a memory segment and an image type, return a physically-encoded
+// (6-and-2) data segment.
 func Encode(imageType int, seg *memory.Segment) (*memory.Segment, error) {
 	switch imageType {
 	case DOS33, ProDOS:
@@ -100,4 +102,35 @@ func Encode(imageType int, seg *memory.Segment) (*memory.Segment, error) {
 	}
 
 	return nil, fmt.Errorf("unknown image type: %v", imageType)
+}
+
+// Given some physically-encoded (6-and-2) data segment, return a
+// logically-encoded image segment of the given image type. Note that this can
+// return the nibble format, which is the raw physical data.
+func Decode(imageType int, seg *memory.Segment) (*memory.Segment, error) {
+	switch imageType {
+	case DOS33, ProDOS:
+		return Decode62(imageType, seg)
+
+	case Nibble:
+		return seg, nil
+	}
+
+	return nil, fmt.Errorf("unknown image type: %v", imageType)
+}
+
+// Return the size of a given image type. Note that some disk images may have
+// sizes that differ from the ones we'd return here, because they may use a
+// different amount of padding. The sizes returned here reflect what we'd
+// write.
+func Size(imageType int) (int, error) {
+	switch imageType {
+	case DOS33, ProDOS:
+		return DosSize, nil
+
+	case Nibble:
+		return NibSize, nil
+	}
+
+	return -1, fmt.Errorf("unknown image type: %v", imageType)
 }
