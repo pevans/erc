@@ -58,3 +58,80 @@ func TestFontDefineGlyph(t *testing.T) {
 		})
 	})
 }
+
+func TestFontDefineGlyphAsBuffer(t *testing.T) {
+	var (
+		f   = NewFont(2, 2)
+		red = color.RGBA{R: 255}
+	)
+
+	t.Run("a framebuffer with matching dimensions should work", func(t *testing.T) {
+		fb := NewFrameBuffer(2, 2)
+		fb.ClearCells(red)
+
+		f.DefineGlyphAsBuffer(1, fb)
+
+		c, _ := f.Glyph(1).getCell(0, 0)
+		assert.Equal(t, red, c)
+	})
+
+	t.Run("a framebuffer with mismatched dimensions should panic", func(t *testing.T) {
+		fb := NewFrameBuffer(3, 3)
+
+		assert.Panics(t, func() {
+			f.DefineGlyphAsBuffer(2, fb)
+		})
+	})
+}
+
+func TestFontWrite(t *testing.T) {
+	var (
+		f     = NewFont(2, 2)
+		red   = color.RGBA{R: 255}
+		green = color.RGBA{G: 255}
+		black = color.RGBA{}
+	)
+
+	redGlyph := NewFrameBuffer(2, 2)
+	redGlyph.ClearCells(red)
+	f.DefineGlyphAsBuffer('A', redGlyph)
+
+	greenGlyph := NewFrameBuffer(2, 2)
+	greenGlyph.ClearCells(green)
+	f.DefineGlyphAsBuffer('B', greenGlyph)
+
+	t.Run("write a string to framebuffer", func(t *testing.T) {
+		fb := NewFrameBuffer(10, 2)
+
+		err := f.Write("AB", 0, 0, fb)
+		assert.NoError(t, err)
+
+		c, _ := fb.getCell(0, 0)
+		assert.Equal(t, red, c)
+
+		c, _ = fb.getCell(2, 0)
+		assert.Equal(t, green, c)
+	})
+
+	t.Run("cursor advances correctly", func(t *testing.T) {
+		fb := NewFrameBuffer(10, 2)
+
+		f.Write("AB", 1, 0, fb)
+
+		c, _ := fb.getCell(0, 0)
+		assert.Equal(t, black, c)
+
+		c, _ = fb.getCell(1, 0)
+		assert.Equal(t, red, c)
+
+		c, _ = fb.getCell(3, 0)
+		assert.Equal(t, green, c)
+	})
+
+	t.Run("writing out of bounds returns error", func(t *testing.T) {
+		fb := NewFrameBuffer(2, 2)
+
+		err := f.Write("AB", 0, 0, fb)
+		assert.Error(t, err)
+	})
+}
