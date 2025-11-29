@@ -223,11 +223,26 @@ func (s *a2Suite) TestDriveSave() {
 	encodedProDOS, err := a2enc.Encode(a2enc.ProDOS, logSeg)
 	s.NoError(err)
 
+	// Create a modified logical segment to test that changes to encoded data
+	// are properly saved
+	modifiedLogSeg := memory.NewSegment(a2enc.DosSize)
+	for i := range modifiedLogSeg.Size() {
+		modifiedLogSeg.Set(i, uint8(i%256))
+	}
+
+	modifiedLogSeg.Set(0, 0xAA)
+	modifiedLogSeg.Set(100, 0xBB)
+	modifiedLogSeg.Set(1000, 0xCC)
+
+	encodedModified, err := a2enc.Encode(a2enc.DOS33, modifiedLogSeg)
+	s.NoError(err)
+
 	cases := []struct {
 		name          string
 		imageName     string
 		imageType     int
 		data          *memory.Segment
+		expectedLog   *memory.Segment
 		checkFileStat bool
 		errfn         assert.ErrorAssertionFunc
 	}{
@@ -236,6 +251,7 @@ func (s *a2Suite) TestDriveSave() {
 			imageName:     "",
 			imageType:     a2enc.DOS33,
 			data:          encodedDOS33,
+			expectedLog:   logSeg,
 			checkFileStat: false,
 			errfn:         assert.NoError,
 		},
@@ -244,6 +260,7 @@ func (s *a2Suite) TestDriveSave() {
 			imageName:     "something!",
 			imageType:     a2enc.DOS33,
 			data:          nil,
+			expectedLog:   nil,
 			checkFileStat: false,
 			errfn:         assert.NoError,
 		},
@@ -252,6 +269,7 @@ func (s *a2Suite) TestDriveSave() {
 			imageName:     filepath.Join(s.T().TempDir(), "test_dos33.dsk"),
 			imageType:     a2enc.DOS33,
 			data:          encodedDOS33,
+			expectedLog:   logSeg,
 			checkFileStat: true,
 			errfn:         assert.NoError,
 		},
@@ -260,6 +278,16 @@ func (s *a2Suite) TestDriveSave() {
 			imageName:     filepath.Join(s.T().TempDir(), "test_prodos.po"),
 			imageType:     a2enc.ProDOS,
 			data:          encodedProDOS,
+			expectedLog:   logSeg,
+			checkFileStat: true,
+			errfn:         assert.NoError,
+		},
+		{
+			name:          "modified data is saved correctly",
+			imageName:     filepath.Join(s.T().TempDir(), "test_modified.dsk"),
+			imageType:     a2enc.DOS33,
+			data:          encodedModified,
+			expectedLog:   modifiedLogSeg,
 			checkFileStat: true,
 			errfn:         assert.NoError,
 		},
@@ -268,6 +296,7 @@ func (s *a2Suite) TestDriveSave() {
 			imageName:     filepath.Join(s.T().TempDir(), "test_invalid.dsk"),
 			imageType:     99,
 			data:          encodedDOS33,
+			expectedLog:   nil,
 			checkFileStat: false,
 			errfn:         assert.Error,
 		},
@@ -288,6 +317,19 @@ func (s *a2Suite) TestDriveSave() {
 			if c.checkFileStat {
 				_, statErr := os.Stat(c.imageName)
 				s.NoError(statErr)
+
+				// Read the saved file back and verify contents
+				savedBytes, err := os.ReadFile(c.imageName)
+				s.NoError(err)
+				s.Equal(c.expectedLog.Size(), len(savedBytes))
+
+				// Verify every byte matches the expected logical segment
+				for i := range c.expectedLog.Size() {
+					s.Equal(
+						c.expectedLog.Get(i), savedBytes[i],
+						"byte mismatch at offset %v", i,
+					)
+				}
 			}
 		})
 	}
