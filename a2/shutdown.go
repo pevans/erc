@@ -12,6 +12,18 @@ const InstructionLogName = "./instruction_log.asm"
 // Shutdown will execute whatever is necessary to basically cease operation of
 // the computer.
 func (c *Computer) Shutdown() error {
+	// It'd be bad if we tried to shutdown more than once, and that is
+	// possible if ebiten's Update() call issued many shutdown requests
+	c.ShutdownMutex.Lock()
+	defer c.ShutdownMutex.Unlock()
+
+	// We already tried a shutdown, so don't do it again
+	if c.WillShutDown {
+		return nil
+	}
+
+	c.WillShutDown = true
+
 	input.Shutdown()
 
 	if err := c.Drive1.Save(); err != nil {

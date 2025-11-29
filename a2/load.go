@@ -18,6 +18,14 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 		_ = c.diskLog.WriteToFile()
 	}
 
+	// We need to save whatever was the previous file
+	if c.Drive1.ImageName != "" {
+		err := c.Drive1.Save()
+		if err != nil {
+			return fmt.Errorf("could not save previous image: %w", err)
+		}
+	}
+
 	if err := c.Drive1.Load(r, fileName); err != nil {
 		return errors.Wrapf(err, "could not read file: %s", fileName)
 	}
@@ -46,6 +54,24 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 	}
 
 	return nil
+}
+
+func (c *Computer) LoadFirst() error {
+	data, filename, err := c.Disks.First()
+	if err != nil {
+		return fmt.Errorf("could not load next disk: %w", err)
+	}
+
+	return c.Load(data, filename)
+}
+
+func (c *Computer) LoadNext() error {
+	data, filename, err := c.Disks.Next()
+	if err != nil {
+		return fmt.Errorf("could not load next disk: %w", err)
+	}
+
+	return c.Load(data, filename)
 }
 
 func MaybeLogInstructions(c *Computer) {

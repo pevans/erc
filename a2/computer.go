@@ -1,6 +1,7 @@
 package a2
 
 import (
+	"sync"
 	"time"
 
 	"github.com/pevans/erc/a2/a2font"
@@ -25,6 +26,9 @@ type Computer struct {
 	// The CPU of the Apple //e was an MOS 65C02 processor.
 	CPU *mos.CPU
 
+	ShutdownMutex sync.Mutex
+	WillShutDown  bool
+
 	ClockEmulator *clock.Emulator
 
 	// When did the computer boot? This also includes when the computer is
@@ -45,6 +49,12 @@ type Computer struct {
 	Drive2        *Drive
 	SelectedDrive *Drive
 	diskLog       *asm.DiskLog
+
+	// When the computer is booted up, this will be a set of disks that we
+	// might use to run software. There are often cases where you need to swap
+	// disks, but we constrain that to a small set of disks that is knowable
+	// at boot-time.
+	Disks *DiskSet
 
 	smap  *memory.SoftMap
 	State *memory.StateMap
@@ -120,6 +130,8 @@ func NewComputer(hertz int64) *Computer {
 	comp.Drive1 = NewDrive()
 	comp.Drive2 = NewDrive()
 	comp.SelectedDrive = comp.Drive1
+
+	comp.Disks = NewDiskSet()
 
 	comp.CPU = new(mos.CPU)
 	comp.CPU.RMem = comp

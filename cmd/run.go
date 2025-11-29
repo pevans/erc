@@ -86,12 +86,13 @@ func runEmulator(image string) {
 	// Load the image file
 	comp.State.SetBool(a2state.DebugImage, debugImageFlag)
 
-	data, err := os.OpenFile(image, os.O_RDWR, 0o644)
-	if err != nil {
-		fail(fmt.Sprintf("could not open file %s: %v", image, err))
+	for filename := range strings.SplitSeq(image, ",") {
+		if err := comp.Disks.Append(filename); err != nil {
+			fail(fmt.Sprintf("could not open file %s: %v", filename, err))
+		}
 	}
 
-	if err := comp.Load(data, image); err != nil {
+	if err := comp.LoadFirst(); err != nil {
 		fail(fmt.Sprintf("could not load file %s: %v", image, err))
 	}
 
@@ -105,7 +106,19 @@ func runEmulator(image string) {
 
 	// Set up keyboard input handler
 	go input.Listen(func(ev input.Event) {
-		if shortcut.Check(ev, comp) {
+		found, err := shortcut.Check(ev, comp)
+		if err != nil {
+			fail(fmt.Sprintf("shortcut failed: %v", err))
+		}
+
+		// We found a shortcut, and that did something, so don't register this
+		// as a keypress
+		if found {
+			// What if we tried to quit...?
+			if comp.WillShutDown {
+				os.Exit(0)
+			}
+
 			return
 		}
 
