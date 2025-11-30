@@ -14,12 +14,17 @@ func Check(ev input.Event, comp *a2.Computer) (bool, error) {
 	}
 
 	if ev.Key == 's' || ev.Key == 'S' {
-		return true, comp.Drive1.Save()
+		return true, comp.SelectedDrive.Save()
 	}
 
 	if ev.Key == 'd' || ev.Key == 'D' {
 		comp.State.SetBool(a2state.Debugger, true)
 		return true, nil
+	}
+
+	if ev.Key == 'p' || ev.Key == 'P' {
+		comp.SelectedDrive.WriteProtect = !comp.SelectedDrive.WriteProtect
+		fmt.Printf("write protect for drive 1 is now %v\n", comp.SelectedDrive.WriteProtect)
 	}
 
 	if ev.Key == 'o' || ev.Key == 'O' {
