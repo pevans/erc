@@ -6,9 +6,17 @@ import (
 	"time"
 )
 
-type DiskRead struct {
+const (
+	DiskRead = iota
+	DiskWrite
+)
+
+type DiskOp struct {
 	// The time between reads
 	Elapsed time.Duration
+
+	// What kind of operation is this (DiskRead, DiskWrite)
+	Mode int
 
 	// Where the read occurred on the disk
 	HalfTrack int
@@ -22,8 +30,8 @@ type DiskRead struct {
 }
 
 type DiskLog struct {
-	Reads []DiskRead
-	Name  string
+	Ops  []DiskOp
+	Name string
 }
 
 func NewDiskLog(name string) *DiskLog {
@@ -33,8 +41,8 @@ func NewDiskLog(name string) *DiskLog {
 	return log
 }
 
-func (l *DiskLog) Add(read *DiskRead) {
-	l.Reads = append(l.Reads, *read)
+func (l *DiskLog) Add(read *DiskOp) {
+	l.Ops = append(l.Ops, *read)
 }
 
 func (l *DiskLog) WriteToFile() error {
@@ -47,13 +55,19 @@ func (l *DiskLog) WriteToFile() error {
 
 	defer fp.Close() //nolint:errcheck
 
-	for _, read := range l.Reads {
+	for _, op := range l.Ops {
+		mode := "RD"
+		if op.Mode == DiskWrite {
+			mode = "WR"
+		}
+
 		logLine := fmt.Sprintf(
-			"[%-10v] T:%02X S:%01X P:%04X B:$%02X | %v\n",
-			read.Elapsed.Round(time.Millisecond), // time since boot
-			read.HalfTrack>>1,                    // track
-			read.Sector/0x1A0, read.Sector,       // sect and pos
-			read.Byte, read.Instruction,
+			"[%-10v] %s T:%02X S:%01X P:%04X B:$%02X | %v\n",
+			op.Elapsed.Round(time.Millisecond), // time since boot
+			mode,
+			op.HalfTrack>>1,            // track
+			op.Sector/0x1A0, op.Sector, // sect and pos
+			op.Byte, op.Instruction,
 		)
 
 		if _, err := fp.WriteString(logLine); err != nil {
