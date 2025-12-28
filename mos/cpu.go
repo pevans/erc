@@ -32,9 +32,9 @@ type CPU struct {
 	// effective address for an instruction.
 	AddrMode int
 
-	// The Opcode is the byte which indicates both the instruction and
+	// The opcode is the byte which indicates both the instruction and
 	// the address mode of the instruction that we must carry out.
-	Opcode uint8
+	opcode uint8
 
 	// ReadOp will be true if the last operation was a "read", as
 	// opposed to a "write". This is important for some soft switch
@@ -91,4 +91,8 @@ type CPU struct {
 
 func (c *CPU) CycleCounter() uint64 {
 	return c.cycleCounter
+}
+
+func (c *CPU) Opcode() uint8 {
+	return c.opcode
 }

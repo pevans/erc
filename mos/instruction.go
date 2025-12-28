@@ -75,13 +75,13 @@ func (c *CPU) Execute() error {
 	// result of any instruction we execute
 	c.LastPC = c.PC
 
-	c.Opcode = c.Get(c.PC)
-	mode = addrModeFuncs[c.Opcode]
-	inst = instructions[c.Opcode]
+	c.opcode = c.Get(c.PC)
+	mode = addrModeFuncs[c.opcode]
+	inst = instructions[c.opcode]
 
 	c.State.SetBool(
 		a2state.InstructionReadOp,
-		OpcodeReadsMemory(c.Opcode),
+		OpcodeReadsMemory(c.opcode),
 	)
 
 	// NOTE: neither the address mode resolver nor the instruction
@@ -98,7 +98,7 @@ func (c *CPU) Execute() error {
 	// Adjust the program counter to beyond the expected instruction
 	// sequence (1 byte for the opcode, + N bytes for the operand, based
 	// on address mode).
-	c.PC += offsets[c.Opcode]
+	c.PC += offsets[c.opcode]
 
 	// We always apply BREAK and UNUSED after each execution, mostly in
 	// observance for how other emulators have handled this step.
@@ -106,14 +106,14 @@ func (c *CPU) Execute() error {
 
 	if c.State.Bool(a2state.DebugImage) && c.InstructionChannel != nil {
 		select {
-		case c.InstructionChannel <- c.LastInstructionLine(int(cycles[c.Opcode])):
+		case c.InstructionChannel <- c.LastInstructionLine(int(cycles[c.opcode])):
 		// Sent successfully
 		default:
 			// Channel full, drop this instruction log
 		}
 	}
 
-	c.cycleCounter += uint64(cycles[c.Opcode])
+	c.cycleCounter += uint64(cycles[c.opcode])
 
 	return nil
 }
@@ -130,9 +130,9 @@ func (c *CPU) ThisInstruction() string {
 
 	line := &asm.Line{
 		Address:     &pc,
-		Instruction: instructions[c.Opcode].String(),
+		Instruction: instructions[c.opcode].String(),
 		Operand:     c.Operand,
-		Opcode:      c.Opcode,
+		Opcode:      c.opcode,
 	}
 
 	PrepareOperand(line, c.PC)
@@ -147,8 +147,8 @@ func (c *CPU) LastInstructionLine(cycles int) *asm.Line {
 	lastPC := int(c.LastPC)
 	line := &asm.Line{
 		Address:     &lastPC,
-		Instruction: instructions[c.Opcode].String(),
-		Opcode:      c.Opcode,
+		Instruction: instructions[c.opcode].String(),
+		Opcode:      c.opcode,
 		Operand:     c.Operand,
 		Cycles:      cycles,
 	}

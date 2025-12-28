@@ -63,7 +63,7 @@ func Nop(c *CPU) {
 	// Anything else may indicate that something is wrong -- like a bug
 	// in the emulator that led us to execute data as if it were program
 	// code.
-	if c.Opcode != 0xEA {
+	if c.opcode != 0xEA {
 		metrics.Increment("bad_opcodes", 1)
 	}
 }
