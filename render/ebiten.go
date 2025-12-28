@@ -52,6 +52,15 @@ func (g *game) Draw(screen *ebiten.Image) {
 // Update handles logic once for every frame that is rendered, but this
 // method is not _the method_ that renders the screen.
 func (g *game) Update() error {
+	if ebiten.IsWindowBeingClosed() {
+		err := g.comp.Shutdown()
+		if err != nil {
+			return fmt.Errorf("could not properly shut down: %w", err)
+		}
+
+		return nil
+	}
+
 	g.keys = g.keys[:0]
 	g.keys = inpututil.AppendPressedKeys(g.keys)
 
