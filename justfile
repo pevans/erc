@@ -11,7 +11,7 @@ quick image:
     - go run . run --speed 5 {{image}}
 
 debug image:
-    - go run . run --speed 2 --debug-image {{image}}
+    - go run . run --speed 1 --debug-image {{image}}
 
 lint:
     - golangci-lint \
@@ -26,5 +26,14 @@ hexa image:
 hexb image:
     - xxd {{image}} {{image}}-b
 
-diff image:
-    - diff -u {{image}}-a {{image}}-b > {{image}}.diff
+hexdiff image:
+    - diff -u {{image}}-a {{image}}-b > {{image}}.hex.diff
+
+asma image:
+    - cp {{image}}.asm {{image}}.asm-a
+
+asmb image:
+    - cp {{image}}.asm {{image}}.asm-b
+
+asmdiff image:
+    - diff -u {{image}}.asm-a {{image}}.asm-b > {{image}}.asm.diff
