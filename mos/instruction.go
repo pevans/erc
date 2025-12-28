@@ -51,8 +51,8 @@ func OpcodeReadsMemory(opcode uint8) bool {
 	return false
 }
 
-func (c *CPU) Cycles() int {
-	return int(cycles[c.Opcode])
+func (c *CPU) OpcodeCycles(opcode uint8) int {
+	return int(cycles[opcode])
 }
 
 // Execute will process through one instruction and return. While doing
@@ -112,6 +112,8 @@ func (c *CPU) Execute() error {
 			// Channel full, drop this instruction log
 		}
 	}
+
+	c.cycleCounter += uint64(cycles[c.Opcode])
 
 	return nil
 }

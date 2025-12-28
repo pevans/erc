@@ -7,9 +7,17 @@ import (
 
 // A CPU is an implementation of an MOS 65c02 processor.
 type CPU struct {
-	RMem  memory.Getter
-	WMem  memory.Setter
+	// RMem and WMem are ways for us to access memory from some segment (we
+	// don't know or care where).
+	RMem memory.Getter
+	WMem memory.Setter
+
+	// State is a StateMap we can consult (for example, to know if we're
+	// debugging an image file).
 	State *memory.StateMap
+
+	// cycleCounter is a count of how many cycles we've ever executed.
+	cycleCounter uint64
 
 	// A map of instructions that we have executed. This is only used when
 	// we're debugging an image.
@@ -79,4 +87,8 @@ type CPU struct {
 	// value is treated as an offset from $100. S will begin at $FF and
 	// decrease as the stack depth increases.
 	S uint8
+}
+
+func (c *CPU) CycleCounter() uint64 {
+	return c.cycleCounter
 }
