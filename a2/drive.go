@@ -57,14 +57,18 @@ func NewDrive() *Drive {
 	return drive
 }
 
-func (d *Drive) StartMotor() {
+// StartMotor turns the drive motor on and starts spinning the disk platter.
+func (d *Drive) StartMotor(cycles uint64) {
 	d.motorOn = true
+	d.cyclesSinceMotorOn = cycles
 }
 
+// StopMotor turns off the drive motor, and ceases spinning the disk platter.
 func (d *Drive) StopMotor() {
 	d.motorOn = false
 }
 
+// MotorOn is true if the drive motor is on.
 func (d *Drive) MotorOn() bool {
 	return d.motorOn
 }

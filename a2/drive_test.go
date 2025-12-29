@@ -19,13 +19,16 @@ func TestNewDrive(t *testing.T) {
 }
 
 func TestMotorOn(t *testing.T) {
+	const cycles uint64 = 123
+
 	d := NewDrive()
 
 	assert.NotNil(t, d)
 	assert.False(t, d.MotorOn())
 
-	d.StartMotor()
+	d.StartMotor(cycles)
 	assert.True(t, d.MotorOn())
+	assert.Equal(t, cycles, d.cyclesSinceMotorOn)
 
 	d.StopMotor()
 	assert.False(t, d.MotorOn())

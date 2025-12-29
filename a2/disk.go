@@ -44,7 +44,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 	case 0x9:
 		// Turn only the selected drive on
 		if !debugging {
-			c.SelectedDrive.StartMotor()
+			c.SelectedDrive.StartMotor(c.CPU.CycleCounter())
 
 			// While the drive is on, we want to emulate without regard to
 			// cycle-timing. This is so that any timing loops in software
