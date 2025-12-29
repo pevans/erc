@@ -26,14 +26,6 @@ func (c *Computer) Shutdown() error {
 
 	input.Shutdown()
 
-	if err := c.Drive1.Save(); err != nil {
-		return fmt.Errorf("could not save image: %w", err)
-	}
-
-	if err := c.Drive2.Save(); err != nil {
-		return fmt.Errorf("could not save image: %w", err)
-	}
-
 	if c.MetricsFileName != "" {
 		err := metrics.WriteToFile(c.MetricsFileName)
 		if err != nil {
@@ -57,6 +49,14 @@ func (c *Computer) Shutdown() error {
 
 	if c.diskLog != nil {
 		return c.diskLog.WriteToFile()
+	}
+
+	if err := c.Drive1.Save(); err != nil {
+		return fmt.Errorf("could not save image: %w", err)
+	}
+
+	if err := c.Drive2.Save(); err != nil {
+		return fmt.Errorf("could not save image: %w", err)
 	}
 
 	return nil
