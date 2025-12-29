@@ -42,6 +42,8 @@ type Drive struct {
 	WriteProtect bool
 	Locked       bool
 
+	newLatchData bool
+
 	// motorOn is true if the motor is on. When the drive motor is on, the disk
 	// contained in the drive will spin.
 	motorOn bool
@@ -97,6 +99,12 @@ func (d *Drive) SpinDisk(cycles uint64) {
 	bytes := diff / cyclesPerByte
 	d.Shift(int(bytes))
 	d.cyclesSinceLastSpin += (bytes * cyclesPerByte)
+
+	// Set the latch and let everyone know that there's new data
+	if bytes > 0 && d.Mode == ReadMode {
+		d.Latch = d.Data.DirectGet(d.Position())
+		d.newLatchData = true
+	}
 }
 
 // Position returns the segment position that the drive is currently at,
@@ -266,10 +274,11 @@ func (d *Drive) Read() uint8 {
 		return 0xFF
 	}
 
-	// Set the latch value to the byte at our current position, then
-	// shift our position by one place
-	d.Latch = d.Data.DirectGet(d.Position())
+	if !d.newLatchData {
+		return d.Latch & 0x7F
+	}
 
+	d.newLatchData = false
 	return d.Latch
 }
 
@@ -279,7 +288,7 @@ func (d *Drive) Write() {
 	}
 
 	// We can only write our latch value if the high-bit is set
-	if d.Latch&0x80 > 0 {
+	if d.Mode == WriteMode && d.MotorOn() && d.Latch&0x80 > 0 {
 		d.Data.DirectSet(d.Position(), d.Latch)
 	}
 }

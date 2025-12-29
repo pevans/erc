@@ -197,12 +197,17 @@ func (s *a2Suite) TestDriveRead() {
 	dat, _ := os.Open("../data/logical.disk")
 	s.NoError(d.Load(dat, "something.dsk"))
 
-	d.Data.Set(d.Position(), 0x11)
+	// Note that software expects the high bit to be set on all data coming
+	// from the drive (so any test data needs Latch >= 0x80)
+	d.Latch = 0x81
+	d.newLatchData = true
 
-	b := d.Read()
+	// With newLatchData is true, we should get the same value back unmodified
+	s.Equal(uint8(0x81), d.Read())
 
-	s.Equal(uint8(0x11), b)
-	s.Equal(uint8(0x11), d.Latch)
+	// Once you've read the latch, we unset newLatchData, and expect the
+	// return value to be the same _except_ that the high bit is unset
+	s.Equal(uint8(0x81&0x7F), d.Read())
 }
 
 func (s *a2Suite) TestDriveWrite() {
@@ -210,6 +215,9 @@ func (s *a2Suite) TestDriveWrite() {
 
 	dat, _ := os.Open("../data/logical.disk")
 	s.NoError(d.Load(dat, "something.dsk"))
+
+	d.Mode = WriteMode
+	d.StartMotor(0)
 
 	// If Latch < 0x80, Write should not write data, but position still shifts
 	d.Latch = 0x11

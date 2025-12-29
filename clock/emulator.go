@@ -72,8 +72,8 @@ func (e *Emulator) ProcessLoop(comp emu.Computer) {
 		// There are times when we ignore cycle timing and want to emulate as
 		// fast as possible -- should that happen, it's up to the instructions
 		// we're processing to unset FullSpeed.
-		for e.TotalCycles < wantedCycles || e.FullSpeed {
-			wereFullSpeed := e.FullSpeed
+		for e.TotalCycles < wantedCycles /* || e.FullSpeed */ {
+			// wereFullSpeed := e.FullSpeed
 
 			cycles, err := comp.Process()
 			if err != nil {
@@ -83,11 +83,13 @@ func (e *Emulator) ProcessLoop(comp emu.Computer) {
 
 			e.TotalCycles += int64(cycles)
 
-			if wereFullSpeed && !e.FullSpeed {
-				e.ResumeTime = time.Now()
-				e.TotalCycles = 0
-				break
-			}
+			/*
+				if wereFullSpeed && !e.FullSpeed {
+					e.ResumeTime = time.Now()
+					e.TotalCycles = 0
+					break
+				}
+			*/
 		}
 	}
 }
