@@ -34,10 +34,17 @@ type Drive struct {
 	ImageType    int
 	ImageName    string
 	Stream       *os.File
-	Online       bool
 	Mode         int
 	WriteProtect bool
 	Locked       bool
+
+	// motorOn is true if the motor is on. When the drive motor is on, the disk
+	// contained in the drive will spin.
+	motorOn bool
+
+	// cyclesSinceMotorOn is number of cycles the CPU has executed at the time
+	// the drive motor was last turned on.
+	cyclesSinceMotorOn uint64
 }
 
 // NewDrive returns a new disk drive ready for DOS 3.3 images.
@@ -48,6 +55,18 @@ func NewDrive() *Drive {
 	drive.ImageType = a2enc.DOS33
 
 	return drive
+}
+
+func (d *Drive) StartMotor() {
+	d.motorOn = true
+}
+
+func (d *Drive) StopMotor() {
+	d.motorOn = false
+}
+
+func (d *Drive) MotorOn() bool {
+	return d.motorOn
 }
 
 // Position returns the segment position that the drive is currently at,

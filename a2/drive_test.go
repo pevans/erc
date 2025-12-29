@@ -18,6 +18,19 @@ func TestNewDrive(t *testing.T) {
 	assert.Equal(t, a2enc.DOS33, d.ImageType)
 }
 
+func TestMotorOn(t *testing.T) {
+	d := NewDrive()
+
+	assert.NotNil(t, d)
+	assert.False(t, d.MotorOn())
+
+	d.StartMotor()
+	assert.True(t, d.MotorOn())
+
+	d.StopMotor()
+	assert.False(t, d.MotorOn())
+}
+
 func (s *a2Suite) TestDrivePosition() {
 	d := NewDrive()
 

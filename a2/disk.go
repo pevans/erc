@@ -33,8 +33,8 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 	case 0x8:
 		// Turn both drives off
 		if !debugging {
-			c.Drive1.Online = false
-			c.Drive2.Online = false
+			c.Drive1.StopMotor()
+			c.Drive2.StopMotor()
 			c.ClockEmulator.FullSpeed = false
 			metrics.Increment("disk_drives_off", 1)
 		}
@@ -44,7 +44,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 	case 0x9:
 		// Turn only the selected drive on
 		if !debugging {
-			c.SelectedDrive.Online = true
+			c.SelectedDrive.StartMotor()
 
 			// While the drive is on, we want to emulate without regard to
 			// cycle-timing. This is so that any timing loops in software
@@ -90,7 +90,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 		// on, etc.
 		*val = 0
 
-		if !c.SelectedDrive.Online {
+		if !c.SelectedDrive.MotorOn() {
 			c.SelectedDrive.Shift(1)
 			break
 		}
@@ -151,7 +151,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 
 	case 0xD:
 		// Set the latch value (for writes) to val
-		if !c.SelectedDrive.Online {
+		if !c.SelectedDrive.MotorOn() {
 			break
 		}
 
