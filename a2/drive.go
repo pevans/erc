@@ -23,6 +23,10 @@ const (
 	WriteMode
 )
 
+// cyclesPerByte is the number of cycles whereby a specific byte may be read
+// or written before drive spin would carry us to the next byte.
+const cyclesPerByte uint64 = 32
+
 // A Drive represents the state of a virtual Disk II drive.
 type Drive struct {
 	Phase        int
@@ -42,9 +46,10 @@ type Drive struct {
 	// contained in the drive will spin.
 	motorOn bool
 
-	// cyclesSinceMotorOn is number of cycles the CPU has executed at the time
-	// the drive motor was last turned on.
-	cyclesSinceMotorOn uint64
+	// cyclesSinceLastSpin is number of cycles the CPU has executed at the time
+	// we last needed to spin the disk platter (the wafer contained within the
+	// plastic shell of a floppy disk).
+	cyclesSinceLastSpin uint64
 }
 
 // NewDrive returns a new disk drive ready for DOS 3.3 images.
@@ -60,7 +65,7 @@ func NewDrive() *Drive {
 // StartMotor turns the drive motor on and starts spinning the disk platter.
 func (d *Drive) StartMotor(cycles uint64) {
 	d.motorOn = true
-	d.cyclesSinceMotorOn = cycles
+	d.cyclesSinceLastSpin = cycles
 }
 
 // StopMotor turns off the drive motor, and ceases spinning the disk platter.
@@ -71,6 +76,27 @@ func (d *Drive) StopMotor() {
 // MotorOn is true if the drive motor is on.
 func (d *Drive) MotorOn() bool {
 	return d.motorOn
+}
+
+// SpinDisk will, if a drive motor is on, spin the disk -- adjusting the
+// sector position based on the number of cycles executed.
+func (d *Drive) SpinDisk(cycles uint64) {
+	// If the drive is not on, then we don't want to adjust our position
+	if !d.MotorOn() {
+		return
+	}
+
+	// We can assume that cycles is an essentially monotonic number that can
+	// only go up, and thus will always be equal to or greater than the cycles
+	// since last spin
+	diff := cycles - d.cyclesSinceLastSpin
+
+	// Since we don't know how many cycles it's been since we last shifted our
+	// position, we may need to shift by many positions. Note that the final
+	// cyclesPerLastSpin value may _not_ be equal to the given cycles.
+	bytes := diff / cyclesPerByte
+	d.Shift(int(bytes))
+	d.cyclesSinceLastSpin += (bytes * cyclesPerByte)
 }
 
 // Position returns the segment position that the drive is currently at,
@@ -244,8 +270,6 @@ func (d *Drive) Read() uint8 {
 	// shift our position by one place
 	d.Latch = d.Data.DirectGet(d.Position())
 
-	d.Shift(1)
-
 	return d.Latch
 }
 
@@ -258,8 +282,6 @@ func (d *Drive) Write() {
 	if d.Latch&0x80 > 0 {
 		d.Data.DirectSet(d.Position(), d.Latch)
 	}
-
-	d.Shift(1)
 }
 
 func (d *Drive) RandomByte() uint8 {

@@ -28,7 +28,7 @@ func TestMotorOn(t *testing.T) {
 
 	d.StartMotor(cycles)
 	assert.True(t, d.MotorOn())
-	assert.Equal(t, cycles, d.cyclesSinceMotorOn)
+	assert.Equal(t, cycles, d.cyclesSinceLastSpin)
 
 	d.StopMotor()
 	assert.False(t, d.MotorOn())
@@ -198,13 +198,11 @@ func (s *a2Suite) TestDriveRead() {
 	s.NoError(d.Load(dat, "something.dsk"))
 
 	d.Data.Set(d.Position(), 0x11)
-	spos := d.SectorPos
 
 	b := d.Read()
 
 	s.Equal(uint8(0x11), b)
 	s.Equal(uint8(0x11), d.Latch)
-	s.Equal(spos+1, d.SectorPos)
 }
 
 func (s *a2Suite) TestDriveWrite() {
@@ -217,14 +215,12 @@ func (s *a2Suite) TestDriveWrite() {
 	d.Latch = 0x11
 	d.SectorPos = 0
 	d.Write()
-	s.Equal(1, d.SectorPos)
-	s.NotEqual(d.Latch, d.Data.Get(d.Position()-1))
+	s.NotEqual(d.Latch, d.Data.Get(d.Position()))
 
 	// Write should do something here
 	d.Latch = 0x81
 	d.Write()
-	s.Equal(2, d.SectorPos)
-	s.Equal(d.Latch, d.Data.Get(d.Position()-1))
+	s.Equal(d.Latch, d.Data.Get(d.Position()))
 }
 
 func (s *a2Suite) TestDriveSave() {
