@@ -11,7 +11,7 @@ quick image:
     - go run . run --speed 5 {{image}}
 
 debug image:
-    - go run . run --speed 1 --debug-image {{image}}
+    - go run . run --speed 2 --debug-image {{image}}
 
 lint:
     - golangci-lint \
