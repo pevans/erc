@@ -51,8 +51,45 @@ func OpcodeReadsMemory(opcode uint8) bool {
 	return false
 }
 
-func (c *CPU) OpcodeCycles(opcode uint8) int {
-	return int(cycles[opcode])
+func (c *CPU) OpcodeCycles() int {
+	cyc := int(cycles[c.opcode])
+	effPage := c.EffAddr & 0xFF00
+
+	switch addrModes[c.opcode] {
+	case AmABX, AmABY:
+		// We may be crossing page boundaries; if so, we need to add a 1-cycle
+		// penalty
+		basePage := c.Operand & 0xFF00
+
+		if basePage != effPage {
+			cyc++
+		}
+
+	case AmIDY:
+		// Similar to ABX/ABY, we may need to add a 1-cycle penalty for
+		// crossing boundaries. The logic is slightly different because of how
+		// IDY works.
+		baseAddr := c.EffAddr - uint16(c.Y)
+		basePage := baseAddr & 0xFF00
+
+		if basePage != effPage {
+			cyc++
+		}
+
+	case AmREL:
+		// The number of cycles consumed by a branch are variable based on its
+		// outcomes, which may also factor in a page-cross penalty.
+		nextPC := c.LastPC + 2
+		if c.EffAddr != nextPC {
+			cyc++
+
+			if (nextPC & 0xFF00) != (c.EffAddr & 0xFF00) {
+				cyc++
+			}
+		}
+	}
+
+	return cyc
 }
 
 // Execute will process through one instruction and return. While doing
@@ -106,14 +143,14 @@ func (c *CPU) Execute() error {
 
 	if c.State.Bool(a2state.DebugImage) && c.InstructionChannel != nil {
 		select {
-		case c.InstructionChannel <- c.LastInstructionLine(int(cycles[c.opcode])):
+		case c.InstructionChannel <- c.LastInstructionLine(int(c.OpcodeCycles())):
 		// Sent successfully
 		default:
 			// Channel full, drop this instruction log
 		}
 	}
 
-	c.cycleCounter += uint64(cycles[c.opcode])
+	c.cycleCounter += uint64(c.OpcodeCycles())
 
 	return nil
 }
