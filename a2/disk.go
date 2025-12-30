@@ -95,7 +95,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 			c.SelectedDrive.Shift(1)
 
 			if debugging {
-				// c.SelectedDrive.Shift(-1)
+				c.SelectedDrive.Shift(-1)
 			}
 
 			if c.diskLog != nil {
