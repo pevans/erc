@@ -48,7 +48,9 @@ func (c *Computer) Shutdown() error {
 	}
 
 	if c.diskLog != nil {
-		return c.diskLog.WriteToFile()
+		if err := c.diskLog.WriteToFile(); err != nil {
+			return err
+		}
 	}
 
 	if err := c.Drive1.Save(); err != nil {
