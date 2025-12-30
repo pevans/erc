@@ -113,10 +113,10 @@ func (d *Drive) Position() int {
 	return ((d.TrackPos / 2) * a2enc.PhysTrackLen) + d.SectorPos
 }
 
-// Shift moves the sector position forward, or backward, depending on
-// the sign of the given offset. If this would involve moving beyond the
-// beginning or end of a track, then the sector position is instead set
-// to zero.
+// Shift updates the sector position of the drive forward or backward by the
+// given offset in bytes. Since tracks are circular and the disk is
+// spinning, offsets that carry us beyond the bounds of the track instead
+// bring us to the other end of the track.
 func (d *Drive) Shift(offset int) {
 	if d.Locked {
 		return
@@ -124,8 +124,14 @@ func (d *Drive) Shift(offset int) {
 
 	d.SectorPos += offset
 
-	if d.SectorPos >= a2enc.PhysTrackLen || d.SectorPos < 0 {
-		d.SectorPos = 0
+	// In practice, these for loops are mutually exclusive; only one of them
+	// would ever be entered.
+	for d.SectorPos >= a2enc.PhysTrackLen {
+		d.SectorPos -= a2enc.PhysTrackLen
+	}
+
+	for d.SectorPos < 0 {
+		d.SectorPos += a2enc.PhysTrackLen
 	}
 }
 

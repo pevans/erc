@@ -64,12 +64,12 @@ func (s *a2Suite) TestDriveShift() {
 
 	// We should not be able to shift below the zero boundary for a sector
 	d.Shift(-10)
-	s.Equal(0, d.SectorPos)
+	s.Equal(a2enc.PhysTrackLen-3, d.SectorPos)
 
 	// We can shift up but not including the length of a track
 	d.Shift(a2enc.PhysTrackLen - 1)
-	s.Equal(a2enc.PhysTrackLen-1, d.SectorPos)
-	d.Shift(1)
+	s.Equal(a2enc.PhysTrackLen-4, d.SectorPos)
+	d.Shift(4)
 	s.Equal(0, d.SectorPos)
 
 	// And if the drive is locked, we shouldn't be able to shift at all
