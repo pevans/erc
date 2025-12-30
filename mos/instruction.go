@@ -89,6 +89,16 @@ func (c *CPU) OpcodeCycles() int {
 		}
 	}
 
+	// Setting the D flag causes instructions to take one cycle longer than
+	// normal.
+	//
+	// NOTE: I'm not sure if this applies universally or only for arithmetic
+	// operations. In practice, code typically sets decimal only for
+	// arithmetic operations, then unsets.
+	if c.P&DECIMAL > 0 {
+		cyc++
+	}
+
 	return cyc
 }
 
