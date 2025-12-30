@@ -22,9 +22,5 @@ func (c *Computer) Process() (int, error) {
 
 	c.State.SetInt(a2state.BankReadAttempts, 0)
 
-	// Every time an instruction executes, we need to check if the disk in the
-	// drive needs to spin
-	c.SelectedDrive.SpinDisk(c.CPU.CycleCounter())
-
 	return c.CPU.OpcodeCycles(), nil
 }

@@ -42,16 +42,16 @@ type Drive struct {
 	WriteProtect bool
 	Locked       bool
 
-	newLatchData bool
+	// diskShifted is true if the disk has shifted after the last time data
+	// was loaded into the latch.
+	diskShifted bool
+
+	// latchWasRead is true if the data in the latch has already been read.
+	latchWasRead bool
 
 	// motorOn is true if the motor is on. When the drive motor is on, the disk
 	// contained in the drive will spin.
 	motorOn bool
-
-	// cyclesSinceLastSpin is number of cycles the CPU has executed at the time
-	// we last needed to spin the disk platter (the wafer contained within the
-	// plastic shell of a floppy disk).
-	cyclesSinceLastSpin uint64
 }
 
 // NewDrive returns a new disk drive ready for DOS 3.3 images.
@@ -64,13 +64,14 @@ func NewDrive() *Drive {
 	return drive
 }
 
-// StartMotor turns the drive motor on and starts spinning the disk platter.
-func (d *Drive) StartMotor(cycles uint64) {
+// StartMotor turns the drive motor on. In theory, this would cause the disk
+// in the drive to spin.
+func (d *Drive) StartMotor() {
 	d.motorOn = true
-	d.cyclesSinceLastSpin = cycles
 }
 
-// StopMotor turns off the drive motor, and ceases spinning the disk platter.
+// StopMotor turns off the drive motor, and theoretically stops the disk in
+// the drive from spinning.
 func (d *Drive) StopMotor() {
 	d.motorOn = false
 }
@@ -78,33 +79,6 @@ func (d *Drive) StopMotor() {
 // MotorOn is true if the drive motor is on.
 func (d *Drive) MotorOn() bool {
 	return d.motorOn
-}
-
-// SpinDisk will, if a drive motor is on, spin the disk -- adjusting the
-// sector position based on the number of cycles executed.
-func (d *Drive) SpinDisk(cycles uint64) {
-	// If the drive is not on, then we don't want to adjust our position
-	if !d.MotorOn() {
-		return
-	}
-
-	// We can assume that cycles is an essentially monotonic number that can
-	// only go up, and thus will always be equal to or greater than the cycles
-	// since last spin
-	diff := cycles - d.cyclesSinceLastSpin
-
-	// Since we don't know how many cycles it's been since we last shifted our
-	// position, we may need to shift by many positions. Note that the final
-	// cyclesPerLastSpin value may _not_ be equal to the given cycles.
-	bytes := diff / cyclesPerByte
-	d.Shift(int(bytes))
-	d.cyclesSinceLastSpin += (bytes * cyclesPerByte)
-
-	// Set the latch and let everyone know that there's new data
-	if bytes > 0 && d.Mode == ReadMode {
-		d.Latch = d.Data.DirectGet(d.Position())
-		d.newLatchData = true
-	}
 }
 
 // Position returns the segment position that the drive is currently at,
@@ -133,6 +107,8 @@ func (d *Drive) Shift(offset int) {
 	for d.SectorPos < 0 {
 		d.SectorPos += a2enc.PhysTrackLen
 	}
+
+	d.diskShifted = true
 }
 
 // Step moves the track position forward or backward, depending on the
@@ -275,30 +251,55 @@ func (d *Drive) Save() error {
 	return logSegment.WriteFile(d.ImageName)
 }
 
-func (d *Drive) Read() uint8 {
+// ReadLatch returns the byte that is currently loaded in the drive latch.
+// If this data has not been read before, it is returned unmodified. If it has
+// been read before, then it will be returned with the high bit set to zero.
+func (d *Drive) ReadLatch() uint8 {
 	if d.Data == nil {
 		return 0xFF
 	}
 
-	if !d.newLatchData {
+	if d.latchWasRead {
 		return d.Latch & 0x7F
 	}
 
-	d.newLatchData = false
+	d.latchWasRead = true
+
 	return d.Latch
 }
 
-func (d *Drive) Write() {
+// WriteLatch writes the byte in the drive's latch to the disk loaded in the
+// drive. The drive must be in WriteMode for this operation to succeed, and
+// the motor must be on. WriteLatch will not write any data if the latch byte
+// does not have its high bit set to 1. The byte in the latch will be written
+// to the current position of the drive head on the disk (with respect to
+// track and sector).
+func (d *Drive) WriteLatch() {
 	if d.Data == nil {
 		return
 	}
 
-	// We can only write our latch value if the high-bit is set
 	if d.Mode == WriteMode && d.MotorOn() && d.Latch&0x80 > 0 {
 		d.Data.DirectSet(d.Position(), d.Latch)
 	}
 }
 
+// LoadLatch reads the byte at the current drive position with respect to
+// track and position. No change to the latch will occur if we cannot detect
+// that the disk position has shifted since the last LoadLatch was called.
+func (d *Drive) LoadLatch() {
+	if d.Data == nil {
+		return
+	}
+
+	if d.diskShifted {
+		d.Latch = d.Data.DirectGet(d.Position())
+		d.diskShifted = false
+		d.latchWasRead = false
+	}
+}
+
+// RandomByte returns a random byte as might be returned by the drive.
 func (d *Drive) RandomByte() uint8 {
 	return uint8(rand.IntN(0xFF))
 }

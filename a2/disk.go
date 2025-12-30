@@ -44,7 +44,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 	case 0x9:
 		// Turn only the selected drive on
 		if !debugging {
-			c.SelectedDrive.StartMotor(c.CPU.CycleCounter())
+			c.SelectedDrive.StartMotor()
 
 			// While the drive is on, we want to emulate without regard to
 			// cycle-timing. This is so that any timing loops in software
@@ -58,7 +58,6 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 			// compromise.
 			c.ClockEmulator.FullSpeed = true
 
-			stm.SetInt64(a2state.DiskCycleOfLastAccess, 0)
 			metrics.Increment("disk_selected_drive_online", 1)
 		}
 
@@ -86,28 +85,17 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 		// This is the SHIFT operation, which might write a byte, but might
 		// also read a byte, depending on the drive state.
 
-		// Default behavior is often that we return 0 -- if the drive isn't
-		// on, etc.
-		*val = 0
-
-		if !c.SelectedDrive.MotorOn() {
-			c.SelectedDrive.Shift(1)
-			break
-		}
-
-		stm.SetInt64(
-			a2state.DiskCycleOfLastAccess, c.ClockEmulator.TotalCycles,
-		)
-
 		if c.SelectedDrive.Mode == ReadMode || c.SelectedDrive.WriteProtect {
 			// Record this now for the disk log because a read on the drive
 			// will alter the sector pos
 			sectorPos := c.SelectedDrive.SectorPos
 
-			*val = c.SelectedDrive.Read()
+			c.SelectedDrive.LoadLatch()
+			*val = c.SelectedDrive.ReadLatch()
+			c.SelectedDrive.Shift(1)
 
 			if debugging {
-				c.SelectedDrive.Shift(-1)
+				// c.SelectedDrive.Shift(-1)
 			}
 
 			if c.diskLog != nil {
@@ -127,7 +115,8 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 			if !debugging {
 				sectorPos := c.SelectedDrive.SectorPos
 
-				c.SelectedDrive.Write()
+				c.SelectedDrive.WriteLatch()
+				c.SelectedDrive.Shift(1)
 
 				if c.diskLog != nil {
 					c.diskLog.Add(&asm.DiskOp{
@@ -144,7 +133,6 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 			}
 		} else {
 			if !debugging {
-				c.SelectedDrive.Shift(1)
 				metrics.Increment("disk_failed_readwrites", 1)
 			}
 		}
@@ -160,7 +148,8 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 				c.SelectedDrive.Latch = *val
 				metrics.Increment("disk_write_latch", 1)
 			} else {
-				metrics.Increment("disk_failed_latch", 1)
+				*val = c.SelectedDrive.Latch
+				metrics.Increment("disk_load_latch", 1)
 			}
 		}
 

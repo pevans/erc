@@ -19,16 +19,13 @@ func TestNewDrive(t *testing.T) {
 }
 
 func TestMotorOn(t *testing.T) {
-	const cycles uint64 = 123
-
 	d := NewDrive()
 
 	assert.NotNil(t, d)
 	assert.False(t, d.MotorOn())
 
-	d.StartMotor(cycles)
+	d.StartMotor()
 	assert.True(t, d.MotorOn())
-	assert.Equal(t, cycles, d.cyclesSinceLastSpin)
 
 	d.StopMotor()
 	assert.False(t, d.MotorOn())
@@ -200,14 +197,14 @@ func (s *a2Suite) TestDriveRead() {
 	// Note that software expects the high bit to be set on all data coming
 	// from the drive (so any test data needs Latch >= 0x80)
 	d.Latch = 0x81
-	d.newLatchData = true
+	d.latchWasRead = false
 
 	// With newLatchData is true, we should get the same value back unmodified
-	s.Equal(uint8(0x81), d.Read())
+	s.Equal(uint8(0x81), d.ReadLatch())
 
 	// Once you've read the latch, we unset newLatchData, and expect the
 	// return value to be the same _except_ that the high bit is unset
-	s.Equal(uint8(0x81&0x7F), d.Read())
+	s.Equal(uint8(0x81&0x7F), d.ReadLatch())
 }
 
 func (s *a2Suite) TestDriveWrite() {
@@ -217,17 +214,17 @@ func (s *a2Suite) TestDriveWrite() {
 	s.NoError(d.Load(dat, "something.dsk"))
 
 	d.Mode = WriteMode
-	d.StartMotor(0)
+	d.StartMotor()
 
 	// If Latch < 0x80, Write should not write data, but position still shifts
 	d.Latch = 0x11
 	d.SectorPos = 0
-	d.Write()
+	d.WriteLatch()
 	s.NotEqual(d.Latch, d.Data.Get(d.Position()))
 
 	// Write should do something here
 	d.Latch = 0x81
-	d.Write()
+	d.WriteLatch()
 	s.Equal(d.Latch, d.Data.Get(d.Position()))
 }
 
