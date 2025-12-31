@@ -46,7 +46,7 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 		go MaybeLogInstructions(c)
 
 		c.diskLog = asm.NewDiskLog(fileName)
-		return c.SelectedDrive.data.WriteFile(fmt.Sprintf("%v.physical", fileName))
+		return c.SelectedDrive.WriteDataToFile(fmt.Sprintf("%v.physical", fileName))
 	}
 
 	return nil

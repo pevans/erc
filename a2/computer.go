@@ -4,6 +4,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pevans/erc/a2/a2drive"
 	"github.com/pevans/erc/a2/a2font"
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/asm"
@@ -45,9 +46,9 @@ type Computer struct {
 
 	Screen *gfx.FrameBuffer
 
-	Drive1        *Drive
-	Drive2        *Drive
-	SelectedDrive *Drive
+	Drive1        *a2drive.Drive
+	Drive2        *a2drive.Drive
+	SelectedDrive *a2drive.Drive
 	diskLog       *asm.DiskLog
 
 	// When the computer is booted up, this will be a set of disks that we
@@ -127,8 +128,8 @@ func NewComputer(hertz int64) *Computer {
 	comp.Main.UseSoftMap(comp.smap)
 	comp.ROM.UseSoftMap(comp.smap)
 
-	comp.Drive1 = NewDrive()
-	comp.Drive2 = NewDrive()
+	comp.Drive1 = a2drive.NewDrive()
+	comp.Drive2 = a2drive.NewDrive()
 	comp.SelectedDrive = comp.Drive1
 
 	comp.Disks = NewDiskSet()

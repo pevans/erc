@@ -86,48 +86,46 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 		// also read a byte, depending on the drive state.
 
 		if c.SelectedDrive.ReadMode() || c.SelectedDrive.WriteProtected() {
-			// Record this now for the disk log because a read on the drive
-			// will alter the sector pos
-			sectorPos := c.SelectedDrive.sectorPos
-
 			c.SelectedDrive.LoadLatch()
 			*val = c.SelectedDrive.ReadLatch()
+
+			if c.diskLog != nil {
+				c.diskLog.Add(&asm.DiskOp{
+					Mode:           asm.DiskRead,
+					Elapsed:        time.Since(c.BootTime),
+					Track:          c.SelectedDrive.Track(),
+					Sector:         c.SelectedDrive.Sector(),
+					SectorPosition: c.SelectedDrive.SectorPosition(),
+					Byte:           *val,
+					Instruction:    c.CPU.ThisInstruction(),
+				})
+			}
+
 			c.SelectedDrive.Shift(1)
 
 			if debugging {
 				c.SelectedDrive.Shift(-1)
 			}
 
-			if c.diskLog != nil {
-				c.diskLog.Add(&asm.DiskOp{
-					Mode:        asm.DiskRead,
-					Elapsed:     time.Since(c.BootTime),
-					HalfTrack:   c.SelectedDrive.trackPos,
-					Sector:      sectorPos,
-					Byte:        *val,
-					Instruction: c.CPU.ThisInstruction(),
-				})
-			}
-
 			metrics.Increment("disk_read", 1)
 		} else if c.SelectedDrive.WriteMode() {
 			// Write the value currently in the latch
 			if !debugging {
-				sectorPos := c.SelectedDrive.sectorPos
-
 				c.SelectedDrive.WriteLatch()
-				c.SelectedDrive.Shift(1)
 
 				if c.diskLog != nil {
 					c.diskLog.Add(&asm.DiskOp{
-						Mode:        asm.DiskWrite,
-						Elapsed:     time.Since(c.BootTime),
-						HalfTrack:   c.SelectedDrive.trackPos,
-						Sector:      sectorPos,
-						Byte:        c.SelectedDrive.latch,
-						Instruction: c.CPU.ThisInstruction(),
+						Mode:           asm.DiskWrite,
+						Elapsed:        time.Since(c.BootTime),
+						Track:          c.SelectedDrive.Track(),
+						Sector:         c.SelectedDrive.Sector(),
+						SectorPosition: c.SelectedDrive.SectorPosition(),
+						Byte:           c.SelectedDrive.PeekLatch(),
+						Instruction:    c.CPU.ThisInstruction(),
 					})
 				}
+
+				c.SelectedDrive.Shift(1)
 
 				metrics.Increment("disk_write", 1)
 			}
@@ -145,10 +143,10 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 
 		if !debugging {
 			if c.SelectedDrive.WriteMode() {
-				c.SelectedDrive.latch = *val
+				c.SelectedDrive.SetLatch(*val)
 				metrics.Increment("disk_write_latch", 1)
 			} else {
-				*val = c.SelectedDrive.latch
+				*val = c.SelectedDrive.PeekLatch()
 				metrics.Increment("disk_load_latch", 1)
 			}
 		}

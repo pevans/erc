@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/pevans/erc/a2"
+	"github.com/pevans/erc/a2/a2drive"
 	"github.com/pevans/erc/a2/a2enc"
 	"github.com/pevans/erc/memory"
 	"github.com/spf13/cobra"
@@ -34,7 +34,7 @@ func init() {
 }
 
 func encodeImage(inputPath, outputPath string) {
-	imageType, err := a2.ImageType(inputPath)
+	imageType, err := a2drive.ImageType(inputPath)
 	if err != nil {
 		fail(fmt.Sprintf("could not determine image type: %v", err))
 	}

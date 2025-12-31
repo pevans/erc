@@ -19,8 +19,9 @@ type DiskOp struct {
 	Mode int
 
 	// Where the read occurred on the disk
-	HalfTrack int
-	Sector    int
+	Track          int
+	Sector         int
+	SectorPosition int
 
 	// What byte was read
 	Byte uint8
@@ -65,9 +66,11 @@ func (l *DiskLog) WriteToFile() error {
 			"[%-10v] %s T:%02X S:%01X P:%04X B:$%02X | %v\n",
 			op.Elapsed.Round(time.Millisecond), // time since boot
 			mode,
-			op.HalfTrack>>1,            // track
-			op.Sector/0x1A0, op.Sector, // sect and pos
-			op.Byte, op.Instruction,
+			op.Track,
+			op.Sector,
+			op.SectorPosition,
+			op.Byte,
+			op.Instruction,
 		)
 
 		if _, err := fp.WriteString(logLine); err != nil {
