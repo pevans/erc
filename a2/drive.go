@@ -29,17 +29,21 @@ const cyclesPerByte uint64 = 32
 
 // A Drive represents the state of a virtual Disk II drive.
 type Drive struct {
-	Phase        int
-	Latch        uint8
-	TrackPos     int
-	SectorPos    int
-	Data         *memory.Segment
-	Image        *memory.Segment
-	ImageType    int
-	ImageName    string
-	Stream       *os.File
-	Mode         int
-	WriteProtect bool
+	Phase     int
+	Latch     uint8
+	TrackPos  int
+	SectorPos int
+	Data      *memory.Segment
+	Image     *memory.Segment
+	ImageType int
+	ImageName string
+	Stream    *os.File
+	Mode      int
+
+	// writeProtect is true when the disk in the drive is considered
+	// write-protected. A write-protected disk may not be written to by the
+	// drive.
+	writeProtect bool
 
 	// diskShifted is true if the disk has shifted after the last time data
 	// was loaded into the latch.
@@ -78,6 +82,24 @@ func (d *Drive) StopMotor() {
 // MotorOn is true if the drive motor is on.
 func (d *Drive) MotorOn() bool {
 	return d.motorOn
+}
+
+// SetWriteProtect will change the writeProtect status of a drive to the given
+// status.
+func (d *Drive) SetWriteProtect(status bool) {
+	d.writeProtect = status
+}
+
+// ToggleWriteProtect flips the status of write protection for the disk in a
+// drive. If it was true, it becomes false, and vice-versa.
+func (d *Drive) ToggleWriteProtect() {
+	d.writeProtect = !d.writeProtect
+}
+
+// WriteProtected returns true if the disk in the drive is write-protected
+// (can't be written to).
+func (d *Drive) WriteProtected() bool {
+	return d.writeProtect
 }
 
 // Position returns the segment position that the drive is currently at,
@@ -225,6 +247,10 @@ func (d *Drive) Load(r io.Reader, file string) error {
 	// Reset the sector position, but leave track alone; the drive head
 	// has not shifted since replacing the disk.
 	d.SectorPos = 0
+
+	// If the disk had write-protected status, we should assume the next disk
+	// loaded does not have it
+	d.writeProtect = false
 
 	d.ImageName = file
 

@@ -97,7 +97,7 @@ func runEmulator(image string) {
 	}
 
 	if writeProtectFlag {
-		comp.Drive1.WriteProtect = true
+		comp.Drive1.SetWriteProtect(true)
 	}
 
 	if err := comp.Boot(); err != nil {

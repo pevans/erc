@@ -85,7 +85,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 		// This is the SHIFT operation, which might write a byte, but might
 		// also read a byte, depending on the drive state.
 
-		if c.SelectedDrive.Mode == ReadMode || c.SelectedDrive.WriteProtect {
+		if c.SelectedDrive.Mode == ReadMode || c.SelectedDrive.WriteProtected() {
 			// Record this now for the disk log because a read on the drive
 			// will alter the sector pos
 			sectorPos := c.SelectedDrive.SectorPos
@@ -163,7 +163,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 		*val = c.SelectedDrive.RandomByte()
 
 		// We also need to return the state of write protection in bit 7
-		if c.SelectedDrive.WriteProtect {
+		if c.SelectedDrive.WriteProtected() {
 			*val |= 0x80
 		} else {
 			*val &^= 0x80

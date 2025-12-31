@@ -23,8 +23,8 @@ func Check(ev input.Event, comp *a2.Computer) (bool, error) {
 	}
 
 	if ev.Key == 'p' || ev.Key == 'P' {
-		comp.SelectedDrive.WriteProtect = !comp.SelectedDrive.WriteProtect
-		fmt.Printf("write protect for drive 1 is now %v\n", comp.SelectedDrive.WriteProtect)
+		comp.SelectedDrive.ToggleWriteProtect()
+		fmt.Printf("write protect for drive 1 is now %v\n", comp.SelectedDrive.WriteProtected())
 	}
 
 	if ev.Key == 'o' || ev.Key == 'O' {
