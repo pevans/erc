@@ -11,7 +11,8 @@ The near-term vision is to reasonably emulate an Apple //e, which is an Apple II
 Erc is able to emulate Apple II DOS-order software, although not well. It can:
 
 - read and execute software
-- write data into the disk image held in memory
+- write data into the disk image held in memory and save those changes to the
+  image
 - render high resolution graphics and 40-column text
 - reasonably emulate cycles (although precise cycle emulation is not a goal)
 - at any point drop into a debugger and record a log of disk access
@@ -29,4 +30,4 @@ Erc is able to emulate Apple II DOS-order software, although not well. It can:
 - Mockingboard sound support
 - State file support
 - Mouse support
-- Save writes in disk images back to the original file
+- Double high and low resolution graphics
