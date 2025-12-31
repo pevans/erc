@@ -28,14 +28,32 @@ const cyclesPerByte uint64 = 32
 
 // A Drive represents the state of a virtual Disk II drive.
 type Drive struct {
-	Phase     int
-	Latch     uint8
-	TrackPos  int
-	SectorPos int
-	Data      *memory.Segment
+	// phase is the stepper motor phase that the drive head is currently at.
+	// We track the phase to determine when to adjust our track position.
+	phase int
+
+	// latch is the byte that we last read from the disk, or is the byte that
+	// we may write to the disk. Anything coming out of the disk, or going
+	// into it, must go through the latch (which makes it a bit like an
+	// airlock for a spaceship).
+	latch uint8
+
+	// trackPos is the current track that the drive head is stationed at. Any
+	// sectors we read or write will be found in that track.
+	trackPos int
+
+	// sectorPos is the position of the drive head within a given track.
+	// Whenever you read a byte or write a byte, you are doing so at the
+	// drive's sectorPos.
+	sectorPos int
+
+	// data is the physically encoded form of the bytes that we read from a
+	// disk image.
+	data *memory.Segment
 
 	// image is the memory segment containing the bytes of the image file
-	// loaded in the drive.
+	// loaded in the drive. These bytes may be the logical form of the data,
+	// or they may be the physical form if the image was a nibble file.
 	image *memory.Segment
 
 	// imageType is the type of the image file loaded in the drive (DOS33,
@@ -143,7 +161,7 @@ func (d *Drive) SetWriteMode() {
 // Position returns the segment position that the drive is currently at,
 // based upon track and sector position.
 func (d *Drive) Position() int {
-	return ((d.TrackPos / 2) * a2enc.PhysTrackLen) + d.SectorPos
+	return ((d.trackPos / 2) * a2enc.PhysTrackLen) + d.sectorPos
 }
 
 // Shift updates the sector position of the drive forward or backward by the
@@ -151,16 +169,16 @@ func (d *Drive) Position() int {
 // spinning, offsets that carry us beyond the bounds of the track instead
 // bring us to the other end of the track.
 func (d *Drive) Shift(offset int) {
-	d.SectorPos += offset
+	d.sectorPos += offset
 
 	// In practice, these for loops are mutually exclusive; only one of them
 	// would ever be entered.
-	for d.SectorPos >= a2enc.PhysTrackLen {
-		d.SectorPos -= a2enc.PhysTrackLen
+	for d.sectorPos >= a2enc.PhysTrackLen {
+		d.sectorPos -= a2enc.PhysTrackLen
 	}
 
-	for d.SectorPos < 0 {
-		d.SectorPos += a2enc.PhysTrackLen
+	for d.sectorPos < 0 {
+		d.sectorPos += a2enc.PhysTrackLen
 	}
 
 	d.diskShifted = true
@@ -171,13 +189,13 @@ func (d *Drive) Shift(offset int) {
 // drive head further into the center of the disk platter (offset > 0)
 // or further out (offset < 0).
 func (d *Drive) Step(offset int) {
-	d.TrackPos += offset
+	d.trackPos += offset
 
 	switch {
-	case d.TrackPos >= a2enc.MaxSteps:
-		d.TrackPos = a2enc.MaxSteps - 1
-	case d.TrackPos < 0:
-		d.TrackPos = 0
+	case d.trackPos >= a2enc.MaxSteps:
+		d.trackPos = a2enc.MaxSteps - 1
+	case d.trackPos < 0:
+		d.trackPos = 0
 	}
 }
 
@@ -221,7 +239,7 @@ func (d *Drive) PhaseTransition(phase int) {
 		return
 	}
 
-	offset := phaseTable[(d.Phase*5)+phase]
+	offset := phaseTable[(d.phase*5)+phase]
 
 	// Because of the above check, we can assert that the formula we use for
 	// the phase transition ((curPhase * 5) + phase) will match something, so
@@ -229,7 +247,7 @@ func (d *Drive) PhaseTransition(phase int) {
 	d.Step(offset)
 
 	// We also have to update our current phase
-	d.Phase = phase
+	d.phase = phase
 }
 
 // ImageType returns the type of image that is suggested by the suffix
@@ -276,7 +294,7 @@ func (d *Drive) Load(r io.Reader, file string) error {
 	}
 
 	// Decode into the data segment
-	d.Data, err = a2enc.Encode(d.imageType, d.image)
+	d.data, err = a2enc.Encode(d.imageType, d.image)
 	if err != nil {
 		d.image = nil
 		return errors.Wrapf(err, "failed to decode image")
@@ -284,7 +302,7 @@ func (d *Drive) Load(r io.Reader, file string) error {
 
 	// Reset the sector position, but leave track alone; the drive head
 	// has not shifted since replacing the disk.
-	d.SectorPos = 0
+	d.sectorPos = 0
 
 	// If the disk had write-protected status, we should assume the next disk
 	// loaded does not have it
@@ -303,17 +321,17 @@ func (d *Drive) Load(r io.Reader, file string) error {
 func (d *Drive) RemoveDisk() {
 	d.imageName = ""
 	d.image = nil
-	d.Data = nil
+	d.data = nil
 }
 
 // Write the contents of the drive's disk back to the filesystem
 func (d *Drive) Save() error {
 	// There's no file, so there's nothing to save.
-	if d.imageName == "" || d.Data == nil {
+	if d.imageName == "" || d.data == nil {
 		return nil
 	}
 
-	logSegment, err := a2enc.Decode(d.imageType, d.Data)
+	logSegment, err := a2enc.Decode(d.imageType, d.data)
 	if err != nil {
 		return fmt.Errorf("could not decode image: %w", err)
 	}
@@ -325,17 +343,17 @@ func (d *Drive) Save() error {
 // If this data has not been read before, it is returned unmodified. If it has
 // been read before, then it will be returned with the high bit set to zero.
 func (d *Drive) ReadLatch() uint8 {
-	if d.Data == nil {
+	if d.data == nil {
 		return 0xFF
 	}
 
 	if d.latchWasRead {
-		return d.Latch & 0x7F
+		return d.latch & 0x7F
 	}
 
 	d.latchWasRead = true
 
-	return d.Latch
+	return d.latch
 }
 
 // WriteLatch writes the byte in the drive's latch to the disk loaded in the
@@ -345,12 +363,12 @@ func (d *Drive) ReadLatch() uint8 {
 // to the current position of the drive head on the disk (with respect to
 // track and sector).
 func (d *Drive) WriteLatch() {
-	if d.Data == nil {
+	if d.data == nil {
 		return
 	}
 
-	if d.WriteMode() && d.MotorOn() && d.Latch&0x80 > 0 {
-		d.Data.DirectSet(d.Position(), d.Latch)
+	if d.WriteMode() && d.MotorOn() && d.latch&0x80 > 0 {
+		d.data.DirectSet(d.Position(), d.latch)
 	}
 }
 
@@ -358,12 +376,12 @@ func (d *Drive) WriteLatch() {
 // track and position. No change to the latch will occur if we cannot detect
 // that the disk position has shifted since the last LoadLatch was called.
 func (d *Drive) LoadLatch() {
-	if d.Data == nil {
+	if d.data == nil {
 		return
 	}
 
 	if d.diskShifted {
-		d.Latch = d.Data.DirectGet(d.Position())
+		d.latch = d.data.DirectGet(d.Position())
 		d.diskShifted = false
 		d.latchWasRead = false
 	}

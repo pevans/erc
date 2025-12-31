@@ -88,7 +88,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 		if c.SelectedDrive.ReadMode() || c.SelectedDrive.WriteProtected() {
 			// Record this now for the disk log because a read on the drive
 			// will alter the sector pos
-			sectorPos := c.SelectedDrive.SectorPos
+			sectorPos := c.SelectedDrive.sectorPos
 
 			c.SelectedDrive.LoadLatch()
 			*val = c.SelectedDrive.ReadLatch()
@@ -102,7 +102,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 				c.diskLog.Add(&asm.DiskOp{
 					Mode:        asm.DiskRead,
 					Elapsed:     time.Since(c.BootTime),
-					HalfTrack:   c.SelectedDrive.TrackPos,
+					HalfTrack:   c.SelectedDrive.trackPos,
 					Sector:      sectorPos,
 					Byte:        *val,
 					Instruction: c.CPU.ThisInstruction(),
@@ -113,7 +113,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 		} else if c.SelectedDrive.WriteMode() {
 			// Write the value currently in the latch
 			if !debugging {
-				sectorPos := c.SelectedDrive.SectorPos
+				sectorPos := c.SelectedDrive.sectorPos
 
 				c.SelectedDrive.WriteLatch()
 				c.SelectedDrive.Shift(1)
@@ -122,9 +122,9 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 					c.diskLog.Add(&asm.DiskOp{
 						Mode:        asm.DiskWrite,
 						Elapsed:     time.Since(c.BootTime),
-						HalfTrack:   c.SelectedDrive.TrackPos,
+						HalfTrack:   c.SelectedDrive.trackPos,
 						Sector:      sectorPos,
-						Byte:        c.SelectedDrive.Latch,
+						Byte:        c.SelectedDrive.latch,
 						Instruction: c.CPU.ThisInstruction(),
 					})
 				}
@@ -145,10 +145,10 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 
 		if !debugging {
 			if c.SelectedDrive.WriteMode() {
-				c.SelectedDrive.Latch = *val
+				c.SelectedDrive.latch = *val
 				metrics.Increment("disk_write_latch", 1)
 			} else {
-				*val = c.SelectedDrive.Latch
+				*val = c.SelectedDrive.latch
 				metrics.Increment("disk_load_latch", 1)
 			}
 		}

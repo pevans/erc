@@ -38,59 +38,59 @@ func (s *a2Suite) TestDrivePosition() {
 
 	// In a zero track position, the drive position should be equal
 	// exactly to the sector position.
-	d.SectorPos = 123
-	s.Equal(d.SectorPos, d.Position())
+	d.sectorPos = 123
+	s.Equal(d.sectorPos, d.Position())
 
 	// test track position
-	d.TrackPos = 6
-	s.Equal((a2enc.PhysTrackLen*d.TrackPos/2)+d.SectorPos, d.Position())
+	d.trackPos = 6
+	s.Equal((a2enc.PhysTrackLen*d.trackPos/2)+d.sectorPos, d.Position())
 }
 
 func (s *a2Suite) TestDriveShift() {
 	d := NewDrive()
 
-	d.SectorPos = 0
+	d.sectorPos = 0
 
 	// Positive shift
 	d.Shift(10)
-	s.Equal(10, d.SectorPos)
+	s.Equal(10, d.sectorPos)
 
 	// Negative shift
 	d.Shift(-3)
-	s.Equal(7, d.SectorPos)
+	s.Equal(7, d.sectorPos)
 
 	// We should not be able to shift below the zero boundary for a sector
 	d.Shift(-10)
-	s.Equal(a2enc.PhysTrackLen-3, d.SectorPos)
+	s.Equal(a2enc.PhysTrackLen-3, d.sectorPos)
 
 	// We can shift up but not including the length of a track
 	d.Shift(a2enc.PhysTrackLen - 1)
-	s.Equal(a2enc.PhysTrackLen-4, d.SectorPos)
+	s.Equal(a2enc.PhysTrackLen-4, d.sectorPos)
 	d.Shift(4)
-	s.Equal(0, d.SectorPos)
+	s.Equal(0, d.sectorPos)
 }
 
 func (s *a2Suite) TestDriveStep() {
 	d := NewDrive()
 
 	// Positive step, plus note that we always reset the sector position
-	d.SectorPos = 123
+	d.sectorPos = 123
 	d.Step(2)
-	s.Equal(2, d.TrackPos)
-	s.Equal(123, d.SectorPos)
+	s.Equal(2, d.trackPos)
+	s.Equal(123, d.sectorPos)
 
 	// Negative step
 	d.Step(-1)
-	s.Equal(1, d.TrackPos)
+	s.Equal(1, d.trackPos)
 
 	// No matter our starting point, if a step would go beyond MaxSteps,
 	// we should be left _at_ the MaxSteps position
 	d.Step(a2enc.MaxSteps + 1)
-	s.Equal(a2enc.MaxSteps-1, d.TrackPos)
+	s.Equal(a2enc.MaxSteps-1, d.trackPos)
 
 	// Any negative step that goes below zero should keep us at zero
 	d.Step(-a2enc.MaxSteps * 2)
-	s.Equal(0, d.TrackPos)
+	s.Equal(0, d.trackPos)
 }
 
 /*
@@ -180,7 +180,7 @@ func (s *a2Suite) TestDriveLoad() {
 
 	s.Equal(a2enc.DOS33, d.imageType)
 	s.NotNil(d.image)
-	s.NotNil(d.Data)
+	s.NotNil(d.data)
 }
 
 func (s *a2Suite) TestDriveRead() {
@@ -191,7 +191,7 @@ func (s *a2Suite) TestDriveRead() {
 
 	// Note that software expects the high bit to be set on all data coming
 	// from the drive (so any test data needs Latch >= 0x80)
-	d.Latch = 0x81
+	d.latch = 0x81
 	d.latchWasRead = false
 
 	// With newLatchData is true, we should get the same value back unmodified
@@ -212,15 +212,15 @@ func (s *a2Suite) TestDriveWrite() {
 	d.StartMotor()
 
 	// If Latch < 0x80, Write should not write data, but position still shifts
-	d.Latch = 0x11
-	d.SectorPos = 0
+	d.latch = 0x11
+	d.sectorPos = 0
 	d.WriteLatch()
-	s.NotEqual(d.Latch, d.Data.Get(d.Position()))
+	s.NotEqual(d.latch, d.data.Get(d.Position()))
 
 	// Write should do something here
-	d.Latch = 0x81
+	d.latch = 0x81
 	d.WriteLatch()
-	s.Equal(d.Latch, d.Data.Get(d.Position()))
+	s.Equal(d.latch, d.data.Get(d.Position()))
 }
 
 func (s *a2Suite) TestDriveSave() {
@@ -321,7 +321,7 @@ func (s *a2Suite) TestDriveSave() {
 			d.imageName = c.imageName
 			d.imageType = c.imageType
 			d.image = logSeg
-			d.Data = c.data
+			d.data = c.data
 
 			err := d.Save()
 			c.errfn(s.T(), err)
