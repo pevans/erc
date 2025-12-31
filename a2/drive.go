@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"math/rand/v2"
-	"os"
 	"strings"
 
 	"github.com/pevans/erc/a2/a2enc"
@@ -37,7 +36,6 @@ type Drive struct {
 	Image     *memory.Segment
 	ImageType int
 	ImageName string
-	Stream    *os.File
 
 	// mode is the read/write mode of the drive. A drive can either be in read
 	// mode or in write mode; never both together, and never neither mode.
