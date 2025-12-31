@@ -66,7 +66,7 @@ func TestCPU_SpeculateInstruction(t *testing.T) {
 func TestCPU_Speculate(t *testing.T) {
 	t.Run("speculates simple sequence", func(t *testing.T) {
 		cpu := new(CPU)
-		cpu.InstructionLog = asm.NewCallMap()
+		cpu.InstructionLog = asm.NewInstructionMap()
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
@@ -108,7 +108,7 @@ func TestCPU_Speculate(t *testing.T) {
 
 	t.Run("stops at previously executed code", func(t *testing.T) {
 		cpu := new(CPU)
-		cpu.InstructionLog = asm.NewCallMap()
+		cpu.InstructionLog = asm.NewInstructionMap()
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
@@ -152,7 +152,7 @@ func TestCPU_Speculate(t *testing.T) {
 
 	t.Run("speculates on branch target", func(t *testing.T) {
 		cpu := new(CPU)
-		cpu.InstructionLog = asm.NewCallMap()
+		cpu.InstructionLog = asm.NewInstructionMap()
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
@@ -190,7 +190,7 @@ func TestCPU_Speculate(t *testing.T) {
 
 	t.Run("handles backward branches", func(t *testing.T) {
 		cpu := new(CPU)
-		cpu.InstructionLog = asm.NewCallMap()
+		cpu.InstructionLog = asm.NewInstructionMap()
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
@@ -231,7 +231,7 @@ func TestCPU_Speculate(t *testing.T) {
 
 	t.Run("avoids infinite recursion on loops", func(t *testing.T) {
 		cpu := new(CPU)
-		cpu.InstructionLog = asm.NewCallMap()
+		cpu.InstructionLog = asm.NewInstructionMap()
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
@@ -260,7 +260,7 @@ func TestCPU_Speculate(t *testing.T) {
 
 	t.Run("handles nested branches", func(t *testing.T) {
 		cpu := new(CPU)
-		cpu.InstructionLog = asm.NewCallMap()
+		cpu.InstructionLog = asm.NewInstructionMap()
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
@@ -306,7 +306,7 @@ func TestCPU_Speculate(t *testing.T) {
 func TestCPU_Speculate_Integration(t *testing.T) {
 	t.Run("realistic branch scenario", func(t *testing.T) {
 		cpu := new(CPU)
-		cpu.InstructionLog = asm.NewCallMap()
+		cpu.InstructionLog = asm.NewInstructionMap()
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
@@ -359,7 +359,7 @@ func TestCPU_Speculate_Integration(t *testing.T) {
 
 	t.Run("stops at terminating instructions", func(t *testing.T) {
 		cpu := new(CPU)
-		cpu.InstructionLog = asm.NewCallMap()
+		cpu.InstructionLog = asm.NewInstructionMap()
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
@@ -397,7 +397,7 @@ func TestCPU_Speculate_Integration(t *testing.T) {
 
 	t.Run("stops at JMP instruction", func(t *testing.T) {
 		cpu := new(CPU)
-		cpu.InstructionLog = asm.NewCallMap()
+		cpu.InstructionLog = asm.NewInstructionMap()
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 

@@ -29,7 +29,7 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 	c.diskLog = nil
 
 	if c.State.Bool(a2state.DebugImage) {
-		c.InstructionLog = asm.NewCallMap()
+		c.InstructionLog = asm.NewInstructionMap()
 		c.InstructionLogFileName = fmt.Sprintf("%v.asm", fileName)
 
 		// Share the instruction log with the CPU in case it needs to access
