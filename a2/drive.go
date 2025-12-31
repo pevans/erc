@@ -22,10 +22,6 @@ const (
 	writeMode
 )
 
-// cyclesPerByte is the number of cycles whereby a specific byte may be read
-// or written before drive spin would carry us to the next byte.
-const cyclesPerByte uint64 = 32
-
 // A Drive represents the state of a virtual Disk II drive.
 type Drive struct {
 	// phase is the stepper motor phase that the drive head is currently at.
