@@ -143,10 +143,6 @@ func (d *decoder) decodeAddressField() (*addressField, error) {
 	sector := d.decode4n4()
 	checksum := d.decode4n4()
 
-	if !d.scanForBytes(addressFieldEpilogue) {
-		return nil, fmt.Errorf("address field epilogue not found")
-	}
-
 	metadata := &addressField{
 		Volume:   volume,
 		Track:    track,
@@ -164,6 +160,10 @@ func (d *decoder) decodeAddressField() (*addressField, error) {
 		)
 	}
 
+	// Technically, there ought to be an epilogue that we should confirm at
+	// this point. In practice, software may write something other than that
+	// -- I've seen partial epilogues. Instead, we simply treat the epilogue
+	// similarly to self-sync gap bytes, and ignore them.
 	return metadata, nil
 }
 
