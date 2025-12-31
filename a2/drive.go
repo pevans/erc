@@ -80,140 +80,6 @@ type Drive struct {
 	motorOn bool
 }
 
-// NewDrive returns a new disk drive ready for DOS 3.3 images.
-func NewDrive() *Drive {
-	drive := new(Drive)
-
-	drive.SetReadMode()
-	drive.imageType = a2enc.DOS33
-
-	return drive
-}
-
-// ImageName returns the name of the image file loaded in the drive
-func (d *Drive) ImageName() string {
-	return d.imageName
-}
-
-// StartMotor turns the drive motor on. In theory, this would cause the disk
-// in the drive to spin.
-func (d *Drive) StartMotor() {
-	d.motorOn = true
-}
-
-// StopMotor turns off the drive motor, and theoretically stops the disk in
-// the drive from spinning.
-func (d *Drive) StopMotor() {
-	d.motorOn = false
-}
-
-// MotorOn is true if the drive motor is on.
-func (d *Drive) MotorOn() bool {
-	return d.motorOn
-}
-
-// SetWriteProtect will change the writeProtect status of a drive to the given
-// status.
-func (d *Drive) SetWriteProtect(status bool) {
-	d.writeProtect = status
-}
-
-// ToggleWriteProtect flips the status of write protection for the disk in a
-// drive. If it was true, it becomes false, and vice-versa.
-func (d *Drive) ToggleWriteProtect() {
-	d.writeProtect = !d.writeProtect
-}
-
-// WriteProtected returns true if the disk in the drive is write-protected
-// (can't be written to).
-func (d *Drive) WriteProtected() bool {
-	return d.writeProtect
-}
-
-// ReadMode returns true if the drive is in read mode (is able to read data
-// from the disk)
-func (d *Drive) ReadMode() bool {
-	return d.mode == readMode
-}
-
-// SetReadMode sets the drive to read mode.
-func (d *Drive) SetReadMode() {
-	d.mode = readMode
-}
-
-// WriteMode returns true if the drive is in write mode (is able to write data
-// to the disk). This does not take write protection into account; it's
-// possible for a drive to be in write mode but still be unable to write to a
-// disk that is write-protected.
-func (d *Drive) WriteMode() bool {
-	return d.mode == writeMode
-}
-
-// SetWriteMode sets the drive to write mode.
-func (d *Drive) SetWriteMode() {
-	d.mode = writeMode
-}
-
-// Position returns the segment position that the drive is currently at,
-// based upon track and sector position.
-func (d *Drive) Position() int {
-	return ((d.trackPos / 2) * a2enc.PhysTrackLen) + d.sectorPos
-}
-
-// Shift updates the sector position of the drive forward or backward by the
-// given offset in bytes. Since tracks are circular and the disk is
-// spinning, offsets that carry us beyond the bounds of the track instead
-// bring us to the other end of the track.
-func (d *Drive) Shift(offset int) {
-	d.sectorPos += offset
-
-	// In practice, these for loops are mutually exclusive; only one of them
-	// would ever be entered.
-	for d.sectorPos >= a2enc.PhysTrackLen {
-		d.sectorPos -= a2enc.PhysTrackLen
-	}
-
-	for d.sectorPos < 0 {
-		d.sectorPos += a2enc.PhysTrackLen
-	}
-
-	d.diskShifted = true
-}
-
-// Step moves the track position forward or backward, depending on the
-// sign of the offset. This simulates the stepper motor that moves the
-// drive head further into the center of the disk platter (offset > 0)
-// or further out (offset < 0).
-func (d *Drive) Step(offset int) {
-	d.trackPos += offset
-
-	switch {
-	case d.trackPos >= a2enc.MaxSteps:
-		d.trackPos = a2enc.MaxSteps - 1
-	case d.trackPos < 0:
-		d.trackPos = 0
-	}
-}
-
-// SwitchPhase will figure out what phase we should be moving to based on a
-// given address.
-func (d *Drive) SwitchPhase(addr int) {
-	phase := -1
-
-	switch addr & 0xf {
-	case 0x1:
-		phase = 1
-	case 0x3:
-		phase = 2
-	case 0x5:
-		phase = 3
-	case 0x7:
-		phase = 4
-	}
-
-	d.PhaseTransition(phase)
-}
-
 // phaseTable is a really small set of state transitions we can make when
 // accounting for the current phase (which is the row in the table) and the new
 // phase (which is a column in that row). The 0 column and 0 row are not used
@@ -227,23 +93,19 @@ var phaseTable = []int{
 	0, 1, 0, -1, 0,
 }
 
-// PhaseTransition will make use of a given drive phase to step the drive
-// forward or backward by some number of tracks. This is always going to be -1
-// (step backward); 1 (step forward); or 0 (no change).
-func (d *Drive) PhaseTransition(phase int) {
-	if phase < 0 || phase > 4 {
-		return
-	}
+// NewDrive returns a new disk drive ready for DOS 3.3 images.
+func NewDrive() *Drive {
+	drive := new(Drive)
 
-	offset := phaseTable[(d.phase*5)+phase]
+	drive.SetReadMode()
+	drive.imageType = a2enc.DOS33
 
-	// Because of the above check, we can assert that the formula we use for
-	// the phase transition ((curPhase * 5) + phase) will match something, so
-	// we step immediately.
-	d.Step(offset)
+	return drive
+}
 
-	// We also have to update our current phase
-	d.phase = phase
+// ImageName returns the name of the image file loaded in the drive
+func (d *Drive) ImageName() string {
+	return d.imageName
 }
 
 // ImageType returns the type of image that is suggested by the suffix
@@ -309,6 +171,79 @@ func (d *Drive) Load(r io.Reader, file string) error {
 	return nil
 }
 
+// LoadLatch reads the byte at the current drive position with respect to
+// track and position. No change to the latch will occur if we cannot detect
+// that the disk position has shifted since the last LoadLatch was called.
+func (d *Drive) LoadLatch() {
+	if d.data == nil {
+		return
+	}
+
+	if d.diskShifted {
+		d.latch = d.data.DirectGet(d.Position())
+		d.diskShifted = false
+		d.latchWasRead = false
+	}
+}
+
+// MotorOn is true if the drive motor is on.
+func (d *Drive) MotorOn() bool {
+	return d.motorOn
+}
+
+// PhaseTransition will make use of a given drive phase to step the drive
+// forward or backward by some number of tracks. This is always going to be -1
+// (step backward); 1 (step forward); or 0 (no change).
+func (d *Drive) PhaseTransition(phase int) {
+	if phase < 0 || phase > 4 {
+		return
+	}
+
+	offset := phaseTable[(d.phase*5)+phase]
+
+	// Because of the above check, we can assert that the formula we use for
+	// the phase transition ((curPhase * 5) + phase) will match something, so
+	// we step immediately.
+	d.Step(offset)
+
+	// We also have to update our current phase
+	d.phase = phase
+}
+
+// Position returns the segment position that the drive is currently at,
+// based upon track and sector position.
+func (d *Drive) Position() int {
+	return ((d.trackPos / 2) * a2enc.PhysTrackLen) + d.sectorPos
+}
+
+// RandomByte returns a random byte as might be returned by the drive.
+func (d *Drive) RandomByte() uint8 {
+	return uint8(rand.IntN(0xFF))
+}
+
+// ReadLatch returns the byte that is currently loaded in the drive latch.
+// If this data has not been read before, it is returned unmodified. If it has
+// been read before, then it will be returned with the high bit set to zero.
+func (d *Drive) ReadLatch() uint8 {
+	if d.data == nil {
+		return 0xFF
+	}
+
+	if d.latchWasRead {
+		return d.latch & 0x7F
+	}
+
+	d.latchWasRead = true
+
+	return d.latch
+}
+
+// ReadMode returns true if the drive is in read mode (is able to read data
+// from the disk)
+func (d *Drive) ReadMode() bool {
+	return d.mode == readMode
+}
+
 // RemoveDisk will essentially treat the drive as empty. This method DOES NOT
 // SAVE ANY DATA -- please call the Save method to do that. Additionally, this
 // method is not strictly necessary if you are swapping one disk for another.
@@ -335,21 +270,92 @@ func (d *Drive) Save() error {
 	return logSegment.WriteFile(d.imageName)
 }
 
-// ReadLatch returns the byte that is currently loaded in the drive latch.
-// If this data has not been read before, it is returned unmodified. If it has
-// been read before, then it will be returned with the high bit set to zero.
-func (d *Drive) ReadLatch() uint8 {
-	if d.data == nil {
-		return 0xFF
+// SetReadMode sets the drive to read mode.
+func (d *Drive) SetReadMode() {
+	d.mode = readMode
+}
+
+// SetWriteMode sets the drive to write mode.
+func (d *Drive) SetWriteMode() {
+	d.mode = writeMode
+}
+
+// SetWriteProtect will change the writeProtect status of a drive to the given
+// status.
+func (d *Drive) SetWriteProtect(status bool) {
+	d.writeProtect = status
+}
+
+// Shift updates the sector position of the drive forward or backward by the
+// given offset in bytes. Since tracks are circular and the disk is
+// spinning, offsets that carry us beyond the bounds of the track instead
+// bring us to the other end of the track.
+func (d *Drive) Shift(offset int) {
+	d.sectorPos += offset
+
+	// In practice, these for loops are mutually exclusive; only one of them
+	// would ever be entered.
+	for d.sectorPos >= a2enc.PhysTrackLen {
+		d.sectorPos -= a2enc.PhysTrackLen
 	}
 
-	if d.latchWasRead {
-		return d.latch & 0x7F
+	for d.sectorPos < 0 {
+		d.sectorPos += a2enc.PhysTrackLen
 	}
 
-	d.latchWasRead = true
+	d.diskShifted = true
+}
 
-	return d.latch
+// StartMotor turns the drive motor on. In theory, this would cause the disk
+// in the drive to spin.
+func (d *Drive) StartMotor() {
+	d.motorOn = true
+}
+
+// Step moves the track position forward or backward, depending on the
+// sign of the offset. This simulates the stepper motor that moves the
+// drive head further into the center of the disk platter (offset > 0)
+// or further out (offset < 0).
+func (d *Drive) Step(offset int) {
+	d.trackPos += offset
+
+	switch {
+	case d.trackPos >= a2enc.MaxSteps:
+		d.trackPos = a2enc.MaxSteps - 1
+	case d.trackPos < 0:
+		d.trackPos = 0
+	}
+}
+
+// StopMotor turns off the drive motor, and theoretically stops the disk in
+// the drive from spinning.
+func (d *Drive) StopMotor() {
+	d.motorOn = false
+}
+
+// SwitchPhase will figure out what phase we should be moving to based on a
+// given address.
+func (d *Drive) SwitchPhase(addr int) {
+	phase := -1
+
+	switch addr & 0xf {
+	case 0x1:
+		phase = 1
+	case 0x3:
+		phase = 2
+	case 0x5:
+		phase = 3
+	case 0x7:
+		phase = 4
+	}
+
+	d.PhaseTransition(phase)
+}
+
+// ToggleWriteProtect flips the status of write protection for the disk in a
+// drive. If it was true, it becomes false, and vice-versa.
+func (d *Drive) ToggleWriteProtect() {
+	d.writeProtect = !d.writeProtect
 }
 
 // WriteLatch writes the byte in the drive's latch to the disk loaded in the
@@ -368,22 +374,16 @@ func (d *Drive) WriteLatch() {
 	}
 }
 
-// LoadLatch reads the byte at the current drive position with respect to
-// track and position. No change to the latch will occur if we cannot detect
-// that the disk position has shifted since the last LoadLatch was called.
-func (d *Drive) LoadLatch() {
-	if d.data == nil {
-		return
-	}
-
-	if d.diskShifted {
-		d.latch = d.data.DirectGet(d.Position())
-		d.diskShifted = false
-		d.latchWasRead = false
-	}
+// WriteMode returns true if the drive is in write mode (is able to write data
+// to the disk). This does not take write protection into account; it's
+// possible for a drive to be in write mode but still be unable to write to a
+// disk that is write-protected.
+func (d *Drive) WriteMode() bool {
+	return d.mode == writeMode
 }
 
-// RandomByte returns a random byte as might be returned by the drive.
-func (d *Drive) RandomByte() uint8 {
-	return uint8(rand.IntN(0xFF))
+// WriteProtected returns true if the disk in the drive is write-protected
+// (can't be written to).
+func (d *Drive) WriteProtected() bool {
+	return d.writeProtect
 }
