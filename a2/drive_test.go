@@ -68,11 +68,6 @@ func (s *a2Suite) TestDriveShift() {
 	s.Equal(a2enc.PhysTrackLen-4, d.SectorPos)
 	d.Shift(4)
 	s.Equal(0, d.SectorPos)
-
-	// And if the drive is locked, we shouldn't be able to shift at all
-	d.Locked = true
-	d.Shift(3)
-	s.Equal(0, d.SectorPos)
 }
 
 func (s *a2Suite) TestDriveStep() {

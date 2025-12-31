@@ -40,7 +40,6 @@ type Drive struct {
 	Stream       *os.File
 	Mode         int
 	WriteProtect bool
-	Locked       bool
 
 	// diskShifted is true if the disk has shifted after the last time data
 	// was loaded into the latch.
@@ -92,10 +91,6 @@ func (d *Drive) Position() int {
 // spinning, offsets that carry us beyond the bounds of the track instead
 // bring us to the other end of the track.
 func (d *Drive) Shift(offset int) {
-	if d.Locked {
-		return
-	}
-
 	d.SectorPos += offset
 
 	// In practice, these for loops are mutually exclusive; only one of them
