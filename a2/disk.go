@@ -35,7 +35,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 		if !debugging {
 			c.Drive1.StopMotor()
 			c.Drive2.StopMotor()
-			c.ClockEmulator.FullSpeed = false
+			c.ClockEmulator.SetFullSpeed(false)
 			metrics.Increment("disk_drives_off", 1)
 		}
 
@@ -56,7 +56,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 			// perfectly emulate disk spin, and because we can't help the fact
 			// that timing loops exist in the software, this is our
 			// compromise.
-			c.ClockEmulator.FullSpeed = true
+			c.ClockEmulator.SetFullSpeed(true)
 
 			metrics.Increment("disk_selected_drive_online", 1)
 		}

@@ -130,15 +130,16 @@ func runEmulator(image string) {
 	defer line.Close() //nolint:errcheck
 
 	emulator := comp.ClockEmulator
-	emulator.EnterDebuggerFunc = func() {
-		debug.Prompt(comp, line)
-	}
 
-	emulator.CheckBreakpointFunc = func() {
+	emulator.SetDebuggerEntry(func() {
+		debug.Prompt(comp, line)
+	})
+
+	emulator.SetBreakpointCheck(func() {
 		if debug.HasBreakpoint(int(comp.CPU.PC)) {
 			comp.State.SetBool(a2state.Debugger, true)
 		}
-	}
+	})
 
 	go emulator.ProcessLoop(comp)
 

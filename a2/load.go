@@ -37,7 +37,7 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 		// put this into the state map.
 		c.CPU.InstructionLog = c.InstructionLog
 
-		c.TimeSet = asm.NewTimeset(c.ClockEmulator.TimePerCycle)
+		c.TimeSet = asm.NewTimeset(c.ClockEmulator.TimePerCycle())
 		c.TimeSetFileName = fmt.Sprintf("%v.time", fileName)
 
 		c.MetricsFileName = fmt.Sprintf("%v.metrics", fileName)
