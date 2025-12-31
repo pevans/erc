@@ -15,7 +15,7 @@ func TestNewDrive(t *testing.T) {
 
 	assert.NotNil(t, d)
 	assert.True(t, d.ReadMode())
-	assert.Equal(t, a2enc.DOS33, d.ImageType)
+	assert.Equal(t, a2enc.DOS33, d.imageType)
 }
 
 func TestMotorOn(t *testing.T) {
@@ -178,8 +178,8 @@ func (s *a2Suite) TestDriveLoad() {
 	data, _ := os.Open("../data/logical.disk")
 	s.NoError(d.Load(data, "something.dsk"))
 
-	s.Equal(a2enc.DOS33, d.ImageType)
-	s.NotNil(d.Image)
+	s.Equal(a2enc.DOS33, d.imageType)
+	s.NotNil(d.image)
 	s.NotNil(d.Data)
 }
 
@@ -318,9 +318,9 @@ func (s *a2Suite) TestDriveSave() {
 		s.Run(c.name, func() {
 			d := NewDrive()
 
-			d.ImageName = c.imageName
-			d.ImageType = c.imageType
-			d.Image = logSeg
+			d.imageName = c.imageName
+			d.imageType = c.imageType
+			d.image = logSeg
 			d.Data = c.data
 
 			err := d.Save()

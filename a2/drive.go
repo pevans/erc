@@ -33,9 +33,17 @@ type Drive struct {
 	TrackPos  int
 	SectorPos int
 	Data      *memory.Segment
-	Image     *memory.Segment
-	ImageType int
-	ImageName string
+
+	// image is the memory segment containing the bytes of the image file
+	// loaded in the drive.
+	image *memory.Segment
+
+	// imageType is the type of the image file loaded in the drive (DOS33,
+	// ProDOS).
+	imageType int
+
+	// imageName is the name of the image file loaded in the drive.
+	imageName string
 
 	// mode is the read/write mode of the drive. A drive can either be in read
 	// mode or in write mode; never both together, and never neither mode.
@@ -63,9 +71,14 @@ func NewDrive() *Drive {
 	drive := new(Drive)
 
 	drive.SetReadMode()
-	drive.ImageType = a2enc.DOS33
+	drive.imageType = a2enc.DOS33
 
 	return drive
+}
+
+// ImageName returns the name of the image file loaded in the drive
+func (d *Drive) ImageName() string {
+	return d.imageName
 }
 
 // StartMotor turns the drive motor on. In theory, this would cause the disk
@@ -243,7 +256,7 @@ func (d *Drive) Load(r io.Reader, file string) error {
 	var err error
 
 	// See if we can figure out what type of image this is
-	d.ImageType, err = ImageType(file)
+	d.imageType, err = ImageType(file)
 	if err != nil {
 		return errors.Wrapf(err, "failed to understand image type")
 	}
@@ -255,17 +268,17 @@ func (d *Drive) Load(r io.Reader, file string) error {
 	}
 
 	// Copy directly into the image segment
-	d.Image = memory.NewSegment(len(bytes))
-	_, err = d.Image.CopySlice(0, []uint8(bytes))
+	d.image = memory.NewSegment(len(bytes))
+	_, err = d.image.CopySlice(0, []uint8(bytes))
 	if err != nil {
-		d.Image = nil
+		d.image = nil
 		return errors.Wrapf(err, "failed to copy bytes into image segment")
 	}
 
 	// Decode into the data segment
-	d.Data, err = a2enc.Encode(d.ImageType, d.Image)
+	d.Data, err = a2enc.Encode(d.imageType, d.image)
 	if err != nil {
-		d.Image = nil
+		d.image = nil
 		return errors.Wrapf(err, "failed to decode image")
 	}
 
@@ -277,24 +290,35 @@ func (d *Drive) Load(r io.Reader, file string) error {
 	// loaded does not have it
 	d.writeProtect = false
 
-	d.ImageName = file
+	d.imageName = file
 
 	return nil
+}
+
+// RemoveDisk will essentially treat the drive as empty. This method DOES NOT
+// SAVE ANY DATA -- please call the Save method to do that. Additionally, this
+// method is not strictly necessary if you are swapping one disk for another.
+// Instead, you can simply call Load to do that. RemoveDisk is only useful if
+// you have a use-case to treat the drive as functionally empty.
+func (d *Drive) RemoveDisk() {
+	d.imageName = ""
+	d.image = nil
+	d.Data = nil
 }
 
 // Write the contents of the drive's disk back to the filesystem
 func (d *Drive) Save() error {
 	// There's no file, so there's nothing to save.
-	if d.ImageName == "" || d.Data == nil {
+	if d.imageName == "" || d.Data == nil {
 		return nil
 	}
 
-	logSegment, err := a2enc.Decode(d.ImageType, d.Data)
+	logSegment, err := a2enc.Decode(d.imageType, d.Data)
 	if err != nil {
 		return fmt.Errorf("could not decode image: %w", err)
 	}
 
-	return logSegment.WriteFile(d.ImageName)
+	return logSegment.WriteFile(d.imageName)
 }
 
 // ReadLatch returns the byte that is currently loaded in the drive latch.
