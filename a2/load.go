@@ -15,7 +15,7 @@ import (
 // (nibble, dos).
 func (c *Computer) Load(r io.Reader, fileName string) error {
 	if c.diskLog != nil {
-		_ = c.diskLog.WriteToFile()
+		_ = c.diskLog.WriteToFile(c.diskLogFileName)
 	}
 
 	if err := c.SelectedDrive.Save(); err != nil {
@@ -45,7 +45,8 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 		c.CPU.InstructionChannel = make(chan *asm.Line, 100)
 		go MaybeLogInstructions(c)
 
-		c.diskLog = asm.NewDiskLog(fileName)
+		c.diskLogFileName = fmt.Sprintf("%v.disklog", fileName)
+		c.diskLog = asm.NewDiskLog()
 		return c.SelectedDrive.WriteDataToFile(fmt.Sprintf("%v.physical", fileName))
 	}
 

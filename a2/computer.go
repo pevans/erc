@@ -49,7 +49,13 @@ type Computer struct {
 	Drive1        *a2drive.Drive
 	Drive2        *a2drive.Drive
 	SelectedDrive *a2drive.Drive
-	diskLog       *asm.DiskLog
+
+	// diskLogFileName is the name we'll use to write the diskLog
+	diskLogFileName string
+
+	// diskLog is the log of all disk operations recorded by the file in
+	// drive1
+	diskLog *asm.DiskLog
 
 	// When the computer is booted up, this will be a set of disks that we
 	// might use to run software. There are often cases where you need to swap

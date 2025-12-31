@@ -48,7 +48,7 @@ func (c *Computer) Shutdown() error {
 	}
 
 	if c.diskLog != nil {
-		if err := c.diskLog.WriteToFile(); err != nil {
+		if err := c.diskLog.WriteToFile(c.diskLogFileName); err != nil {
 			return err
 		}
 	}
