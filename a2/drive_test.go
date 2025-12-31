@@ -14,7 +14,7 @@ func TestNewDrive(t *testing.T) {
 	d := NewDrive()
 
 	assert.NotNil(t, d)
-	assert.Equal(t, ReadMode, d.Mode)
+	assert.True(t, d.ReadMode())
 	assert.Equal(t, a2enc.DOS33, d.ImageType)
 }
 
@@ -208,7 +208,7 @@ func (s *a2Suite) TestDriveWrite() {
 	dat, _ := os.Open("../data/logical.disk")
 	s.NoError(d.Load(dat, "something.dsk"))
 
-	d.Mode = WriteMode
+	d.SetWriteMode()
 	d.StartMotor()
 
 	// If Latch < 0x80, Write should not write data, but position still shifts

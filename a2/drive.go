@@ -16,11 +16,11 @@ import (
 // The drive mode helps us determine whether to read or write from
 // the disk, but is actually unrelated to write protect mode!
 const (
-	// ReadMode is read mode for the drive.
-	ReadMode = iota
+	// readMode is read mode for the drive.
+	readMode = iota
 
-	// WriteMode indicates that we are in write mode for the drive.
-	WriteMode
+	// writeMode indicates that we are in write mode for the drive.
+	writeMode
 )
 
 // cyclesPerByte is the number of cycles whereby a specific byte may be read
@@ -38,7 +38,10 @@ type Drive struct {
 	ImageType int
 	ImageName string
 	Stream    *os.File
-	Mode      int
+
+	// mode is the read/write mode of the drive. A drive can either be in read
+	// mode or in write mode; never both together, and never neither mode.
+	mode int
 
 	// writeProtect is true when the disk in the drive is considered
 	// write-protected. A write-protected disk may not be written to by the
@@ -61,7 +64,7 @@ type Drive struct {
 func NewDrive() *Drive {
 	drive := new(Drive)
 
-	drive.Mode = ReadMode
+	drive.SetReadMode()
 	drive.ImageType = a2enc.DOS33
 
 	return drive
@@ -100,6 +103,30 @@ func (d *Drive) ToggleWriteProtect() {
 // (can't be written to).
 func (d *Drive) WriteProtected() bool {
 	return d.writeProtect
+}
+
+// ReadMode returns true if the drive is in read mode (is able to read data
+// from the disk)
+func (d *Drive) ReadMode() bool {
+	return d.mode == readMode
+}
+
+// SetReadMode sets the drive to read mode.
+func (d *Drive) SetReadMode() {
+	d.mode = readMode
+}
+
+// WriteMode returns true if the drive is in write mode (is able to write data
+// to the disk). This does not take write protection into account; it's
+// possible for a drive to be in write mode but still be unable to write to a
+// disk that is write-protected.
+func (d *Drive) WriteMode() bool {
+	return d.mode == writeMode
+}
+
+// SetWriteMode sets the drive to write mode.
+func (d *Drive) SetWriteMode() {
+	d.mode = writeMode
 }
 
 // Position returns the segment position that the drive is currently at,
@@ -300,7 +327,7 @@ func (d *Drive) WriteLatch() {
 		return
 	}
 
-	if d.Mode == WriteMode && d.MotorOn() && d.Latch&0x80 > 0 {
+	if d.WriteMode() && d.MotorOn() && d.Latch&0x80 > 0 {
 		d.Data.DirectSet(d.Position(), d.Latch)
 	}
 }

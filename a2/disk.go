@@ -85,7 +85,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 		// This is the SHIFT operation, which might write a byte, but might
 		// also read a byte, depending on the drive state.
 
-		if c.SelectedDrive.Mode == ReadMode || c.SelectedDrive.WriteProtected() {
+		if c.SelectedDrive.ReadMode() || c.SelectedDrive.WriteProtected() {
 			// Record this now for the disk log because a read on the drive
 			// will alter the sector pos
 			sectorPos := c.SelectedDrive.SectorPos
@@ -110,7 +110,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 			}
 
 			metrics.Increment("disk_read", 1)
-		} else if c.SelectedDrive.Mode == WriteMode {
+		} else if c.SelectedDrive.WriteMode() {
 			// Write the value currently in the latch
 			if !debugging {
 				sectorPos := c.SelectedDrive.SectorPos
@@ -144,7 +144,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 		}
 
 		if !debugging {
-			if c.SelectedDrive.Mode == WriteMode {
+			if c.SelectedDrive.WriteMode() {
 				c.SelectedDrive.Latch = *val
 				metrics.Increment("disk_write_latch", 1)
 			} else {
@@ -156,7 +156,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 	case 0xE:
 		// Set the selected drive mode to read
 		if !debugging {
-			c.SelectedDrive.Mode = ReadMode
+			c.SelectedDrive.SetReadMode()
 			metrics.Increment("disk_read_mode", 1)
 		}
 
@@ -172,7 +172,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 	case 0xF:
 		// Set the selected drive mode to write
 		if !debugging {
-			c.SelectedDrive.Mode = WriteMode
+			c.SelectedDrive.SetWriteMode()
 			metrics.Increment("disk_write_mode", 1)
 		}
 
