@@ -129,19 +129,19 @@ func (s *a2Suite) TestSwitchWrite() {
 	)
 
 	s.Run("switching main to aux", func() {
-		s.comp.Main.Mem[addr] = d123
-		s.comp.Aux.Mem[addr] = d45
+		s.comp.Main.DirectSet(addr, d123)
+		s.comp.Aux.DirectSet(addr, d45)
 		s.comp.State.SetBool(a2state.BankSysBlockAux, false)
 		bankSwitchWrite(int(0xC009), d45, s.comp.State)
 		s.True(s.comp.State.Bool(a2state.BankSysBlockAux))
-		s.Equal(d45, s.comp.Aux.Mem[addr])
+		s.Equal(d45, s.comp.Aux.DirectGet(addr))
 	})
 
 	s.Run("switching aux to main", func() {
-		s.comp.Aux.Mem[addr] = d45
+		s.comp.Aux.DirectSet(addr, d45)
 		bankSwitchWrite(int(0xC008), d123, s.comp.State)
 		s.False(s.comp.State.Bool(a2state.BankSysBlockAux))
-		s.Equal(d123, s.comp.Main.Mem[addr])
+		s.Equal(d123, s.comp.Main.DirectGet(addr))
 	})
 }
 

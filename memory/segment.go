@@ -5,8 +5,7 @@ import (
 	"os"
 )
 
-// You could make an argument that this should be Endianness, and I would nod
-// my head
+// Endian is a type that represents the endianness of a segment.
 type Endian int
 
 const (
@@ -16,15 +15,24 @@ const (
 
 // A Segment is a block of memory divided into uint8s.
 type Segment struct {
-	Mem        []uint8
-	smap       *SoftMap
-	Endianness Endian
+	// mem is the byte buffer that contains all of the data in the segment.
+	mem []uint8
+
+	// smap is a softmap that may contain side-effectful (is that a word?)
+	// behavior that can occur when data is retrieved or set at a certain
+	// address.
+	smap *SoftMap
+
+	// endianness represents the endianness of the data in the segment.
+	endianness Endian
 }
 
+// A SegmentReader is some type that implements the UseReadSegment method.
 type SegmentReader interface {
 	UseReadSegment(*Segment)
 }
 
+// A SegmentWriter is some type that implements the UseWriteSegment method.
 type SegmentWriter interface {
 	UseWriteSegment(*Segment)
 }
@@ -44,21 +52,22 @@ type Setter interface {
 // NewSegment will return a new memory segment with for a given size.
 func NewSegment(size int) *Segment {
 	s := new(Segment)
-	s.Mem = make([]uint8, size)
+	s.mem = make([]uint8, size)
 
 	// Segments default to LittleEndian because that's how the Apple II works.
-	s.Endianness = LittleEndian
+	s.endianness = LittleEndian
 
 	return s
 }
 
+// UseSoftMap uses the provided softmap when handling Set and Get methods.
 func (s *Segment) UseSoftMap(sm *SoftMap) {
 	s.smap = sm
 }
 
 // Size returns the size of the given segment.
 func (s *Segment) Size() int {
-	return len(s.Mem)
+	return len(s.mem)
 }
 
 // CopySlice copies the contents of a slice of uint8s into a segment.
@@ -66,24 +75,24 @@ func (s *Segment) CopySlice(start int, bytes []uint8) (int, error) {
 	toWrite := len(bytes)
 	end := start + toWrite
 
-	if start < 0 || end > len(s.Mem) {
+	if start < 0 || end > len(s.mem) {
 		return 0, fmt.Errorf("destination slice is out of bounds: %v, %v", start, end)
 	}
 
-	_ = copy(s.Mem[start:end], bytes)
+	_ = copy(s.mem[start:end], bytes)
 
 	return toWrite, nil
 }
 
-// Take the bytes from a given segment, at some position and for some length,
-// and pull that into our the receiver segment. Think of this as taking a
-// chunk of the from segment and making that its own segment.
+// ExtractFrom takes the bytes from a given segment, at some position and for
+// some length, and pull that into our the receiver segment. Think of this as
+// taking a chunk of the from segment and making that its own segment.
 func (s *Segment) ExtractFrom(from *Segment, start, end int) (int, error) {
-	if start < 0 || end > len(from.Mem) {
+	if start < 0 || end > len(from.mem) {
 		return 0, fmt.Errorf("destination slice is out of bounds: %v, %v", start, end)
 	}
 
-	return s.CopySlice(0, from.Mem[start:end])
+	return s.CopySlice(0, from.mem[start:end])
 }
 
 // Set will set the value at a given cell. If a write function is
@@ -96,20 +105,21 @@ func (s *Segment) Set(addr int, val uint8) {
 		}
 	}
 
-	s.Mem[addr] = val
+	s.mem[addr] = val
 }
 
-// Sets a 16-bit value with respect given to the endianness of the segment
+// Set16 sets a 16-bit value at the given address.
 func (s *Segment) Set16(addr int, val uint16) {
-	if s.Endianness == LittleEndian {
-		s.Set16LittleEndian(addr, val)
+	if s.endianness == LittleEndian {
+		s.set16LittleEndian(addr, val)
 		return
 	}
 
-	s.Set16BigEndian(addr, val)
+	s.set16BigEndian(addr, val)
 }
 
-func (s *Segment) Set16BigEndian(addr int, val uint16) {
+// set16BigEndian sets the value at the given address in big endian order.
+func (s *Segment) set16BigEndian(addr int, val uint16) {
 	lsb := uint8(val & 0xFF)
 	msb := uint8(val >> 8)
 
@@ -117,7 +127,8 @@ func (s *Segment) Set16BigEndian(addr int, val uint16) {
 	s.Set(addr, msb)
 }
 
-func (s *Segment) Set16LittleEndian(addr int, val uint16) {
+// set16LittleEndian sets the value at the given address in little endian order.
+func (s *Segment) set16LittleEndian(addr int, val uint16) {
 	lsb := uint8(val & 0xFF)
 	msb := uint8(val >> 8)
 
@@ -125,8 +136,10 @@ func (s *Segment) Set16LittleEndian(addr int, val uint16) {
 	s.Set(addr+1, msb)
 }
 
+// DirectSet will bypass the registered SoftMap to directly set the provided
+// value at a given address.
 func (s *Segment) DirectSet(addr int, val uint8) {
-	s.Mem[addr] = val
+	s.mem[addr] = val
 }
 
 // Get will get the value from a given cell. If a read function is
@@ -140,45 +153,38 @@ func (s *Segment) Get(addr int) uint8 {
 		}
 	}
 
-	return s.Mem[addr]
+	return s.mem[addr]
 }
 
-// Gets a 16-bit value with respect given to the endianness of the segment
+// Get16 gets a 16-bit value at some provided address.
 func (s *Segment) Get16(addr int) uint16 {
-	if s.Endianness == LittleEndian {
-		return s.Get16LittleEndian(addr)
+	if s.endianness == LittleEndian {
+		return s.get16LittleEndian(addr)
 	}
 
-	return s.Get16BigEndian(addr)
+	return s.get16BigEndian(addr)
 }
 
-func (s *Segment) Get16BigEndian(addr int) uint16 {
+// get16BigEndian returns the value of an address in big-endian order.
+func (s *Segment) get16BigEndian(addr int) uint16 {
 	lsb := s.Get(addr + 1)
 	msb := s.Get(addr)
 
 	return (uint16(msb) << 8) | uint16(lsb)
 }
 
-func (s *Segment) Get16LittleEndian(addr int) uint16 {
+// get16LittleEndian returns the value of an address in little-endian order.
+func (s *Segment) get16LittleEndian(addr int) uint16 {
 	lsb := s.Get(addr)
 	msb := s.Get(addr + 1)
 
 	return (uint16(msb) << 8) | uint16(lsb)
 }
 
+// DirectGet, unlike Get, bypasses the segment's softmap and returns exactly
+// the value at the given address.
 func (s *Segment) DirectGet(addr int) uint8 {
-	return s.Mem[addr]
-}
-
-// WriteFile writes the contents of this segment out to a file.
-func (s *Segment) WriteFile(path string) error {
-	bytes := make([]byte, len(s.Mem))
-
-	for i, b := range s.Mem {
-		bytes[i] = byte(b)
-	}
-
-	return os.WriteFile(path, bytes, 0o644)
+	return s.mem[addr]
 }
 
 // ReadFile will read the contents of a given file into the segment
@@ -189,10 +195,21 @@ func (s *Segment) ReadFile(path string) error {
 		return err
 	}
 
-	s.Mem = make([]uint8, len(data))
+	s.mem = make([]uint8, len(data))
 	for i, b := range data {
-		s.Mem[i] = uint8(b)
+		s.mem[i] = uint8(b)
 	}
 
 	return nil
+}
+
+// WriteFile writes the contents of this segment out to a file.
+func (s *Segment) WriteFile(path string) error {
+	bytes := make([]byte, len(s.mem))
+
+	for i, b := range s.mem {
+		bytes[i] = byte(b)
+	}
+
+	return os.WriteFile(path, bytes, 0o644)
 }

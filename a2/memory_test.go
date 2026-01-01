@@ -89,7 +89,7 @@ func (s *a2Suite) TestComputerSet() {
 	// test a normal set
 	s.comp.State.SetBool(a2state.MemWriteAux, false)
 	WriteSegment(s.comp.State).DirectSet(idx, val)
-	s.Equal(val, s.comp.Main.Mem[idx])
+	s.Equal(val, s.comp.Main.DirectGet(idx))
 
 	// test a set from wmap
 	var target uint8
@@ -102,7 +102,7 @@ func (s *a2Suite) TestComputerSet() {
 	// test a get from aux
 	s.comp.State.SetBool(a2state.MemWriteAux, true)
 	WriteSegment(s.comp.State).DirectSet(idx, val)
-	s.Equal(val, s.comp.Aux.Mem[idx])
+	s.Equal(val, s.comp.Aux.DirectGet(idx))
 }
 
 func (s *a2Suite) TestReadSegment() {

@@ -56,7 +56,7 @@ func loadFile(seg *memory.Segment, path string) error {
 	}
 
 	for i, b := range bytes {
-		seg.Mem[i] = uint8(b)
+		seg.DirectSet(i, uint8(b))
 	}
 
 	return nil

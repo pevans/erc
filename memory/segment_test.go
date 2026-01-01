@@ -17,14 +17,14 @@ func TestSet(t *testing.T) {
 	val := uint8(123)
 
 	s.Set(addr, val)
-	assert.Equal(t, val, s.Mem[addr])
+	assert.Equal(t, val, s.mem[addr])
 
 	assert.Panics(t, func() {
 		s.Set(-1, val)
 	})
 
 	assert.Panics(t, func() {
-		s.Set(cap(s.Mem)+1, val)
+		s.Set(cap(s.mem)+1, val)
 	})
 }
 
@@ -33,7 +33,7 @@ func TestGet(t *testing.T) {
 	addr := 1
 	val := uint8(123)
 
-	s.Mem[addr] = val
+	s.mem[addr] = val
 	assert.Equal(t, val, s.Get(addr))
 
 	assert.Panics(t, func() {
@@ -41,7 +41,7 @@ func TestGet(t *testing.T) {
 	})
 
 	assert.Panics(t, func() {
-		_ = s.Get(cap(s.Mem) + 1)
+		_ = s.Get(cap(s.mem) + 1)
 	})
 }
 
@@ -223,28 +223,28 @@ func TestGet16BigEndian(t *testing.T) {
 	t.Run("basic 16-bit number", func(t *testing.T) {
 		s.Set(10, 0x12) // MSB at addr
 		s.Set(11, 0x34) // LSB at addr+1
-		assert.Equal(t, uint16(0x1234), s.Get16BigEndian(10))
+		assert.Equal(t, uint16(0x1234), s.get16BigEndian(10))
 	})
 
 	t.Run("maximum values", func(t *testing.T) {
 		s.Set(20, 0xFF) // MSB
 		s.Set(21, 0xFF) // LSB
-		assert.Equal(t, uint16(0xFFFF), s.Get16BigEndian(20))
+		assert.Equal(t, uint16(0xFFFF), s.get16BigEndian(20))
 	})
 
 	t.Run("zero values", func(t *testing.T) {
 		s.Set(30, 0x00) // MSB
 		s.Set(31, 0x00) // LSB
-		assert.Equal(t, uint16(0x0000), s.Get16BigEndian(30))
+		assert.Equal(t, uint16(0x0000), s.get16BigEndian(30))
 	})
 
 	t.Run("out of bound access", func(t *testing.T) {
 		assert.Panics(t, func() {
-			_ = s.Get16BigEndian(-1)
+			_ = s.get16BigEndian(-1)
 		})
 
 		assert.Panics(t, func() {
-			_ = s.Get16BigEndian(99)
+			_ = s.get16BigEndian(99)
 		})
 	})
 }
@@ -255,28 +255,28 @@ func TestGet16LittleEndian(t *testing.T) {
 	t.Run("basic 16-bit number", func(t *testing.T) {
 		s.Set(10, 0x34) // LSB at addr
 		s.Set(11, 0x12) // MSB at addr+1
-		assert.Equal(t, uint16(0x1234), s.Get16LittleEndian(10))
+		assert.Equal(t, uint16(0x1234), s.get16LittleEndian(10))
 	})
 
 	t.Run("maximum values", func(t *testing.T) {
 		s.Set(20, 0xFF) // LSB
 		s.Set(21, 0xFF) // MSB
-		assert.Equal(t, uint16(0xFFFF), s.Get16LittleEndian(20))
+		assert.Equal(t, uint16(0xFFFF), s.get16LittleEndian(20))
 	})
 
 	t.Run("zero values", func(t *testing.T) {
 		s.Set(30, 0x00) // LSB
 		s.Set(31, 0x00) // MSB
-		assert.Equal(t, uint16(0x0000), s.Get16LittleEndian(30))
+		assert.Equal(t, uint16(0x0000), s.get16LittleEndian(30))
 	})
 
 	t.Run("out of bound access", func(t *testing.T) {
 		assert.Panics(t, func() {
-			_ = s.Get16LittleEndian(-1)
+			_ = s.get16LittleEndian(-1)
 		})
 
 		assert.Panics(t, func() {
-			_ = s.Get16LittleEndian(99)
+			_ = s.get16LittleEndian(99)
 		})
 	})
 }
@@ -285,14 +285,14 @@ func TestGet16(t *testing.T) {
 	s := NewSegment(100)
 
 	t.Run("little endian", func(t *testing.T) {
-		s.Endianness = LittleEndian
+		s.endianness = LittleEndian
 		s.Set(10, 0x34) // LSB at addr
 		s.Set(11, 0x12) // MSB at addr+1
 		assert.Equal(t, uint16(0x1234), s.Get16(10))
 	})
 
 	t.Run("big endian", func(t *testing.T) {
-		s.Endianness = BigEndian
+		s.endianness = BigEndian
 		s.Set(20, 0x12) // MSB at addr
 		s.Set(21, 0x34) // LSB at addr+1
 		assert.Equal(t, uint16(0x1234), s.Get16(20))
@@ -303,30 +303,30 @@ func TestSet16BigEndian(t *testing.T) {
 	s := NewSegment(100)
 
 	t.Run("basic 16-bit number", func(t *testing.T) {
-		s.Set16BigEndian(10, 0x1234)
+		s.set16BigEndian(10, 0x1234)
 		assert.Equal(t, uint8(0x12), s.Get(10)) // MSB at addr
 		assert.Equal(t, uint8(0x34), s.Get(11)) // LSB at addr+1
 	})
 
 	t.Run("maximum values", func(t *testing.T) {
-		s.Set16BigEndian(20, 0xFFFF)
+		s.set16BigEndian(20, 0xFFFF)
 		assert.Equal(t, uint8(0xFF), s.Get(20)) // MSB
 		assert.Equal(t, uint8(0xFF), s.Get(21)) // LSB
 	})
 
 	t.Run("zero values", func(t *testing.T) {
-		s.Set16BigEndian(30, 0x0000)
+		s.set16BigEndian(30, 0x0000)
 		assert.Equal(t, uint8(0x00), s.Get(30)) // MSB
 		assert.Equal(t, uint8(0x00), s.Get(31)) // LSB
 	})
 
 	t.Run("out of bound access", func(t *testing.T) {
 		assert.Panics(t, func() {
-			s.Set16BigEndian(-1, 0x1234)
+			s.set16BigEndian(-1, 0x1234)
 		})
 
 		assert.Panics(t, func() {
-			s.Set16BigEndian(99, 0x1234)
+			s.set16BigEndian(99, 0x1234)
 		})
 	})
 }
@@ -335,30 +335,30 @@ func TestSet16LittleEndian(t *testing.T) {
 	s := NewSegment(100)
 
 	t.Run("basic 16-bit number", func(t *testing.T) {
-		s.Set16LittleEndian(10, 0x1234)
+		s.set16LittleEndian(10, 0x1234)
 		assert.Equal(t, uint8(0x34), s.Get(10)) // LSB at addr
 		assert.Equal(t, uint8(0x12), s.Get(11)) // MSB at addr+1
 	})
 
 	t.Run("maximum values", func(t *testing.T) {
-		s.Set16LittleEndian(20, 0xFFFF)
+		s.set16LittleEndian(20, 0xFFFF)
 		assert.Equal(t, uint8(0xFF), s.Get(20)) // LSB
 		assert.Equal(t, uint8(0xFF), s.Get(21)) // MSB
 	})
 
 	t.Run("zero values", func(t *testing.T) {
-		s.Set16LittleEndian(30, 0x0000)
+		s.set16LittleEndian(30, 0x0000)
 		assert.Equal(t, uint8(0x00), s.Get(30)) // LSB
 		assert.Equal(t, uint8(0x00), s.Get(31)) // MSB
 	})
 
 	t.Run("out of bound access", func(t *testing.T) {
 		assert.Panics(t, func() {
-			s.Set16LittleEndian(-1, 0x1234)
+			s.set16LittleEndian(-1, 0x1234)
 		})
 
 		assert.Panics(t, func() {
-			s.Set16LittleEndian(99, 0x1234)
+			s.set16LittleEndian(99, 0x1234)
 		})
 	})
 }
@@ -367,14 +367,14 @@ func TestSet16(t *testing.T) {
 	s := NewSegment(100)
 
 	t.Run("big endian", func(t *testing.T) {
-		s.Endianness = BigEndian
+		s.endianness = BigEndian
 		s.Set16(20, 0x1234)
 		assert.Equal(t, uint8(0x12), s.Get(20)) // MSB at addr
 		assert.Equal(t, uint8(0x34), s.Get(21)) // LSB at addr+1
 	})
 
 	t.Run("little endian", func(t *testing.T) {
-		s.Endianness = LittleEndian
+		s.endianness = LittleEndian
 		s.Set16(30, 0x7856)
 		assert.Equal(t, uint8(0x56), s.Get(30)) // LSB at addr
 		assert.Equal(t, uint8(0x78), s.Get(31)) // MSB at addr+1
