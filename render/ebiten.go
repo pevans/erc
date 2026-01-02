@@ -47,6 +47,9 @@ func (g *game) Draw(screen *ebiten.Image) {
 		slog.Error(fmt.Sprintf("could not render framebuffer: %v", err))
 		return
 	}
+
+	gfx.StatusOverlay.Draw(screen)
+	gfx.PrefixOverlay.Draw(screen)
 }
 
 // Update handles logic once for every frame that is rendered, but this
@@ -72,6 +75,9 @@ func (g *game) Update() error {
 	}
 
 	g.comp.Render()
+
+	gfx.StatusOverlay.Update()
+	gfx.PrefixOverlay.Update()
 
 	return nil
 }

@@ -7,6 +7,8 @@ import (
 
 	"github.com/pevans/erc/a2"
 	"github.com/pevans/erc/a2/a2state"
+	"github.com/pevans/erc/gfx"
+	"github.com/pevans/erc/obj"
 )
 
 func execute(comp *a2.Computer, cmd string) {
@@ -55,6 +57,7 @@ func execute(comp *a2.Computer, cmd string) {
 		os.Exit(0)
 	case "resume":
 		comp.State.SetBool(a2state.Debugger, false)
+		gfx.ShowStatus(obj.ResumePNG())
 		say("resuming emulation")
 
 	default:
