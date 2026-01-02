@@ -6,6 +6,8 @@ import (
 
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/asm"
+	"github.com/pevans/erc/gfx"
+	"github.com/pevans/erc/obj"
 	"github.com/pkg/errors"
 )
 
@@ -72,7 +74,40 @@ func (c *Computer) LoadNext() error {
 
 	defer data.Close()
 
+	if png := diskPNG(c.Disks.CurrentIndex()); png != nil {
+		gfx.ShowStatus(png)
+	}
+
 	return c.Load(data, filename)
+}
+
+// diskPNG returns the Disk#PNG status graphic, where # corresponds to some
+// disk image. Since the disk images are numbered 1-10, we have to adjust what
+// we return to align to the 0-based index from the disket.
+func diskPNG(index int) []byte {
+	switch index {
+	case 0:
+		return obj.Disk1PNG()
+	case 1:
+		return obj.Disk2PNG()
+	case 2:
+		return obj.Disk3PNG()
+	case 3:
+		return obj.Disk4PNG()
+	case 4:
+		return obj.Disk5PNG()
+	case 5:
+		return obj.Disk6PNG()
+	case 6:
+		return obj.Disk7PNG()
+	case 7:
+		return obj.Disk8PNG()
+	case 8:
+		return obj.Disk9PNG()
+	case 9:
+		return obj.Disk10PNG()
+	}
+	return nil
 }
 
 func MaybeLogInstructions(c *Computer) {

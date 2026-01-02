@@ -62,3 +62,8 @@ func (set *DiskSet) Next() (*os.File, string, error) {
 
 	return set.Current()
 }
+
+// CurrentIndex returns the index of the current disk within the diskset.
+func (set *DiskSet) CurrentIndex() int {
+	return set.current
+}
