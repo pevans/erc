@@ -75,6 +75,9 @@ func Check(ev input.Event, comp *a2.Computer) (bool, error) {
 		}
 
 		return true, nil
+
+	case 'q', 'Q':
+		return true, comp.Shutdown()
 	}
 
 	return false, nil

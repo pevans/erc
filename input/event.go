@@ -25,7 +25,7 @@ const (
 
 var (
 	eventChannel = make(chan Event)
-	shutdown     = make(chan bool)
+	shutdown     = make(chan bool, 1)
 	listening    = false
 )
 
