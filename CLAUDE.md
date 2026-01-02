@@ -38,15 +38,17 @@ Erc's goals are to:
 - `debug`: a debugger that someone can interactively use to investigate the
   state and behavior of the computer
 - `emu`: provides an abstract definition of an emulated computer
-- `gfx`: the basics necessary to produce graphics on screen
+- `gfx`: the basics necessary to produce graphics on screen, including status
+  overlays that fade in/out
 - `input`: provides the means to store abstract input events, like keypresses
 - `memory`: code to store various kinds of memory in segments and to map
   behavior to certain addresses in segments via "soft switch" maps
 - `mos`: provides the means to emulate an MOS 65C02 CPU chip
-- `obj`: code that provides object storage for built-in ROM
+- `obj`: code that provides object storage for built-in ROM and embedded PNG
+  graphics for status overlays
 - `render`: the basics necessary to run erc with ebiten
-- `shortcut`: code to capture and interpret keyboard shortcuts (like quitting
-  the program)
+- `shortcut`: code to capture and interpret keyboard shortcuts using a CTRL-A
+  prefix (e.g., CTRL-A Q to quit, CTRL-A ESC to pause)
 - `work`: a directory that is used for temporary storage of test files, disk
   images, and so forth; these files are never committed to the repository
 
@@ -92,7 +94,7 @@ Erc's goals are to:
   also shows the instruction that was responsible for reading the byte, along
   with the address in memory. It is important to note that this will show
   bytes that are _encoded_ for the Apple II, and there will not be a 1:1
-  correlation to bytes in the disk image that was loaded. For that, youw ould
+  correlation to bytes in the disk image that was loaded. For that, you would
   need to look at `image.dsk.physical`, which is a record of the encoded disk
   image.
 - A timeset is a file that looks like `image.dsk.time`. It shows how much
