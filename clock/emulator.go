@@ -58,6 +58,8 @@ func (e *Emulator) ProcessLoop(comp emu.Computer) {
 	e.resumeTime = e.startTime
 	state := comp.StateMap()
 
+	wasPaused := false
+
 	for {
 		e.breakpointCheckFunc()
 
@@ -70,6 +72,20 @@ func (e *Emulator) ProcessLoop(comp emu.Computer) {
 			e.totalCycles = 0
 
 			continue
+		}
+
+		if state.Bool(a2state.Paused) {
+			wasPaused = true
+			time.Sleep(100 * time.Millisecond)
+			continue
+		}
+
+		// If we get to this point, and wasPaused is true, then that means the
+		// Paused status was unset.
+		if wasPaused {
+			wasPaused = false
+			e.resumeTime = time.Now()
+			e.totalCycles = 0
 		}
 
 		elapsed := time.Since(e.resumeTime)

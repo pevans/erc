@@ -55,6 +55,9 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 	return nil
 }
 
+// LoadFirst will load the first disk in the diskset, regardless of the
+// diskset's current index. Note that this will _alter_ the index to become
+// that of the first disk. An error is returned if the disk can't be loaded.
 func (c *Computer) LoadFirst() error {
 	data, filename, err := c.Disks.First()
 	if err != nil {
@@ -66,10 +69,31 @@ func (c *Computer) LoadFirst() error {
 	return c.Load(data, filename)
 }
 
+// LoadNext will load the next disk in the computer's diskset. If that can't
+// be done, an error is returned. A status graphic will be displayed to
+// indicate the new disk that has been loaded.
 func (c *Computer) LoadNext() error {
 	data, filename, err := c.Disks.Next()
 	if err != nil {
 		return fmt.Errorf("could not load next disk: %w", err)
+	}
+
+	defer data.Close()
+
+	if png := diskPNG(c.Disks.CurrentIndex()); png != nil {
+		gfx.ShowStatus(png)
+	}
+
+	return c.Load(data, filename)
+}
+
+// LoadPrevious will load the previous disk in the computer's diskset. If that
+// can't be done, an error is returned. A status graphic will be displayed to
+// indicate the new disk that has been loaded.
+func (c *Computer) LoadPrevious() error {
+	data, filename, err := c.Disks.Previous()
+	if err != nil {
+		return fmt.Errorf("could not load previous disk: %w", err)
 	}
 
 	defer data.Close()
@@ -110,6 +134,10 @@ func diskPNG(index int) []byte {
 	return nil
 }
 
+// MaybeLogInstructions will, if an InstructionLog is available and if
+// messages are available on the CPU's InstructionChannel, record those
+// instructions in the instruction log. If a TimeSet is also available, we
+// will also record a timeset entry there.
 func MaybeLogInstructions(c *Computer) {
 	for line := range c.CPU.InstructionChannel {
 		if c.InstructionLog != nil {

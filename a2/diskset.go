@@ -5,11 +5,16 @@ import (
 	"os"
 )
 
+// A DiskSet is a container of disk image filenames, with some tracking for
+// the current disk in the set. Many old software packages had more than one
+// disk, so the idea is a single DiskSet can contain every disk you would need
+// to operate the software.
 type DiskSet struct {
 	images  []string
 	current int
 }
 
+// NewDiskSet returns a newly allocated empty diskset.
 func NewDiskSet() *DiskSet {
 	set := new(DiskSet)
 	set.images = make([]string, 0)
@@ -18,6 +23,9 @@ func NewDiskSet() *DiskSet {
 	return set
 }
 
+// Append adds a disk to the diskset. Given some file, we will test that it's
+// there, and then append the filename to the diskset. If no image file
+// exists at the given filename, we return an error.
 func (set *DiskSet) Append(file string) error {
 	_, err := os.Stat(file)
 	if err != nil {
@@ -29,6 +37,8 @@ func (set *DiskSet) Append(file string) error {
 	return nil
 }
 
+// Disk returns the disk image at a given index. If the index is not valid, an
+// error is returned.
 func (set *DiskSet) Disk(index int) (*os.File, string, error) {
 	if index < 0 || index >= len(set.images) {
 		return nil, "", fmt.Errorf("no disk at index %v", index)
@@ -50,14 +60,30 @@ func (set *DiskSet) First() (*os.File, string, error) {
 	return set.Current()
 }
 
+// Current returns the current disk in the diskset (according to its index).
 func (set *DiskSet) Current() (*os.File, string, error) {
 	return set.Disk(set.current)
 }
 
+// Next returns the next disk in the diskset (the index one after the current
+// index). If we're at the end of the diskset, this will wrap around to the
+// first disk in the set.
 func (set *DiskSet) Next() (*os.File, string, error) {
 	set.current++
 	if set.current >= len(set.images) {
 		set.current = 0
+	}
+
+	return set.Current()
+}
+
+// Previous returns the previous disk in the diskset (the index one earlier
+// from the current index). If we're at the beginning of the diskset, this
+// will wrap around to the last disk in the set.
+func (set *DiskSet) Previous() (*os.File, string, error) {
+	set.current--
+	if set.current < 0 {
+		set.current = len(set.images) - 1
 	}
 
 	return set.Current()

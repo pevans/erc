@@ -37,6 +37,7 @@ const (
 	MemReadSegment
 	MemWriteAux
 	MemWriteSegment
+	Paused
 	PCExpSlot
 	PCExpansion
 	PCIOSelect
@@ -79,6 +80,7 @@ var keyStringMap = map[int]string{
 	MemReadSegment:      "MemReadSegment",
 	MemWriteAux:         "MemWriteAux",
 	MemWriteSegment:     "MemWriteSegment",
+	Paused:              "Paused",
 	PCExpSlot:           "PCExpSlot",
 	PCExpansion:         "PCExpansion",
 	PCIOSelect:          "PCIOSelect",
