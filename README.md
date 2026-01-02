@@ -76,6 +76,8 @@ Shortcuts available:
   available.** If you're on disk 3, you'll swap to disk 2, and so forth. Any
   changes made to the disk being swapped out will be written back to the image
   file.
+- **CTRL-A Q: Quit the emulator and save all changes to the disk image.** (If
+  you're on a Mac, CMD-Q should also work.)
 - **CTRL-A W: Toggle write-protect for the disk.** Write-protection will prevent
   data on the disk from being overwritten. Some software cannot run with
   write-protect enabled, and some software cannot run _without_ write-protect
