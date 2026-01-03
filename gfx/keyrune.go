@@ -5,6 +5,8 @@ import (
 	"github.com/pevans/erc/input"
 )
 
+// keyRunes is a mapping of ebiten Keys to runes. The Apple II is 7-bit ASCII,
+// so this works out straightforwardly.
 var keyRunes = map[ebiten.Key]rune{
 	ebiten.KeyA:            'A',
 	ebiten.KeyArrowDown:    rune(0x0A),
@@ -65,6 +67,9 @@ var keyRunes = map[ebiten.Key]rune{
 	ebiten.KeyZ:            'Z',
 }
 
+// shiftKeyRunes are a map of ebiten Keys to runes, but with the assumption
+// that the shift key had been held down. (Shift keys are a modifier rather
+// than baked into the ebiten Key itself.)
 var shiftKeyRunes = map[ebiten.Key]rune{
 	ebiten.KeyBackquote:    '~',
 	ebiten.KeyBackslash:    '|',
@@ -89,6 +94,7 @@ var shiftKeyRunes = map[ebiten.Key]rune{
 	ebiten.KeySlash:        '?',
 }
 
+// KeyToRune returns a rune aligned to a specific ebiten Key and modifier.
 func KeyToRune(key ebiten.Key, modifier int) rune {
 	if modifier == input.ModShift {
 		if r, ok := shiftKeyRunes[key]; ok {
