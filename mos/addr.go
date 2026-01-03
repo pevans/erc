@@ -98,6 +98,12 @@ func OperandSize(opcode uint8) uint16 {
 // Ex. INC $1234 increments the byte at $1234
 func Abs(c *CPU) {
 	c.AddrMode = AmABS
+
+	if !c.State.Bool(a2state.DebuggerLookAhead) {
+		c.State.SetBool(a2state.InstructionReadOp, true)
+		c.State.SetInt(a2state.BankReadAttempts, 1)
+	}
+
 	c.EffAddr = c.Get16(c.PC + 1)
 	c.Operand = c.EffAddr
 	c.EffVal = c.Get(c.EffAddr)
