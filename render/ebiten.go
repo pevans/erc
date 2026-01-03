@@ -72,6 +72,7 @@ func (g *game) Update() error {
 	} else {
 		g.inputEvent = input.Event{}
 		g.lastInputEvent = input.Event{}
+		g.comp.ClearKeys()
 	}
 
 	g.comp.Render()
