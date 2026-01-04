@@ -3,6 +3,7 @@ package a2
 import (
 	"fmt"
 	"io"
+	"path"
 
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/asm"
@@ -84,6 +85,9 @@ func (c *Computer) LoadNext() error {
 		gfx.ShowStatus(png)
 	}
 
+	w, h := c.Dimensions()
+	gfx.DiskNotification.Show(path.Base(filename), int(w), int(h))
+
 	return c.Load(data, filename)
 }
 
@@ -101,6 +105,9 @@ func (c *Computer) LoadPrevious() error {
 	if png := diskPNG(c.Disks.CurrentIndex()); png != nil {
 		gfx.ShowStatus(png)
 	}
+
+	w, h := c.Dimensions()
+	gfx.DiskNotification.Show(path.Base(filename), int(w), int(h))
 
 	return c.Load(data, filename)
 }
