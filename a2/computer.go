@@ -173,3 +173,10 @@ func (c *Computer) NeedsRender() bool {
 func (c *Computer) StateMap() *memory.StateMap {
 	return c.State
 }
+
+// ShowText flashes a text message on the screen using the gfx package's
+// TextNotification
+func (c *Computer) ShowText(message string) {
+	w, h := c.Dimensions()
+	gfx.TextNotification.Show(message, int(w), int(h))
+}

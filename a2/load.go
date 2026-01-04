@@ -85,8 +85,7 @@ func (c *Computer) LoadNext() error {
 		gfx.ShowStatus(png)
 	}
 
-	w, h := c.Dimensions()
-	gfx.DiskNotification.Show(path.Base(filename), int(w), int(h))
+	c.ShowText(path.Base(filename))
 
 	return c.Load(data, filename)
 }
@@ -106,8 +105,7 @@ func (c *Computer) LoadPrevious() error {
 		gfx.ShowStatus(png)
 	}
 
-	w, h := c.Dimensions()
-	gfx.DiskNotification.Show(path.Base(filename), int(w), int(h))
+	c.ShowText(path.Base(filename))
 
 	return c.Load(data, filename)
 }

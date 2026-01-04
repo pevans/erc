@@ -50,7 +50,7 @@ func (g *game) Draw(screen *ebiten.Image) {
 
 	gfx.StatusOverlay.Draw(screen)
 	gfx.PrefixOverlay.Draw(screen)
-	gfx.DiskNotification.Draw(screen)
+	gfx.TextNotification.Draw(screen)
 }
 
 // Update handles logic once for every frame that is rendered, but this
@@ -80,7 +80,7 @@ func (g *game) Update() error {
 
 	gfx.StatusOverlay.Update()
 	gfx.PrefixOverlay.Update()
-	gfx.DiskNotification.Update()
+	gfx.TextNotification.Update()
 
 	return nil
 }

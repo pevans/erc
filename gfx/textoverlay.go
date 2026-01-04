@@ -25,11 +25,11 @@ type TextOverlay struct {
 	screenHeight int
 }
 
-// DiskNotification is the global text overlay for disk swap notifications.
-var DiskNotification *TextOverlay
+// TextNotification is the global text overlay for disk swap notifications.
+var TextNotification *TextOverlay
 
 func init() {
-	DiskNotification = NewTextOverlay()
+	TextNotification = NewTextOverlay()
 }
 
 // NewTextOverlay creates a new text overlay.
