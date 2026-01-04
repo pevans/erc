@@ -24,11 +24,11 @@ func (s *a2Suite) TestPCSwitcherSwitchWrite() {
 		s.comp.State.SetBool(a2state.PCSlotC3, false)
 		pcSwitchWrite(int(0xC006), 0x0, s.comp.State)
 		s.Equal(true, s.comp.State.Bool(a2state.PCSlotCX))
-		s.Equal(true, s.comp.State.Bool(a2state.PCSlotC3))
+		s.Equal(false, s.comp.State.Bool(a2state.PCSlotC3)) // CX switch should NOT affect C3
 
 		pcSwitchWrite(int(0xC007), 0x0, s.comp.State)
 		s.Equal(false, s.comp.State.Bool(a2state.PCSlotCX))
-		s.Equal(false, s.comp.State.Bool(a2state.PCSlotC3))
+		s.Equal(false, s.comp.State.Bool(a2state.PCSlotC3)) // CX switch should NOT affect C3
 	})
 }
 

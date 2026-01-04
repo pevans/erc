@@ -130,16 +130,10 @@ func pcSwitchWrite(addr int, val uint8, stm *memory.StateMap) {
 		stm.SetBool(a2state.PCSlotC3, false)
 	case onSlotCXROM:
 		metrics.Increment("soft_pc_slot_cx_c3_rom_on", 1)
-		// Note that enabling slotcx rom _also_ enables slotc3 rom, and
-		// disabling does the same.
 		stm.SetBool(a2state.PCSlotCX, true)
-		stm.SetBool(a2state.PCSlotC3, true)
 	case offSlotCXROM:
 		metrics.Increment("soft_pc_slot_cx_c3_rom_off", 1)
-		// FIXME: the problem is that addresses aren't matching the
-		// consts, even though they are equal values
 		stm.SetBool(a2state.PCSlotCX, false)
-		stm.SetBool(a2state.PCSlotC3, false)
 	}
 }
 
