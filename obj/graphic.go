@@ -23,6 +23,20 @@ func ResumePNG() []byte {
 	return resumePNG
 }
 
+//go:embed png/speeddown.png
+var speedDownPNG []byte
+
+func SpeedDownPNG() []byte {
+	return speedDownPNG
+}
+
+//go:embed png/speedup.png
+var speedUpPNG []byte
+
+func SpeedUpPNG() []byte {
+	return speedUpPNG
+}
+
 //go:embed png/writeable.png
 var writeablePNG []byte
 

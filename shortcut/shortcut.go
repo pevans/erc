@@ -46,6 +46,16 @@ func Check(ev input.Event, comp *a2.Computer) (bool, error) {
 		gfx.ShowStatus(obj.PausePNG())
 		return true, nil
 
+	case '-', '_':
+		comp.SpeedDown()
+		gfx.ShowStatus(obj.SpeedDownPNG())
+		return true, nil
+
+	case '+', '=':
+		comp.SpeedUp()
+		gfx.ShowStatus(obj.SpeedUpPNG())
+		return true, nil
+
 	case 'b', 'B':
 		comp.State.SetBool(a2state.Debugger, true)
 		gfx.ShowStatus(obj.DebugPNG())

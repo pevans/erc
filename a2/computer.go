@@ -1,6 +1,7 @@
 package a2
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
@@ -31,6 +32,10 @@ type Computer struct {
 	WillShutDown  bool
 
 	ClockEmulator *clock.Emulator
+
+	// speed is some abstract number to indicate how fast we're going. Refer
+	// to ClockSpeed to see how this number is used to set our actual hertz.
+	speed int
 
 	// When did the computer boot? This also includes when the computer is
 	// soft-booted (i.e. reset with a blank context after having been running
@@ -118,6 +123,24 @@ const (
 	screenHeight uint = 384
 )
 
+// ClockSpeed returns hertz based on the given abstract speed. Relatively
+// larger speeds imply a larger hertz; i.e. ClockSpeed(2) > ClockSpeed(1).
+func ClockSpeed(speed int) int64 {
+	// Use the basic clockspeed of an Apple IIe as a starting point
+	hertz := int64(1_023_000)
+
+	// Don't allow the caller to get too crazy
+	if speed > 5 {
+		speed = 5
+	}
+
+	for i := 1; i < speed; i++ {
+		hertz *= 2
+	}
+
+	return hertz
+}
+
 // NewComputer returns an Apple //e computer value, which essentially
 // encompasses all of the things that an Apple II would need to run.
 func NewComputer(hertz int64) *Computer {
@@ -151,6 +174,7 @@ func NewComputer(hertz int64) *Computer {
 	// speed, things feel much slower than I'd expect. In practice,
 	// something approximately double that number feels more right.
 	comp.ClockEmulator = clock.NewEmulator(hertz)
+	comp.speed = 1
 
 	comp.Font40 = a2font.SystemFont40()
 	comp.Font80 = a2font.SystemFont80()
@@ -166,12 +190,18 @@ func (c *Computer) Dimensions() (width, height uint) {
 	return screenWidth, screenHeight
 }
 
+// NeedsRender returns true if we think the screen needs to be redrawn.
 func (c *Computer) NeedsRender() bool {
 	return c.State.Bool(a2state.DisplayRedraw)
 }
 
-func (c *Computer) StateMap() *memory.StateMap {
-	return c.State
+// SetSpeed changes the rate of emulation to a precise speed number (with
+// hertz determined by ClockSpeed()). This can be dangerous; if you set a
+// speed of 0, the emulated computer will halt.
+func (c *Computer) SetSpeed(n int) {
+	c.ShowText(fmt.Sprintf("speed: %v", n))
+	c.speed = n
+	c.ClockEmulator.ChangeHertz(ClockSpeed(n))
 }
 
 // ShowText flashes a text message on the screen using the gfx package's
@@ -179,4 +209,37 @@ func (c *Computer) StateMap() *memory.StateMap {
 func (c *Computer) ShowText(message string) {
 	w, h := c.Dimensions()
 	gfx.TextNotification.Show(message, int(w), int(h))
+}
+
+// SpeedUp changes the rate of emulation by increasing the relative speed to
+// one number greater than it is right now. If you're at speed 1, it becomes
+// speed 2; etc. This method will not set the rate of speed higher than 5.
+func (c *Computer) SpeedUp() {
+	// We can't go higher than ~5mhz right now. (We could, of course, but...
+	// we don't want to.)
+	if c.speed > 4 {
+		c.ShowText(fmt.Sprintf("speed: %v", c.speed))
+		return
+	}
+
+	c.SetSpeed(c.speed + 1)
+}
+
+// SpeedDown changes the rate of emulation by decreasing the relative speed to
+// one number fewer than it is right now. If you're at speed 3, it becomes
+// speed 2. This method will not set a speed below 1.
+func (c *Computer) SpeedDown() {
+	// We can't go lower than 1mhz. (Well, we could, but we don't do this
+	// right now.)
+	if c.speed < 2 {
+		c.ShowText(fmt.Sprintf("speed: %v", c.speed))
+		return
+	}
+
+	c.SetSpeed(c.speed - 1)
+}
+
+// StateMap returns the computer's available state map.
+func (c *Computer) StateMap() *memory.StateMap {
+	return c.State
 }

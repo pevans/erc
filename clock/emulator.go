@@ -53,6 +53,19 @@ func NewEmulator(hz int64) *Emulator {
 	return emu
 }
 
+// ChangeHertz resets the clock emulation's hertz value and expected time
+// per cycle.
+func (e *Emulator) ChangeHertz(hz int64) {
+	e.hertz = hz
+	e.timePerCycle = (1 * time.Second) / time.Duration(hz)
+
+	// Reset timing so we don't think we're behind or ahead on cycles
+	e.resumeTime = time.Now()
+	e.totalCycles = 0
+}
+
+// ProcessLoop runs the execution process for the provided computer. It does
+// not exit unless there was some problem.
 func (e *Emulator) ProcessLoop(comp emu.Computer) {
 	e.startTime = time.Now()
 	e.resumeTime = e.startTime
