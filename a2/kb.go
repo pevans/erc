@@ -53,6 +53,9 @@ func kbUseDefaults(c *Computer) {
 }
 
 func (c *Computer) PressKey(key uint8) {
+	c.keyPressMutex.Lock()
+	defer c.keyPressMutex.Unlock()
+
 	// There can only be 7-bit ASCII in an Apple II, so we explicitly
 	// take off the high bit.
 	c.State.SetUint8(a2state.KBLastKey, key&0x7F)

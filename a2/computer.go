@@ -51,6 +51,9 @@ type Computer struct {
 
 	Screen *gfx.FrameBuffer
 
+	// when we press a key, we don't want one press to clobber another
+	keyPressMutex sync.Mutex
+
 	Drive1        *a2drive.Drive
 	Drive2        *a2drive.Drive
 	SelectedDrive *a2drive.Drive
