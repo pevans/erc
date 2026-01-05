@@ -50,7 +50,7 @@ var blueOrange = []color.RGBA{
 func RenderHires(seg memory.Getter, start, end int) {
 	dots := make([]HiresDot, 280)
 
-	for y := uint(0); y < 192; y++ {
+	for y := range uint(192) {
 		err := PrepareHiresRow(seg, y, dots)
 		if err != nil {
 			// This should really never happen...
