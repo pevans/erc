@@ -36,8 +36,8 @@ func TestFontGlyph(t *testing.T) {
 func TestFontDefineGlyph(t *testing.T) {
 	var (
 		f     = NewFont(2, 2)
-		white = color.RGBA{R: 255, G: 255, B: 255}
-		black = color.RGBA{}
+		white = color.RGBA{R: 255, G: 255, B: 255, A: 0xff}
+		black = color.RGBA{A: 0xff}
 	)
 
 	t.Run("a new glyph should work", func(t *testing.T) {

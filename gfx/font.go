@@ -76,10 +76,10 @@ func (f *Font) DefineGlyph(ch int, points []byte) {
 // that one cell should be drawn or another should not.
 func gcolor(b byte) color.RGBA {
 	if b == 0 {
-		return color.RGBA{}
+		return color.RGBA{A: 0xff}
 	}
 
-	return color.RGBA{R: 255, G: 255, B: 255}
+	return color.RGBA{R: 255, G: 255, B: 255, A: 0xff}
 }
 
 // DefineGlyphAsBuffer will take a fully formed framebuffer as its glyph. If
