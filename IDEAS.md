@@ -8,20 +8,23 @@ The near-term vision is to reasonably emulate an Apple //e, which is an Apple II
 
 ## Current state
 
-Erc is able to emulate Apple II DOS-order software, although not well. It can:
+Erc is able to emulate Apple II DOS-order software. It can:
 
 - read and execute software
 - write data into the disk image held in memory and save those changes to the
   image
-- render high resolution graphics and 40-column text
+- render high resolution graphics, low resolution graphics, and 40-column text
 - reasonably emulate cycles (although precise cycle emulation is not a goal)
 - at any point drop into a debugger and record a log of disk access
 - produce reasonably complete debugging output to examine what software does
+- allow the user to speed up and slow down at will
+- support multiple disks loaded at boot time and allow you to swap dynamically
+  between them
 
 ## Problems
 
-- Some software does not load correctly
-- A lot of software has not been tested at all (WOZ, NIB, and PO files particularly)
+- A lot of software has not been tested at all (NIB, and PO files particularly)
+- We do not yet support WOZ images
 
 ## Opportunities
 

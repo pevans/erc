@@ -64,6 +64,10 @@ Shortcuts available:
 - **CTRL-A Escape: Pause emulation until you hit Escape again.** Any other
   keypress will show the Pause icon to indicate it's still paused. You don't
   need to hit CTRL-A Escape to resume; just Escape.
+- **CTRL-A +: Increase the speed so emulation runs faster.** Up to a maximum
+  of 5x the normal speed of emulation.
+- **CTRL-A -: Decrease the speed of emulation so things run slower.** The
+  emulator will not go any slower than 1x the normal speed.
 - **CTRL-A B: Start the debugger in the console where you ran Erc from.** From
   the debugger, type `help` to see a list of commands available there, or type
   `resume` to resume emulation and leave the debugger.
