@@ -15,6 +15,8 @@ import (
 	"github.com/pevans/erc/mos"
 )
 
+const appleMhz int64 = 1_023_000
+
 // ReadMapFn is a function which can execute a soft switch procedure on
 // read.
 type ReadMapFn func(*Computer, int) uint8
@@ -130,7 +132,7 @@ const (
 // larger speeds imply a larger hertz; i.e. ClockSpeed(2) > ClockSpeed(1).
 func ClockSpeed(speed int) int64 {
 	// Use the basic clockspeed of an Apple IIe as a starting point
-	hertz := int64(1_023_000)
+	hertz := appleMhz
 
 	// Don't allow the caller to get too crazy
 	if speed > 5 {
@@ -146,7 +148,7 @@ func ClockSpeed(speed int) int64 {
 
 // NewComputer returns an Apple //e computer value, which essentially
 // encompasses all of the things that an Apple II would need to run.
-func NewComputer(hertz int64) *Computer {
+func NewComputer(speed int) *Computer {
 	comp := &Computer{}
 
 	comp.Aux = memory.NewSegment(AuxMemorySize)
@@ -176,8 +178,8 @@ func NewComputer(hertz int64) *Computer {
 	// might have run. I've found that if I use 1.023 MHz, the Apple IIe
 	// speed, things feel much slower than I'd expect. In practice,
 	// something approximately double that number feels more right.
-	comp.ClockEmulator = clock.NewEmulator(hertz)
-	comp.speed = 1
+	comp.ClockEmulator = clock.NewEmulator(appleMhz)
+	comp.SetSpeed(speed)
 
 	comp.Font40 = a2font.SystemFont40()
 	comp.Font80 = a2font.SystemFont80()

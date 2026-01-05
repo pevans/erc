@@ -65,7 +65,7 @@ func runEmulator(image string) {
 	}
 
 	// Build the computer and screen objects
-	comp := a2.NewComputer(clockspeed(speedFlag))
+	comp := a2.NewComputer(speedFlag)
 
 	// Set up a signal handler for graceful shutdown
 	signals := make(chan os.Signal, 1)
