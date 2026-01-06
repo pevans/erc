@@ -53,6 +53,10 @@ type Computer struct {
 
 	Screen *gfx.FrameBuffer
 
+	// displaySnapshot holds a point-in-time copy of display memory for
+	// consistent rendering
+	displaySnapshot *DisplaySnapshot
+
 	// when we press a key, we don't want one press to clobber another
 	keyPressMutex sync.Mutex
 
@@ -186,6 +190,8 @@ func NewComputer(speed int) *Computer {
 
 	comp.Screen = gfx.NewFrameBuffer(screenWidth, screenHeight)
 	gfx.Screen = comp.Screen
+
+	comp.displaySnapshot = NewDisplaySnapshot()
 
 	return comp
 }

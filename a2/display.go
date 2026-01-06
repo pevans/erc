@@ -303,6 +303,11 @@ func (c *Computer) Render() {
 
 	metrics.Increment("renders", 1)
 
+	// Snapshot display memory to prevent tearing during render.
+	// This copies the current state so we render from a consistent view
+	// even if the CPU modifies display memory mid-render.
+	c.displaySnapshot.CopyFrom(c.Main)
+
 	// if it's text, do one thing
 	// if it's lores, do another thing
 	// if it's mixed, we need to do text + lores
@@ -315,7 +320,7 @@ func (c *Computer) Render() {
 			end   = 0x800
 		)
 
-		a2video.RenderText(c, c.Font40, start, end)
+		a2video.RenderText(c.displaySnapshot, c.Font40, start, end)
 
 	case c.State.Bool(a2state.DisplayHires):
 		var (
@@ -323,7 +328,7 @@ func (c *Computer) Render() {
 			end   = 0x4000
 		)
 
-		a2video.RenderHires(c, start, end)
+		a2video.RenderHires(c.displaySnapshot, start, end)
 
 	default:
 		var (
@@ -331,7 +336,7 @@ func (c *Computer) Render() {
 			end   = 0x800
 		)
 
-		a2video.RenderLores(c, start, end)
+		a2video.RenderLores(c.displaySnapshot, start, end)
 	}
 
 	c.State.SetBool(a2state.DisplayRedraw, false)
