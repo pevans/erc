@@ -28,12 +28,12 @@ var (
 )
 
 var runCmd = &cobra.Command{
-	Use:   "run [image]",
+	Use:   "run [image...]",
 	Short: "Emulate a disk image",
-	Long:  "Emulate an Apple //e computer and boot with the specified disk image file",
-	Args:  cobra.ExactArgs(1),
+	Long:  "Emulate an Apple //e computer and boot with the specified disk image file(s)",
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		runEmulator(args[0])
+		runEmulator(args)
 	},
 }
 
@@ -47,7 +47,7 @@ func init() {
 	runCmd.Flags().BoolVar(&writeProtectFlag, "write-protect", false, "Whether to write-protect the image")
 }
 
-func runEmulator(image string) {
+func runEmulator(images []string) {
 	if profileFlag {
 		defer profile.Start().Stop()
 	}
@@ -83,17 +83,17 @@ func runEmulator(image string) {
 		os.Exit(1)
 	}()
 
-	// Load the image file
+	// Load the image files
 	comp.State.SetBool(a2state.DebugImage, debugImageFlag)
 
-	for filename := range strings.SplitSeq(image, ",") {
+	for _, filename := range images {
 		if err := comp.Disks.Append(filename); err != nil {
 			fail(fmt.Sprintf("could not open file %s: %v", filename, err))
 		}
 	}
 
 	if err := comp.LoadFirst(); err != nil {
-		fail(fmt.Sprintf("could not load file %s: %v", image, err))
+		fail(fmt.Sprintf("could not load file %s: %v", images[0], err))
 	}
 
 	if writeProtectFlag {
