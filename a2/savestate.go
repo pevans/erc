@@ -4,6 +4,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/pevans/erc/a2/a2save"
 	"github.com/pevans/erc/a2/a2state"
@@ -11,8 +12,31 @@ import (
 	"github.com/pevans/erc/obj"
 )
 
+// pauseForStateOp pauses the emulator and waits for the ProcessLoop to
+// actually stop before returning. Returns whether the emulator was already
+// paused (so caller knows whether to unpause).
+func (c *Computer) pauseForStateOp() bool {
+	wasPaused := c.State.Bool(a2state.Paused)
+	if !wasPaused {
+		c.State.SetBool(a2state.Paused, true)
+		// Give ProcessLoop time to see the pause and stop
+		time.Sleep(150 * time.Millisecond)
+	}
+	return wasPaused
+}
+
+// resumeAfterStateOp unpauses the emulator if it wasn't paused before.
+func (c *Computer) resumeAfterStateOp(wasPaused bool) {
+	if !wasPaused {
+		c.State.SetBool(a2state.Paused, false)
+	}
+}
+
 // SaveState writes the current emulator state to the specified file.
 func (c *Computer) SaveState(filename string) error {
+	wasPaused := c.pauseForStateOp()
+	defer c.resumeAfterStateOp(wasPaused)
+
 	state := &a2save.SaveState{
 		Version:    a2save.SaveStateVersion,
 		CPU:        *c.CPU.Snapshot(),
@@ -47,6 +71,9 @@ func (c *Computer) SaveState(filename string) error {
 
 // LoadState restores emulator state from the specified file.
 func (c *Computer) LoadState(filename string) error {
+	wasPaused := c.pauseForStateOp()
+	defer c.resumeAfterStateOp(wasPaused)
+
 	file, err := os.Open(filename)
 	if err != nil {
 		return fmt.Errorf("could not open save state file: %w", err)
