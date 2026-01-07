@@ -17,6 +17,7 @@ func Check(ev input.Event, comp *a2.Computer) (bool, error) {
 	// If paused, ESC resumes; any other key flashes the pause graphic
 	if comp.State.Bool(a2state.Paused) {
 		if ev.Key == escapeKey {
+			comp.ClearKeys()
 			comp.State.SetBool(a2state.Paused, false)
 			gfx.ShowStatus(obj.ResumePNG())
 		} else {
@@ -43,6 +44,7 @@ func Check(ev input.Event, comp *a2.Computer) (bool, error) {
 
 	switch ev.Key {
 	case escapeKey:
+		comp.ClearKeys()
 		comp.State.SetBool(a2state.Paused, true)
 		gfx.ShowStatus(obj.PausePNG())
 		return true, nil

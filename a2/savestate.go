@@ -106,6 +106,9 @@ func (c *Computer) LoadState(filename string) error {
 	// Rebuild segment references in StateMap
 	c.rebuildSegmentReferences()
 
+	// Clear keyboard state to avoid stuck keys from the loaded state
+	c.ClearKeys()
+
 	// Force display redraw
 	c.State.SetBool(a2state.DisplayRedraw, true)
 

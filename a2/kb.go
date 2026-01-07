@@ -70,5 +70,8 @@ func (c *Computer) PressKey(key uint8) {
 }
 
 func (c *Computer) ClearKeys() {
+	c.keyPressMutex.Lock()
+	defer c.keyPressMutex.Unlock()
+
 	c.State.SetUint8(a2state.KBKeyDown, 0)
 }
