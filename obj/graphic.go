@@ -37,6 +37,20 @@ func SpeedUpPNG() []byte {
 	return speedUpPNG
 }
 
+//go:embed png/stateload.png
+var stateLoadPNG []byte
+
+func StateLoadPNG() []byte {
+	return stateLoadPNG
+}
+
+//go:embed png/statesave.png
+var stateSavePNG []byte
+
+func StateSavePNG() []byte {
+	return stateSavePNG
+}
+
 //go:embed png/writeable.png
 var writeablePNG []byte
 

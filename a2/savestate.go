@@ -7,6 +7,8 @@ import (
 
 	"github.com/pevans/erc/a2/a2save"
 	"github.com/pevans/erc/a2/a2state"
+	"github.com/pevans/erc/gfx"
+	"github.com/pevans/erc/obj"
 )
 
 // SaveState writes the current emulator state to the specified file.
@@ -110,6 +112,37 @@ func (c *Computer) LoadState(filename string) error {
 	return nil
 }
 
+// SetStateSlot sets the state slot for the computer and shows a message
+// on-screen to indicate the slot.
+func (c *Computer) SetStateSlot(n int) {
+	c.stateSlot = n
+	c.ShowText(fmt.Sprintf("use state slot: %v", n))
+}
+
+// SaveStateSlot saves state in a standardized filename based on the first
+// disk in the diskset and our current state slot
+func (c *Computer) SaveStateSlot() error {
+	err := c.SaveState(fmt.Sprintf("%v.%v.state", c.Disks.Name(), c.stateSlot))
+	if err == nil {
+		gfx.ShowStatus(obj.StateSavePNG())
+		c.ShowText(fmt.Sprintf("saved state: %v", c.stateSlot))
+	}
+
+	return err
+}
+
+// LoadStateSlot loads state from a standardized filename based on the first
+// disk in the diskset and our current state slot
+func (c *Computer) LoadStateSlot() error {
+	err := c.LoadState(fmt.Sprintf("%v.%v.state", c.Disks.Name(), c.stateSlot))
+	if err == nil {
+		gfx.ShowStatus(obj.StateLoadPNG())
+		c.ShowText(fmt.Sprintf("loaded state: %v", c.stateSlot))
+	}
+
+	return err
+}
+
 // snapshotStateFlags captures the boolean and integer state flags from the StateMap.
 func (c *Computer) snapshotStateFlags() *a2save.StateFlags {
 	return &a2save.StateFlags{
@@ -132,9 +165,9 @@ func (c *Computer) snapshotStateFlags() *a2save.StateFlags {
 		DisplayText:       c.State.Bool(a2state.DisplayText),
 
 		// Keyboard state
-		KBKeyDown:  c.State.Uint8(a2state.KBKeyDown),
-		KBLastKey:  c.State.Uint8(a2state.KBLastKey),
-		KBStrobe:   c.State.Uint8(a2state.KBStrobe),
+		KBKeyDown: c.State.Uint8(a2state.KBKeyDown),
+		KBLastKey: c.State.Uint8(a2state.KBLastKey),
+		KBStrobe:  c.State.Uint8(a2state.KBStrobe),
 
 		// Memory state
 		MemReadAux:  c.State.Bool(a2state.MemReadAux),

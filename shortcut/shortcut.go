@@ -2,6 +2,7 @@ package shortcut
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/pevans/erc/a2"
 	"github.com/pevans/erc/a2/a2state"
@@ -56,9 +57,20 @@ func Check(ev input.Event, comp *a2.Computer) (bool, error) {
 		gfx.ShowStatus(obj.SpeedUpPNG())
 		return true, nil
 
+	case '1', '2', '3', '4', '5', '6', '7', '8', '9':
+		num, _ := strconv.Atoi(string(ev.Key))
+		comp.SetStateSlot(num)
+		return true, nil
+
 	case 'b', 'B':
 		comp.State.SetBool(a2state.Debugger, true)
 		gfx.ShowStatus(obj.DebugPNG())
+		return true, nil
+
+	case 'l', 'L':
+		if err := comp.LoadStateSlot(); err != nil {
+			comp.ShowText("could not load state")
+		}
 		return true, nil
 
 	case 'n', 'N':
@@ -72,6 +84,12 @@ func Check(ev input.Event, comp *a2.Computer) (bool, error) {
 	case 'p', 'P':
 		if err := comp.LoadPrevious(); err != nil {
 			return false, fmt.Errorf("could not load file: %w", err)
+		}
+		return true, nil
+
+	case 's', 'S':
+		if err := comp.SaveStateSlot(); err != nil {
+			comp.ShowText("could not save state")
 		}
 		return true, nil
 

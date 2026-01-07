@@ -35,6 +35,8 @@ type Computer struct {
 
 	ClockEmulator *clock.Emulator
 
+	stateSlot int // the slot where we'll save/load state
+
 	// speed is some abstract number to indicate how fast we're going. Refer
 	// to ClockSpeed to see how this number is used to set our actual hertz.
 	speed int

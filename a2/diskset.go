@@ -65,6 +65,16 @@ func (set *DiskSet) Current() (*os.File, string, error) {
 	return set.Disk(set.current)
 }
 
+// Name is the name of the entire diskset, which we take to be the name of the
+// first filename loaded in the set.
+func (set *DiskSet) Name() string {
+	if len(set.images) == 0 {
+		return ""
+	}
+
+	return set.images[0]
+}
+
 // Next returns the next disk in the diskset (the index one after the current
 // index). If we're at the end of the diskset, this will wrap around to the
 // first disk in the set.
