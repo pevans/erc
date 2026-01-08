@@ -109,3 +109,7 @@ Erc's goals are to:
 - A metrics file looks like `image.dsk.metrics`. It shows an accounting of the
   total number certain events have been observed while the disk image was
   running; for example, the number of bytes read.
+
+## Miscellaneous
+
+Use 'bd' for task tracking
