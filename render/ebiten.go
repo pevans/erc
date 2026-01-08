@@ -5,8 +5,10 @@ import (
 	"log/slog"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/pevans/erc/a2"
+	"github.com/pevans/erc/a2/a2audio"
 	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/input"
 )
@@ -17,6 +19,7 @@ type game struct {
 	keys           []ebiten.Key
 	inputEvent     input.Event
 	lastInputEvent input.Event
+	audioPlayer    *audio.Player
 }
 
 // DrawLoop executes the logic to render our graphics according to some cadence
@@ -27,9 +30,26 @@ func DrawLoop(comp *a2.Computer) error {
 	ebiten.SetWindowSize(int(w*2), int(h*2))
 	ebiten.SetWindowTitle("erc")
 
+	// Set up audio
+	audioCtx := audio.NewContext(a2audio.SampleRate)
+	audioStream := a2audio.NewStream(comp.Speaker, comp)
+	audioPlayer, err := audioCtx.NewPlayer(audioStream)
+	if err != nil {
+		slog.Error(fmt.Sprintf("could not create audio player: %v", err))
+	}
+
 	g := &game{
-		comp: comp,
-		keys: []ebiten.Key{},
+		comp:        comp,
+		keys:        []ebiten.Key{},
+		audioPlayer: audioPlayer,
+	}
+
+	// Start audio playback with reduced buffer for lower latency
+	if g.audioPlayer != nil {
+		// Smaller buffer = lower latency but higher risk of glitches
+		// Default is typically ~46ms, we use ~23ms (1024 samples at 44100 Hz)
+		g.audioPlayer.SetBufferSize(a2audio.BufferSamples * 4) // 4 bytes per stereo sample
+		g.audioPlayer.Play()
 	}
 
 	return ebiten.RunGame(g)

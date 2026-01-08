@@ -15,7 +15,10 @@ import (
 	"github.com/pevans/erc/mos"
 )
 
-const appleMhz int64 = 1_023_000
+const (
+	appleMhz          int64 = 1_023_000 // the clockspeed of an Apple II
+	speakerBufferSize int   = 8192
+)
 
 // ReadMapFn is a function which can execute a soft switch procedure on
 // read.
@@ -58,6 +61,9 @@ type Computer struct {
 	// displaySnapshot holds a point-in-time copy of display memory for
 	// consistent rendering
 	displaySnapshot *DisplaySnapshot
+
+	// Speaker holds toggle events for audio generation
+	Speaker *SpeakerBuffer
 
 	// when we press a key, we don't want one press to clobber another
 	keyPressMutex sync.Mutex
@@ -195,6 +201,10 @@ func NewComputer(speed int) *Computer {
 
 	comp.displaySnapshot = NewDisplaySnapshot()
 
+	// Speaker buffer for audio generation - size should hold enough events
+	// to cover a few frames of audio at typical toggle rates
+	comp.Speaker = NewSpeakerBuffer(speakerBufferSize)
+
 	return comp
 }
 
@@ -255,4 +265,16 @@ func (c *Computer) SpeedDown() {
 // StateMap returns the computer's available state map.
 func (c *Computer) StateMap() *memory.StateMap {
 	return c.State
+}
+
+// CPUClockRate returns the current CPU clock rate in Hz.
+// This is used by the audio system to sync with the emulated clock speed.
+func (c *Computer) CPUClockRate() int64 {
+	return ClockSpeed(c.speed)
+}
+
+// IsFullSpeed returns true if the emulator is running at full speed
+// (not emulating clock timing, typically during disk operations).
+func (c *Computer) IsFullSpeed() bool {
+	return c.ClockEmulator.IsFullSpeed()
 }

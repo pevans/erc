@@ -45,6 +45,7 @@ const (
 	PCROMSegment
 	PCSlotC3
 	PCSlotCX
+	SpeakerState
 )
 
 var keyStringMap = map[int]string{
@@ -88,6 +89,7 @@ var keyStringMap = map[int]string{
 	PCROMSegment:        "PCROMSegment",
 	PCSlotC3:            "PCSlotC3",
 	PCSlotCX:            "PCSlotCX",
+	SpeakerState:        "SpeakerState",
 }
 
 func KeyToString(key any) string {

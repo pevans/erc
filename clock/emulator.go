@@ -190,6 +190,14 @@ func (e *Emulator) SetFullSpeed(status bool) {
 	e.fullSpeed = status
 }
 
+// IsFullSpeed returns true if the emulator is running at full speed
+// (not emulating clock timing).
+func (e *Emulator) IsFullSpeed() bool {
+	e.timingMu.Lock()
+	defer e.timingMu.Unlock()
+	return e.fullSpeed
+}
+
 // TimePerCycle returns the duration of time that would be spent per cycle by
 // the emulator
 func (e *Emulator) TimePerCycle() time.Duration {

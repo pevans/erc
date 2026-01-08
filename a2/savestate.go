@@ -19,9 +19,11 @@ func (c *Computer) pauseForStateOp() bool {
 	wasPaused := c.State.Bool(a2state.Paused)
 	if !wasPaused {
 		c.State.SetBool(a2state.Paused, true)
+
 		// Give ProcessLoop time to see the pause and stop
 		time.Sleep(150 * time.Millisecond)
 	}
+
 	return wasPaused
 }
 

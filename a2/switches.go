@@ -58,4 +58,8 @@ func (c *Computer) MapSoftSwitches() {
 	for _, a := range displayWriteSwitches() {
 		c.smap.SetWrite(a, displaySwitchWrite)
 	}
+
+	for _, a := range speakerReadSwitches() {
+		c.smap.SetRead(a, speakerSwitchRead)
+	}
 }

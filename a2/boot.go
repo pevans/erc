@@ -68,6 +68,7 @@ func (c *Computer) Reset() {
 	memUseDefaults(c)
 	pcUseDefaults(c)
 	diskUseDefaults(c)
+	speakerUseDefaults(c)
 
 	c.BootTime = time.Now()
 
