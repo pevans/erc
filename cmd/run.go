@@ -122,7 +122,14 @@ func runEmulator(images []string) {
 			return
 		}
 
-		comp.PressKey(uint8(ev.Key))
+		key := ev.Key
+		if ev.Modifier == input.ModControl {
+			// We want the Apple software to see this as a literal
+			// control character
+			key = ev.Key & 0x1F
+		}
+
+		comp.PressKey(uint8(key))
 	})
 
 	// Set up the process loop with debugger

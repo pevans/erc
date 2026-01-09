@@ -29,6 +29,13 @@ func Check(ev input.Event, comp *a2.Computer) (bool, error) {
 
 	// Check for prefix key (Control-A)
 	if ev.Modifier == input.ModControl && (ev.Key == 'a' || ev.Key == 'A') {
+		// If prefix is already active, Ctrl-A again sends a literal Ctrl-A
+		if gfx.PrefixOverlay.IsActive() {
+			gfx.PrefixOverlay.Hide()
+			comp.PressKey(0x01) // Ctrl-A = ASCII 0x01
+			return true, nil
+		}
+
 		w, h := comp.Dimensions()
 		gfx.PrefixOverlay.Show(int(w), int(h))
 		return true, nil
