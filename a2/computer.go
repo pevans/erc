@@ -98,6 +98,10 @@ type Computer struct {
 
 	MetricsFileName string
 
+	screenLog           *ScreenLog
+	screenLogFileName   string
+	lastScreenCapture   time.Time
+
 	// MemMode is a collection of bit flags which tell us what state of
 	// memory we have.
 	MemMode int

@@ -1,6 +1,8 @@
 package a2
 
 import (
+	"time"
+
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/a2/a2video"
 	"github.com/pevans/erc/gfx"
@@ -329,6 +331,12 @@ func (c *Computer) Render() {
 		)
 
 		a2video.RenderHires(c.displaySnapshot, start, end)
+
+		if c.screenLog != nil && time.Since(c.lastScreenCapture) >= time.Second {
+			elapsed := time.Since(c.BootTime).Seconds()
+			c.screenLog.CaptureFrame(gfx.Screen, elapsed)
+			c.lastScreenCapture = time.Now()
+		}
 
 	default:
 		var (

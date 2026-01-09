@@ -76,6 +76,16 @@ func (fb *FrameBuffer) getCell(x, y uint) (color.RGBA, error) {
 	}, nil
 }
 
+// GetPixel returns the color at a given pixel coordinate. If the coordinate
+// is out of bounds, it returns black.
+func (fb *FrameBuffer) GetPixel(x, y uint) color.RGBA {
+	c, err := fb.getCell(x, y)
+	if err != nil {
+		return color.RGBA{R: 0, G: 0, B: 0, A: 0xff}
+	}
+	return c
+}
+
 // SetCell will assign the color of a single cell
 func (fb *FrameBuffer) SetCell(x, y uint, clr color.RGBA) error {
 	i := fb.cell(x, y)

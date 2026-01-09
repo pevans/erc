@@ -53,6 +53,12 @@ func (c *Computer) Shutdown() error {
 		}
 	}
 
+	if c.screenLog != nil {
+		if err := c.screenLog.WriteToFile(c.screenLogFileName); err != nil {
+			return err
+		}
+	}
+
 	if err := c.Drive1.Save(); err != nil {
 		return fmt.Errorf("could not save image: %w", err)
 	}

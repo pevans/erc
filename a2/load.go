@@ -50,6 +50,11 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 
 		c.diskLogFileName = fmt.Sprintf("%v.disklog", fileName)
 		c.diskLog = asm.NewDiskLog()
+
+		c.screenLog = NewScreenLog()
+		c.screenLogFileName = fmt.Sprintf("%v.screen", fileName)
+		c.lastScreenCapture = c.BootTime
+
 		return c.SelectedDrive.WriteDataToFile(fmt.Sprintf("%v.physical", fileName))
 	}
 
