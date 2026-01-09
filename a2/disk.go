@@ -97,7 +97,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 					Sector:         c.SelectedDrive.Sector(),
 					SectorPosition: c.SelectedDrive.SectorPosition(),
 					Byte:           *val,
-					Instruction:    c.CPU.ThisInstruction(),
+					Instruction:    c.CPU.CurrentInstructionShort(),
 				})
 			}
 
@@ -121,7 +121,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 						Sector:         c.SelectedDrive.Sector(),
 						SectorPosition: c.SelectedDrive.SectorPosition(),
 						Byte:           c.SelectedDrive.PeekLatch(),
-						Instruction:    c.CPU.ThisInstruction(),
+						Instruction:    c.CPU.CurrentInstructionShort(),
 					})
 				}
 
