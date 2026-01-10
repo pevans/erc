@@ -24,11 +24,16 @@ type game struct {
 
 // DrawLoop executes the logic to render our graphics according to some cadence
 // (which is generally x frames per second).
-func DrawLoop(comp *a2.Computer) error {
+func DrawLoop(comp *a2.Computer, shaderName string) error {
 	w, h := comp.Dimensions()
 
 	ebiten.SetWindowSize(int(w*2), int(h*2))
 	ebiten.SetWindowTitle("erc")
+
+	// Set up the shader if requested
+	if err := gfx.Screen.SetShader(shaderName); err != nil {
+		return err
+	}
 
 	// Set up audio
 	audioCtx := audio.NewContext(a2audio.SampleRate)

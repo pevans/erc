@@ -1,0 +1,35 @@
+//kage:unit pixels
+
+package main
+
+var (
+	Curvature      float // 0.0 = flat, ~0.1 = subtle curve
+	ScanlineWeight float // 0.0-1.0, how dark the scanlines are
+)
+
+func Fragment(dst vec4, src vec2, color vec4) vec4 {
+	// Normalize coordinates to -1..1 range for distortion
+	origin, size := imageSrc0Origin(), imageSrc0Size()
+	uv := (src - origin) / size
+	center := uv - 0.5
+
+	// Barrel distortion (CRT curvature)
+	dist := dot(center, center)
+	uv = uv + center*dist*Curvature
+
+	// Bail if we're outside the texture
+	if uv.x < 0 || uv.x > 1 || uv.y < 0 || uv.y > 1 {
+		return vec4(0)
+	}
+
+	// Convert back to pixel coordinates
+	texCoord := origin + uv*size
+	clr := imageSrc0At(texCoord)
+
+	// Scanlines - use sine wave for smoother look
+	scanline := sin(src.y*3.14159)*0.5 + 0.5
+	scanline = mix(1.0, scanline, ScanlineWeight)
+	clr.rgb *= scanline
+
+	return clr
+}

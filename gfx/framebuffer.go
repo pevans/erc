@@ -1,27 +1,43 @@
 package gfx
 
 import (
+	_ "embed"
 	"fmt"
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+//go:embed shaders/softcrt.kage
+var softcrtShaderSource []byte
+
+//go:embed shaders/hardcrt.kage
+var hardcrtShaderSource []byte
+
 // A FrameBuffer is a set of cells which contain color information.
 type FrameBuffer struct {
-	pixels       []byte
+	// pixels is a slice of contiguous bytes that represent the on-screen
+	// pixels that we'll render.
+	pixels []byte
+
+	// pixelsLength is the effective size necessary to hold the width/height
+	// of the FrameBuffer.
 	pixelsLength uint
 
+	// Image is the result of the FrameBuffer's pixels -- it those pixels
+	// turned into a raw graphic that our engine, Ebiten, can render
 	Image *ebiten.Image
 
-	Width  uint
-	Height uint
+	shader     *ebiten.Shader // the shader we'll use to alter our graphics before render
+	shaderName string         // the name of the shader
+
+	Width  uint // the effective width of the FrameBuffer
+	Height uint // the effective height of the FrameBuffer
 }
 
-// NewFrameBuffer returns a new frame buffer that contains a set of
-// logical rows and columns. These rows and columns should match
-// whatever system you are emulating, as opposed to what might
-// necessarily be shown on screen.
+// NewFrameBuffer returns a new frame buffer that contains a set of logical
+// rows and columns. These rows and columns should match whatever system you
+// are emulating, as opposed to what might necessarily be shown on screen.
 func NewFrameBuffer(width, height uint) *FrameBuffer {
 	fb := new(FrameBuffer)
 
@@ -35,8 +51,8 @@ func NewFrameBuffer(width, height uint) *FrameBuffer {
 }
 
 // Invert returns a framebuffer that is the opposite (or inverted) version of
-// the receiver. This is useful for cases where you might want an inverse video
-// effect.
+// the receiver. This is useful for cases where you might want an inverse
+// video effect.
 func (fb *FrameBuffer) Invert() *FrameBuffer {
 	inv := NewFrameBuffer(fb.Width, fb.Height)
 
@@ -51,9 +67,9 @@ func (fb *FrameBuffer) Invert() *FrameBuffer {
 	return inv
 }
 
-// cell returns the index of a cell within the Cells slice. In essence,
-// given X rows and Y columns, you can think of the slice of cells as Y
-// cells in a single row, followed another row, and another row...
+// cell returns the index of a cell within the Cells slice. In essence, given
+// X rows and Y columns, you can think of the slice of cells as Y cells in a
+// single row, followed another row, and another row...
 func (fb *FrameBuffer) cell(x, y uint) uint {
 	return 4 * ((y * fb.Width) + x)
 }
@@ -112,14 +128,68 @@ func (fb *FrameBuffer) ClearCells(clr color.RGBA) {
 	}
 }
 
+// SetShader loads and sets a shader for the framebuffer. Pass "none" or empty
+// string to disable shaders, "softcrt" for soft CRT shader, "hardcrt" for
+// hard scanlines, or "curvedcrt" for curved CRT with scanlines.
+func (fb *FrameBuffer) SetShader(shaderName string) error {
+	if shaderName == "none" || shaderName == "" {
+		fb.shader = nil
+		fb.shaderName = "none"
+		return nil
+	}
+
+	var shaderSource []byte
+	switch shaderName {
+	case "softcrt", "curvedcrt":
+		shaderSource = softcrtShaderSource
+	case "hardcrt":
+		shaderSource = hardcrtShaderSource
+	default:
+		return fmt.Errorf("unknown shader: %s", shaderName)
+	}
+
+	shader, err := ebiten.NewShader(shaderSource)
+	if err != nil {
+		return fmt.Errorf("failed to compile %s shader: %w", shaderName, err)
+	}
+
+	fb.shader = shader
+	fb.shaderName = shaderName
+	return nil
+}
+
 // Render will accept an ebiten image and ~do something with it~ to render the
 // contents of our frame buffer.
 func (fb *FrameBuffer) Render(img *ebiten.Image) error {
 	fb.Image.WritePixels(fb.pixels)
 
-	// TODO: maybe we could apply filters/shaders/etc. to modify how the
-	// screen is rendered
-	img.DrawImage(fb.Image, nil)
+	if fb.shader != nil {
+		opts := &ebiten.DrawRectShaderOptions{}
+		opts.Images[0] = fb.Image
+
+		// Set uniforms based on shader type
+		switch fb.shaderName {
+		case "softcrt":
+			opts.Uniforms = map[string]any{
+				"Curvature":      float32(0.0),  // No barrel distortion (flat screen)
+				"ScanlineWeight": float32(0.20), // Subtle scanlines
+			}
+		case "curvedcrt":
+			opts.Uniforms = map[string]any{
+				"Curvature":      float32(0.15), // 15% barrel distortion (curved screen)
+				"ScanlineWeight": float32(0.20), // Subtle scanlines
+			}
+		case "hardcrt":
+			opts.Uniforms = map[string]any{
+				"ScanlineWeight": float32(0.6), // Show a darker effect on the screen than you'd see for softcrt
+			}
+		}
+
+		w, h := fb.Image.Bounds().Dx(), fb.Image.Bounds().Dy()
+		img.DrawRectShader(w, h, fb.shader, opts)
+	} else {
+		img.DrawImage(fb.Image, nil)
+	}
 
 	return nil
 }

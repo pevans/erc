@@ -25,6 +25,7 @@ var (
 	profileFlag      bool
 	speedFlag        int
 	writeProtectFlag bool
+	shaderFlag       string
 )
 
 var runCmd = &cobra.Command{
@@ -45,6 +46,7 @@ func init() {
 	runCmd.Flags().BoolVar(&profileFlag, "profile", false, "Write out a profile trace")
 	runCmd.Flags().IntVar(&speedFlag, "speed", 1, "Starting speed of the emulator (more is faster)")
 	runCmd.Flags().BoolVar(&writeProtectFlag, "write-protect", false, "Whether to write-protect the image")
+	runCmd.Flags().StringVar(&shaderFlag, "shader", "softcrt", "Shader to apply (none, softcrt, curvedcrt, hardcrt)")
 }
 
 func runEmulator(images []string) {
@@ -151,7 +153,7 @@ func runEmulator(images []string) {
 	go emulator.ProcessLoop(comp)
 
 	// Run the draw loop in the main thread
-	if err := render.DrawLoop(comp); err != nil {
+	if err := render.DrawLoop(comp, shaderFlag); err != nil {
 		fail(fmt.Sprintf("failed to execute draw loop: %v", err))
 	}
 
