@@ -176,7 +176,7 @@ func (fb *FrameBuffer) Render(img *ebiten.Image) error {
 			}
 		case "curvedcrt":
 			opts.Uniforms = map[string]any{
-				"Curvature":      float32(0.15), // 15% barrel distortion (curved screen)
+				"Curvature":      float32(0.10), // 10% barrel distortion (curved screen)
 				"ScanlineWeight": float32(0.20), // Subtle scanlines
 			}
 		case "hardcrt":
