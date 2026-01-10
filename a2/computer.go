@@ -28,6 +28,11 @@ type ReadMapFn func(*Computer, int) uint8
 // write.
 type WriteMapFn func(*Computer, int, uint8)
 
+// AudioStream is an interface for controlling audio volume.
+type AudioStream interface {
+	SetVolume(v float32)
+}
+
 // A Computer is our abstraction of an Apple //e ("enhanced") computer.
 type Computer struct {
 	// The CPU of the Apple //e was an MOS 65C02 processor.
@@ -65,6 +70,15 @@ type Computer struct {
 	// Speaker holds toggle events for audio generation
 	Speaker *SpeakerBuffer
 
+	// audioStream is the audio stream that converts speaker toggles to audio samples
+	audioStream AudioStream
+
+	// volumeMuted tracks whether audio is muted
+	volumeMuted bool
+
+	// volumeLevel stores the volume level as a percentage (0-100)
+	volumeLevel int
+
 	// when we press a key, we don't want one press to clobber another
 	keyPressMutex sync.Mutex
 
@@ -98,9 +112,9 @@ type Computer struct {
 
 	MetricsFileName string
 
-	screenLog           *ScreenLog
-	screenLogFileName   string
-	lastScreenCapture   time.Time
+	screenLog         *ScreenLog
+	screenLogFileName string
+	lastScreenCapture time.Time
 
 	// MemMode is a collection of bit flags which tell us what state of
 	// memory we have.
@@ -264,6 +278,90 @@ func (c *Computer) SpeedDown() {
 	}
 
 	c.SetSpeed(c.speed - 1)
+}
+
+// VolumeUp increases the audio volume by the specified amount (as a
+// percentage), capping at 100%.
+func (c *Computer) VolumeUp(amount int) {
+	if c.audioStream == nil {
+		return
+	}
+
+	// Use effective volume (0 when muted) rather than preserved volumeLevel
+	currentVolume := c.GetVolume()
+	newVolume := min(currentVolume+amount, 100)
+
+	c.volumeMuted = false
+	c.volumeLevel = newVolume
+	c.audioStream.SetVolume(float32(newVolume) / 100.0)
+	c.ShowText(fmt.Sprintf("volume: %v%%", newVolume))
+}
+
+// VolumeDown decreases the audio volume by the specified amount (as a
+// percentage), with a floor at 0%. When reaching 0%, sets volumeMuted to true
+// (like macOS behavior) while preserving the last non-zero volume for toggle
+// restoration.
+func (c *Computer) VolumeDown(amount int) {
+	if c.audioStream == nil {
+		return
+	}
+
+	// Use effective volume (0 when muted) rather than preserved volumeLevel
+	currentVolume := c.GetVolume()
+	newVolume := max(currentVolume-amount, 0)
+
+	if newVolume == 0 {
+		// Volume reached zero - treat as muted but preserve volumeLevel for
+		// toggle
+		c.volumeMuted = true
+		c.audioStream.SetVolume(0.0)
+		c.ShowText("volume: 0%")
+	} else {
+		c.volumeMuted = false
+		c.volumeLevel = newVolume
+		c.audioStream.SetVolume(float32(newVolume) / 100.0)
+		c.ShowText(fmt.Sprintf("volume: %v%%", newVolume))
+	}
+}
+
+// VolumeToggle toggles audio mute on/off. When unmuting, restores the last
+// volume level.
+func (c *Computer) VolumeToggle() {
+	if c.audioStream == nil {
+		return
+	}
+
+	if c.volumeMuted {
+		// Unmute: restore last volume
+		c.audioStream.SetVolume(float32(c.volumeLevel) / 100.0)
+		c.volumeMuted = false
+		c.ShowText(fmt.Sprintf("volume: %v%%", c.volumeLevel))
+	} else {
+		// Mute: set to 0 (volumeLevel already stores the level to restore)
+		c.audioStream.SetVolume(0.0)
+		c.volumeMuted = true
+		c.ShowText("volume: muted")
+	}
+}
+
+// GetVolume returns the current volume level (0-100).
+func (c *Computer) GetVolume() int {
+	if c.volumeMuted {
+		return 0
+	}
+	return c.volumeLevel
+}
+
+// IsMuted returns whether the audio is currently muted.
+func (c *Computer) IsMuted() bool {
+	return c.volumeMuted
+}
+
+// SetAudioStream sets the audio stream for volume control.
+func (c *Computer) SetAudioStream(stream AudioStream) {
+	c.audioStream = stream
+	// Initialize with default volume (50%)
+	c.volumeLevel = 50
 }
 
 // StateMap returns the computer's available state map.

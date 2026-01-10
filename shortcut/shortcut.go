@@ -115,6 +115,27 @@ func Check(ev input.Event, comp *a2.Computer) (bool, error) {
 
 	case 'q', 'Q':
 		return true, comp.Shutdown()
+
+	case 'v', 'V':
+		comp.VolumeToggle()
+		if comp.IsMuted() {
+			gfx.ShowStatus(obj.VolumeOffPNG())
+		}
+		return true, nil
+
+	case '[', '{':
+		comp.VolumeDown(10)
+		if comp.IsMuted() {
+			gfx.ShowStatus(obj.VolumeOffPNG())
+		} else {
+			gfx.ShowStatus(obj.VolumeDownPNG())
+		}
+		return true, nil
+
+	case ']', '}':
+		comp.VolumeUp(10)
+		gfx.ShowStatus(obj.VolumeUpPNG())
+		return true, nil
 	}
 
 	return false, nil

@@ -51,6 +51,27 @@ func StateSavePNG() []byte {
 	return stateSavePNG
 }
 
+//go:embed png/volumedown.png
+var volumeDownPNG []byte
+
+func VolumeDownPNG() []byte {
+	return volumeDownPNG
+}
+
+//go:embed png/volumeoff.png
+var volumeOffPNG []byte
+
+func VolumeOffPNG() []byte {
+	return volumeOffPNG
+}
+
+//go:embed png/volumeup.png
+var volumeUpPNG []byte
+
+func VolumeUpPNG() []byte {
+	return volumeUpPNG
+}
+
 //go:embed png/writeable.png
 var writeablePNG []byte
 

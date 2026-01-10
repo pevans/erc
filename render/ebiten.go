@@ -43,6 +43,9 @@ func DrawLoop(comp *a2.Computer, shaderName string) error {
 		slog.Error(fmt.Sprintf("could not create audio player: %v", err))
 	}
 
+	// Give the computer access to the audio stream for volume control
+	comp.SetAudioStream(audioStream)
+
 	g := &game{
 		comp:        comp,
 		keys:        []ebiten.Key{},
