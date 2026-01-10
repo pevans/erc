@@ -308,7 +308,8 @@ func (c *Computer) Render() {
 	// Snapshot display memory to prevent tearing during render.
 	// This copies the current state so we render from a consistent view
 	// even if the CPU modifies display memory mid-render.
-	c.displaySnapshot.CopyFrom(c.Main)
+	// Use CopyFromState to respect page switching and 80STORE settings.
+	c.displaySnapshot.CopyFromState(c.Main, c.Aux, c.State)
 
 	// if it's text, do one thing
 	// if it's lores, do another thing
