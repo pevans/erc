@@ -45,6 +45,19 @@ func (d *Drive) Load(r io.Reader, file string) error {
 		return errors.Wrapf(err, "failed to read file %s", file)
 	}
 
+	// Validate the file size based on image type
+	expectedSize, err := a2enc.Size(d.imageType)
+	if err != nil {
+		return errors.Wrapf(err, "failed to determine expected size for image type")
+	}
+
+	if len(bytes) != expectedSize {
+		return fmt.Errorf(
+			"invalid %s file size: got %d bytes, expected %d bytes",
+			file, len(bytes), expectedSize,
+		)
+	}
+
 	// Copy directly into the image segment
 	d.image = memory.NewSegment(len(bytes))
 	_, err = d.image.CopySlice(0, []uint8(bytes))

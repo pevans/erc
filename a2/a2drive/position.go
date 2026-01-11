@@ -21,10 +21,19 @@ func (d *Drive) phaseTransition(phase int) {
 	d.phase = phase
 }
 
+// trackLen returns the track length in bytes based on the loaded image type.
+func (d *Drive) trackLen() int {
+	if d.imageType == a2enc.Nibble {
+		return a2enc.NibTrackLen
+	}
+
+	return a2enc.PhysTrackLen
+}
+
 // dataPosition returns the segment position that the drive is currently at,
 // based upon track and sector position.
 func (d *Drive) dataPosition() int {
-	return (d.Track() * a2enc.PhysTrackLen) + d.sectorPos
+	return (d.Track() * d.trackLen()) + d.sectorPos
 }
 
 // Sector returns the current sector that the drive head is positioned over.
@@ -47,14 +56,16 @@ func (d *Drive) SectorPosition() int {
 func (d *Drive) Shift(offset int) {
 	d.sectorPos += offset
 
+	trackLen := d.trackLen()
+
 	// In practice, these for loops are mutually exclusive; only one of them
 	// would ever be entered.
-	for d.sectorPos >= a2enc.PhysTrackLen {
-		d.sectorPos -= a2enc.PhysTrackLen
+	for d.sectorPos >= trackLen {
+		d.sectorPos -= trackLen
 	}
 
 	for d.sectorPos < 0 {
-		d.sectorPos += a2enc.PhysTrackLen
+		d.sectorPos += trackLen
 	}
 
 	d.diskShifted = true

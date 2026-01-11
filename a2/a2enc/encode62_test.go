@@ -10,5 +10,5 @@ func (s *sixtwoSuite) TestEncode62() {
 
 	s.NoError(err)
 	s.NotNil(ps)
-	s.Equal(a2enc.NibSize, ps.Size())
+	s.Equal(a2enc.EncodedSize, ps.Size())
 }

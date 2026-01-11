@@ -52,7 +52,7 @@ func newEncoder(logSize, physSize int) *encoder {
 // structure.
 func Encode62(imageType int, src *memory.Segment) (*memory.Segment, error) {
 	enc := &encoder{
-		physicalSegment: memory.NewSegment(NibSize),
+		physicalSegment: memory.NewSegment(EncodedSize),
 		logicalSegment:  src,
 		imageType:       imageType,
 	}

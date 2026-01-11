@@ -115,18 +115,22 @@ func displayOnOrOffReadWrite(a int, stm *memory.StateMap) bool {
 	case onPage2:
 		metrics.Increment("soft_display_page_2_on", 1)
 		stm.SetBool(a2state.DisplayPage2, true)
+		stm.SetBool(a2state.DisplayRedraw, true)
 		return true
 	case onText:
 		metrics.Increment("soft_display_text_on", 1)
 		stm.SetBool(a2state.DisplayText, true)
+		stm.SetBool(a2state.DisplayRedraw, true)
 		return true
 	case onMixed:
 		metrics.Increment("soft_display_mixed_on", 1)
 		stm.SetBool(a2state.DisplayMixed, true)
+		stm.SetBool(a2state.DisplayRedraw, true)
 		return true
 	case onHires:
 		metrics.Increment("soft_display_hires_on", 1)
 		stm.SetBool(a2state.DisplayHires, true)
+		stm.SetBool(a2state.DisplayRedraw, true)
 		return true
 	case onDHires:
 		metrics.Increment("soft_display_dhires_on", 1)
@@ -134,28 +138,34 @@ func displayOnOrOffReadWrite(a int, stm *memory.StateMap) bool {
 			stm.SetBool(a2state.DisplayDoubleHigh, true)
 			gfx.Screen = comp.Screen
 		}
+		stm.SetBool(a2state.DisplayRedraw, true)
 		return true
 	case offPage2:
 		metrics.Increment("soft_display_page_2_off", 1)
 		stm.SetBool(a2state.DisplayPage2, false)
+		stm.SetBool(a2state.DisplayRedraw, true)
 		return true
 	case offText:
 		metrics.Increment("soft_display_text_off", 1)
 		stm.SetBool(a2state.DisplayText, false)
+		stm.SetBool(a2state.DisplayRedraw, true)
 		return true
 	case offMixed:
 		metrics.Increment("soft_display_mixed_off", 1)
 		stm.SetBool(a2state.DisplayMixed, false)
+		stm.SetBool(a2state.DisplayRedraw, true)
 		return true
 	case offHires:
 		metrics.Increment("soft_display_hires_off", 1)
 		stm.SetBool(a2state.DisplayHires, false)
+		stm.SetBool(a2state.DisplayRedraw, true)
 		return true
 	case offDHires:
 		metrics.Increment("soft_display_dhires_off", 1)
 		if stm.Bool(a2state.DisplayIou) {
 			stm.SetBool(a2state.DisplayDoubleHigh, false)
 		}
+		stm.SetBool(a2state.DisplayRedraw, true)
 		return true
 	}
 
@@ -223,27 +233,35 @@ func displaySwitchWrite(a int, val uint8, stm *memory.StateMap) {
 	case onAltChar:
 		metrics.Increment("soft_display_altchar_on", 1)
 		stm.SetBool(a2state.DisplayAltChar, true)
+		stm.SetBool(a2state.DisplayRedraw, true)
 	case on80Col:
 		metrics.Increment("soft_display_80col_on", 1)
 		stm.SetBool(a2state.DisplayCol80, true)
+		stm.SetBool(a2state.DisplayRedraw, true)
 	case on80Store:
 		metrics.Increment("soft_display_80store_on", 1)
 		stm.SetBool(a2state.DisplayStore80, true)
+		stm.SetBool(a2state.DisplayRedraw, true)
 	case onIOUDis:
 		metrics.Increment("soft_display_ioudis_on", 1)
 		stm.SetBool(a2state.DisplayIou, true)
+		stm.SetBool(a2state.DisplayRedraw, true)
 	case offAltChar:
 		metrics.Increment("soft_display_altchar_off", 1)
 		stm.SetBool(a2state.DisplayAltChar, false)
+		stm.SetBool(a2state.DisplayRedraw, true)
 	case off80Col:
 		metrics.Increment("soft_display_80col_off", 1)
 		stm.SetBool(a2state.DisplayCol80, false)
+		stm.SetBool(a2state.DisplayRedraw, true)
 	case off80Store:
 		metrics.Increment("soft_display_80store_off", 1)
 		stm.SetBool(a2state.DisplayStore80, false)
+		stm.SetBool(a2state.DisplayRedraw, true)
 	case offIOUDis:
 		metrics.Increment("soft_display_ioudis_off", 1)
 		stm.SetBool(a2state.DisplayIou, false)
+		stm.SetBool(a2state.DisplayRedraw, true)
 	}
 }
 
@@ -290,6 +308,14 @@ func DisplayWrite(addr int, val uint8, stm *memory.StateMap) {
 	// Let the drawing routines we have know that it's time to re-render
 	// the screen.
 	stm.SetBool(a2state.DisplayRedraw, true)
+
+	// Track display memory writes for debugging
+	if addr >= 0x0400 && addr < 0x0800 {
+		metrics.Increment("display_write_text", 1)
+	} else if addr >= 0x2000 && addr < 0x4000 {
+		metrics.Increment("display_write_hires", 1)
+	}
+
 	DisplaySegment(
 		addr,
 		stm,

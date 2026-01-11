@@ -25,8 +25,13 @@ const (
 	PhysSectorLen = 0x18C
 
 	// PhysTrackLen is the length of a physical track, consisting of 16
-	// physical sectors plus gap 1 bytes
+	// physical sectors plus gap 1 bytes. This is used for DOS33/ProDOS
+	// encoded disk images.
 	PhysTrackLen = 0x18F0
+
+	// NibTrackLen is the length of a track in a NIB file. We assume NIB files
+	// use a fixed 6656 bytes per track regardless of actual data content.
+	NibTrackLen = 0x1A00
 
 	// MaxSteps is the maximum number of steps we can move the drive
 	// head before running out of tracks on the disk. (Note that steps
@@ -40,10 +45,12 @@ const (
 	// DosSize is the number of bytes in 140 kilobytes.
 	DosSize = 143360
 
-	// NibSize is the capacity of the segment we will create for
-	// nibblized data, whether from 140k logical data or just any-old
-	// NIB file.
-	NibSize = 223440
+	// NibSize is the size of a NIB file (35 tracks * 6656 bytes).
+	NibSize = NumTracks * NibTrackLen
+
+	// EncodedSize is the capacity of the segment we will create when
+	// encoding DOS33/ProDOS logical data to physical format.
+	EncodedSize = NumTracks * PhysTrackLen
 )
 
 const (
