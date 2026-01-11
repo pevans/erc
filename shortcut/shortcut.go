@@ -19,9 +19,9 @@ func Check(ev input.Event, comp *a2.Computer) (bool, error) {
 		if ev.Key == escapeKey {
 			comp.ClearKeys()
 			comp.State.SetBool(a2state.Paused, false)
-			gfx.ShowStatus(obj.ResumePNG())
+			_ = gfx.ShowStatus(obj.ResumePNG())
 		} else {
-			gfx.ShowStatus(obj.PausePNG())
+			_ = gfx.ShowStatus(obj.PausePNG())
 		}
 
 		return true, nil
@@ -53,17 +53,17 @@ func Check(ev input.Event, comp *a2.Computer) (bool, error) {
 	case escapeKey:
 		comp.ClearKeys()
 		comp.State.SetBool(a2state.Paused, true)
-		gfx.ShowStatus(obj.PausePNG())
+		_ = gfx.ShowStatus(obj.PausePNG())
 		return true, nil
 
 	case '-', '_':
 		comp.SpeedDown()
-		gfx.ShowStatus(obj.SpeedDownPNG())
+		_ = gfx.ShowStatus(obj.SpeedDownPNG())
 		return true, nil
 
 	case '+', '=':
 		comp.SpeedUp()
-		gfx.ShowStatus(obj.SpeedUpPNG())
+		_ = gfx.ShowStatus(obj.SpeedUpPNG())
 		return true, nil
 
 	case '1', '2', '3', '4', '5', '6', '7', '8', '9':
@@ -73,7 +73,7 @@ func Check(ev input.Event, comp *a2.Computer) (bool, error) {
 
 	case 'b', 'B':
 		comp.State.SetBool(a2state.Debugger, true)
-		gfx.ShowStatus(obj.DebugPNG())
+		_ = gfx.ShowStatus(obj.DebugPNG())
 		return true, nil
 
 	case 'l', 'L':
@@ -106,9 +106,9 @@ func Check(ev input.Event, comp *a2.Computer) (bool, error) {
 		comp.SelectedDrive.ToggleWriteProtect()
 
 		if comp.SelectedDrive.WriteProtected() {
-			gfx.ShowStatus(obj.WriteProtectedPNG())
+			_ = gfx.ShowStatus(obj.WriteProtectedPNG())
 		} else {
-			gfx.ShowStatus(obj.WriteablePNG())
+			_ = gfx.ShowStatus(obj.WriteablePNG())
 		}
 
 		return true, nil
@@ -119,22 +119,22 @@ func Check(ev input.Event, comp *a2.Computer) (bool, error) {
 	case 'v', 'V':
 		comp.VolumeToggle()
 		if comp.IsMuted() {
-			gfx.ShowStatus(obj.VolumeOffPNG())
+			_ = gfx.ShowStatus(obj.VolumeOffPNG())
 		}
 		return true, nil
 
 	case '[', '{':
 		comp.VolumeDown(10)
 		if comp.IsMuted() {
-			gfx.ShowStatus(obj.VolumeOffPNG())
+			_ = gfx.ShowStatus(obj.VolumeOffPNG())
 		} else {
-			gfx.ShowStatus(obj.VolumeDownPNG())
+			_ = gfx.ShowStatus(obj.VolumeDownPNG())
 		}
 		return true, nil
 
 	case ']', '}':
 		comp.VolumeUp(10)
-		gfx.ShowStatus(obj.VolumeUpPNG())
+		_ = gfx.ShowStatus(obj.VolumeUpPNG())
 		return true, nil
 	}
 

@@ -70,7 +70,7 @@ func (c *Computer) LoadFirst() error {
 		return fmt.Errorf("could not load next disk: %w", err)
 	}
 
-	defer data.Close()
+	defer data.Close() //nolint:errcheck
 
 	return c.Load(data, filename)
 }
@@ -84,10 +84,10 @@ func (c *Computer) LoadNext() error {
 		return fmt.Errorf("could not load next disk: %w", err)
 	}
 
-	defer data.Close()
+	defer data.Close() //nolint:errcheck
 
 	if png := diskPNG(c.Disks.CurrentIndex()); png != nil {
-		gfx.ShowStatus(png)
+		_ = gfx.ShowStatus(png)
 	}
 
 	c.ShowText(path.Base(filename))
@@ -104,10 +104,10 @@ func (c *Computer) LoadPrevious() error {
 		return fmt.Errorf("could not load previous disk: %w", err)
 	}
 
-	defer data.Close()
+	defer data.Close() //nolint:errcheck
 
 	if png := diskPNG(c.Disks.CurrentIndex()); png != nil {
-		gfx.ShowStatus(png)
+		_ = gfx.ShowStatus(png)
 	}
 
 	c.ShowText(path.Base(filename))

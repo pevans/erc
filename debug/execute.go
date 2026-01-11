@@ -57,7 +57,7 @@ func execute(comp *a2.Computer, cmd string) {
 		os.Exit(0)
 	case "resume":
 		comp.State.SetBool(a2state.Debugger, false)
-		gfx.ShowStatus(obj.ResumePNG())
+		_ = gfx.ShowStatus(obj.ResumePNG())
 		say("resuming emulation")
 
 	default:

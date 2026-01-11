@@ -78,7 +78,7 @@ func (s *ScreenLog) WriteToFile(filename string) error {
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer file.Close() //nolint:errcheck
 
 	for _, frame := range s.frames {
 		_, err := fmt.Fprintf(file, "FRAME %.6f\n", frame.Timestamp)

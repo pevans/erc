@@ -13,7 +13,7 @@ func TestDriveRead(t *testing.T) {
 
 	dat, err := os.Open("../../data/logical.disk")
 	require.NoError(t, err)
-	defer dat.Close()
+	defer dat.Close() //nolint:errcheck
 
 	require.NoError(t, d.Load(dat, "something.dsk"))
 
@@ -35,7 +35,7 @@ func TestDriveWrite(t *testing.T) {
 
 	dat, err := os.Open("../../data/logical.disk")
 	require.NoError(t, err)
-	defer dat.Close()
+	defer dat.Close() //nolint:errcheck
 
 	require.NoError(t, d.Load(dat, "something.dsk"))
 

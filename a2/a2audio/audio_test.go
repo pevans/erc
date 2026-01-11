@@ -2,6 +2,8 @@ package a2audio
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // mockEventSource provides controllable events for testing.
@@ -99,7 +101,8 @@ func TestSingleToggle_WaveformChanges(t *testing.T) {
 	stream := NewStream(source, clock)
 
 	buf := make([]byte, 400) // 100 samples
-	stream.Read(buf)
+	_, err := stream.Read(buf)
+	assert.NoError(t, err)
 
 	// Find where the transition happens
 	transitionSample := -1
@@ -144,7 +147,8 @@ func TestSquareWave_CorrectFrequency(t *testing.T) {
 	stream := NewStream(source, clock)
 
 	buf := make([]byte, 4000) // 1000 samples
-	stream.Read(buf)
+	_, err := stream.Read(buf)
+	assert.NoError(t, err)
 
 	// Count zero crossings (transitions)
 	transitions := 0
@@ -181,7 +185,8 @@ func TestMultipleReads_Continuity(t *testing.T) {
 
 	// First read: 20 samples (covers ~453 cycles at 22.68 cycles/sample)
 	buf1 := make([]byte, 80)
-	stream.Read(buf1)
+	_, err := stream.Read(buf1)
+	assert.NoError(t, err)
 
 	// All should be low (toggle is at cycle 1000, we only covered ~453)
 	for i := range 20 {
@@ -192,7 +197,8 @@ func TestMultipleReads_Continuity(t *testing.T) {
 
 	// Second read: 40 samples (covers cycles ~453 to ~1360)
 	buf2 := make([]byte, 160)
-	stream.Read(buf2)
+	_, err = stream.Read(buf2)
+	assert.NoError(t, err)
 
 	// Should see transition somewhere in this buffer
 	foundTransition := false
@@ -216,7 +222,8 @@ func TestFullSpeed_OutputsSilenceAndDiscardsEvents(t *testing.T) {
 
 	stream := NewStream(source, clock)
 	buf := make([]byte, 400)
-	stream.Read(buf)
+	_, err := stream.Read(buf)
+	assert.NoError(t, err)
 
 	// All bytes should be zero (silence)
 	for i, b := range buf {
@@ -245,7 +252,8 @@ func TestSpeedChange_StillProducesOutput(t *testing.T) {
 
 	// First read at 1 MHz
 	buf1 := make([]byte, 400) // 100 samples
-	stream.Read(buf1)
+	_, err := stream.Read(buf1)
+	assert.NoError(t, err)
 
 	transitions1 := countTransitions(buf1, 100)
 
@@ -259,7 +267,8 @@ func TestSpeedChange_StillProducesOutput(t *testing.T) {
 
 	// Read after speed change
 	buf2 := make([]byte, 400) // 100 samples
-	stream.Read(buf2)
+	_, err = stream.Read(buf2)
+	assert.NoError(t, err)
 
 	transitions2 := countTransitions(buf2, 100)
 
@@ -295,7 +304,8 @@ func TestEventGap_RecoversGracefully(t *testing.T) {
 
 	// Read through the first batch
 	buf := make([]byte, 4000) // 1000 samples covers ~22680 cycles
-	stream.Read(buf)
+	_, err := stream.Read(buf)
+	assert.NoError(t, err)
 
 	transitions1 := countTransitions(buf, 1000)
 
@@ -303,7 +313,8 @@ func TestEventGap_RecoversGracefully(t *testing.T) {
 	// This is a huge gap - the stream should cap it and continue
 
 	buf2 := make([]byte, 4000)
-	stream.Read(buf2)
+	_, err = stream.Read(buf2)
+	assert.NoError(t, err)
 
 	transitions2 := countTransitions(buf2, 1000)
 	t.Logf("transitions before gap: %d, after gap: %d", transitions1, transitions2)
@@ -370,7 +381,8 @@ func TestLongRunning_NoDrift(t *testing.T) {
 
 	// Run for simulated 5 minutes
 	for totalSamples < 13_230_000 {
-		stream.Read(buf)
+		_, err := stream.Read(buf)
+		assert.NoError(t, err)
 
 		// Check for transition at buffer boundary
 		if lastSampleHigh != nil {
@@ -446,7 +458,8 @@ func TestPauseResume_RecoversGracefully(t *testing.T) {
 
 	// First read - normal operation
 	buf1 := make([]byte, 400)
-	stream.Read(buf1)
+	_, err := stream.Read(buf1)
+	assert.NoError(t, err)
 	transitions1 := countTransitions(buf1, 100)
 
 	// Simulate pause: no events for a while, then resume with later cycles
@@ -457,7 +470,9 @@ func TestPauseResume_RecoversGracefully(t *testing.T) {
 
 	// Read after "pause" - should handle the gap gracefully
 	buf2 := make([]byte, 400)
-	stream.Read(buf2)
+	_, err = stream.Read(buf2)
+	assert.NoError(t, err)
+
 	transitions2 := countTransitions(buf2, 100)
 
 	t.Logf("transitions before pause: %d, after: %d", transitions1, transitions2)

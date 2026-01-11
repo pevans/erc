@@ -20,11 +20,11 @@ func TestCycleCounter(t *testing.T) {
 	c.PC = 0
 
 	assert.Equal(t, uint64(0), c.CycleCounter())
-	c.Execute()
+	assert.NoError(t, c.Execute())
 	assert.Equal(t, uint64(2), c.CycleCounter())
 
 	// Execute another NOP
 	seg.Set(1, 0xEA)
-	c.Execute()
+	assert.NoError(t, c.Execute())
 	assert.Equal(t, uint64(4), c.CycleCounter())
 }

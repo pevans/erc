@@ -61,7 +61,7 @@ func (c *Computer) SaveState(filename string) error {
 	if err != nil {
 		return fmt.Errorf("could not create save state file: %w", err)
 	}
-	defer file.Close()
+	defer file.Close() //nolint:errcheck
 
 	encoder := gob.NewEncoder(file)
 	if err := encoder.Encode(state); err != nil {
@@ -80,7 +80,7 @@ func (c *Computer) LoadState(filename string) error {
 	if err != nil {
 		return fmt.Errorf("could not open save state file: %w", err)
 	}
-	defer file.Close()
+	defer file.Close() //nolint:errcheck
 
 	var state a2save.SaveState
 	decoder := gob.NewDecoder(file)
@@ -156,7 +156,7 @@ func (c *Computer) SetStateSlot(n int) {
 func (c *Computer) SaveStateSlot() error {
 	err := c.SaveState(fmt.Sprintf("%v.%v.state", c.Disks.Name(), c.stateSlot))
 	if err == nil {
-		gfx.ShowStatus(obj.StateSavePNG())
+		_ = gfx.ShowStatus(obj.StateSavePNG())
 		c.ShowText(fmt.Sprintf("saved state: %v", c.stateSlot))
 	}
 
@@ -168,7 +168,7 @@ func (c *Computer) SaveStateSlot() error {
 func (c *Computer) LoadStateSlot() error {
 	err := c.LoadState(fmt.Sprintf("%v.%v.state", c.Disks.Name(), c.stateSlot))
 	if err == nil {
-		gfx.ShowStatus(obj.StateLoadPNG())
+		_ = gfx.ShowStatus(obj.StateLoadPNG())
 		c.ShowText(fmt.Sprintf("loaded state: %v", c.stateSlot))
 	}
 

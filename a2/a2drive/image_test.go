@@ -39,7 +39,7 @@ func TestDriveLoad(t *testing.T) {
 
 	data, err := os.Open("../../data/logical.disk")
 	require.NoError(t, err)
-	defer data.Close()
+	defer data.Close() //nolint:errcheck
 
 	require.NoError(t, d.Load(data, "something.dsk"))
 
