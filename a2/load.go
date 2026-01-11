@@ -87,7 +87,7 @@ func (c *Computer) LoadNext() error {
 	defer data.Close() //nolint:errcheck
 
 	if png := diskPNG(c.Disks.CurrentIndex()); png != nil {
-		_ = gfx.ShowStatus(png)
+		gfx.ShowStatus(png)
 	}
 
 	c.ShowText(path.Base(filename))
@@ -107,7 +107,7 @@ func (c *Computer) LoadPrevious() error {
 	defer data.Close() //nolint:errcheck
 
 	if png := diskPNG(c.Disks.CurrentIndex()); png != nil {
-		_ = gfx.ShowStatus(png)
+		gfx.ShowStatus(png)
 	}
 
 	c.ShowText(path.Base(filename))

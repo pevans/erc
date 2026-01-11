@@ -156,7 +156,7 @@ func (c *Computer) SetStateSlot(n int) {
 func (c *Computer) SaveStateSlot() error {
 	err := c.SaveState(fmt.Sprintf("%v.%v.state", c.Disks.Name(), c.stateSlot))
 	if err == nil {
-		_ = gfx.ShowStatus(obj.StateSavePNG())
+		gfx.ShowStatus(obj.StateSavePNG())
 		c.ShowText(fmt.Sprintf("saved state: %v", c.stateSlot))
 	}
 
@@ -168,7 +168,7 @@ func (c *Computer) SaveStateSlot() error {
 func (c *Computer) LoadStateSlot() error {
 	err := c.LoadState(fmt.Sprintf("%v.%v.state", c.Disks.Name(), c.stateSlot))
 	if err == nil {
-		_ = gfx.ShowStatus(obj.StateLoadPNG())
+		gfx.ShowStatus(obj.StateLoadPNG())
 		c.ShowText(fmt.Sprintf("loaded state: %v", c.stateSlot))
 	}
 

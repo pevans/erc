@@ -9,8 +9,9 @@ func init() {
 }
 
 // ShowStatus is a convenience function to show a status overlay with fade.
-func ShowStatus(data []byte) error {
-	return StatusOverlay.Show(data)
+func ShowStatus(data []byte) {
+	// We don't care if the status overlay errors when showing the graphic
+	_ = StatusOverlay.Show(data)
 }
 
 // ShowPersistentStatus shows a status overlay without fade.
