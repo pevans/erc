@@ -112,7 +112,7 @@ type Computer struct {
 
 	MetricsFileName string
 
-	screenLog         *ScreenLog
+	screenLog         *elog.ScreenLog
 	screenLogFileName string
 	lastScreenCapture time.Time
 

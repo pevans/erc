@@ -51,7 +51,7 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 		c.diskLogFileName = fmt.Sprintf("%v.disklog", fileName)
 		c.diskLog = elog.NewDiskLog()
 
-		c.screenLog = NewScreenLog()
+		c.screenLog = elog.NewScreenLog()
 		c.screenLogFileName = fmt.Sprintf("%v.screen", fileName)
 		c.lastScreenCapture = c.BootTime
 
