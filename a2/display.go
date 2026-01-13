@@ -384,7 +384,9 @@ func (c *Computer) Render() {
 			end   = 0x800
 		)
 
-		a2video.RenderLores(c.displaySnapshot, start, end)
+		monochromeMode := c.State.Int(a2state.DisplayMonochrome)
+
+		a2video.RenderLores(c.displaySnapshot, start, end, monochromeMode)
 	}
 
 	c.State.SetBool(a2state.DisplayRedraw, false)
