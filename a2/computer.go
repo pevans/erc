@@ -8,7 +8,7 @@ import (
 	"github.com/pevans/erc/a2/a2drive"
 	"github.com/pevans/erc/a2/a2font"
 	"github.com/pevans/erc/a2/a2state"
-	"github.com/pevans/erc/asm"
+	"github.com/pevans/erc/elog"
 	"github.com/pevans/erc/clock"
 	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/memory"
@@ -91,7 +91,7 @@ type Computer struct {
 
 	// diskLog is the log of all disk operations recorded by the file in
 	// drive1
-	diskLog *asm.DiskLog
+	diskLog *elog.DiskLog
 
 	// When the computer is booted up, this will be a set of disks that we
 	// might use to run software. There are often cases where you need to swap
@@ -102,12 +102,12 @@ type Computer struct {
 	smap  *memory.SoftMap
 	State *memory.StateMap
 
-	InstructionLog *asm.InstructionMap
+	InstructionLog *elog.InstructionMap
 
 	// Where to write the instruction log
 	InstructionLogFileName string
 
-	TimeSet         *asm.TimeSet
+	TimeSet         *elog.TimeSet
 	TimeSetFileName string
 
 	MetricsFileName string

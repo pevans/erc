@@ -6,7 +6,7 @@ import (
 	"path"
 
 	"github.com/pevans/erc/a2/a2state"
-	"github.com/pevans/erc/asm"
+	"github.com/pevans/erc/elog"
 	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/obj"
 	"github.com/pkg/errors"
@@ -32,7 +32,7 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 	c.diskLog = nil
 
 	if c.State.Bool(a2state.DebugImage) {
-		c.InstructionLog = asm.NewInstructionMap()
+		c.InstructionLog = elog.NewInstructionMap()
 		c.InstructionLogFileName = fmt.Sprintf("%v.asm", fileName)
 
 		// Share the instruction log with the CPU in case it needs to access
@@ -40,16 +40,16 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 		// put this into the state map.
 		c.CPU.InstructionLog = c.InstructionLog
 
-		c.TimeSet = asm.NewTimeset(c.ClockEmulator.TimePerCycle())
+		c.TimeSet = elog.NewTimeset(c.ClockEmulator.TimePerCycle())
 		c.TimeSetFileName = fmt.Sprintf("%v.time", fileName)
 
 		c.MetricsFileName = fmt.Sprintf("%v.metrics", fileName)
 
-		c.CPU.InstructionChannel = make(chan *asm.Line, 100)
+		c.CPU.InstructionChannel = make(chan *elog.Instruction, 100)
 		go MaybeLogInstructions(c)
 
 		c.diskLogFileName = fmt.Sprintf("%v.disklog", fileName)
-		c.diskLog = asm.NewDiskLog()
+		c.diskLog = elog.NewDiskLog()
 
 		c.screenLog = NewScreenLog()
 		c.screenLogFileName = fmt.Sprintf("%v.screen", fileName)

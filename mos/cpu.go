@@ -1,7 +1,7 @@
 package mos
 
 import (
-	"github.com/pevans/erc/asm"
+	"github.com/pevans/erc/elog"
 	"github.com/pevans/erc/memory"
 )
 
@@ -21,11 +21,11 @@ type CPU struct {
 
 	// A map of instructions that we have executed. This is only used when
 	// we're debugging an image.
-	InstructionLog *asm.InstructionMap
+	InstructionLog *elog.InstructionMap
 
 	// A channel of instructions we're sending to interested listeners (e.g.
 	// if they wish to log them).
-	InstructionChannel chan *asm.Line
+	InstructionChannel chan *elog.Instruction
 
 	// This is the current address mode that the CPU is operating
 	// within. The address mode affects how the CPU will determine the

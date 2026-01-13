@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/pevans/erc/a2/a2state"
-	"github.com/pevans/erc/asm"
+	"github.com/pevans/erc/elog"
 )
 
 // Status returns a formatted string that concisely captures the state of the
@@ -23,7 +23,7 @@ func (c *CPU) Status() string {
 func (c *CPU) CurrentInstructionShort() string {
 	pc := int(c.PC)
 
-	line := &asm.Line{
+	line := &elog.Instruction{
 		Address:     &pc,
 		Instruction: instructions[c.opcode].String(),
 		Operand:     c.Operand,
@@ -36,10 +36,10 @@ func (c *CPU) CurrentInstructionShort() string {
 }
 
 // LastInstructionLine returns the last instruction that was executed in the
-// form of an asm.Line object.
-func (c *CPU) LastInstructionLine(cycles int) *asm.Line {
+// form of an elog.Instruction object.
+func (c *CPU) LastInstructionLine(cycles int) *elog.Instruction {
 	lastPC := int(c.LastPC)
-	line := &asm.Line{
+	line := &elog.Instruction{
 		Address:     &lastPC,
 		Instruction: instructions[c.opcode].String(),
 		Opcode:      c.opcode,
@@ -83,7 +83,7 @@ func (c *CPU) NextInstruction() string {
 	copyOfCPU.State.SetBool(a2state.DebuggerLookAhead, false)
 
 	pc := int(c.PC)
-	ln := &asm.Line{
+	ln := &elog.Instruction{
 		Address:     &pc,
 		Instruction: instructions[opcode].String(),
 		Operand:     c.Operand,
@@ -95,12 +95,12 @@ func (c *CPU) NextInstruction() string {
 	return ln.String()
 }
 
-// PrepareOperand will fill in a provided asm.Line object with a formatted
+// PrepareOperand will fill in a provided elog.Instruction object with a formatted
 // operand (specifically modifying the PreparedOperand, OperandLSB, and
 // OperandMSB fields). The provided pc (program counter) value is used to
 // calculate the branch address, given that branch operands are relative
 // values.
-func PrepareOperand(line *asm.Line, pc uint16) {
+func PrepareOperand(line *elog.Instruction, pc uint16) {
 	addrMode := OpcodeAddrMode(line.Opcode)
 	lsb := uint8(line.Operand & 0xFF)
 	msb := uint8(line.Operand >> 8)

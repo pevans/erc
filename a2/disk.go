@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/pevans/erc/a2/a2state"
-	"github.com/pevans/erc/asm"
+	"github.com/pevans/erc/elog"
 	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/memory"
 )
@@ -90,8 +90,8 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 			*val = c.SelectedDrive.ReadLatch()
 
 			if c.diskLog != nil {
-				c.diskLog.Add(&asm.DiskOp{
-					Mode:           asm.DiskRead,
+				c.diskLog.Add(&elog.DiskOp{
+					Mode:           elog.DiskRead,
 					Elapsed:        time.Since(c.BootTime),
 					Track:          c.SelectedDrive.Track(),
 					Sector:         c.SelectedDrive.Sector(),
@@ -114,8 +114,8 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 				c.SelectedDrive.WriteLatch()
 
 				if c.diskLog != nil {
-					c.diskLog.Add(&asm.DiskOp{
-						Mode:           asm.DiskWrite,
+					c.diskLog.Add(&elog.DiskOp{
+						Mode:           elog.DiskWrite,
 						Elapsed:        time.Since(c.BootTime),
 						Track:          c.SelectedDrive.Track(),
 						Sector:         c.SelectedDrive.Sector(),

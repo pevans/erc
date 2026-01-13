@@ -1,11 +1,11 @@
-package asm
+package elog
 
 import "fmt"
 
-// Line is a representation of some line of assembly to output. There
+// Instruction is a representation of some line of assembly to output. There
 // are many kinds of assembly; this is intended to model that of a
 // 6502-style system.
-type Line struct {
+type Instruction struct {
 	// Address is the address at which this instruction was executed.
 	Address *int
 
@@ -58,7 +58,7 @@ type Line struct {
 
 // ShortString returns a shortened version of String. This version includes
 // only the address, instruction, and operand.
-func (ln Line) ShortString() string {
+func (ln Instruction) ShortString() string {
 	linefmt := "%s" + // address
 		" | " + // spacing
 		"%s " + // instruction
@@ -77,7 +77,7 @@ func (ln Line) ShortString() string {
 // single grammar for assembly -- it's usually a notation that works for
 // a specific assembler. As long as it "looks right", that's good enough
 // for now.
-func (ln Line) String() string {
+func (ln Instruction) String() string {
 	linefmt := "%s" + // address
 		"%-8s " + // label
 		"%s " + // instruction
@@ -96,7 +96,7 @@ func (ln Line) String() string {
 }
 
 // onlyAddress returns a string form of the address in memory.
-func (ln Line) onlyAddress() string {
+func (ln Instruction) onlyAddress() string {
 	if ln.Address == nil {
 		return ""
 	}
@@ -107,7 +107,7 @@ func (ln Line) onlyAddress() string {
 // fullAddress returns a string form of the address and bytes in memory at
 // which this instruction operates. It includes the opcode and operand bytes
 // with the address where those are located.
-func (ln Line) fullAddress() string {
+func (ln Instruction) fullAddress() string {
 	if ln.Address == nil {
 		return ""
 	}

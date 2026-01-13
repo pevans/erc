@@ -1,4 +1,4 @@
-package asm
+package elog
 
 import (
 	"testing"
@@ -8,9 +8,9 @@ import (
 
 // Let's not be prescriptive about how the line looks -- just look for
 // things in the line
-func TestLineString(t *testing.T) {
+func TestInstructionString(t *testing.T) {
 	t.Run("with instruction and operand", func(t *testing.T) {
-		ln := Line{
+		ln := Instruction{
 			Instruction:     "ABC",
 			PreparedOperand: "$123",
 		}
@@ -22,7 +22,7 @@ func TestLineString(t *testing.T) {
 	})
 
 	t.Run("with comment", func(t *testing.T) {
-		ln := Line{
+		ln := Instruction{
 			Instruction:     "ABC",
 			PreparedOperand: "$123",
 			Comment:         "comment is free",

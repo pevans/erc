@@ -4,14 +4,14 @@ import (
 	"fmt"
 
 	"github.com/pevans/erc/a2/a2sym"
-	"github.com/pevans/erc/asm"
+	"github.com/pevans/erc/elog"
 )
 
-// ExplainInstruction modifies a given asm.Line in an effort to better explain
+// ExplainInstruction modifies a given elog.Instruction in an effort to better explain
 // what's happening in the code. It will add comments, if possible; it will
 // swap operands with labels (e.g. for subroutines) and variable names (such
 // as those defined with EQU).
-func ExplainInstruction(line *asm.Line, pc uint16, effAddr uint16) {
+func ExplainInstruction(line *elog.Instruction, pc uint16, effAddr uint16) {
 	addr := int(effAddr)
 	addrMode := addrModes[line.Opcode]
 

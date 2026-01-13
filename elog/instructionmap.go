@@ -1,4 +1,4 @@
-package asm
+package elog
 
 import (
 	"os"
@@ -6,23 +6,23 @@ import (
 	"sync"
 )
 
-// An InstructionMap is a container that holds a set of Lines. Its only
+// An InstructionMap is a container that holds a set of Instructions. Its only
 // purpose is to debug the execution of some software being emulated.
 type InstructionMap struct {
-	m  map[uint64]*Line
+	m  map[uint64]*Instruction
 	mu sync.Mutex
 }
 
 // NewInstructionMap returns a newly allocated instruction map.
 func NewInstructionMap() *InstructionMap {
 	return &InstructionMap{
-		m:  make(map[uint64]*Line),
+		m:  make(map[uint64]*Instruction),
 		mu: sync.Mutex{},
 	}
 }
 
 // Add inserts a given line to the instruction map.
-func (cm *InstructionMap) Add(line *Line) {
+func (cm *InstructionMap) Add(line *Instruction) {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
@@ -41,7 +41,7 @@ func (cm *InstructionMap) Add(line *Line) {
 }
 
 // Exists returns true if the given line is already in the instruction map.
-func (cm *InstructionMap) Exists(line *Line) bool {
+func (cm *InstructionMap) Exists(line *Instruction) bool {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
@@ -49,10 +49,10 @@ func (cm *InstructionMap) Exists(line *Line) bool {
 	return ok
 }
 
-// Lines returns a string slice of every line in the instruction map. The
+// Instructions returns a string slice of every line in the instruction map. The
 // provided slice will be sorted in ascending order -- by convention, this
 // would be according to the addresses that instructions are executed.
-func (cm *InstructionMap) Lines() []string {
+func (cm *InstructionMap) Instructions() []string {
 	cm.mu.Lock()
 	defer cm.mu.Unlock()
 
@@ -83,7 +83,7 @@ func (cm *InstructionMap) Lines() []string {
 // [ address | 16bits ][ operand | 16 bits ][ opcode | 8 bits ]
 //
 // This ends up taking 40 bits, so we produce a 64-bit key.
-func instructionMapKey(line *Line) uint64 {
+func instructionMapKey(line *Instruction) uint64 {
 	key := uint64(line.Opcode)
 	key |= uint64(line.Operand) << 8
 
@@ -166,7 +166,7 @@ func writePreamble(fp *os.File) error {
 // filename. An error is returned if the file could not be created or written
 // to.
 func (cm *InstructionMap) WriteToFile(file string) error {
-	lines := cm.Lines()
+	lines := cm.Instructions()
 
 	fp, err := os.Create(file)
 	if err != nil {

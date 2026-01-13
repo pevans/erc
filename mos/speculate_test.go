@@ -3,7 +3,7 @@ package mos
 import (
 	"testing"
 
-	"github.com/pevans/erc/asm"
+	"github.com/pevans/erc/elog"
 	"github.com/pevans/erc/memory"
 	"github.com/stretchr/testify/assert"
 )
@@ -66,7 +66,7 @@ func TestCPU_SpeculateInstruction(t *testing.T) {
 func TestCPU_Speculate(t *testing.T) {
 	t.Run("speculates simple sequence", func(t *testing.T) {
 		cpu := new(CPU)
-		cpu.InstructionLog = asm.NewInstructionMap()
+		cpu.InstructionLog = elog.NewInstructionMap()
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
@@ -82,7 +82,7 @@ func TestCPU_Speculate(t *testing.T) {
 		cpu.Speculate(0x1000)
 
 		// Debug: check if lines at our addresses exist
-		lines := cpu.InstructionLog.Lines()
+		lines := cpu.InstructionLog.Instructions()
 		found1000 := false
 		found1002 := false
 		found1004 := false
@@ -108,7 +108,7 @@ func TestCPU_Speculate(t *testing.T) {
 
 	t.Run("stops at previously executed code", func(t *testing.T) {
 		cpu := new(CPU)
-		cpu.InstructionLog = asm.NewInstructionMap()
+		cpu.InstructionLog = elog.NewInstructionMap()
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
@@ -122,7 +122,7 @@ func TestCPU_Speculate(t *testing.T) {
 		// Mark STA as already executed (non-speculative)
 		addr1002 := 0x1002
 		lsb := uint8(0x20)
-		staLine := &asm.Line{
+		staLine := &elog.Instruction{
 			Address:     &addr1002,
 			Instruction: "STA",
 			Opcode:      0x85,
@@ -134,7 +134,7 @@ func TestCPU_Speculate(t *testing.T) {
 		cpu.Speculate(0x1000)
 
 		// LDA should be added as speculative
-		lines := cpu.InstructionLog.Lines()
+		lines := cpu.InstructionLog.Instructions()
 		foundLDA := false
 		foundSTA := false
 		for _, line := range lines {
@@ -152,7 +152,7 @@ func TestCPU_Speculate(t *testing.T) {
 
 	t.Run("speculates on branch target", func(t *testing.T) {
 		cpu := new(CPU)
-		cpu.InstructionLog = asm.NewInstructionMap()
+		cpu.InstructionLog = elog.NewInstructionMap()
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
@@ -171,7 +171,7 @@ func TestCPU_Speculate(t *testing.T) {
 		cpu.Speculate(0x1000)
 
 		// Check what got speculated
-		lines := cpu.InstructionLog.Lines()
+		lines := cpu.InstructionLog.Instructions()
 		found1000 := false
 		found1002 := false
 
@@ -190,7 +190,7 @@ func TestCPU_Speculate(t *testing.T) {
 
 	t.Run("handles backward branches", func(t *testing.T) {
 		cpu := new(CPU)
-		cpu.InstructionLog = asm.NewInstructionMap()
+		cpu.InstructionLog = elog.NewInstructionMap()
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
@@ -207,7 +207,7 @@ func TestCPU_Speculate(t *testing.T) {
 
 		cpu.Speculate(0x1000)
 
-		lines := cpu.InstructionLog.Lines()
+		lines := cpu.InstructionLog.Instructions()
 		found1000 := false
 		found1001 := false
 		found1003 := false
@@ -231,7 +231,7 @@ func TestCPU_Speculate(t *testing.T) {
 
 	t.Run("avoids infinite recursion on loops", func(t *testing.T) {
 		cpu := new(CPU)
-		cpu.InstructionLog = asm.NewInstructionMap()
+		cpu.InstructionLog = elog.NewInstructionMap()
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
@@ -244,7 +244,7 @@ func TestCPU_Speculate(t *testing.T) {
 		addr1000 := 0x1000
 		lsbJmp := uint8(0x00)
 		msbJmp := uint8(0x10)
-		jmpLine := &asm.Line{
+		jmpLine := &elog.Instruction{
 			Address:     &addr1000,
 			Instruction: "JMP",
 			Opcode:      0x4C,
@@ -260,7 +260,7 @@ func TestCPU_Speculate(t *testing.T) {
 
 	t.Run("handles nested branches", func(t *testing.T) {
 		cpu := new(CPU)
-		cpu.InstructionLog = asm.NewInstructionMap()
+		cpu.InstructionLog = elog.NewInstructionMap()
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
@@ -285,7 +285,7 @@ func TestCPU_Speculate(t *testing.T) {
 		cpu.Speculate(0x1000)
 
 		// Check what got speculated
-		lines := cpu.InstructionLog.Lines()
+		lines := cpu.InstructionLog.Instructions()
 		found1000 := false
 		found1002 := false
 
@@ -306,7 +306,7 @@ func TestCPU_Speculate(t *testing.T) {
 func TestCPU_Speculate_Integration(t *testing.T) {
 	t.Run("realistic branch scenario", func(t *testing.T) {
 		cpu := new(CPU)
-		cpu.InstructionLog = asm.NewInstructionMap()
+		cpu.InstructionLog = elog.NewInstructionMap()
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
@@ -335,7 +335,7 @@ func TestCPU_Speculate_Integration(t *testing.T) {
 		cpu.Speculate(0x0800)
 
 		// Check what got speculated
-		lines := cpu.InstructionLog.Lines()
+		lines := cpu.InstructionLog.Instructions()
 		found0800 := false
 		found0802 := false
 		found0804 := false
@@ -359,7 +359,7 @@ func TestCPU_Speculate_Integration(t *testing.T) {
 
 	t.Run("stops at terminating instructions", func(t *testing.T) {
 		cpu := new(CPU)
-		cpu.InstructionLog = asm.NewInstructionMap()
+		cpu.InstructionLog = elog.NewInstructionMap()
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
@@ -373,7 +373,7 @@ func TestCPU_Speculate_Integration(t *testing.T) {
 
 		cpu.Speculate(0x1000)
 
-		lines := cpu.InstructionLog.Lines()
+		lines := cpu.InstructionLog.Instructions()
 		found1000 := false
 		found1002 := false
 		found1003 := false
@@ -397,7 +397,7 @@ func TestCPU_Speculate_Integration(t *testing.T) {
 
 	t.Run("stops at JMP instruction", func(t *testing.T) {
 		cpu := new(CPU)
-		cpu.InstructionLog = asm.NewInstructionMap()
+		cpu.InstructionLog = elog.NewInstructionMap()
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
@@ -413,7 +413,7 @@ func TestCPU_Speculate_Integration(t *testing.T) {
 
 		cpu.Speculate(0x2000)
 
-		lines := cpu.InstructionLog.Lines()
+		lines := cpu.InstructionLog.Instructions()
 		found2000 := false
 		found2002 := false
 		found2005 := false

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/pevans/erc/a2/a2enc"
-	"github.com/pevans/erc/asm"
+	"github.com/pevans/erc/elog"
 	"github.com/pevans/erc/memory"
 )
 
@@ -15,7 +15,7 @@ import (
 // to support the latter over time.
 type Image struct {
 	Tracks []*memory.Segment
-	Code   []asm.Line
+	Code   []elog.Instruction
 }
 
 func NewImage() *Image {
