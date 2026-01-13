@@ -24,6 +24,7 @@ const (
 	DisplayIou
 	DisplayMixed
 	DisplayPage2
+	DisplayMonochrome
 	DisplayRedraw
 	DisplayStore80
 	DisplayText
@@ -67,6 +68,7 @@ var keyStringMap = map[int]string{
 	DisplayHires:        "DisplayHires",
 	DisplayIou:          "DisplayIou",
 	DisplayMixed:        "DisplayMixed",
+	DisplayMonochrome:   "DisplayMonochrome",
 	DisplayPage2:        "DisplayPage2",
 	DisplayRedraw:       "DisplayRedraw",
 	DisplayStore80:      "DisplayStore80",

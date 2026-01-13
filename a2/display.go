@@ -368,7 +368,9 @@ func (c *Computer) Render() {
 			end   = 0x4000
 		)
 
-		a2video.RenderHires(c.displaySnapshot, start, end)
+		monochromeMode := c.State.Int(a2state.DisplayMonochrome)
+
+		a2video.RenderHires(c.displaySnapshot, start, end, monochromeMode)
 
 		if c.screenLog != nil && time.Since(c.lastScreenCapture) >= time.Second {
 			elapsed := time.Since(c.BootTime).Seconds()

@@ -13,6 +13,12 @@ const (
 	PaletteBlueOrange
 )
 
+const (
+	MonochromeNone = iota
+	MonochromeGreen
+	MonochromeAmber
+)
+
 // A HiresDot represents any dot on screen in a HIRES mode. In itself, a
 // dot doesn't have enough information to determine its color; you must
 // also look at a neighboring dot to figure that out.
@@ -24,16 +30,18 @@ type HiresDot struct {
 }
 
 var (
-	HiresBlack       = color.RGBA{R: 0x00, G: 0x00, B: 0x00, A: 0xff}
-	HiresWhite       = color.RGBA{R: 0xff, G: 0xff, B: 0xff, A: 0xff}
-	HiresGreen       = color.RGBA{R: 0x2f, G: 0xbc, B: 0x1a, A: 0xff}
-	HiresPurple      = color.RGBA{R: 0xd0, G: 0x43, B: 0xe5, A: 0xff}
-	HiresBlue        = color.RGBA{R: 0x2f, G: 0x95, B: 0xe5, A: 0xff}
-	HiresOrange      = color.RGBA{R: 0xd0, G: 0x6a, B: 0x1a, A: 0xff}
-	HiresDarkGreen   = color.RGBA{R: 0x3f, G: 0x4c, B: 0x12, A: 0xff}
-	HiresDarkPurple  = color.RGBA{R: 0x3e, G: 0x31, B: 0x79, A: 0xff}
-	HiresLightGreen  = color.RGBA{R: 0xbd, G: 0xea, B: 0x86, A: 0xff}
-	HiresLightPurple = color.RGBA{R: 0xbb, G: 0xaf, B: 0xf6, A: 0xff}
+	HiresBlack          = color.RGBA{R: 0x00, G: 0x00, B: 0x00, A: 0xff}
+	HiresWhite          = color.RGBA{R: 0xff, G: 0xff, B: 0xff, A: 0xff}
+	HiresGreen          = color.RGBA{R: 0x2f, G: 0xbc, B: 0x1a, A: 0xff}
+	HiresPurple         = color.RGBA{R: 0xd0, G: 0x43, B: 0xe5, A: 0xff}
+	HiresBlue           = color.RGBA{R: 0x2f, G: 0x95, B: 0xe5, A: 0xff}
+	HiresOrange         = color.RGBA{R: 0xd0, G: 0x6a, B: 0x1a, A: 0xff}
+	HiresDarkGreen      = color.RGBA{R: 0x3f, G: 0x4c, B: 0x12, A: 0xff}
+	HiresDarkPurple     = color.RGBA{R: 0x3e, G: 0x31, B: 0x79, A: 0xff}
+	HiresLightGreen     = color.RGBA{R: 0xbd, G: 0xea, B: 0x86, A: 0xff}
+	HiresLightPurple    = color.RGBA{R: 0xbb, G: 0xaf, B: 0xf6, A: 0xff}
+	HiresMonochromeGreen = color.RGBA{R: 0x98, G: 0xff, B: 0x98, A: 0xff}
+	HiresMonochromeAmber = color.RGBA{R: 0xff, G: 0xbf, B: 0x00, A: 0xff}
 )
 
 var purpleGreen = []color.RGBA{
@@ -47,11 +55,11 @@ var blueOrange = []color.RGBA{
 }
 
 // RenderHires draws dots in memory onto the screen
-func RenderHires(seg memory.Getter, start, end int) {
+func RenderHires(seg memory.Getter, start, end int, monochromeMode int) {
 	dots := make([]HiresDot, 280)
 
 	for y := range uint(192) {
-		err := PrepareHiresRow(seg, y, dots)
+		err := PrepareHiresRow(seg, y, dots, monochromeMode)
 		if err != nil {
 			// This should really never happen...
 			panic(err)
@@ -72,9 +80,26 @@ func RenderHires(seg memory.Getter, start, end int) {
 // indicates how to render a hires graphics row. If the length of dots
 // is not sufficient to contain all the dots in such a row, this
 // function will return an error.
-func PrepareHiresRow(seg memory.Getter, row uint, dots []HiresDot) error {
+func PrepareHiresRow(seg memory.Getter, row uint, dots []HiresDot, monochromeMode int) error {
 	if err := fillHiresDots(seg, row, dots); err != nil {
 		return err
+	}
+
+	if monochromeMode != MonochromeNone {
+		monochromeColor := HiresMonochromeGreen
+		if monochromeMode == MonochromeAmber {
+			monochromeColor = HiresMonochromeAmber
+		}
+
+		for i := range dots {
+			if dots[i].On {
+				dots[i].Color = monochromeColor
+			} else {
+				dots[i].Color = HiresBlack
+			}
+		}
+
+		return nil
 	}
 
 	// This is technically a double scan of the row. We could probably

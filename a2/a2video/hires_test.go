@@ -16,10 +16,10 @@ func TestPrepareHiresRow(t *testing.T) {
 	emptyDots := []a2video.HiresDot{}
 
 	t.Run("an insufficient length row of dots will error", func(t *testing.T) {
-		assert.Error(t, a2video.PrepareHiresRow(c, 0, emptyDots))
+		assert.Error(t, a2video.PrepareHiresRow(c, 0, emptyDots, a2video.MonochromeNone))
 	})
 
 	t.Run("a sufficient length row of dots will work", func(t *testing.T) {
-		assert.NoError(t, a2video.PrepareHiresRow(c, 0, dots))
+		assert.NoError(t, a2video.PrepareHiresRow(c, 0, dots, a2video.MonochromeNone))
 	})
 }

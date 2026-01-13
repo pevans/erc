@@ -11,6 +11,7 @@ import (
 	"github.com/peterh/liner"
 	"github.com/pevans/erc/a2"
 	"github.com/pevans/erc/a2/a2state"
+	"github.com/pevans/erc/a2/a2video"
 	"github.com/pevans/erc/debug"
 	"github.com/pevans/erc/input"
 	"github.com/pevans/erc/render"
@@ -26,6 +27,7 @@ var (
 	speedFlag        int
 	writeProtectFlag bool
 	shaderFlag       string
+	monochromeFlag   string
 )
 
 var runCmd = &cobra.Command{
@@ -47,11 +49,25 @@ func init() {
 	runCmd.Flags().IntVar(&speedFlag, "speed", 1, "Starting speed of the emulator (more is faster)")
 	runCmd.Flags().BoolVar(&writeProtectFlag, "write-protect", false, "Whether to write-protect the image")
 	runCmd.Flags().StringVar(&shaderFlag, "shader", "softcrt", "Shader to apply (none, softcrt, curvedcrt, hardcrt)")
+	runCmd.Flags().StringVar(&monochromeFlag, "monochrome", "", "Render in monochrome (green or amber)")
 }
 
 func runEmulator(images []string) {
 	if profileFlag {
 		defer profile.Start().Stop()
+	}
+
+	// Parse monochrome flag
+	monochromeMode := a2video.MonochromeNone
+	switch monochromeFlag {
+	case "green":
+		monochromeMode = a2video.MonochromeGreen
+	case "amber":
+		monochromeMode = a2video.MonochromeAmber
+	case "":
+		monochromeMode = a2video.MonochromeNone
+	default:
+		fail("monochrome flag must be either 'green' or 'amber'")
 	}
 
 	// Parse and add breakpoints if provided
@@ -87,6 +103,7 @@ func runEmulator(images []string) {
 
 	// Load the image files
 	comp.State.SetBool(a2state.DebugImage, debugImageFlag)
+	comp.State.SetInt(a2state.DisplayMonochrome, monochromeMode)
 
 	for _, filename := range images {
 		if err := comp.Disks.Append(filename); err != nil {
