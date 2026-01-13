@@ -9,13 +9,7 @@ the 2D graphics library, ebiten.
 
 ## Commands
 
-- `just test`: run every test in every package
-- `just test ./some/package`: run every test in one package
 - `just lint`: run a linter on every source code file
-- `just debug path/to/image/file`: launch erc with the --debug-image flag to
-  debug an image file's execution
-- `just build`: produce an executable of the software in the root directory,
-  which is named `erc`.
 
 ## Structure
 
