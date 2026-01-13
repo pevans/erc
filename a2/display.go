@@ -360,7 +360,9 @@ func (c *Computer) Render() {
 			end   = 0x800
 		)
 
-		a2video.RenderText(c.displaySnapshot, c.Font40, start, end)
+		monochromeMode := c.State.Int(a2state.DisplayMonochrome)
+
+		a2video.RenderText(c.displaySnapshot, c.Font40, start, end, monochromeMode)
 
 	case c.State.Bool(a2state.DisplayHires):
 		var (
