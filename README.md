@@ -93,6 +93,12 @@ If you would prefer not to hear sound, you can toggle it off using the
 **CTRL-A V** shortcut (see more on keyboard shortcuts below). You can also
 adjust the volume up or down using other shortcuts.
 
+## Monochrome
+
+You can emulate software in a monochrome color by passing the CLI flag,
+`--monochrome=x` where `x` is either `green` or `amber`. This feature is
+designed to provide the same feeling of running under such a monitor.
+
 ## Shaders
 
 Erc uses shaders to try provide different visual effects to the software being
