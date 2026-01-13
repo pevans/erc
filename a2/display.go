@@ -10,10 +10,15 @@ import (
 	"github.com/pevans/erc/memory"
 )
 
+// scanCycleCount is the number of cycles it takes to, theoretically, redraw
+// the screen.
+const scanCycleCount uint64 = 17030
+
 const (
 	// These are R7 actions, meaning they are switches you read from that
 	// return bit 7 high when the modes are on, and low if not.
 	rd80Store = int(0xC018)
+	rdVBL     = int(0xC019) // VBL = Vertical Blank
 	rdText    = int(0xC01A)
 	rdMixed   = int(0xC01B)
 	rdPage2   = int(0xC01C)
@@ -65,6 +70,7 @@ func displayReadSwitches() []int {
 		rdMixed,
 		rdPage2,
 		rdText,
+		rdVBL,
 	}
 }
 
@@ -174,8 +180,9 @@ func displayOnOrOffReadWrite(a int, stm *memory.StateMap) bool {
 
 func displaySwitchRead(a int, stm *memory.StateMap) uint8 {
 	var (
-		hi uint8 = 0x80
-		lo uint8 = 0x00
+		hi   uint8 = 0x80
+		lo   uint8 = 0x00
+		comp       = stm.Any(a2state.DiskComputer).(*Computer)
 	)
 
 	if displayOnOrOffReadWrite(a, stm) {
@@ -217,6 +224,10 @@ func displaySwitchRead(a int, stm *memory.StateMap) uint8 {
 		}
 	case rdDHires:
 		if stm.Bool(a2state.DisplayDoubleHigh) {
+			return hi
+		}
+	case rdVBL:
+		if comp.IsVerticalBlank() {
 			return hi
 		}
 	}
@@ -375,4 +386,15 @@ func (c *Computer) Render() {
 	}
 
 	c.State.SetBool(a2state.DisplayRedraw, false)
+}
+
+// IsVerticalBlank returns true when the number of cycles we've emulated is
+// during what the Apple would consider the period of "vertical blank" (when
+// the screen would not have been drawn). It took the CRT gun 12,480 cycles to
+// go from the top-left of the screen to the bottom-right, and 4,550 cycles to
+// return to the top-left. Those 4,550 cycles are the vertical blank.
+func (c *Computer) IsVerticalBlank() bool {
+	cycles := c.CPU.CycleCounter() % scanCycleCount
+
+	return cycles >= 12480
 }
