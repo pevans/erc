@@ -46,6 +46,11 @@ func DrawLoop(comp *a2.Computer, shaderName string) error {
 	// Give the computer access to the audio stream for volume control
 	comp.SetAudioStream(audioStream)
 
+	// Set audio logger if available (for debug-image mode)
+	if comp.AudioLog != nil {
+		audioStream.SetAudioLogger(comp.AudioLog)
+	}
+
 	g := &game{
 		comp:        comp,
 		keys:        []ebiten.Key{},

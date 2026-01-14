@@ -59,6 +59,12 @@ func (c *Computer) Shutdown() error {
 		}
 	}
 
+	if c.AudioLog != nil {
+		if err := c.AudioLog.WriteToFile(c.audioLogFileName); err != nil {
+			return err
+		}
+	}
+
 	if err := c.Drive1.Save(); err != nil {
 		return fmt.Errorf("could not save image: %w", err)
 	}

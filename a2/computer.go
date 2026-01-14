@@ -116,6 +116,9 @@ type Computer struct {
 	screenLogFileName string
 	lastScreenCapture time.Time
 
+	AudioLog         *elog.AudioLog
+	audioLogFileName string
+
 	// MemMode is a collection of bit flags which tell us what state of
 	// memory we have.
 	MemMode int
