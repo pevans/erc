@@ -3,6 +3,7 @@ package render
 import (
 	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
@@ -20,6 +21,8 @@ type game struct {
 	inputEvent     input.Event
 	lastInputEvent input.Event
 	audioPlayer    *audio.Player
+	keyPressTime   time.Time
+	lastRepeatTime time.Time
 }
 
 // DrawLoop executes the logic to render our graphics according to some cadence
@@ -106,6 +109,8 @@ func (g *game) Update() error {
 	} else {
 		g.inputEvent = input.Event{}
 		g.lastInputEvent = input.Event{}
+		g.keyPressTime = time.Time{}
+		g.lastRepeatTime = time.Time{}
 		g.comp.ClearKeys()
 	}
 
@@ -132,20 +137,42 @@ func (g *game) pushInputEvent() {
 		g.inputEvent.Key = gfx.KeyToRune(k, g.inputEvent.Modifier)
 	}
 
-	// Don't allow repeat keystrokes
-	if g.inputEvent == g.lastInputEvent &&
-		g.inputEvent.Key != input.KeyNone {
+	if g.inputEvent.Key == input.KeyNone {
 		return
 	}
 
-	// If we got through the key slice with some valid key, we'll push
-	// the input event with whatever modifier is left. If we only saw a
-	// modifier, we'll hold it in inputEvent until the next time Update
-	// is called.
-	if g.inputEvent.Key != input.KeyNone {
-		input.PushEvent(g.inputEvent)
+	now := time.Now()
 
+	// Check if this is a different event (key or modifier changed)
+	if g.inputEvent != g.lastInputEvent {
+		// New key press - send immediately
+		input.PushEvent(g.inputEvent)
 		g.lastInputEvent = g.inputEvent
+		g.keyPressTime = now
+		g.lastRepeatTime = time.Time{}
+		return
+	}
+
+	// This is a repeat key. See if we should send the repeats through.
+	timeSincePress := now.Sub(g.keyPressTime)
+
+	// Wait at least this long...
+	if timeSincePress < 500*time.Millisecond {
+		return
+	}
+
+	// If they're still going, figure out how long we've been holding down.
+	var timeSinceLastRepeat time.Duration
+	if g.lastRepeatTime.IsZero() {
+		timeSinceLastRepeat = timeSincePress - 500*time.Millisecond
+	} else {
+		timeSinceLastRepeat = now.Sub(g.lastRepeatTime)
+	}
+
+	// We don't want to send _too_ many repeat key presses, so space it out
+	if timeSinceLastRepeat >= 100*time.Millisecond {
+		input.PushEvent(g.inputEvent)
+		g.lastRepeatTime = now
 	}
 }
 
