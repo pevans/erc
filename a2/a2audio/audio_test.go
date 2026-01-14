@@ -32,6 +32,10 @@ func (m *mockEventSource) Pop() *ToggleEvent {
 	return &ev
 }
 
+func (m *mockEventSource) Len() int {
+	return len(m.events) - m.index
+}
+
 // mockClockSource provides controllable clock for testing.
 type mockClockSource struct {
 	clockRate int64

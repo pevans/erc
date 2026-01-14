@@ -56,7 +56,12 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 			// perfectly emulate disk spin, and because we can't help the fact
 			// that timing loops exist in the software, this is our
 			// compromise.
-			c.ClockEmulator.SetFullSpeed(true)
+			//
+			// To avoid weirdness with any sound being generated, if the
+			// speaker is or was recently toggled, we'll not set fullspeed.
+			if c.Speaker == nil || !c.Speaker.IsActive() {
+				c.ClockEmulator.SetFullSpeed(true)
+			}
 
 			metrics.Increment("disk_selected_drive_online", 1)
 		}

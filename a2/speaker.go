@@ -2,11 +2,21 @@ package a2
 
 import (
 	"sync"
+	"time"
 
 	"github.com/pevans/erc/a2/a2audio"
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/memory"
+)
+
+const (
+	// speakerActivityTimeout is how long after the last speaker toggle we
+	// consider the speaker "active". During this time, fullspeed mode should
+	// be inhibited to prevent audio gaps. This needs to be longer than the
+	// longest delay a sound routine might have between toggles (e.g., the
+	// Apple II WAIT routine with A=$C0 is ~180ms).
+	speakerActivityTimeout = 300 * time.Millisecond
 )
 
 const (
@@ -21,6 +31,9 @@ type SpeakerBuffer struct {
 	head   int
 	tail   int
 	size   int
+
+	// Activity tracking for fullspeed inhibition
+	lastActivity time.Time
 
 	// Debug counters
 	Pushed  uint64
@@ -44,11 +57,35 @@ func (sb *SpeakerBuffer) Push(ev a2audio.ToggleEvent) {
 	sb.events[sb.head] = ev
 	sb.head = (sb.head + 1) % sb.size
 	sb.Pushed++
+	sb.lastActivity = time.Now()
+
 	if sb.head == sb.tail {
 		// Buffer full, advance tail (drop oldest)
 		sb.tail = (sb.tail + 1) % sb.size
 		sb.Dropped++
 	}
+}
+
+// IsActive returns true if the speaker has been toggled recently (within
+// speakerActivityTimeout) OR if there are pending events in the buffer
+// waiting to be processed. This is used to inhibit fullspeed mode during
+// sound playback.
+func (sb *SpeakerBuffer) IsActive() bool {
+	sb.mu.Lock()
+	defer sb.mu.Unlock()
+
+	// If there are events waiting to be processed, speaker is active
+	if sb.head != sb.tail {
+		return true
+	}
+
+	// Also check recent activity (handles the case where buffer was
+	// just drained but sound is still playing)
+	if sb.lastActivity.IsZero() {
+		return false
+	}
+
+	return time.Since(sb.lastActivity) < speakerActivityTimeout
 }
 
 // Pop removes and returns the oldest toggle event, or nil if empty.

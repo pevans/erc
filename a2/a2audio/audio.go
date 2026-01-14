@@ -25,6 +25,7 @@ type ToggleEvent struct {
 type EventSource interface {
 	Pop() *ToggleEvent
 	Peek() *ToggleEvent
+	Len() int
 }
 
 // ClockSource provides the current CPU clock rate and fullspeed status.
@@ -33,10 +34,26 @@ type ClockSource interface {
 	IsFullSpeed() bool
 }
 
-// Stream generates audio samples from speaker toggle events using the
-// averaging approach from LinApple/AppleWin. For each audio sample (~23 CPU
-// cycles), we calculate the weighted average of high/low speaker time, which
-// acts as a natural low-pass filter for rapid speaker toggles.
+// AudioLogger is an interface for logging audio samples.
+type AudioLogger interface {
+	AddSamples(samples []int16, timestamp float64)
+}
+
+// StreamStats contains diagnostic counters for audio stream health
+// monitoring.
+type StreamStats struct {
+	SamplesGenerated uint64 // Total samples produced
+	EventsProcessed  uint64 // Toggle events consumed
+	GapsDetected     uint64 // Timeline resyncs to event stream
+	FullSpeedSamples uint64 // Samples output as silence during fullspeed
+	LastSample       int16  // Most recent sample value output
+	CurrentBufferLen int    // Current event buffer length
+}
+
+// Stream generates audio samples by syncing to the speaker toggle event stream.
+// Rather than maintaining an independent timeline, we follow the events and only
+// advance when we have data to process. This avoids gaps when the event stream
+// pauses temporarily.
 type Stream struct {
 	source EventSource
 	clock  ClockSource
@@ -45,12 +62,19 @@ type Stream struct {
 
 	speakerHigh bool
 	volume      float32
+	lastSample  int16 // Most recent sample value, for diagnostics
 
-	// Cycle tracking for averaging approach
-	currentCycle   uint64 // Current position in CPU cycles
-	lastEventCycle uint64 // Cycle of last processed event
-	primed         bool
-	lastClockRate  int64
+	// Cycle tracking (synced to event stream)
+	currentCycle uint64
+
+	// Diagnostic counters
+	samplesGenerated uint64
+	eventsProcessed  uint64
+	gapsDetected     uint64
+	fullSpeedSamples uint64
+
+	// Optional audio logger for debugging
+	audioLogger AudioLogger
 }
 
 // NewStream creates a new audio stream from a toggle event source and clock source.
@@ -69,158 +93,184 @@ func (s *Stream) SetVolume(v float32) {
 	s.volume = v
 }
 
-// Read generates audio samples to fill the buffer. Each sample represents ~23
-// CPU cycles (at 1.023 MHz / 44.1 kHz). We average the speaker state across
-// those cycles to produce smooth audio output.
+// SetAudioLogger sets an optional audio logger for debugging.
+func (s *Stream) SetAudioLogger(logger AudioLogger) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.audioLogger = logger
+}
+
+// Stats returns diagnostic counters for monitoring stream health.
+func (s *Stream) Stats() StreamStats {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return StreamStats{
+		SamplesGenerated: s.samplesGenerated,
+		EventsProcessed:  s.eventsProcessed,
+		GapsDetected:     s.gapsDetected,
+		FullSpeedSamples: s.fullSpeedSamples,
+		LastSample:       s.lastSample,
+		CurrentBufferLen: s.source.Len(),
+	}
+}
+
+// Read generates audio samples based on speaker toggle events. We sync our
+// timeline to the event stream and only advance when we have events to
+// process.
 func (s *Stream) Read(buf []byte) (int, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if s.clock.IsFullSpeed() {
-		// Discard all events and output silence during fullspeed
-		for s.source.Pop() != nil {
-		}
-
-		s.primed = false
-
-		for i := range buf {
-			buf[i] = 0
-		}
-
-		return len(buf), nil
-	}
-
 	const bytesPerSample = 4
-
 	numSamples := len(buf) / bytesPerSample
 	clockRate := s.clock.CPUClockRate()
 	cyclesPerSample := float64(clockRate) / float64(SampleRate)
 
-	// Reset if clock rate changed
-	if clockRate != s.lastClockRate && s.lastClockRate != 0 {
-		s.primed = false
+	// Track samples for logging (mono only)
+	var logSamples []int16
+	if s.audioLogger != nil {
+		logSamples = make([]int16, 0, numSamples)
 	}
-
-	s.lastClockRate = clockRate
 
 	amplitude := float64(int16(float32(16384) * s.volume))
 
-	// Maximum gap in cycles before we skip ahead (~50ms)
-	maxGapCycles := uint64(clockRate / 20)
+	// If in fullspeed mode, consume events and output silence
+	if s.clock.IsFullSpeed() {
+		for s.source.Pop() != nil {
+			s.eventsProcessed++
+		}
+
+		s.currentCycle = 0 // Reset timeline and resync when fullspeed ends
+
+		// Output silence
+		for i := range buf {
+			buf[i] = 0
+		}
+
+		s.fullSpeedSamples += uint64(numSamples)
+		s.samplesGenerated += uint64(numSamples)
+
+		return numSamples * bytesPerSample, nil
+	}
+
+	// Peek at next event to sync our timeline
+	if ev := s.source.Peek(); ev != nil {
+		// If we haven't started yet, or there's a large gap, sync to the
+		// event stream
+		if s.currentCycle == 0 || ev.Cycle > s.currentCycle+uint64(clockRate/10) {
+			// Start our timeline at the first event's cycle
+			s.currentCycle = ev.Cycle
+			s.gapsDetected++
+		}
+	}
 
 	for i := range numSamples {
-		// Prime with first event if needed
-		if !s.primed {
-			ev := s.source.Pop()
-			if ev != nil {
-				s.currentCycle = ev.Cycle
-				s.lastEventCycle = ev.Cycle
-				s.speakerHigh = ev.State
-				s.primed = true
-			}
-		}
-
-		// Check if next event is way ahead - if so, skip forward
-		// This handles discontinuities like state loads or long pauses
-		if s.primed {
-			if ev := s.source.Peek(); ev != nil && ev.Cycle > s.currentCycle+maxGapCycles {
-				s.currentCycle = ev.Cycle
-			}
-		}
-
-		// Calculate cycle range for this sample
 		sampleStartCycle := s.currentCycle
 		sampleEndCycle := sampleStartCycle + uint64(cyclesPerSample)
 
-		// Track time spent high vs low within this sample
+		// Check if we have any events to process for this sample period
+		ev := s.source.Peek()
+		hasEventsInRange := ev != nil && ev.Cycle < sampleEndCycle
+
+		if !hasEventsInRange && s.source.Len() == 0 {
+			// Just output based on current speaker state
+			var sample int16
+
+			if s.speakerHigh {
+				sample = int16(amplitude)
+			} else {
+				sample = int16(-amplitude)
+			}
+
+			if s.audioLogger != nil {
+				logSamples = append(logSamples, sample)
+			}
+
+			offset := i * bytesPerSample
+			binary.LittleEndian.PutUint16(buf[offset:], uint16(sample))
+			binary.LittleEndian.PutUint16(buf[offset+2:], uint16(sample))
+			s.lastSample = sample
+			s.samplesGenerated++
+
+			continue
+		}
+
+		// Process events and generate sample
 		var highCycles, lowCycles float64
 
-		if !s.primed {
-			// Not primed - output silence
-			lowCycles = cyclesPerSample
-		} else {
-			// Check if there are any events available
-			nextEv := s.source.Peek()
-			if nextEv == nil {
-				// No events available - output current speaker state but
-				// don't advance This prevents racing ahead of the emulator
-				// while still reflecting the actual speaker position
-				if s.speakerHigh {
-					highCycles = cyclesPerSample
-				} else {
-					lowCycles = cyclesPerSample
-				}
-				// Don't advance sampleEndCycle - stay at current position
-				sampleEndCycle = sampleStartCycle
+		currentPos := sampleStartCycle
+		currentState := s.speakerHigh
+
+		for {
+			ev := s.source.Peek()
+
+			var periodEnd uint64
+			if ev == nil || ev.Cycle >= sampleEndCycle {
+				periodEnd = sampleEndCycle
+			} else if ev.Cycle <= currentPos {
+				// If there's an event at or before current position, we
+				// consume and update state
+				s.source.Pop()
+				s.eventsProcessed++
+				currentState = ev.State
+				s.speakerHigh = ev.State
+				continue
 			} else {
-				// Process all events within this sample's cycle range
-				currentPos := sampleStartCycle
-				currentState := s.speakerHigh
+				periodEnd = ev.Cycle
+			}
 
-				for {
-					ev := s.source.Peek()
+			cycles := float64(periodEnd - currentPos)
+			if currentState {
+				highCycles += cycles
+			} else {
+				lowCycles += cycles
+			}
 
-					// Determine the end of the current state period
-					var periodEnd uint64
-					if ev == nil || ev.Cycle >= sampleEndCycle {
-						// No more events in this sample, or next event is beyond sample
-						periodEnd = sampleEndCycle
-					} else if ev.Cycle <= currentPos {
-						// Event is at or before current position - consume it
-						// immediately This handles gaps where events jumped
-						// ahead
-						s.source.Pop()
-						s.lastEventCycle = ev.Cycle
-						currentState = ev.State
-						s.speakerHigh = ev.State
-						continue
-					} else {
-						// Event is within this sample
-						periodEnd = ev.Cycle
-					}
+			currentPos = periodEnd
 
-					// Accumulate cycles for current state
-					cycles := float64(periodEnd - currentPos)
-					if currentState {
-						highCycles += cycles
-					} else {
-						lowCycles += cycles
-					}
+			if currentPos >= sampleEndCycle {
+				break
+			}
 
-					currentPos = periodEnd
-
-					// If we've reached the sample end, break
-					if currentPos >= sampleEndCycle {
-						break
-					}
-
-					// Consume the event and switch state
-					if ev != nil && ev.Cycle < sampleEndCycle {
-						s.source.Pop()
-						s.lastEventCycle = ev.Cycle
-						currentState = ev.State
-						s.speakerHigh = ev.State
-					}
-				}
+			if ev != nil && ev.Cycle < sampleEndCycle {
+				s.source.Pop()
+				s.eventsProcessed++
+				currentState = ev.State
+				s.speakerHigh = ev.State
 			}
 		}
 
-		// Calculate weighted average sample value
+		// Calculate sample value
 		totalCycles := highCycles + lowCycles
 		var sample int16
 		if totalCycles > 0 {
-			// Weighted average: high contributes +amplitude, low contributes -amplitude
 			avgValue := (highCycles*amplitude - lowCycles*amplitude) / totalCycles
 			sample = int16(avgValue)
+		} else {
+			// Just use the current speaker state
+			if s.speakerHigh {
+				sample = int16(amplitude)
+			} else {
+				sample = int16(-amplitude)
+			}
 		}
 
-		// Write stereo sample
+		if s.audioLogger != nil {
+			logSamples = append(logSamples, sample)
+		}
+
 		offset := i * bytesPerSample
 		binary.LittleEndian.PutUint16(buf[offset:], uint16(sample))
 		binary.LittleEndian.PutUint16(buf[offset+2:], uint16(sample))
 
-		// Advance to next sample
+		s.lastSample = sample
+		s.samplesGenerated++
 		s.currentCycle = sampleEndCycle
+	}
+
+	if s.audioLogger != nil && len(logSamples) > 0 {
+		timestamp := float64(s.currentCycle) / float64(clockRate)
+		s.audioLogger.AddSamples(logSamples, timestamp)
 	}
 
 	return numSamples * bytesPerSample, nil
