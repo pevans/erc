@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/mcp"
 )
 
@@ -91,6 +92,16 @@ func (c *Computer) handleMCPRequest(req *mcp.Request) mcp.Response {
 						Description: "Check if erc is running",
 						InputSchema: mcp.InputSchema{Type: "object"},
 					},
+					{
+						Name:        "pause",
+						Description: "Pause the emulator",
+						InputSchema: mcp.InputSchema{Type: "object"},
+					},
+					{
+						Name:        "resume",
+						Description: "Resume the emulator",
+						InputSchema: mcp.InputSchema{Type: "object"},
+					},
 				},
 			},
 		}
@@ -105,23 +116,7 @@ func (c *Computer) handleMCPRequest(req *mcp.Request) mcp.Response {
 			}
 		}
 
-		if params.Name == "status" {
-			return mcp.Response{
-				JSONRPC: "2.0",
-				ID:      req.ID,
-				Result: mcp.ToolsCallResult{
-					Content: []mcp.Content{
-						{Type: "text", Text: "erc is running"},
-					},
-				},
-			}
-		}
-
-		return mcp.Response{
-			JSONRPC: "2.0",
-			ID:      req.ID,
-			Error:   &mcp.Error{Code: -32601, Message: "Unknown tool"},
-		}
+		return c.handleToolCall(req.ID, &params)
 
 	default:
 		return mcp.Response{
@@ -130,4 +125,47 @@ func (c *Computer) handleMCPRequest(req *mcp.Request) mcp.Response {
 			Error:   &mcp.Error{Code: -32601, Message: "Method not found"},
 		}
 	}
+}
+
+func (c *Computer) handleToolCall(id any, params *mcp.ToolsCallParams) mcp.Response {
+	var text string
+
+	switch params.Name {
+	case "status":
+		text = c.toolStatus()
+	case "pause":
+		text = c.toolPause()
+	case "resume":
+		text = c.toolResume()
+	default:
+		return mcp.Response{
+			JSONRPC: "2.0",
+			ID:      id,
+			Error:   &mcp.Error{Code: -32601, Message: "Unknown tool"},
+		}
+	}
+
+	return mcp.Response{
+		JSONRPC: "2.0",
+		ID:      id,
+		Result: mcp.ToolsCallResult{
+			Content: []mcp.Content{
+				{Type: "text", Text: text},
+			},
+		},
+	}
+}
+
+func (c *Computer) toolStatus() string {
+	return "erc is running"
+}
+
+func (c *Computer) toolPause() string {
+	c.State.SetBool(a2state.Paused, true)
+	return "emulator paused"
+}
+
+func (c *Computer) toolResume() string {
+	c.State.SetBool(a2state.Paused, false)
+	return "emulator resumed"
 }
