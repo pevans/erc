@@ -189,8 +189,8 @@ func (s *mosSuite) TestDey() {
 	)
 }
 
-// TestDec is a bit tricky, because DEC does two very different things based on
-// its address mode.
+// TestDec is a bit tricky, because DEC does two very different things based
+// on its address mode.
 func (s *mosSuite) TestDec() {
 	s.cpu.AddrMode = mos.AmACC
 	s.testDecrement("DEC (accumulator)",

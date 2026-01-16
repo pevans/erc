@@ -19,8 +19,8 @@ type Font struct {
 	glyphMap     map[int]*FrameBuffer
 }
 
-// NewFont returns a new font in which each glyph will have dimensions based on
-// the given width and height.
+// NewFont returns a new font in which each glyph will have dimensions based
+// on the given width and height.
 func NewFont(width, height uint) *Font {
 	f := new(Font)
 
@@ -45,10 +45,10 @@ func (f *Font) Glyph(ch int) *FrameBuffer {
 
 // DefineGlyph will define a new glyph in the font, or replace an existing
 // glyph, for a given int. Points deserves special attention: it's expected to
-// be a sequence of zeroes and ones, where zero indicates a point in the bitmap
-// font that should not be drawn, and one indicates a point that should be
-// drawn. The length of points should be equal to the product of width x height
-// and, if it isn't, DefineGlyph will panic.
+// be a sequence of zeroes and ones, where zero indicates a point in the
+// bitmap font that should not be drawn, and one indicates a point that should
+// be drawn. The length of points should be equal to the product of width x
+// height and, if it isn't, DefineGlyph will panic.
 func (f *Font) DefineGlyph(ch int, points []byte) {
 	if len(points) != int(f.GlyphWidth)*int(f.GlyphHeight) {
 		panic(fmt.Sprintf(

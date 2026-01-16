@@ -206,8 +206,8 @@ func (fb *FrameBuffer) Blit(x, y uint, src *FrameBuffer) error {
 	return nil
 }
 
-// blitFromY is a helper method for blit; basically it encapsulates the logic of
-// blitting a single row.
+// blitFromY is a helper method for blit; basically it encapsulates the logic
+// of blitting a single row.
 func (fb *FrameBuffer) blitFromY(x, y, sy uint, src *FrameBuffer) error {
 	// Where we're writing to
 	di := fb.cell(x, y)

@@ -176,8 +176,8 @@ func (s *mosSuite) TestIdx() {
 			// Set the operand `$NN`.
 			s.cpu.Set(s.cpu.PC+1, c.oper)
 
-			// Set the 16-bit pointer at (oper + x) location
-			// We need to handle the zero page boundary case where oper+x = 0xFF
+			// Set the 16-bit pointer at (oper + x) location We need to handle
+			// the zero page boundary case where oper+x = 0xFF
 			zpAddr := uint16(c.oper+c.x) & 0xFF
 			if zpAddr == 0xFF {
 				// Low byte at 0xFF, high byte wraps to 0x00

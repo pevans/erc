@@ -23,8 +23,8 @@ func TestPushEvent(t *testing.T) {
 func TestListen(t *testing.T) {
 	key := 'f'
 
-	// This will run indefinitely on a goroutine waiting for events,
-	// executing the listener as necessary
+	// This will run indefinitely on a goroutine waiting for events, executing
+	// the listener as necessary
 	go Listen(func(e Event) {
 		key = e.Key
 	})

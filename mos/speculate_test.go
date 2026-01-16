@@ -70,7 +70,7 @@ func TestCPU_Speculate(t *testing.T) {
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
-		// 1000: LDA #$42
+		// 1000: LDA #$42 gocomments:noformat
 		// 1002: STA $20
 		// 1004: RTS
 		seg.Set(0x1000, 0xA9) // LDA #
@@ -112,7 +112,7 @@ func TestCPU_Speculate(t *testing.T) {
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
-		// 1000: LDA #$42
+		// 1000: LDA #$42 gocomments:noformat
 		// 1002: STA $20
 		seg.Set(0x1000, 0xA9) // LDA #
 		seg.Set(0x1001, 0x42)
@@ -156,7 +156,7 @@ func TestCPU_Speculate(t *testing.T) {
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
-		// 1000: LDA #$00
+		// 1000: LDA #$00   gocomments:noformat
 		// 1002: BEQ $1006  (branch ahead 2 bytes from PC=1004)
 		// 1004: LDA #$FF   (not taken path)
 		// 1006: RTS        (branch target)
@@ -194,7 +194,7 @@ func TestCPU_Speculate(t *testing.T) {
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
-		// 1000: INX
+		// 1000: INX        gocomments:noformat
 		// 1001: CPX #$10
 		// 1003: BNE $1000  (branch back -3 bytes)
 		// 1005: RTS
@@ -264,7 +264,7 @@ func TestCPU_Speculate(t *testing.T) {
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
-		// 1000: LDA #$00
+		// 1000: LDA #$00  gocomments:noformat
 		// 1002: BEQ $1006
 		// 1004: LDA #$01
 		// 1006: BEQ $100A
@@ -311,7 +311,8 @@ func TestCPU_Speculate_Integration(t *testing.T) {
 		cpu.RMem = seg
 
 		// Realistic code pattern:
-		// 0800: LDA $20       load a value
+		//
+		// 0800: LDA $20       load a value            gocomments:noformat
 		// 0802: CMP #$42      compare to $42
 		// 0804: BEQ success   branch if equal ($080A)
 		// 0806: LDA #$00      return 0 (failure path)
@@ -363,7 +364,7 @@ func TestCPU_Speculate_Integration(t *testing.T) {
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
-		// 1000: LDA #$42
+		// 1000: LDA #$42 gocomments:noformat
 		// 1002: RTS
 		// 1003: BRK
 		seg.Set(0x1000, 0xA9) // LDA
@@ -401,7 +402,7 @@ func TestCPU_Speculate_Integration(t *testing.T) {
 		seg := memory.NewSegment(0x10000)
 		cpu.RMem = seg
 
-		// 2000: LDA #$FF
+		// 2000: LDA #$FF  gocomments:noformat
 		// 2002: JMP $3000
 		// 2005: BRK
 		seg.Set(0x2000, 0xA9) // LDA

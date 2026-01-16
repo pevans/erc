@@ -13,7 +13,8 @@ var rootCmd = &cobra.Command{
 	Long:  "erc - Emulator of Retro Computers",
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
+// Execute adds all child commands to the root command and sets flags
+// appropriately.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)

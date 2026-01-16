@@ -20,8 +20,7 @@ const (
 	speakerBufferSize int   = 8192
 )
 
-// ReadMapFn is a function which can execute a soft switch procedure on
-// read.
+// ReadMapFn is a function which can execute a soft switch procedure on read.
 type ReadMapFn func(*Computer, int) uint8
 
 // WriteMapFn is a function which can execute a soft switch procedure on
@@ -55,8 +54,8 @@ type Computer struct {
 	BootTime time.Time
 
 	// There are three primary segments of memory in an Apple //e; main
-	// memory, read-only memory, and auxiliary memory. Each are
-	// accessible through a mechanism called bank-switching.
+	// memory, read-only memory, and auxiliary memory. Each are accessible
+	// through a mechanism called bank-switching.
 	Main *memory.Segment
 	ROM  *memory.Segment
 	Aux  *memory.Segment
@@ -70,7 +69,8 @@ type Computer struct {
 	// Speaker holds toggle events for audio generation
 	Speaker *SpeakerBuffer
 
-	// audioStream is the audio stream that converts speaker toggles to audio samples
+	// audioStream is the audio stream that converts speaker toggles to audio
+	// samples
 	audioStream AudioStream
 
 	// volumeMuted tracks whether audio is muted
@@ -119,12 +119,12 @@ type Computer struct {
 	AudioLog         *elog.AudioLog
 	audioLogFileName string
 
-	// MemMode is a collection of bit flags which tell us what state of
-	// memory we have.
+	// MemMode is a collection of bit flags which tell us what state of memory
+	// we have.
 	MemMode int
 
-	// DisplayMode is the state that our display output is currently in.
-	// (For example, text mode, hires, lores, etc.)
+	// DisplayMode is the state that our display output is currently in. (For
+	// example, text mode, hires, lores, etc.)
 	DisplayMode int
 
 	// We use two different fonts for 40-column and 80-column text
@@ -133,17 +133,16 @@ type Computer struct {
 }
 
 const (
-	// AuxMemorySize is the length of memory for auxiliary memory in the
-	// Apple II, which was implemented through a peripheral called a
-	// "language card" installed in the back. Bank-switches let you swap
-	// in and out auxiliary memory for main memory. Note that auxiliary
-	// memory is only 64k bytes large.
+	// AuxMemorySize is the length of memory for auxiliary memory in the Apple
+	// II, which was implemented through a peripheral called a "language card"
+	// installed in the back. Bank-switches let you swap in and out auxiliary
+	// memory for main memory. Note that auxiliary memory is only 64k bytes
+	// large.
 	AuxMemorySize = 0x11000
 
-	// MainMemorySize is the length of memory for so-called "main
-	// memory" in an Apple II. It consists of 68k of RAM; although only
-	// 64k is addressible at a time, the last 4k can be accessed via
-	// bank-switches.
+	// MainMemorySize is the length of memory for so-called "main memory" in
+	// an Apple II. It consists of 68k of RAM; although only 64k is
+	// addressible at a time, the last 4k can be accessed via bank-switches.
 	MainMemorySize = 0x11000
 
 	// RomMemorySize is the length of system read-only memory.
@@ -155,8 +154,8 @@ const (
 
 const (
 	// This width and height is actually double the size of a typical Apple II
-	// display. We're doing this so that it's easier for us to manage
-	// 80 column text and double-high resolution.
+	// display. We're doing this so that it's easier for us to manage 80
+	// column text and double-high resolution.
 	screenWidth  uint = 560
 	screenHeight uint = 384
 )
@@ -206,11 +205,11 @@ func NewComputer(speed int) *Computer {
 	comp.CPU.WMem = comp
 	comp.CPU.State = comp.State
 
-	// Note that hertz is treated as a unit of cycles per second, but
-	// the number may not feel precisely accurate to how an Apple II
-	// might have run. I've found that if I use 1.023 MHz, the Apple IIe
-	// speed, things feel much slower than I'd expect. In practice,
-	// something approximately double that number feels more right.
+	// Note that hertz is treated as a unit of cycles per second, but the
+	// number may not feel precisely accurate to how an Apple II might have
+	// run. I've found that if I use 1.023 MHz, the Apple IIe speed, things
+	// feel much slower than I'd expect. In practice, something approximately
+	// double that number feels more right.
 	comp.ClockEmulator = clock.NewEmulator(appleMhz)
 	comp.SetSpeed(speed)
 
@@ -222,8 +221,8 @@ func NewComputer(speed int) *Computer {
 
 	comp.displaySnapshot = NewDisplaySnapshot()
 
-	// Speaker buffer for audio generation - size should hold enough events
-	// to cover a few frames of audio at typical toggle rates
+	// Speaker buffer for audio generation - size should hold enough events to
+	// cover a few frames of audio at typical toggle rates
 	comp.Speaker = NewSpeakerBuffer(speakerBufferSize)
 
 	return comp
@@ -372,14 +371,14 @@ func (c *Computer) StateMap() *memory.StateMap {
 	return c.State
 }
 
-// CPUClockRate returns the current CPU clock rate in Hz.
-// This is used by the audio system to sync with the emulated clock speed.
+// CPUClockRate returns the current CPU clock rate in Hz. This is used by the
+// audio system to sync with the emulated clock speed.
 func (c *Computer) CPUClockRate() int64 {
 	return ClockSpeed(c.speed)
 }
 
-// IsFullSpeed returns true if the emulator is running at full speed
-// (not emulating clock timing, typically during disk operations).
+// IsFullSpeed returns true if the emulator is running at full speed (not
+// emulating clock timing, typically during disk operations).
 func (c *Computer) IsFullSpeed() bool {
 	return c.ClockEmulator.IsFullSpeed()
 }

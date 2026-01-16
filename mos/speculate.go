@@ -80,8 +80,8 @@ func shouldEndSpeculation(opcode uint8) bool {
 }
 
 // This will record what _would_ be executed by the instruction located at
-// `addr`, and return the elog.Instruction along with the number of bytes that compose
-// that instruction (i.e. the opcode plus its operand, if one exists).
+// `addr`, and return the elog.Instruction along with the number of bytes that
+// compose that instruction (i.e. the opcode plus its operand, if one exists).
 func (c *CPU) SpeculateInstuction(addr uint16) (*elog.Instruction, uint16) {
 	line := &elog.Instruction{
 		Speculative: true,

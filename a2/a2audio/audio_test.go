@@ -50,8 +50,8 @@ func (m *mockClockSource) IsFullSpeed() bool {
 	return m.fullSpeed
 }
 
-// sampleValue extracts the int16 sample value from a buffer position.
-// Buffer is stereo 16-bit, so each sample is 4 bytes.
+// sampleValue extracts the int16 sample value from a buffer position. Buffer
+// is stereo 16-bit, so each sample is 4 bytes.
 func sampleValue(buf []byte, sampleIndex int) int16 {
 	offset := sampleIndex * 4
 	return int16(buf[offset]) | int16(buf[offset+1])<<8
@@ -92,8 +92,8 @@ func TestNoEvents_ConstantOutput(t *testing.T) {
 }
 
 func TestSingleToggle_WaveformChanges(t *testing.T) {
-	// Toggle to high, then generate samples
-	// The transition should appear in the output
+	// Toggle to high, then generate samples The transition should appear in
+	// the output
 
 	source := &mockEventSource{}
 	clock := &mockClockSource{clockRate: 1_000_000}
@@ -123,8 +123,8 @@ func TestSingleToggle_WaveformChanges(t *testing.T) {
 		t.Fatal("no transition found in output")
 	}
 
-	// Expected: cycle 500 at ~22.68 cycles per sample ≈ sample 22
-	// Allow reasonable tolerance since timing is delta-based
+	// Expected: cycle 500 at ~22.68 cycles per sample ≈ sample 22 Allow
+	// reasonable tolerance since timing is delta-based
 	expectedSample := 500.0 / (1_000_000.0 / 44100.0)
 	tolerance := 3.0
 
@@ -135,8 +135,8 @@ func TestSingleToggle_WaveformChanges(t *testing.T) {
 }
 
 func TestSquareWave_CorrectFrequency(t *testing.T) {
-	// Generate a 1000 Hz square wave
-	// At 1 MHz, 1000 Hz means toggle every 500 cycles (1000 cycles per period)
+	// Generate a 1000 Hz square wave At 1 MHz, 1000 Hz means toggle every 500
+	// cycles (1000 cycles per period)
 
 	source := &mockEventSource{}
 	clock := &mockClockSource{clockRate: 1_000_000}
@@ -164,9 +164,8 @@ func TestSquareWave_CorrectFrequency(t *testing.T) {
 		}
 	}
 
-	// At 44100 Hz sample rate, 1000 samples = ~22.7ms
-	// At 1000 Hz square wave, that's ~22.7 periods = ~45 transitions
-	// Allow some tolerance
+	// At 44100 Hz sample rate, 1000 samples = ~22.7ms At 1000 Hz square wave,
+	// that's ~22.7 periods = ~45 transitions Allow some tolerance
 	expectedTransitions := 45
 	tolerance := 5
 
@@ -313,8 +312,8 @@ func TestEventGap_RecoversGracefully(t *testing.T) {
 
 	transitions1 := countTransitions(buf, 1000)
 
-	// Now we're past the first batch, next event is at cycle 500000
-	// This is a huge gap - the stream should cap it and continue
+	// Now we're past the first batch, next event is at cycle 500000 This is a
+	// huge gap - the stream should cap it and continue
 
 	buf2 := make([]byte, 4000)
 	_, err = stream.Read(buf2)
@@ -348,8 +347,8 @@ func TestLongRunning_NoDrift(t *testing.T) {
 	source := &mockEventSource{}
 	clock := &mockClockSource{clockRate: 1_023_000} // Real Apple II speed
 
-	// 500 Hz at 1.023 MHz = toggle every 1023 cycles
-	// Generate 5 minutes worth of events = 300 seconds * 500 Hz * 2 toggles = 300,000 toggles
+	// 500 Hz at 1.023 MHz = toggle every 1023 cycles Generate 5 minutes worth
+	// of events = 300 seconds * 500 Hz * 2 toggles = 300,000 toggles
 	toggleInterval := uint64(1023)
 	numToggles := 300000
 	for i := range numToggles {
@@ -362,8 +361,8 @@ func TestLongRunning_NoDrift(t *testing.T) {
 	// Log how many events remain after setup
 	t.Logf("Events queued: %d", len(source.events))
 
-	// At 44100 Hz, 5 minutes = 300 * 44100 = 13,230,000 samples
-	// We'll read in chunks and check periodically
+	// At 44100 Hz, 5 minutes = 300 * 44100 = 13,230,000 samples We'll read in
+	// chunks and check periodically
 	samplesPerRead := 4410 // 0.1 seconds worth
 	totalSamples := 0
 	totalTransitions := 0
@@ -447,8 +446,8 @@ func TestLongRunning_NoDrift(t *testing.T) {
 }
 
 func TestPauseResume_RecoversGracefully(t *testing.T) {
-	// When paused, no new events are generated. When resumed, events
-	// continue from a later cycle. This is similar to an event gap.
+	// When paused, no new events are generated. When resumed, events continue
+	// from a later cycle. This is similar to an event gap.
 
 	source := &mockEventSource{}
 	clock := &mockClockSource{clockRate: 1_000_000}

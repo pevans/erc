@@ -17,9 +17,9 @@ func (c *CPU) Status() string {
 	)
 }
 
-// CurrentInstructionShort returns the current instruction that we would execute, if
-// asked, in the form of a formatted string (including address in memory,
-// instruction, and formatted operand).
+// CurrentInstructionShort returns the current instruction that we would
+// execute, if asked, in the form of a formatted string (including address in
+// memory, instruction, and formatted operand).
 func (c *CPU) CurrentInstructionShort() string {
 	pc := int(c.PC)
 
@@ -61,23 +61,23 @@ func (c *CPU) LastInstruction() string {
 	return ln.String()
 }
 
-// NextInstruction returns a string representing the next opcode that
-// would be executed. There's some speculative inference happening -- we'll
-// actually execute the address mode code to see what the effective address
-// and value will look like.
+// NextInstruction returns a string representing the next opcode that would be
+// executed. There's some speculative inference happening -- we'll actually
+// execute the address mode code to see what the effective address and value
+// will look like.
 func (c *CPU) NextInstruction() string {
 	opcode := c.Get(c.PC)
 	mode := addrModeFuncs[opcode]
 
-	// Copy the CPU so we don't alter our own operand, effective
-	// address, etc. Note that this won't copy memory segments, etc. Notably
-	// the statemap (State) used below will be shared between the original and
-	// the copy CPU.
+	// Copy the CPU so we don't alter our own operand, effective address, etc.
+	// Note that this won't copy memory segments, etc. Notably the statemap
+	// (State) used below will be shared between the original and the copy
+	// CPU.
 	copyOfCPU := *c
 
-	// There are some cases where resolving the address mode may mutate
-	// the CPU or state map, so we use DebuggerLookAhead to let the
-	// address mode code know what's about to happen.
+	// There are some cases where resolving the address mode may mutate the
+	// CPU or state map, so we use DebuggerLookAhead to let the address mode
+	// code know what's about to happen.
 	copyOfCPU.State.SetBool(a2state.DebuggerLookAhead, true)
 	mode(&copyOfCPU)
 	copyOfCPU.State.SetBool(a2state.DebuggerLookAhead, false)
@@ -95,9 +95,9 @@ func (c *CPU) NextInstruction() string {
 	return ln.String()
 }
 
-// PrepareOperand will fill in a provided elog.Instruction object with a formatted
-// operand (specifically modifying the PreparedOperand, OperandLSB, and
-// OperandMSB fields). The provided pc (program counter) value is used to
+// PrepareOperand will fill in a provided elog.Instruction object with a
+// formatted operand (specifically modifying the PreparedOperand, OperandLSB,
+// and OperandMSB fields). The provided pc (program counter) value is used to
 // calculate the branch address, given that branch operands are relative
 // values.
 func PrepareOperand(line *elog.Instruction, pc uint16) {

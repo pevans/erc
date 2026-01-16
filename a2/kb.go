@@ -56,16 +56,16 @@ func (c *Computer) PressKey(key uint8) {
 	c.keyPressMutex.Lock()
 	defer c.keyPressMutex.Unlock()
 
-	// There can only be 7-bit ASCII in an Apple II, so we explicitly
-	// take off the high bit.
+	// There can only be 7-bit ASCII in an Apple II, so we explicitly take off
+	// the high bit.
 	c.State.SetUint8(a2state.KBLastKey, key&0x7F)
 
-	// We need to set the strobe bit, which (when returned) is always
-	// with the high bit at 1.
+	// We need to set the strobe bit, which (when returned) is always with the
+	// high bit at 1.
 	c.State.SetUint8(a2state.KBStrobe, 0x80)
 
-	// This flag (again with the high bit set to 1) is set _while_ a key
-	// is pressed.
+	// This flag (again with the high bit set to 1) is set _while_ a key is
+	// pressed.
 	c.State.SetUint8(a2state.KBKeyDown, 0x80)
 }
 

@@ -14,7 +14,8 @@ import (
 	"github.com/pevans/erc/input"
 )
 
-// A game is just a small struct which ebiten will use to run the draw loop for us.
+// A game is just a small struct which ebiten will use to run the draw loop
+// for us.
 type game struct {
 	comp           *a2.Computer
 	keys           []ebiten.Key
@@ -25,8 +26,8 @@ type game struct {
 	lastRepeatTime time.Time
 }
 
-// DrawLoop executes the logic to render our graphics according to some cadence
-// (which is generally x frames per second).
+// DrawLoop executes the logic to render our graphics according to some
+// cadence (which is generally x frames per second).
 func DrawLoop(comp *a2.Computer, shaderName string) error {
 	w, h := comp.Dimensions()
 
@@ -62,8 +63,8 @@ func DrawLoop(comp *a2.Computer, shaderName string) error {
 
 	// Start audio playback with reduced buffer for lower latency
 	if g.audioPlayer != nil {
-		// Smaller buffer = lower latency but higher risk of glitches
-		// Default is typically ~46ms, we use ~23ms (1024 samples at 44100 Hz)
+		// Smaller buffer = lower latency but higher risk of glitches Default
+		// is typically ~46ms, we use ~23ms (1024 samples at 44100 Hz)
 		g.audioPlayer.SetBufferSize(a2audio.BufferSamples * 4) // 4 bytes per stereo sample
 		g.audioPlayer.Play()
 	}
@@ -89,8 +90,8 @@ func (g *game) Draw(screen *ebiten.Image) {
 	gfx.TextNotification.Draw(screen)
 }
 
-// Update handles logic once for every frame that is rendered, but this
-// method is not _the method_ that renders the screen.
+// Update handles logic once for every frame that is rendered, but this method
+// is not _the method_ that renders the screen.
 func (g *game) Update() error {
 	if ebiten.IsWindowBeingClosed() {
 		err := g.comp.Shutdown()
@@ -126,8 +127,8 @@ func (g *game) Update() error {
 func (g *game) pushInputEvent() {
 	for _, k := range g.keys {
 		// If we see a modifier among the keys, we set the input event's
-		// modifier. It's possible we've seen multiple modifiers -- if
-		// so, the previous modifier is clobbered.
+		// modifier. It's possible we've seen multiple modifiers -- if so, the
+		// previous modifier is clobbered.
 		mod := modifier(k)
 		if mod != input.ModNone {
 			g.inputEvent.Modifier = mod

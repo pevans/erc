@@ -184,8 +184,7 @@ func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 }
 
 func diskRead(addr int, stm *memory.StateMap) uint8 {
-	// With reads, we pass a byte value for the ReadWrite function to
-	// modify.
+	// With reads, we pass a byte value for the ReadWrite function to modify.
 	val := uint8(0)
 
 	diskReadWrite(addr, &val, stm)

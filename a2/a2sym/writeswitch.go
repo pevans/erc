@@ -3,8 +3,8 @@ package a2sym
 // writeSwitchMap, like readSwitchMap, contains addresses and known soft
 // switches that can be triggered with writes
 var writeSwitchMap = map[int]Switch{
-	// Keyboard switches -- see the note in the readSwitchMap on how
-	// this switch was named.
+	// Keyboard switches -- see the note in the readSwitchMap on how this
+	// switch was named.
 	0xC010: {Mode: ModeW, Description: "clear strobe"},
 
 	// Display switches
@@ -37,8 +37,7 @@ var writeSwitchMap = map[int]Switch{
 	0xC004: {Mode: ModeW, Name: "RAMWRT", Description: "write main memory"},
 	0xC005: {Mode: ModeW, Name: "RAMWRT", Description: "write auxiliary memory"},
 
-	// I/O (PC) memory -- the ordering of these switch addresses is not
-	// a typo
+	// I/O (PC) memory -- the ordering of these switch addresses is not a typo
 	0xC00A: {Mode: ModeW, Name: "SLOTC3ROM", Description: "internal rom at $C300"},
 	0xC00B: {Mode: ModeW, Name: "SLOTC3ROM", Description: "slot rom at $C300"},
 	0xC006: {Mode: ModeW, Name: "SLOTCXROM", Description: "slot rom at $Cx00"},

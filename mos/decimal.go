@@ -3,8 +3,8 @@ package mos
 import "errors"
 
 // Decimal is a representation of a binary-coded decimal. It is used to
-// perform mathematics in a base-10 fashion and to later return the
-// correct binary form of the result.
+// perform mathematics in a base-10 fashion and to later return the correct
+// binary form of the result.
 type Decimal struct {
 	Result   int
 	Carry    bool
@@ -14,8 +14,7 @@ type Decimal struct {
 
 var ErrInvalid error = errors.New("invalid bcd format")
 
-// NewDecimal returns a new Decimal type with integer as the starting
-// result.
+// NewDecimal returns a new Decimal type with integer as the starting result.
 func NewDecimal(integer int) Decimal {
 	lsd := integer & 0xF
 	msd := (integer >> 4) & 0xF
@@ -55,8 +54,8 @@ func (d *Decimal) Subtract(terms ...Decimal) {
 	}
 }
 
-// Binary returns the binary coded decimal that would be expected within
-// any value in a register or memory.
+// Binary returns the binary coded decimal that would be expected within any
+// value in a register or memory.
 func (d *Decimal) Binary() int {
 	result := d.Result % 100
 

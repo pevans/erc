@@ -116,7 +116,8 @@ func bankSwitchRead(addr int, stm *memory.StateMap) uint8 {
 }
 
 // SwitchWrite manages writes on soft switches that may modify bank-switch
-// state, specifically that to do with the usage of main vs. auxilliary memory.
+// state, specifically that to do with the usage of main vs. auxilliary
+// memory.
 func bankSwitchWrite(addr int, val uint8, stm *memory.StateMap) {
 	switch addr {
 	case offAltZP:
@@ -141,8 +142,8 @@ func bankBit7(cond bool) uint8 {
 	return 0x00
 }
 
-// UseDefaults will set the state of the bank switcher to use what the computer
-// would have if you cold- or warm-booted.
+// UseDefaults will set the state of the bank switcher to use what the
+// computer would have if you cold- or warm-booted.
 func bankUseDefaults(c *Computer) {
 	// "When you turn power on or reset the Apple IIe, it initializes the bank
 	// switches for reading the ROM and writing the RAM, using the second bank
@@ -162,7 +163,8 @@ func BankSegment(stm *memory.StateMap) *memory.Segment {
 }
 
 // BankDFRead implements logic for reads into the D0...FF pages of memory,
-// taking into account the bank-switched states that the computer currently has.
+// taking into account the bank-switched states that the computer currently
+// has.
 func BankDFRead(addr int, stm *memory.StateMap) uint8 {
 	metrics.Increment("soft_read_bank_df_block", 1)
 
@@ -178,7 +180,8 @@ func BankDFRead(addr int, stm *memory.StateMap) uint8 {
 }
 
 // BankDFWrite implements logic for writes into the D0...FF pages of memory,
-// taking into account the bank-switched states that the computer currently has.
+// taking into account the bank-switched states that the computer currently
+// has.
 func BankDFWrite(addr int, val uint8, stm *memory.StateMap) {
 	metrics.Increment("soft_write_bank_df_block", 1)
 	if !stm.Bool(a2state.BankWriteRAM) {

@@ -79,8 +79,8 @@ func (sb *SpeakerBuffer) IsActive() bool {
 		return true
 	}
 
-	// Also check recent activity (handles the case where buffer was
-	// just drained but sound is still playing)
+	// Also check recent activity (handles the case where buffer was just
+	// drained but sound is still playing)
 	if sb.lastActivity.IsZero() {
 		return false
 	}

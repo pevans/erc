@@ -37,8 +37,8 @@ func define80Glyph(font *gfx.Font, offset int, mask maskFunc, b []byte) {
 	font.DefineGlyph(offset, glyph)
 }
 
-// SystemFont80 returns a font object that contains all the glyphs of the Apple II
-// system font that is suitable for 80-column text
+// SystemFont80 returns a font object that contains all the glyphs of the
+// Apple II system font that is suitable for 80-column text
 func SystemFont80() *gfx.Font {
 	f := gfx.NewFont(
 		sysFont80Width,

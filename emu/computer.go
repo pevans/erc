@@ -6,8 +6,8 @@ import (
 	"github.com/pevans/erc/memory"
 )
 
-// A Computer is an interface by which architectures can implement the
-// ways that we can execute code.
+// A Computer is an interface by which architectures can implement the ways
+// that we can execute code.
 type Computer interface {
 	Boot() error
 	Load(io.Reader, string) error

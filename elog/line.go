@@ -3,8 +3,8 @@ package elog
 import "fmt"
 
 // Instruction is a representation of some line of assembly to output. There
-// are many kinds of assembly; this is intended to model that of a
-// 6502-style system.
+// are many kinds of assembly; this is intended to model that of a 6502-style
+// system.
 type Instruction struct {
 	// Address is the address at which this instruction was executed.
 	Address *int
@@ -51,8 +51,8 @@ type Instruction struct {
 	// from that block.
 	Speculative bool
 
-	// EndOfBlock is true if we regard this line of execution as being the
-	// end of some subroutine.
+	// EndOfBlock is true if we regard this line of execution as being the end
+	// of some subroutine.
 	EndOfBlock bool
 }
 
@@ -73,10 +73,9 @@ func (ln Instruction) ShortString() string {
 	return str
 }
 
-// String returns some representation of a line of assembly. There's no
-// single grammar for assembly -- it's usually a notation that works for
-// a specific assembler. As long as it "looks right", that's good enough
-// for now.
+// String returns some representation of a line of assembly. There's no single
+// grammar for assembly -- it's usually a notation that works for a specific
+// assembler. As long as it "looks right", that's good enough for now.
 func (ln Instruction) String() string {
 	linefmt := "%s" + // address
 		"%-8s " + // label

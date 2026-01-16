@@ -23,8 +23,8 @@ type AudioFrame struct {
 	// Timestamp is the time since boot when this frame was captured
 	Timestamp float64
 
-	// Samples contains the audio sample values (16-bit signed integers)
-	// This is mono data - one sample per time point
+	// Samples contains the audio sample values (16-bit signed integers) This
+	// is mono data - one sample per time point
 	Samples []int16
 }
 
@@ -91,8 +91,8 @@ func renderWaveform(samples []int16, width int) []string {
 		lines[i] = strings.Repeat(" ", width)
 	}
 
-	// For each column, calculate the RMS (root mean square) amplitude
-	// and plot it
+	// For each column, calculate the RMS (root mean square) amplitude and
+	// plot it
 	for col := 0; col < width && col*samplesPerCol < len(samples); col++ {
 		startIdx := col * samplesPerCol
 		endIdx := min(startIdx+samplesPerCol, len(samples))
@@ -111,8 +111,8 @@ func renderWaveform(samples []int16, width int) []string {
 			normalized = 1.0
 		}
 
-		// Map to height (0 at bottom, height-1 at top)
-		// We'll use the middle as zero, and show amplitude symmetrically
+		// Map to height (0 at bottom, height-1 at top) We'll use the middle
+		// as zero, and show amplitude symmetrically
 		midHeight := height / 2
 		amplitudeHeight := int(normalized * float64(midHeight))
 
@@ -148,7 +148,8 @@ func renderWaveform(samples []int16, width int) []string {
 	return lines
 }
 
-// FrameAnalysis contains dropout and pop detection metrics for an audio frame.
+// FrameAnalysis contains dropout and pop detection metrics for an audio
+// frame.
 type FrameAnalysis struct {
 	ZeroCrossings    int     // Number of times the waveform crosses zero
 	MaxRunLength     int     // Longest sequence of identical samples

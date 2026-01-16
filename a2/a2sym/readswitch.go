@@ -1,7 +1,7 @@
 package a2sym
 
-// readSwitchMap contains a set of memory addresses that correspond to
-// soft switches defined in the Apple //e technical manual
+// readSwitchMap contains a set of memory addresses that correspond to soft
+// switches defined in the Apple //e technical manual
 var readSwitchMap = map[int]Switch{
 	// Keyboard switches
 	0xC000: {Mode: ModeR, Description: "keyboard data and strobe"},
@@ -17,8 +17,8 @@ var readSwitchMap = map[int]Switch{
 	0xC01F: {Mode: ModeR7, Name: "RD80COL", Description: "1 = on"},
 	0xC07E: {Mode: ModeR7, Name: "RDIOUDIS", Description: "1 = off"}, // "off" is not a typo
 	0xC07F: {Mode: ModeR7, Name: "RDDHIRES", Description: "1 = on"},
-	// These are duplicated in writeSwitchMap given we support both
-	// reads and writes
+	// These are duplicated in writeSwitchMap given we support both reads and
+	// writes
 	0xC050: {Mode: ModeRW, Name: "TEXT", Description: "off: display graphics or, if MIXED on, mixed"},
 	0xC051: {Mode: ModeRW, Name: "TEXT", Description: "on: display text"},
 	0xC052: {Mode: ModeRW, Name: "MIXED", Description: "off: display only text or only graphics"},

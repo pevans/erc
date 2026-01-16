@@ -57,8 +57,8 @@ func (s *a2Suite) TestDisplaySwitcherSwitchRead() {
 		s.comp.State.SetBool(a2state.DisplayIou, true)
 		onfn(s.comp, a2state.DisplayDoubleHigh, onDHires)
 
-		// But it would be nice to demonstrate the inverse, that we won't set it
-		// true
+		// But it would be nice to demonstrate the inverse, that we won't set
+		// it true
 		s.comp.State.SetBool(a2state.DisplayIou, false)
 		s.comp.State.SetBool(a2state.DisplayDoubleHigh, false)
 		displaySwitchRead(onDHires, s.comp.State)
@@ -109,8 +109,8 @@ func (s *a2Suite) TestDisplaySwitcherSwitchWrite() {
 		s.comp.State.SetBool(a2state.DisplayIou, true)
 		on(s.comp, a2state.DisplayDoubleHigh, onDHires)
 
-		// But it would be nice to demonstrate the inverse, that we won't set it
-		// true
+		// But it would be nice to demonstrate the inverse, that we won't set
+		// it true
 		s.comp.State.SetBool(a2state.DisplayIou, false)
 		s.comp.State.SetBool(a2state.DisplayDoubleHigh, false)
 		displaySwitchWrite(onDHires, 0x0, s.comp.State)
@@ -137,8 +137,8 @@ func (s *a2Suite) TestDisplaySwitcherSwitchWrite() {
 		s.comp.State.SetBool(a2state.DisplayIou, true)
 		off(s.comp, a2state.DisplayDoubleHigh, offDHires)
 
-		// But it would be nice to demonstrate the inverse, that we won't set it
-		// true
+		// But it would be nice to demonstrate the inverse, that we won't set
+		// it true
 		s.comp.State.SetBool(a2state.DisplayIou, false)
 		s.comp.State.SetBool(a2state.DisplayDoubleHigh, true)
 		displaySwitchWrite(offDHires, 0x0, s.comp.State)

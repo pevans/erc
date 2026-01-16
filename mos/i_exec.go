@@ -8,14 +8,13 @@ import (
 	"github.com/pevans/erc/internal/metrics"
 )
 
-// Brk implements the BRK instruction, which is a hardware interrupt.
-// This isn't something that normally happens in software, but you might
-// see it in the system monitor (which was a debugger in Apple IIs).
+// Brk implements the BRK instruction, which is a hardware interrupt. This
+// isn't something that normally happens in software, but you might see it in
+// the system monitor (which was a debugger in Apple IIs).
 func Brk(c *CPU) {
 	metrics.Increment("instruction_brk", 1)
 
-	// This pushes the the current PC register value in little-endian
-	// order.
+	// This pushes the the current PC register value in little-endian order.
 	c.PushStack(uint8(c.PC >> 8))
 	c.PushStack(uint8(c.PC & 0xFF))
 
@@ -29,16 +28,16 @@ func Brk(c *CPU) {
 	c.PC += 2
 }
 
-// Jmp implements the JMP instruction, which sets the program counter to
-// the effective address.
+// Jmp implements the JMP instruction, which sets the program counter to the
+// effective address.
 func Jmp(c *CPU) {
-	// FIXME: in opcode 0x7C, there may be inaccurate behavior on the
-	// 65C02 processor.
+	// FIXME: in opcode 0x7C, there may be inaccurate behavior on the 65C02
+	// processor.
 	c.PC = c.EffAddr
 }
 
-// Jsr implements the JSR (jump to subroutine) instruction, which saves
-// the current program counter to the stack and then sets PC to EffAddr.
+// Jsr implements the JSR (jump to subroutine) instruction, which saves the
+// current program counter to the stack and then sets PC to EffAddr.
 func Jsr(c *CPU) {
 	nextPos := c.PC + 2
 
@@ -56,13 +55,12 @@ func Jsr(c *CPU) {
 	c.PC = c.EffAddr
 }
 
-// Nop implements the NOP (no operation) instruction, which--well, it
-// does nothing. On purpose.
+// Nop implements the NOP (no operation) instruction, which--well, it does
+// nothing. On purpose.
 func Nop(c *CPU) {
 	// The only intentional NOP instruction is executed from opcode $EA.
-	// Anything else may indicate that something is wrong -- like a bug
-	// in the emulator that led us to execute data as if it were program
-	// code.
+	// Anything else may indicate that something is wrong -- like a bug in the
+	// emulator that led us to execute data as if it were program code.
 	if c.opcode != 0xEA {
 		metrics.Increment("bad_opcodes", 1)
 	}
@@ -78,8 +76,8 @@ func Np3(c *CPU) {
 	metrics.Increment("instruction_np3", 1)
 }
 
-// Rti implements the RTI (return from interrupt) instruction, which
-// recovers the program state from a previous BRK operation.
+// Rti implements the RTI (return from interrupt) instruction, which recovers
+// the program state from a previous BRK operation.
 func Rti(c *CPU) {
 	c.P = c.PopStack()
 
@@ -87,15 +85,15 @@ func Rti(c *CPU) {
 	c.P |= BREAK
 	c.P |= UNUSED
 
-	// Since we saved the bytes in BRK in order of msb, then lsb, we
-	// need to pop them in the reverse order; lsb, then msb.
+	// Since we saved the bytes in BRK in order of msb, then lsb, we need to
+	// pop them in the reverse order; lsb, then msb.
 	lsb := uint16(c.PopStack())
 	msb := uint16(c.PopStack())
 	c.PC = (msb << 8) | lsb
 }
 
-// Rts implements the RTS (return from subroutine) instruction, which
-// sets the program counter to the position saved from a previous JSR.
+// Rts implements the RTS (return from subroutine) instruction, which sets the
+// program counter to the position saved from a previous JSR.
 func Rts(c *CPU) {
 	lsb := uint16(c.PopStack())
 	msb := uint16(c.PopStack())

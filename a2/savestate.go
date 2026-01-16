@@ -175,7 +175,8 @@ func (c *Computer) LoadStateSlot() error {
 	return err
 }
 
-// snapshotStateFlags captures the boolean and integer state flags from the StateMap.
+// snapshotStateFlags captures the boolean and integer state flags from the
+// StateMap.
 func (c *Computer) snapshotStateFlags() *a2save.StateFlags {
 	return &a2save.StateFlags{
 		// Bank state
@@ -215,7 +216,8 @@ func (c *Computer) snapshotStateFlags() *a2save.StateFlags {
 	}
 }
 
-// restoreStateFlags restores the boolean and integer state flags to the StateMap.
+// restoreStateFlags restores the boolean and integer state flags to the
+// StateMap.
 func (c *Computer) restoreStateFlags(flags *a2save.StateFlags) {
 	// Bank state
 	c.State.SetBool(a2state.BankDFBlockBank2, flags.BankDFBlockBank2)
@@ -253,8 +255,8 @@ func (c *Computer) restoreStateFlags(flags *a2save.StateFlags) {
 	c.State.SetBool(a2state.PCSlotCX, flags.PCSlotCX)
 }
 
-// rebuildSegmentReferences restores the Segment pointers in StateMap
-// based on the current boolean state.
+// rebuildSegmentReferences restores the Segment pointers in StateMap based on
+// the current boolean state.
 func (c *Computer) rebuildSegmentReferences() {
 	// Core segment references
 	c.State.SetSegment(a2state.MemMainSegment, c.Main)

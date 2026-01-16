@@ -9,8 +9,8 @@ func (s *Segment) Bytes() []uint8 {
 	return result
 }
 
-// RestoreBytes restores the segment's memory from the given data.
-// Returns an error if the data length doesn't match the segment size.
+// RestoreBytes restores the segment's memory from the given data. Returns an
+// error if the data length doesn't match the segment size.
 func (s *Segment) RestoreBytes(data []uint8) error {
 	if len(data) != len(s.mem) {
 		return fmt.Errorf(

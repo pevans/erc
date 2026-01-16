@@ -7,18 +7,18 @@ import (
 	"github.com/pevans/erc/memory"
 )
 
-// Low resolution graphics are rendered in "blocks", 7 dots wide by 4
-// dots high. Each byte in Display Page 1 holds two blocks, which are
-// rendered top-to-bottom. Unlike text mode, low resolution mode's
-// column spans in memory encode two rows at a time.
+// Low resolution graphics are rendered in "blocks", 7 dots wide by 4 dots
+// high. Each byte in Display Page 1 holds two blocks, which are rendered
+// top-to-bottom. Unlike text mode, low resolution mode's column spans in
+// memory encode two rows at a time.
 
 const (
 	loresBlockWidth  = 14
 	loresBlockHeight = 8
 )
 
-// Although there are 16 color blocks, technically Gray1 and Gray2
-// are the same color mask
+// Although there are 16 color blocks, technically Gray1 and Gray2 are the
+// same color mask
 var loresColors = []*gfx.FrameBuffer{
 	/* loresBlockBlack      */ newLoresBlock(color.RGBA{0x00, 0x00, 0x00, 0xff}),
 	/* loresBlockMagenta    */ newLoresBlock(color.RGBA{0x90, 0x17, 0x40, 0xff}),
@@ -134,8 +134,8 @@ func newLoresBlock(clr color.RGBA) *gfx.FrameBuffer {
 	return fbuf
 }
 
-// LoresBlock will return a color rectangle that matches the color
-// suggested by the given pattern of bits
+// LoresBlock will return a color rectangle that matches the color suggested
+// by the given pattern of bits
 func LoresBlock(bitPattern uint8, monochromeMode int) *gfx.FrameBuffer {
 	index := bitPattern & 0xf
 
@@ -165,9 +165,9 @@ func RenderLores(seg memory.Getter, start, end int, monochromeMode int) {
 
 		byt := seg.Get(int(addr))
 
-		// The Apple IIe technical reference (p. 22) states that we
-		// should show the low-order nibble in the top row, and
-		// high-order nibble in the bottom row.
+		// The Apple IIe technical reference (p. 22) states that we should
+		// show the low-order nibble in the top row, and high-order nibble in
+		// the bottom row.
 		_ = gfx.Screen.Blit(x, y, LoresBlock(byt&0xf, monochromeMode))
 		_ = gfx.Screen.Blit(x, y+8, LoresBlock(byt>>4, monochromeMode))
 	}

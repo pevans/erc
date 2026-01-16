@@ -44,8 +44,8 @@ func pcUseDefaults(c *Computer) {
 	c.State.SetSegment(a2state.PCROMSegment, c.ROM)
 }
 
-// SwitchRead will return hi on bit 7 if slot c3 or cx is set to use peripheral
-// rom; otherwise lo.
+// SwitchRead will return hi on bit 7 if slot c3 or cx is set to use
+// peripheral rom; otherwise lo.
 func pcSwitchRead(addr int, stm *memory.StateMap) uint8 {
 	var (
 		hi uint8 = 0x80
@@ -75,9 +75,9 @@ func pcSwitchRead(addr int, stm *memory.StateMap) uint8 {
 		// produces a side effect while returning from ROM.
 		val := PCRead(addr, stm)
 
-		// Hitting this address will clear the IO SELECT' and IO STROBE' signals
-		// in the hardware, which essentially means that expansion rom is turned
-		// off. But only after we get the return value.
+		// Hitting this address will clear the IO SELECT' and IO STROBE'
+		// signals in the hardware, which essentially means that expansion rom
+		// is turned off. But only after we get the return value.
 		stm.SetBool(a2state.PCExpansion, false)
 		stm.SetInt(a2state.PCExpSlot, 0)
 
@@ -118,8 +118,8 @@ func pcSlotFromAddr(addr int) int {
 	return (addr >> 8) & 0xf
 }
 
-// SwitchWrite will handle soft switch writes that, in our case, will enable or
-// disable slot rom access.
+// SwitchWrite will handle soft switch writes that, in our case, will enable
+// or disable slot rom access.
 func pcSwitchWrite(addr int, val uint8, stm *memory.StateMap) {
 	switch addr {
 	case onSlotC3ROM:
@@ -146,8 +146,8 @@ func pcPROMAddr(addr int) int {
 }
 
 // PCRead returns a byte from ROM within the peripheral card address space
-// ($C1..$CF). Based on the contents of the computer's PC Switcher, this can be
-// from internal ROM or from a dedicated peripheral ROM block.
+// ($C1..$CF). Based on the contents of the computer's PC Switcher, this can
+// be from internal ROM or from a dedicated peripheral ROM block.
 func PCRead(addr int, stm *memory.StateMap) uint8 {
 	var (
 		intAddr    = int(pcIROMAddr(addr))
@@ -155,8 +155,8 @@ func PCRead(addr int, stm *memory.StateMap) uint8 {
 		pcrom      = stm.Segment(a2state.PCROMSegment)
 	)
 
-	// Regardless of circumstances, any read of the expansion disable
-	// address should wipe our expansion state.
+	// Regardless of circumstances, any read of the expansion disable address
+	// should wipe our expansion state.
 	if addr == offExpROM {
 		disableExpansion(stm)
 	}
@@ -169,9 +169,9 @@ func PCRead(addr int, stm *memory.StateMap) uint8 {
 			stm.SetBool(a2state.PCIOSelect, true)
 		}
 
-		// Even though we want to return peripheral ROM for Cxxx
-		// addresses, if SLOTC3ROM is not active, we should obey that
-		// and return internal ROM.
+		// Even though we want to return peripheral ROM for Cxxx addresses, if
+		// SLOTC3ROM is not active, we should obey that and return internal
+		// ROM.
 		if !stm.Bool(a2state.PCSlotC3) && slot3ROM(addr) {
 			return pcrom.DirectGet(intAddr)
 		}
@@ -182,8 +182,8 @@ func PCRead(addr int, stm *memory.StateMap) uint8 {
 			stm.SetBool(a2state.PCIOStrobe, true)
 
 			if stm.Bool(a2state.PCIOSelect) {
-				// If both IOSelect and IOStrobe are true, we have
-				// enabled expansion ROM.
+				// If both IOSelect and IOStrobe are true, we have enabled
+				// expansion ROM.
 				stm.SetBool(a2state.PCExpansion, true)
 
 				return expansionROM(stm, addr)
@@ -209,8 +209,8 @@ func PCRead(addr int, stm *memory.StateMap) uint8 {
 func PCWrite(addr int, val uint8, stm *memory.StateMap) {
 	metrics.Increment("soft_pc_failed_write", 1)
 
-	// Even a write to the expansion rom disable address should cause us
-	// to wipe all of our state.
+	// Even a write to the expansion rom disable address should cause us to
+	// wipe all of our state.
 	if addr == offExpROM {
 		disableExpansion(stm)
 	}
@@ -224,8 +224,8 @@ func disableExpansion(stm *memory.StateMap) {
 }
 
 func expansionROM(stm *memory.StateMap, addr int) uint8 {
-	// Since we don't support any peripherals that have dedicated ROM,
-	// we must fall back to returning data from internal ROM.
+	// Since we don't support any peripherals that have dedicated ROM, we must
+	// fall back to returning data from internal ROM.
 	return stm.Segment(a2state.PCROMSegment).DirectGet(
 		pcIROMAddr(addr),
 	)

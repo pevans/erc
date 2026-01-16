@@ -46,8 +46,8 @@ func define40Glyph(font *gfx.Font, offset int, mask maskFunc, b []byte) {
 	font.DefineGlyph(offset, glyph)
 }
 
-// SystemFont40 returns a font object that contains all the glyphs of the Apple II
-// system font that is suitable for 40-column text
+// SystemFont40 returns a font object that contains all the glyphs of the
+// Apple II system font that is suitable for 40-column text
 func SystemFont40() *gfx.Font {
 	f := gfx.NewFont(
 		sysFont40Width,

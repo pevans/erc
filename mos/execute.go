@@ -12,8 +12,7 @@ import (
 // An Instruction is a function that performs an operation on the CPU.
 type Instruction func(c *CPU)
 
-// String composes an instruction function into a string and returns
-// that
+// String composes an instruction function into a string and returns that
 func (i Instruction) String() string {
 	var (
 		funcName = runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
@@ -24,9 +23,9 @@ func (i Instruction) String() string {
 }
 
 // OpcodeReadsMemory returns true for all opcodes we would consider as
-// "reading" data in memory. This is useful, for instance, for soft
-// switches which care about whether data is being read from somewhere
-// or written somewhere.
+// "reading" data in memory. This is useful, for instance, for soft switches
+// which care about whether data is being read from somewhere or written
+// somewhere.
 func OpcodeReadsMemory(opcode uint8) bool {
 	switch opcode {
 	case 0xA1, 0xA5, 0xA9, 0xAD, 0xB1, 0xB2, 0xB5, 0xB9, 0xBD:
@@ -129,14 +128,14 @@ func (c *CPU) OpcodeCycles() int {
 	return cyc
 }
 
-// Execute will process through one instruction and return. While doing
-// so, the CPU state will update such that it moves to the next
-// instruction. Note that the MOS 65C02 processor can execute
-// indefinitely; while there are definitely parts of memory that don't
-// really house opcodes (the zero page being one such part), the
-// processor would absolutely try to execute those if the PC register
-// pointed at those parts. And technically, if PC incremented beyond the
-// 0xFFFF address, it would simply overflow back to the zero page.
+// Execute will process through one instruction and return. While doing so,
+// the CPU state will update such that it moves to the next instruction. Note
+// that the MOS 65C02 processor can execute indefinitely; while there are
+// definitely parts of memory that don't really house opcodes (the zero page
+// being one such part), the processor would absolutely try to execute those
+// if the PC register pointed at those parts. And technically, if PC
+// incremented beyond the 0xFFFF address, it would simply overflow back to the
+// zero page.
 func (c *CPU) Execute() error {
 	var (
 		inst Instruction
@@ -145,8 +144,8 @@ func (c *CPU) Execute() error {
 
 	metrics.Increment("instructions", 1)
 
-	// We want to record the current PC before it might change as the
-	// result of any instruction we execute
+	// We want to record the current PC before it might change as the result
+	// of any instruction we execute
 	c.LastPC = c.PC
 
 	c.opcode = c.Get(c.PC)
@@ -158,20 +157,20 @@ func (c *CPU) Execute() error {
 		OpcodeReadsMemory(c.opcode),
 	)
 
-	// NOTE: neither the address mode resolver nor the instruction
-	// handler have any error conditions. This is by design: they DO NOT
-	// error out. They handle whatever situation comes up.
+	// NOTE: neither the address mode resolver nor the instruction handler
+	// have any error conditions. This is by design: they DO NOT error out.
+	// They handle whatever situation comes up.
 
-	// Resolve the values of EffAddr and EffVal by executing the address
-	// mode handler.
+	// Resolve the values of EffAddr and EffVal by executing the address mode
+	// handler.
 	mode(c)
 
 	// Now execute the instruction
 	inst(c)
 
-	// Adjust the program counter to beyond the expected instruction
-	// sequence (1 byte for the opcode, + N bytes for the operand, based
-	// on address mode).
+	// Adjust the program counter to beyond the expected instruction sequence
+	// (1 byte for the opcode, + N bytes for the operand, based on address
+	// mode).
 	c.PC += offsets[c.opcode]
 
 	// We always apply BREAK and UNUSED after each execution, mostly in

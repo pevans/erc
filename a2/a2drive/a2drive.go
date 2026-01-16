@@ -7,8 +7,8 @@ import (
 	"github.com/pevans/erc/memory"
 )
 
-// The drive mode helps us determine whether to read or write from
-// the disk, but is actually unrelated to write protect mode!
+// The drive mode helps us determine whether to read or write from the disk,
+// but is actually unrelated to write protect mode!
 const (
 	// readMode is read mode for the drive.
 	readMode = iota
@@ -71,16 +71,16 @@ type Drive struct {
 	// latchWasRead is true if the data in the latch has already been read.
 	latchWasRead bool
 
-	// motorOn is true if the motor is on. When the drive motor is on, the disk
-	// contained in the drive will spin.
+	// motorOn is true if the motor is on. When the drive motor is on, the
+	// disk contained in the drive will spin.
 	motorOn bool
 }
 
 // phaseTable is a really small set of state transitions we can make when
-// accounting for the current phase (which is the row in the table) and the new
-// phase (which is a column in that row). The 0 column and 0 row are not used
-// since there is no 0 phase. We could refactor this a bit by removing those and
-// subtracting 1 from the phase when mapping into this table.
+// accounting for the current phase (which is the row in the table) and the
+// new phase (which is a column in that row). The 0 column and 0 row are not
+// used since there is no 0 phase. We could refactor this a bit by removing
+// those and subtracting 1 from the phase when mapping into this table.
 var phaseTable = []int{
 	0, 0, 0, 0, 0,
 	0, 0, 1, 0, -1,

@@ -308,9 +308,9 @@ var subroutineMap = map[int]string{
 	0xFFCC: "CHRTBL",
 }
 
-// Subroutine returns the name of a subroutine that Apple documented in
-// their technical reference, if one exists, for any given address. If
-// one does not exist, it will return an empty string.
+// Subroutine returns the name of a subroutine that Apple documented in their
+// technical reference, if one exists, for any given address. If one does not
+// exist, it will return an empty string.
 func Subroutine(addr int) string {
 	name, ok := subroutineMap[addr]
 	if !ok {

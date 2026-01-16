@@ -2,7 +2,7 @@ package mos
 
 // A table of opcodes mapped to instruction functions.
 //
-//	00   01   02   03   04   05   06   07   08   09   0A   0B   0C   0D   0E   0F
+//	00   01   02   03   04   05   06   07   08   09   0A   0B   0C   0D   0E   0F      gocomments:noformat
 var instructions = [256]Instruction{
 	Brk, Ora, Np2, Nop, Tsb, Ora, Asl, Nop, Php, Ora, Asl, Nop, Tsb, Ora, Asl, Nop, // 0x
 	Bpl, Ora, Ora, Nop, Trb, Ora, Asl, Nop, Clc, Ora, Inc, Nop, Trb, Ora, Asl, Nop, // 1x
@@ -47,7 +47,7 @@ var instructionNames = [256]string{
 // table (some emulators may differ on what cycles are consumed); the goal is
 // to capture the rough feeling rather than precise timing.
 //
-//	0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
+//	0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F     gocomments:noformat
 var cycles = [256]uint8{
 	7, 6, 2, 1, 5, 3, 5, 1, 3, 2, 2, 1, 6, 4, 6, 1, // 0x
 	2, 5, 5, 1, 5, 4, 6, 1, 2, 4, 2, 1, 6, 4, 6, 1, // 1x
@@ -70,7 +70,7 @@ var cycles = [256]uint8{
 // Here we map opcodes to address mode functions, which we'll use to resolve
 // effective addresses and values in each operation.
 //
-//	00   01   02   03   04   05   06   07   08   09   0A   0B   0C   0D   0E   0F
+//	00   01   02   03   04   05   06   07   08   09   0A   0B   0C   0D   0E   0F      gocomments:noformat
 var addrModeFuncs = [256]AddrMode{
 	Imp, Idx, By2, Imp, Zpg, Zpg, Zpg, Imp, Imp, Imm, Acc, Imp, Abs, Abs, Abs, Imp, // 0x
 	Rel, Idy, Zpg, Imp, Zpg, Zpx, Zpx, Imp, Imp, Aby, Acc, Imp, Abs, Abx, Abx, Imp, // 1x
@@ -93,7 +93,7 @@ var addrModeFuncs = [256]AddrMode{
 // Like the above table, only it maps opcodes to the symbolic constants that
 // represent each address mode.
 //
-//	00     01     02     03     04     05     06     07     08     09     0A     0B     0C     0D     0E     0F
+//	00     01     02     03     04     05     06     07     08     09     0A     0B     0C     0D     0E     0F        gocomments:noformat
 var addrModes = [256]int{
 	AmIMP, AmIDX, AmBY2, AmIMP, AmZPG, AmZPG, AmZPG, AmIMP, AmIMP, AmIMM, AmACC, AmIMP, AmABS, AmABS, AmABS, AmIMP, // 0x
 	AmREL, AmIDY, AmZPG, AmIMP, AmZPG, AmZPX, AmZPX, AmIMP, AmIMP, AmABY, AmACC, AmIMP, AmABS, AmABX, AmABX, AmIMP, // 1x
@@ -113,13 +113,12 @@ var addrModes = [256]int{
 	AmREL, AmIDY, AmZPG, AmIMP, AmBY2, AmZPX, AmZPX, AmIMP, AmIMP, AmABY, AmIMP, AmIMP, AmBY3, AmABX, AmABX, AmIMP, // Fx
 }
 
-// The offsets table defines the number of bytes we must increment the
-// PC register after a given instruction. The bytes vary based on
-// address mode, rather than the specific instruction. In cases where
-// the instruction would change the PC due to its defined behavior, the
-// offset is given as zero.
+// The offsets table defines the number of bytes we must increment the PC
+// register after a given instruction. The bytes vary based on address mode,
+// rather than the specific instruction. In cases where the instruction would
+// change the PC due to its defined behavior, the offset is given as zero.
 //
-//	0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
+//	0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F     gocomments:noformat
 var offsets = [256]uint16{
 	1, 2, 3, 1, 2, 2, 2, 1, 1, 2, 1, 1, 3, 3, 3, 1, // 0x
 	0, 2, 2, 1, 2, 2, 2, 1, 1, 3, 1, 1, 3, 3, 3, 1, // 1x

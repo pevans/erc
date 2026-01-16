@@ -7,10 +7,10 @@ import (
 	"github.com/pevans/erc/elog"
 )
 
-// ExplainInstruction modifies a given elog.Instruction in an effort to better explain
-// what's happening in the code. It will add comments, if possible; it will
-// swap operands with labels (e.g. for subroutines) and variable names (such
-// as those defined with EQU).
+// ExplainInstruction modifies a given elog.Instruction in an effort to better
+// explain what's happening in the code. It will add comments, if possible; it
+// will swap operands with labels (e.g. for subroutines) and variable names
+// (such as those defined with EQU).
 func ExplainInstruction(line *elog.Instruction, pc uint16, effAddr uint16) {
 	addr := int(effAddr)
 	addrMode := addrModes[line.Opcode]

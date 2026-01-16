@@ -16,8 +16,8 @@ func (c *CPU) Get16(addr uint16) uint16 {
 	return c.RMem.Get16(int(addr))
 }
 
-// Set16 sets the two bytes beginning at the given address to the given
-// value. The bytes are set in little-endian order.
+// Set16 sets the two bytes beginning at the given address to the given value.
+// The bytes are set in little-endian order.
 func (c *CPU) Set16(addr uint16, val uint16) {
 	c.WMem.Set16(int(addr), val)
 }

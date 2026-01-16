@@ -19,9 +19,9 @@ const (
 	MonochromeAmber
 )
 
-// A HiresDot represents any dot on screen in a HIRES mode. In itself, a
-// dot doesn't have enough information to determine its color; you must
-// also look at a neighboring dot to figure that out.
+// A HiresDot represents any dot on screen in a HIRES mode. In itself, a dot
+// doesn't have enough information to determine its color; you must also look
+// at a neighboring dot to figure that out.
 type HiresDot struct {
 	On       bool
 	Boundary bool
@@ -76,10 +76,9 @@ func RenderHires(seg memory.Getter, start, end int, monochromeMode int) {
 	}
 }
 
-// PrepareHiresRow fills a slice of dots with color information that
-// indicates how to render a hires graphics row. If the length of dots
-// is not sufficient to contain all the dots in such a row, this
-// function will return an error.
+// PrepareHiresRow fills a slice of dots with color information that indicates
+// how to render a hires graphics row. If the length of dots is not sufficient
+// to contain all the dots in such a row, this function will return an error.
 func PrepareHiresRow(seg memory.Getter, row uint, dots []HiresDot, monochromeMode int) error {
 	if err := fillHiresDots(seg, row, dots); err != nil {
 		return err
@@ -102,9 +101,9 @@ func PrepareHiresRow(seg memory.Getter, row uint, dots []HiresDot, monochromeMod
 		return nil
 	}
 
-	// This is technically a double scan of the row. We could probably
-	// make this faster, but on modern hardware, this hasn't been a
-	// problem worth solving.
+	// This is technically a double scan of the row. We could probably make
+	// this faster, but on modern hardware, this hasn't been a problem worth
+	// solving.
 	for i := range dots {
 		thisOn := dots[i].On
 		prevOn := (i-1 >= 0) && dots[i-1].On
@@ -123,9 +122,9 @@ func PrepareHiresRow(seg memory.Getter, row uint, dots []HiresDot, monochromeMod
 			dots[i].Color = colors[colorIndex]
 
 		case !thisOn && prevOn:
-			// The XOR just flips the position of the color our index
-			// would use; so if it would have been purple, now it's
-			// green, or whatever.
+			// The XOR just flips the position of the color our index would
+			// use; so if it would have been purple, now it's green, or
+			// whatever.
 			dots[i].Color = colors[colorIndex^1]
 
 		default:
@@ -140,8 +139,8 @@ func PrepareHiresRow(seg memory.Getter, row uint, dots []HiresDot, monochromeMod
 	return nil
 }
 
-// Fill in the boolean on/off state of each dot based on a 40 byte
-// region that is implied by the given row.
+// Fill in the boolean on/off state of each dot based on a 40 byte region that
+// is implied by the given row.
 func fillHiresDots(seg memory.Getter, row uint, dots []HiresDot) error {
 	if len(dots) != 280 {
 		return fmt.Errorf("dots slice must contain 280 items")
@@ -153,8 +152,8 @@ func fillHiresDots(seg memory.Getter, row uint, dots []HiresDot) error {
 		byt := seg.Get(int(addr) + byteOffset)
 		pal := PalettePurpleGreen
 
-		// The high bit tells us which palette to use; if it's 1, we
-		// switch to the blue/orange palette.
+		// The high bit tells us which palette to use; if it's 1, we switch to
+		// the blue/orange palette.
 		if byt&0x80 > 0 {
 			pal = PaletteBlueOrange
 		}

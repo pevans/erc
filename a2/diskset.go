@@ -24,8 +24,8 @@ func NewDiskSet() *DiskSet {
 }
 
 // Append adds a disk to the diskset. Given some file, we will test that it's
-// there, and then append the filename to the diskset. If no image file
-// exists at the given filename, we return an error.
+// there, and then append the filename to the diskset. If no image file exists
+// at the given filename, we return an error.
 func (set *DiskSet) Append(file string) error {
 	_, err := os.Stat(file)
 	if err != nil {

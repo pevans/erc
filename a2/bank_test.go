@@ -53,8 +53,8 @@ func (s *a2Suite) TestSwitchRead() {
 	}
 
 	wr := func(addr int) bool {
-		// Because the read attempts are adjusted in the computer
-		// Process method, we simulate that here.
+		// Because the read attempts are adjusted in the computer Process
+		// method, we simulate that here.
 		_ = bankSwitchRead(int(addr), s.comp.State)
 
 		switch addr {
@@ -177,8 +177,8 @@ func (s *a2Suite) TestBankDFRead() {
 		s.Run("read from bank2 ram", func() {
 			s.comp.State.SetBool(a2state.BankReadRAM, true)
 			s.comp.State.SetBool(a2state.BankDFBlockBank2, true)
-			// The first read should use bank 2, but the second read should not,
-			// since it's in the E0 page.
+			// The first read should use bank 2, but the second read should
+			// not, since it's in the E0 page.
 			s.Equal(s.comp.Get(xd000), BankSegment(s.comp.State).Get(x10000))
 			s.Equal(s.comp.Get(xe000), BankSegment(s.comp.State).Get(xe000))
 		})

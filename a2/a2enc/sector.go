@@ -12,8 +12,8 @@ var proSectorTable = []int{
 	0x4, 0xc, 0x5, 0xd, 0x6, 0xe, 0x7, 0xf,
 }
 
-// LogicalSector returns the logical sector number, given the current
-// image type and a physical sector number (sect).
+// LogicalSector returns the logical sector number, given the current image
+// type and a physical sector number (sect).
 func LogicalSector(imageType, sect int) int {
 	if sect < 0 || sect > 15 {
 		return 0
@@ -27,7 +27,6 @@ func LogicalSector(imageType, sect int) int {
 		return proSectorTable[sect]
 	}
 
-	// Note: logical nibble sectors are the same as the "physical"
-	// sectors.
+	// Note: logical nibble sectors are the same as the "physical" sectors.
 	return sect
 }

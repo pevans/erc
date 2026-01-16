@@ -1,7 +1,7 @@
 package mos
 
-// Clc implements the CLC (clear carry) instruction, which unsets the
-// carry flag.
+// Clc implements the CLC (clear carry) instruction, which unsets the carry
+// flag.
 func Clc(c *CPU) {
 	c.P &^= CARRY
 }
@@ -24,14 +24,13 @@ func Clv(c *CPU) {
 	c.P &^= OVERFLOW
 }
 
-// Sec implements the SEC (set carry) instruction, which sets the carry
-// flag.
+// Sec implements the SEC (set carry) instruction, which sets the carry flag.
 func Sec(c *CPU) {
 	c.P |= CARRY
 }
 
-// Sed implements the SED (set decimal) instruction, which sets the
-// decimal flag.
+// Sed implements the SED (set decimal) instruction, which sets the decimal
+// flag.
 func Sed(c *CPU) {
 	c.P |= DECIMAL
 }

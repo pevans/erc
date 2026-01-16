@@ -27,8 +27,8 @@ func (s *mosSuite) op(fn func(*mos.CPU), c with) {
 	fn(s.cpu)
 }
 
-// And implements the AND instruction, which performs a bitwise-and on A
-// and the effective value and saves the result there.
+// And implements the AND instruction, which performs a bitwise-and on A and
+// the effective value and saves the result there.
 func (s *mosSuite) TestAnd() {
 	var (
 		d127 uint8 = 127

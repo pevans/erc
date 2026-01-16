@@ -49,8 +49,8 @@ func (cm *InstructionMap) Exists(line *Instruction) bool {
 	return ok
 }
 
-// Instructions returns a string slice of every line in the instruction map. The
-// provided slice will be sorted in ascending order -- by convention, this
+// Instructions returns a string slice of every line in the instruction map.
+// The provided slice will be sorted in ascending order -- by convention, this
 // would be according to the addresses that instructions are executed.
 func (cm *InstructionMap) Instructions() []string {
 	cm.mu.Lock()

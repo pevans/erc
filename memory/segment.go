@@ -95,8 +95,8 @@ func (s *Segment) ExtractFrom(from *Segment, start, end int) (int, error) {
 	return s.CopySlice(0, from.mem[start:end])
 }
 
-// Set will set the value at a given cell. If a write function is
-// registered for this cell, then we will call that and exit.
+// Set will set the value at a given cell. If a write function is registered
+// for this cell, then we will call that and exit.
 func (s *Segment) Set(addr int, val uint8) {
 	if s.smap != nil {
 		ok := s.smap.Write(addr, val)
@@ -127,7 +127,8 @@ func (s *Segment) set16BigEndian(addr int, val uint16) {
 	s.Set(addr, msb)
 }
 
-// set16LittleEndian sets the value at the given address in little endian order.
+// set16LittleEndian sets the value at the given address in little endian
+// order.
 func (s *Segment) set16LittleEndian(addr int, val uint16) {
 	lsb := uint8(val & 0xFF)
 	msb := uint8(val >> 8)
@@ -142,9 +143,9 @@ func (s *Segment) DirectSet(addr int, val uint8) {
 	s.mem[addr] = val
 }
 
-// Get will get the value from a given cell. If a read function is
-// registered, we will return whatever that is; otherwise we will return
-// the value directly.
+// Get will get the value from a given cell. If a read function is registered,
+// we will return whatever that is; otherwise we will return the value
+// directly.
 func (s *Segment) Get(addr int) uint8 {
 	if s.smap != nil {
 		val, ok := s.smap.Read(addr)
@@ -187,8 +188,7 @@ func (s *Segment) DirectGet(addr int) uint8 {
 	return s.mem[addr]
 }
 
-// ReadFile will read the contents of a given file into the segment
-// receiver.
+// ReadFile will read the contents of a given file into the segment receiver.
 func (s *Segment) ReadFile(path string) error {
 	data, err := os.ReadFile(path)
 	if err != nil {

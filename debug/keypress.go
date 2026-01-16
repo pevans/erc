@@ -6,8 +6,8 @@ import (
 	"github.com/pevans/erc/a2"
 )
 
-// Simulate a keypres by registering one with the computer with an
-// arbitrary ASCII value.
+// Simulate a keypres by registering one with the computer with an arbitrary
+// ASCII value.
 func keypress(comp *a2.Computer, tokens []string) {
 	if len(tokens) != 2 {
 		say("invalid command: 'keypress' requires a hex ascii value")

@@ -2,10 +2,9 @@ package mos
 
 import "github.com/pevans/erc/a2/a2state"
 
-// jumpIf will jump to EffAddr if the value in bits is greater than
-// zero. The value of bits is typically computed with a bitwise
-// operation, so we can say that if bits is non-zero then the operation
-// was "successful".
+// jumpIf will jump to EffAddr if the value in bits is greater than zero. The
+// value of bits is typically computed with a bitwise operation, so we can say
+// that if bits is non-zero then the operation was "successful".
 func (c *CPU) jumpIf(bits uint8) {
 	if bits > 0 {
 		c.PC = c.EffAddr
@@ -32,26 +31,26 @@ func Bcs(c *CPU) {
 	c.jumpIf(c.P & CARRY)
 }
 
-// Beq implements the BEQ (branch on zero set, or branch on "equal to
-// zero") instruction.
+// Beq implements the BEQ (branch on zero set, or branch on "equal to zero")
+// instruction.
 func Beq(c *CPU) {
 	c.jumpIf(c.P & ZERO)
 }
 
-// Bmi implements the BMI (branch on negative set, or branch when
-// "minus") instruction.
+// Bmi implements the BMI (branch on negative set, or branch when "minus")
+// instruction.
 func Bmi(c *CPU) {
 	c.jumpIf(c.P & NEGATIVE)
 }
 
-// Bne implements the BNE (branch on zero clear, or branch on "not
-// equal to zero") instruction.
+// Bne implements the BNE (branch on zero clear, or branch on "not equal to
+// zero") instruction.
 func Bne(c *CPU) {
 	c.jumpIf(^c.P & ZERO)
 }
 
-// Bpl implements the BPL (branch on negative clear, or branch on
-// "plus") instruction.
+// Bpl implements the BPL (branch on negative clear, or branch on "plus")
+// instruction.
 func Bpl(c *CPU) {
 	c.jumpIf(^c.P & NEGATIVE)
 }

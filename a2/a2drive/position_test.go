@@ -12,8 +12,8 @@ func TestDrivePosition(t *testing.T) {
 
 	assert.Equal(t, 0, d.dataPosition())
 
-	// In a zero track position, the drive position should be equal
-	// exactly to the sector position.
+	// In a zero track position, the drive position should be equal exactly to
+	// the sector position.
 	d.sectorPos = 123
 	assert.Equal(t, d.sectorPos, d.dataPosition())
 
@@ -59,8 +59,8 @@ func TestDriveStep(t *testing.T) {
 	d.Step(-1)
 	assert.Equal(t, 1, d.trackPos)
 
-	// No matter our starting point, if a step would go beyond MaxSteps,
-	// we should be left _at_ the MaxSteps position
+	// No matter our starting point, if a step would go beyond MaxSteps, we
+	// should be left _at_ the MaxSteps position
 	d.Step(a2enc.MaxSteps + 1)
 	assert.Equal(t, a2enc.MaxSteps-1, d.trackPos)
 

@@ -68,7 +68,8 @@ func (s *a2Suite) TestSaveStateLoadStateRoundTrip() {
 	s.Equal(uint8(0x42), newComp.CPU.S)
 	s.Equal(uint8(0x37), newComp.CPU.P)
 
-	// Verify memory was restored (use DirectGet for Aux to bypass soft switches)
+	// Verify memory was restored (use DirectGet for Aux to bypass soft
+	// switches)
 	s.Equal(uint8(0xDE), newComp.Main.Get(0x1000))
 	s.Equal(uint8(0xAD), newComp.Main.Get(0x1001))
 	s.Equal(uint8(0xBE), newComp.Aux.DirectGet(0x2000))

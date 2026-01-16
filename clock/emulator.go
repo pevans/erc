@@ -10,8 +10,8 @@ import (
 	"github.com/pevans/erc/emu"
 )
 
-// Emulator is a device which you can use to simulate a slower
-// computer's clockspeed.
+// Emulator is a device which you can use to simulate a slower computer's
+// clockspeed.
 type Emulator struct {
 	// hertz is the rate at which we will emulate any process.
 	hertz int64
@@ -41,7 +41,8 @@ type Emulator struct {
 	timingMu sync.Mutex
 
 	// timingEpoch is incremented whenever timing is reset. The process loop
-	// uses this to detect when it should break out and recalculate wantedCycles.
+	// uses this to detect when it should break out and recalculate
+	// wantedCycles.
 	timingEpoch uint64
 
 	// debuggerEntryFunc is a function we'll run whenever we have gone into
@@ -63,8 +64,8 @@ func NewEmulator(hz int64) *Emulator {
 	return emu
 }
 
-// ChangeHertz resets the clock emulation's hertz value and expected time
-// per cycle.
+// ChangeHertz resets the clock emulation's hertz value and expected time per
+// cycle.
 func (e *Emulator) ChangeHertz(hz int64) {
 	e.timingMu.Lock()
 	defer e.timingMu.Unlock()
@@ -190,8 +191,8 @@ func (e *Emulator) SetFullSpeed(status bool) {
 	e.fullSpeed = status
 }
 
-// IsFullSpeed returns true if the emulator is running at full speed
-// (not emulating clock timing).
+// IsFullSpeed returns true if the emulator is running at full speed (not
+// emulating clock timing).
 func (e *Emulator) IsFullSpeed() bool {
 	e.timingMu.Lock()
 	defer e.timingMu.Unlock()

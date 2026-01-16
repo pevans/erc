@@ -50,9 +50,9 @@ func (d *Drive) SectorPosition() int {
 }
 
 // Shift updates the sector position of the drive forward or backward by the
-// given offset in bytes. Since tracks are circular and the disk is
-// spinning, offsets that carry us beyond the bounds of the track instead
-// bring us to the other end of the track.
+// given offset in bytes. Since tracks are circular and the disk is spinning,
+// offsets that carry us beyond the bounds of the track instead bring us to
+// the other end of the track.
 func (d *Drive) Shift(offset int) {
 	d.sectorPos += offset
 
@@ -71,10 +71,10 @@ func (d *Drive) Shift(offset int) {
 	d.diskShifted = true
 }
 
-// Step moves the track position forward or backward, depending on the
-// sign of the offset. This simulates the stepper motor that moves the
-// drive head further into the center of the disk platter (offset > 0)
-// or further out (offset < 0).
+// Step moves the track position forward or backward, depending on the sign of
+// the offset. This simulates the stepper motor that moves the drive head
+// further into the center of the disk platter (offset > 0) or further out
+// (offset < 0).
 func (d *Drive) Step(offset int) {
 	d.trackPos += offset
 

@@ -21,8 +21,8 @@ func (d *Drive) PeekLatch() uint8 {
 	return d.latch
 }
 
-// ReadLatch returns the byte that is currently loaded in the drive latch.
-// If this data has not been read before, it is returned unmodified. If it has
+// ReadLatch returns the byte that is currently loaded in the drive latch. If
+// this data has not been read before, it is returned unmodified. If it has
 // been read before, then it will be returned with the high bit set to zero.
 func (d *Drive) ReadLatch() uint8 {
 	if d.data == nil {

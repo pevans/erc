@@ -10,8 +10,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-// ImageType returns the type of image that is suggested by the suffix
-// of the given filename.
+// ImageType returns the type of image that is suggested by the suffix of the
+// given filename.
 func ImageType(file string) (int, error) {
 	lower := strings.ToLower(file)
 
@@ -27,9 +27,9 @@ func ImageType(file string) (int, error) {
 	return -1, fmt.Errorf("unrecognized suffix for file %s", file)
 }
 
-// Load will read a file from the filesystem and set its contents as the
-// image in the drive. It also decodes the contents according to the
-// (detected) image type.
+// Load will read a file from the filesystem and set its contents as the image
+// in the drive. It also decodes the contents according to the (detected)
+// image type.
 func (d *Drive) Load(r io.Reader, file string) error {
 	var err error
 
@@ -73,8 +73,8 @@ func (d *Drive) Load(r io.Reader, file string) error {
 		return errors.Wrapf(err, "failed to decode image")
 	}
 
-	// Reset the sector position, but leave track alone; the drive head
-	// has not shifted since replacing the disk.
+	// Reset the sector position, but leave track alone; the drive head has
+	// not shifted since replacing the disk.
 	d.sectorPos = 0
 
 	// If the disk had write-protected status, we should assume the next disk

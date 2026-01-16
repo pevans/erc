@@ -50,10 +50,10 @@ type StreamStats struct {
 	CurrentBufferLen int    // Current event buffer length
 }
 
-// Stream generates audio samples by syncing to the speaker toggle event stream.
-// Rather than maintaining an independent timeline, we follow the events and only
-// advance when we have data to process. This avoids gaps when the event stream
-// pauses temporarily.
+// Stream generates audio samples by syncing to the speaker toggle event
+// stream. Rather than maintaining an independent timeline, we follow the
+// events and only advance when we have data to process. This avoids gaps when
+// the event stream pauses temporarily.
 type Stream struct {
 	source EventSource
 	clock  ClockSource
@@ -77,7 +77,8 @@ type Stream struct {
 	audioLogger AudioLogger
 }
 
-// NewStream creates a new audio stream from a toggle event source and clock source.
+// NewStream creates a new audio stream from a toggle event source and clock
+// source.
 func NewStream(source EventSource, clock ClockSource) *Stream {
 	return &Stream{
 		source: source,

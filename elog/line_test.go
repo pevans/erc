@@ -6,8 +6,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// Let's not be prescriptive about how the line looks -- just look for
-// things in the line
+// Let's not be prescriptive about how the line looks -- just look for things
+// in the line
 func TestInstructionString(t *testing.T) {
 	t.Run("with instruction and operand", func(t *testing.T) {
 		ln := Instruction{
@@ -33,8 +33,8 @@ func TestInstructionString(t *testing.T) {
 		assert.Contains(t, str, ln.Instruction)
 		assert.Contains(t, str, ln.PreparedOperand)
 
-		// Test for the semicolon since our assembly "notation" uses
-		// that as the indicator
+		// Test for the semicolon since our assembly "notation" uses that as
+		// the indicator
 		assert.Contains(t, str, ln.Comment)
 	})
 }

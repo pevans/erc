@@ -143,8 +143,8 @@ func runEmulator(images []string) {
 
 		key := ev.Key
 		if ev.Modifier == input.ModControl {
-			// We want the Apple software to see this as a literal
-			// control character
+			// We want the Apple software to see this as a literal control
+			// character
 			key = ev.Key & 0x1F
 		}
 
@@ -185,8 +185,8 @@ func fail(reason string) {
 	os.Exit(1)
 }
 
-// clockspeed returns hertz based on the given abstract speed.
-// Relatively larger speeds imply a larger hertz; i.e. clockspeed(2) > clockspeed(1).
+// clockspeed returns hertz based on the given abstract speed. Relatively
+// larger speeds imply a larger hertz; i.e. clockspeed(2) > clockspeed(1).
 func clockspeed(speed int) int64 {
 	// Use the basic clockspeed of an Apple IIe as a starting point
 	hertz := int64(1_023_000)

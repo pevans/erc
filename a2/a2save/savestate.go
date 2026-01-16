@@ -38,8 +38,8 @@ type CPUState struct {
 	ReadOp       bool
 }
 
-// StateFlags captures boolean and integer state from the StateMap.
-// Only includes values needed for restoration (excludes Segment pointers).
+// StateFlags captures boolean and integer state from the StateMap. Only
+// includes values needed for restoration (excludes Segment pointers).
 type StateFlags struct {
 	// Bank state
 	BankDFBlockBank2 bool

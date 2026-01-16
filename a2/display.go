@@ -316,8 +316,8 @@ func DisplayRead(addr int, stm *memory.StateMap) uint8 {
 }
 
 func DisplayWrite(addr int, val uint8, stm *memory.StateMap) {
-	// Let the drawing routines we have know that it's time to re-render
-	// the screen.
+	// Let the drawing routines we have know that it's time to re-render the
+	// screen.
 	stm.SetBool(a2state.DisplayRedraw, true)
 
 	// Track display memory writes for debugging
@@ -334,7 +334,8 @@ func DisplayWrite(addr int, val uint8, stm *memory.StateMap) {
 	).DirectSet(int(addr), val)
 }
 
-// Render will draw an updated picture of our graphics to the local framebuffer
+// Render will draw an updated picture of our graphics to the local
+// framebuffer
 func (c *Computer) Render() {
 	if !c.State.Bool(a2state.DisplayRedraw) {
 		return
@@ -342,16 +343,16 @@ func (c *Computer) Render() {
 
 	metrics.Increment("renders", 1)
 
-	// Snapshot display memory to prevent tearing during render.
-	// This copies the current state so we render from a consistent view
-	// even if the CPU modifies display memory mid-render.
-	// Use CopyFromState to respect page switching and 80STORE settings.
+	// Snapshot display memory to prevent tearing during render. This copies
+	// the current state so we render from a consistent view even if the CPU
+	// modifies display memory mid-render. Use CopyFromState to respect page
+	// switching and 80STORE settings.
 	c.displaySnapshot.CopyFromState(c.Main, c.Aux, c.State)
 
-	// if it's text, do one thing
-	// if it's lores, do another thing
-	// if it's mixed, we need to do text + lores
-	// if it's hires, do the hires thing
+	// - if it's text, do one thing
+	// - if it's lores, do another thing
+	// - if it's mixed, we need to do text + lores
+	// - if it's hires, do the hires thing
 	// we also need to account for double text/lores/hires/mixed
 	switch {
 	case c.State.Bool(a2state.DisplayText):

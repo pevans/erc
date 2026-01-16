@@ -1,7 +1,6 @@
 package mos
 
-// This block defines the flags that we recognize within the status
-// register.
+// This block defines the flags that we recognize within the status register.
 const (
 	CARRY     = uint8(1)
 	ZERO      = uint8(2)
@@ -13,8 +12,8 @@ const (
 	NEGATIVE  = uint8(128)
 )
 
-// ApplyStatus will make a status update for the given flag based upon
-// cond being true or not.
+// ApplyStatus will make a status update for the given flag based upon cond
+// being true or not.
 func (c *CPU) ApplyStatus(cond bool, flag uint8) {
 	c.P &= ^flag
 	if cond {
@@ -22,14 +21,14 @@ func (c *CPU) ApplyStatus(cond bool, flag uint8) {
 	}
 }
 
-// ApplyN will apply the normal negative status check (which is whether
-// the eighth bit is high or not).
+// ApplyN will apply the normal negative status check (which is whether the
+// eighth bit is high or not).
 func (c *CPU) ApplyN(val uint8) {
 	c.ApplyStatus(val&0x80 > 0, NEGATIVE)
 }
 
-// ApplyZ will apply the normal zero status check, which is literally if
-// val is zero or not.
+// ApplyZ will apply the normal zero status check, which is literally if val
+// is zero or not.
 func (c *CPU) ApplyZ(val uint8) {
 	c.ApplyStatus(val == 0, ZERO)
 }
@@ -40,9 +39,9 @@ func (c *CPU) ApplyNZ(val uint8) {
 	c.ApplyZ(val)
 }
 
-// Compare will compute the difference between the given base and the
-// current EffVal value of c. ApplyNZ is called on the result. CARRY is
-// set if the result is greater than zero.
+// Compare will compute the difference between the given base and the current
+// EffVal value of c. ApplyNZ is called on the result. CARRY is set if the
+// result is greater than zero.
 func Compare(c *CPU, base uint8) {
 	res := base - c.EffVal
 

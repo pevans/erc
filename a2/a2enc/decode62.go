@@ -26,8 +26,8 @@ type addressField struct {
 }
 
 // Decode62 returns a new segment that is the six-and-two decoded form
-// (translating a physical to a logical data structure), based on a kind
-// of input image and segment.
+// (translating a physical to a logical data structure), based on a kind of
+// input image and segment.
 func Decode62(imageType int, src *memory.Segment) (*memory.Segment, error) {
 	dec := &decoder{
 		physicalSegment: src,
@@ -55,12 +55,12 @@ func (d *decoder) writeTrack(track int) error {
 			physSect = sect
 		)
 
-		// The logical offset is based on logTrackOffset, with the
-		// sector length times the logical sector we should be copying
+		// The logical offset is based on logTrackOffset, with the sector
+		// length times the logical sector we should be copying
 		d.logicalOffset = logTrackOffset + (LogSectorLen * logSect)
 
-		// However, the physical offset is based on the physical sector,
-		// which may need to be encoded in a different order
+		// However, the physical offset is based on the physical sector, which
+		// may need to be encoded in a different order
 		d.physicalOffset = physTrackOffset + (PhysSectorLen * physSect)
 
 		if err := d.writeSector(track, sect); err != nil {
@@ -130,8 +130,8 @@ func (d *decoder) scanForBytes(want []uint8) bool {
 
 // Look for the address field of a sector and return that. There are likely to
 // be some self-sync padding bytes (either from gap3 or gap1), and if so those
-// will be skipped past. We use the address field to confirm that the
-// sector is what we think it should be.
+// will be skipped past. We use the address field to confirm that the sector
+// is what we think it should be.
 func (d *decoder) decodeAddressField() (*addressField, error) {
 	if !d.scanForBytes(addressFieldPrologue) {
 		return nil, fmt.Errorf("address field prologue not found")
