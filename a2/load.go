@@ -58,6 +58,8 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 		c.AudioLog = elog.NewAudioLog()
 		c.audioLogFileName = fmt.Sprintf("%v.audio", fileName)
 
+		c.instDiffMapFileName = fmt.Sprintf("%v.diff.asm", fileName)
+
 		return c.SelectedDrive.WriteDataToFile(fmt.Sprintf("%v.physical", fileName))
 	}
 
@@ -150,7 +152,8 @@ func diskPNG(index int) []byte {
 // MaybeLogInstructions will, if an InstructionMap is available and if
 // messages are available on the CPU's InstructionChannel, record those
 // instructions in the instruction map. If a TimeSet is also available, we
-// will also record a timeset entry there.
+// will also record a timeset entry there. If dbatchMode is true, we will also
+// record the instruction in the instDiffMap.
 func MaybeLogInstructions(c *Computer) {
 	for line := range c.CPU.InstructionChannel {
 		if c.InstructionMap != nil {
@@ -158,6 +161,9 @@ func MaybeLogInstructions(c *Computer) {
 		}
 		if c.TimeSet != nil {
 			c.TimeSet.Record(line.ShortString(), line.Cycles)
+		}
+		if c.dbatchMode && c.instDiffMap != nil {
+			c.instDiffMap.Add(line)
 		}
 	}
 }

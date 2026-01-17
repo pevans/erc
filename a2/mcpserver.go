@@ -1,12 +1,13 @@
 package a2
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"net"
+	"time"
 
 	"github.com/pevans/erc/a2/a2state"
+	"github.com/pevans/erc/elog"
 	"github.com/pevans/erc/mcp"
 )
 
@@ -39,31 +40,30 @@ func (c *Computer) StartMCPServer() error {
 func (c *Computer) handleMCPConnection(conn net.Conn) {
 	defer conn.Close()
 
-	scanner := bufio.NewScanner(conn)
+	decoder := json.NewDecoder(conn)
 	encoder := json.NewEncoder(conn)
 
-	for scanner.Scan() {
+	for {
 		var req mcp.Request
-		if err := json.Unmarshal(scanner.Bytes(), &req); err != nil {
-			encoder.Encode(mcp.Response{
-				JSONRPC: "2.0",
-				ID:      nil,
-				Error:   &mcp.Error{Code: -32700, Message: "Parse error"},
-			})
-			continue
+		if err := decoder.Decode(&req); err != nil {
+			return
 		}
 
-		resp := c.handleMCPRequest(&req)
-		encoder.Encode(resp)
+		if resp := c.handleMCPRequest(&req); resp != nil {
+			if err := encoder.Encode(resp); err != nil {
+				return
+			}
+		}
 	}
 }
 
 // handleMCPRequest returns a response for some given request. If we don't
-// recognize the request, we'll return some error respoonse.
-func (c *Computer) handleMCPRequest(req *mcp.Request) mcp.Response {
+// recognize the request, we'll return some error response. Returns nil for
+// notifications (which don't expect responses).
+func (c *Computer) handleMCPRequest(req *mcp.Request) *mcp.Response {
 	switch req.Method {
 	case "initialize":
-		return mcp.Response{
+		return &mcp.Response{
 			JSONRPC: "2.0",
 			ID:      req.ID,
 			Result: mcp.InitializeResult{
@@ -79,10 +79,10 @@ func (c *Computer) handleMCPRequest(req *mcp.Request) mcp.Response {
 		}
 
 	case "notifications/initialized":
-		return mcp.Response{JSONRPC: "2.0", ID: req.ID}
+		return nil
 
 	case "tools/list":
-		return mcp.Response{
+		return &mcp.Response{
 			JSONRPC: "2.0",
 			ID:      req.ID,
 			Result: mcp.ToolsListResult{
@@ -102,6 +102,16 @@ func (c *Computer) handleMCPRequest(req *mcp.Request) mcp.Response {
 						Description: "Resume the emulator",
 						InputSchema: mcp.InputSchema{Type: "object"},
 					},
+					{
+						Name:        "dbatch_start",
+						Description: "Start a debug batch session",
+						InputSchema: mcp.InputSchema{Type: "object"},
+					},
+					{
+						Name:        "dbatch_stop",
+						Description: "Stop a debug batch session",
+						InputSchema: mcp.InputSchema{Type: "object"},
+					},
 				},
 			},
 		}
@@ -109,7 +119,7 @@ func (c *Computer) handleMCPRequest(req *mcp.Request) mcp.Response {
 	case "tools/call":
 		var params mcp.ToolsCallParams
 		if err := json.Unmarshal(req.Params, &params); err != nil {
-			return mcp.Response{
+			return &mcp.Response{
 				JSONRPC: "2.0",
 				ID:      req.ID,
 				Error:   &mcp.Error{Code: -32602, Message: "Invalid params"},
@@ -119,7 +129,7 @@ func (c *Computer) handleMCPRequest(req *mcp.Request) mcp.Response {
 		return c.handleToolCall(req.ID, &params)
 
 	default:
-		return mcp.Response{
+		return &mcp.Response{
 			JSONRPC: "2.0",
 			ID:      req.ID,
 			Error:   &mcp.Error{Code: -32601, Message: "Method not found"},
@@ -127,7 +137,7 @@ func (c *Computer) handleMCPRequest(req *mcp.Request) mcp.Response {
 	}
 }
 
-func (c *Computer) handleToolCall(id any, params *mcp.ToolsCallParams) mcp.Response {
+func (c *Computer) handleToolCall(id any, params *mcp.ToolsCallParams) *mcp.Response {
 	var text string
 
 	switch params.Name {
@@ -137,15 +147,19 @@ func (c *Computer) handleToolCall(id any, params *mcp.ToolsCallParams) mcp.Respo
 		text = c.toolPause()
 	case "resume":
 		text = c.toolResume()
+	case "dbatch_start":
+		text = c.toolDbatchStart()
+	case "dbatch_stop":
+		text = c.toolDbatchStop()
 	default:
-		return mcp.Response{
+		return &mcp.Response{
 			JSONRPC: "2.0",
 			ID:      id,
 			Error:   &mcp.Error{Code: -32601, Message: "Unknown tool"},
 		}
 	}
 
-	return mcp.Response{
+	return &mcp.Response{
 		JSONRPC: "2.0",
 		ID:      id,
 		Result: mcp.ToolsCallResult{
@@ -168,4 +182,23 @@ func (c *Computer) toolPause() string {
 func (c *Computer) toolResume() string {
 	c.State.SetBool(a2state.Paused, false)
 	return "emulator resumed"
+}
+
+func (c *Computer) toolDbatchStart() string {
+	c.dbatchMode = true
+	c.dbatchTime = time.Now()
+	c.instDiffMap = elog.NewInstructionMap()
+	return "debug batch started"
+}
+
+func (c *Computer) toolDbatchStop() string {
+	c.dbatchMode = false
+	c.dbatchEnded = time.Now()
+
+	if c.instDiffMap != nil && c.instDiffMapFileName != "" {
+		_ = c.instDiffMap.WriteToFile(c.instDiffMapFileName)
+		c.instDiffMap = nil
+	}
+
+	return "debug batch stopped"
 }

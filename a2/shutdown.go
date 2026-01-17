@@ -65,6 +65,12 @@ func (c *Computer) Shutdown() error {
 		}
 	}
 
+	if c.instDiffMap != nil {
+		if err := c.instDiffMap.WriteToFile(c.instDiffMapFileName); err != nil {
+			return err
+		}
+	}
+
 	if err := c.Drive1.Save(); err != nil {
 		return fmt.Errorf("could not save image: %w", err)
 	}

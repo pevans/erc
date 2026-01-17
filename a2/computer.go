@@ -40,6 +40,13 @@ type Computer struct {
 	ShutdownMutex sync.Mutex
 	WillShutDown  bool
 
+	dbatchMode  bool
+	dbatchTime  time.Time
+	dbatchEnded time.Time
+
+	instDiffMap         *elog.InstructionMap
+	instDiffMapFileName string
+
 	ClockEmulator *clock.Emulator
 
 	stateSlot int // the slot where we'll save/load state

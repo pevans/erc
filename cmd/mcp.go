@@ -3,7 +3,6 @@ package cmd
 import (
 	"bufio"
 	"fmt"
-	"io"
 	"net"
 	"os"
 
@@ -34,30 +33,26 @@ func runMCPBridge() {
 
 	done := make(chan struct{})
 
-	// TCP -> stdout
+	// TCP -> stdout (line by line with explicit flush)
 	go func() {
+		defer close(done)
 		scanner := bufio.NewScanner(conn)
 		for scanner.Scan() {
 			fmt.Println(scanner.Text())
 		}
-		close(done)
 	}()
 
-	// stdin -> TCP
-	reader := bufio.NewReader(os.Stdin)
-	for {
-		line, err := reader.ReadBytes('\n')
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "read error: %v\n", err)
-			os.Exit(1)
-		}
-		conn.Write(line)
+	// stdin -> TCP (line by line)
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		line := scanner.Text()
+		fmt.Fprintln(conn, line)
 	}
 
-	// Close write side so server knows we're done, then wait for response
-	conn.(*net.TCPConn).CloseWrite()
+	// Close write side so server knows we're done
+	if tcpConn, ok := conn.(*net.TCPConn); ok {
+		tcpConn.CloseWrite()
+	}
+
 	<-done
 }
