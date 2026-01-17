@@ -4,14 +4,14 @@ test pkg="./...":
 build:
     - go build -o erc .
 
-run image:
-    - go run . run --speed 2 {{image}}
+run image: build
+    - ./erc run {{image}}
 
-quick image:
-    - go run . run --speed 5 {{image}}
+quick image: build
+    - ./erc run --speed 5 {{image}}
 
-debug image:
-    - go run . run --speed 2 --debug-image {{image}}
+debug image: build
+    - ./erc run --debug-image --debug-mcp {{image}}
 
 lint:
     - golangci-lint \
