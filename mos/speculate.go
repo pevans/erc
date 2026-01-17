@@ -16,11 +16,11 @@ func (c *CPU) Speculate(addr uint16) {
 		// We should stop speculating if we've hit a line that we've seen
 		// before. This will work whether the line previously recorded was
 		// speculative or not.
-		if c.InstructionLog.Exists(line) {
+		if c.InstructionMap.Exists(line) {
 			return
 		}
 
-		c.InstructionLog.Add(line)
+		c.InstructionMap.Add(line)
 
 		// If this is a branch, we want to speculate on what might happen if
 		// the branch is taken, but not if the branch is ignored.

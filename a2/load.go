@@ -32,13 +32,13 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 	c.diskLog = nil
 
 	if c.State.Bool(a2state.DebugImage) {
-		c.InstructionLog = elog.NewInstructionMap()
-		c.InstructionLogFileName = fmt.Sprintf("%v.asm", fileName)
+		c.InstructionMap = elog.NewInstructionMap()
+		c.InstructionMapFileName = fmt.Sprintf("%v.asm", fileName)
 
-		// Share the instruction log with the CPU in case it needs to access
+		// Share the instruction map with the CPU in case it needs to access
 		// it for some reason (e.g. for speculation). We could alternatively
 		// put this into the state map.
-		c.CPU.InstructionLog = c.InstructionLog
+		c.CPU.InstructionMap = c.InstructionMap
 
 		c.TimeSet = elog.NewTimeset(c.ClockEmulator.TimePerCycle())
 		c.TimeSetFileName = fmt.Sprintf("%v.time", fileName)
@@ -147,14 +147,14 @@ func diskPNG(index int) []byte {
 	return nil
 }
 
-// MaybeLogInstructions will, if an InstructionLog is available and if
+// MaybeLogInstructions will, if an InstructionMap is available and if
 // messages are available on the CPU's InstructionChannel, record those
-// instructions in the instruction log. If a TimeSet is also available, we
+// instructions in the instruction map. If a TimeSet is also available, we
 // will also record a timeset entry there.
 func MaybeLogInstructions(c *Computer) {
 	for line := range c.CPU.InstructionChannel {
-		if c.InstructionLog != nil {
-			c.InstructionLog.Add(line)
+		if c.InstructionMap != nil {
+			c.InstructionMap.Add(line)
 		}
 		if c.TimeSet != nil {
 			c.TimeSet.Record(line.ShortString(), line.Cycles)

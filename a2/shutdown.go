@@ -7,7 +7,7 @@ import (
 	"github.com/pevans/erc/internal/metrics"
 )
 
-const InstructionLogName = "./instruction_log.asm"
+const InstructionMapName = "./instruction_map.asm"
 
 // Shutdown will execute whatever is necessary to basically cease operation of
 // the computer.
@@ -33,8 +33,8 @@ func (c *Computer) Shutdown() error {
 		}
 	}
 
-	if c.InstructionLog != nil {
-		err := c.InstructionLog.WriteToFile(c.InstructionLogFileName)
+	if c.InstructionMap != nil {
+		err := c.InstructionMap.WriteToFile(c.InstructionMapFileName)
 		if err != nil {
 			return err
 		}

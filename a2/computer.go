@@ -102,10 +102,10 @@ type Computer struct {
 	smap  *memory.SoftMap
 	State *memory.StateMap
 
-	InstructionLog *elog.InstructionMap
+	InstructionMap *elog.InstructionMap
 
-	// Where to write the instruction log
-	InstructionLogFileName string
+	// Where to write the instruction map
+	InstructionMapFileName string
 
 	TimeSet         *elog.TimeSet
 	TimeSetFileName string
