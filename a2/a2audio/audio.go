@@ -174,14 +174,9 @@ func (s *Stream) Read(buf []byte) (int, error) {
 		hasEventsInRange := ev != nil && ev.Cycle < sampleEndCycle
 
 		if !hasEventsInRange && s.source.Len() == 0 {
-			// Just output based on current speaker state
-			var sample int16
-
-			if s.speakerHigh {
-				sample = int16(amplitude)
-			} else {
-				sample = int16(-amplitude)
-			}
+			// No events -- output silence rather than a DC offset. Sound is
+			// produced by transitions, not by holding a state.
+			var sample int16 = 0
 
 			if s.audioLogger != nil {
 				logSamples = append(logSamples, sample)
@@ -247,14 +242,8 @@ func (s *Stream) Read(buf []byte) (int, error) {
 		if totalCycles > 0 {
 			avgValue := (highCycles*amplitude - lowCycles*amplitude) / totalCycles
 			sample = int16(avgValue)
-		} else {
-			// Just use the current speaker state
-			if s.speakerHigh {
-				sample = int16(amplitude)
-			} else {
-				sample = int16(-amplitude)
-			}
 		}
+		// If totalCycles == 0, sample remains 0 (silence)
 
 		if s.audioLogger != nil {
 			logSamples = append(logSamples, sample)
