@@ -70,11 +70,17 @@ func (s *DisplaySnapshot) CopyFromState(main, aux *memory.Segment, stm *memory.S
 		s.hires[i] = hiresSeg.DirectGet(hiresStart + i)
 	}
 
-	// Always capture main and aux hi-res at $2000-$3FFF for double hi-res.
-	// That mode doesn't use page switching -- it always uses both banks.
+	// Capture main and aux hi-res for double hi-res mode. Double hi-res
+	// supports page switching just like regular hi-res, but uses both main
+	// and aux memory for each page.
+	dhiresStart := 0x2000
+	if stm.Bool(a2state.DisplayPage2) {
+		dhiresStart = 0x4000
+	}
+
 	for i := range 0x2000 {
-		s.hiresMain[i] = main.DirectGet(0x2000 + i)
-		s.hiresAux[i] = aux.DirectGet(0x2000 + i)
+		s.hiresMain[i] = main.DirectGet(dhiresStart + i)
+		s.hiresAux[i] = aux.DirectGet(dhiresStart + i)
 	}
 }
 
