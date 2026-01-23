@@ -3,6 +3,7 @@ package a2
 import (
 	"time"
 
+	"github.com/pevans/erc/a2/a2dhires"
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/a2/a2video"
 	"github.com/pevans/erc/gfx"
@@ -365,7 +366,7 @@ func (c *Computer) Render() {
 		monochromeMode := c.State.Int(a2state.DisplayMonochrome)
 
 		if c.State.Bool(a2state.DisplayDoubleHigh) && c.State.Bool(a2state.DisplayCol80) {
-			a2video.RenderDHires(c.displaySnapshot, monochromeMode)
+			a2dhires.Render(c.displaySnapshot, monochromeMode)
 		} else {
 			var (
 				start = 0x2000

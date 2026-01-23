@@ -1,21 +1,22 @@
-package a2video
+package a2dhires
 
 import (
 	"image/color"
 
+	"github.com/pevans/erc/a2/a2video"
 	"github.com/pevans/erc/gfx"
 )
 
-// DHiresGetter is an interface for reading from both main and auxiliary
+// memoryGetter is an interface for reading from both main and auxiliary
 // memory. GetMain returns main memory at 0x2000-0x3FFF regardless of page
 // settings.
-type DHiresGetter interface {
+type memoryGetter interface {
 	GetMain(addr int) uint8
 	GetAux(addr int) uint8
 }
 
-// dhiresColors maps 4-bit patterns to colors we'll use in double hi-res.
-var dhiresColors = []color.RGBA{
+// colors maps 4-bit patterns to colors we'll use in double hi-res.
+var colors = []color.RGBA{
 	/* 0000 Black       */ {0x00, 0x00, 0x00, 0xff},
 	/* 0001 Magenta     */ {0x90, 0x17, 0x40, 0xff},
 	/* 0010 Brown       */ {0x40, 0x54, 0x00, 0xff},
@@ -34,35 +35,34 @@ var dhiresColors = []color.RGBA{
 	/* 1111 White       */ {0xff, 0xff, 0xff, 0xff},
 }
 
-// RenderDHires draws double hi-res graphics from both main and auxiliary
-// memory. Double hi-res provides 560x192 monochrome or 140x192 with 16
-// colors.
-func RenderDHires(seg DHiresGetter, monochromeMode int) {
+// Render draws double hi-res graphics from both main and auxiliary memory.
+// Double hi-res provides 560x192 monochrome or 140x192 with 16 colors.
+func Render(seg memoryGetter, monochromeMode int) {
 	for y := range uint(192) {
-		renderDHiresRow(seg, y, monochromeMode)
+		renderRow(seg, y, monochromeMode)
 	}
 }
 
-// renderDHiresRow renders a single row of double hi-res graphics.
-func renderDHiresRow(seg DHiresGetter, row uint, monochromeMode int) {
-	addr := int(hiresAddrs[row])
+// renderRow renders a single row of double hi-res graphics.
+func renderRow(seg memoryGetter, row uint, monochromeMode int) {
+	addr := int(a2video.HiresAddrs[row])
 
-	if monochromeMode != MonochromeNone {
-		renderDHiresRowMono(seg, row, addr, monochromeMode)
+	if monochromeMode != a2video.MonochromeNone {
+		renderRowMono(seg, row, addr, monochromeMode)
 		return
 	}
 
-	renderDHiresRowColor(seg, row, addr)
+	renderRowColor(seg, row, addr)
 }
 
-// renderDHiresRowMono renders a row in monochrome mode (560 dots). This ends
-// up working a lot like monochrome for hi-res. I never used double hi-res
+// renderRowMono renders a row in monochrome mode (560 dots). This ends up
+// working a lot like monochrome for hi-res. I never used double hi-res
 // software on a monochrome monitor, so this is more of a guess as to how it
 // should look.
-func renderDHiresRowMono(seg DHiresGetter, row uint, addr int, monochromeMode int) {
-	monochromeColor := HiresMonochromeGreen
-	if monochromeMode == MonochromeAmber {
-		monochromeColor = HiresMonochromeAmber
+func renderRowMono(seg memoryGetter, row uint, addr int, monochromeMode int) {
+	monochromeColor := a2video.HiresMonochromeGreen
+	if monochromeMode == a2video.MonochromeAmber {
+		monochromeColor = a2video.HiresMonochromeAmber
 	}
 
 	ypos := row * 2
@@ -89,7 +89,7 @@ func renderDHiresRowMono(seg DHiresGetter, row uint, addr int, monochromeMode in
 			if auxByte&(1<<bit) != 0 {
 				clr = monochromeColor
 			} else {
-				clr = HiresBlack
+				clr = a2video.HiresBlack
 			}
 
 			_ = gfx.Screen.SetCell(xpos, ypos, clr)
@@ -106,7 +106,7 @@ func renderDHiresRowMono(seg DHiresGetter, row uint, addr int, monochromeMode in
 			if mainByte&(1<<bit) != 0 {
 				clr = monochromeColor
 			} else {
-				clr = HiresBlack
+				clr = a2video.HiresBlack
 			}
 
 			_ = gfx.Screen.SetCell(xpos, ypos, clr)
@@ -115,8 +115,8 @@ func renderDHiresRowMono(seg DHiresGetter, row uint, addr int, monochromeMode in
 	}
 }
 
-// renderDHiresRowColor renders a row in color mode.
-func renderDHiresRowColor(seg DHiresGetter, row uint, addr int) {
+// renderRowColor renders a row in color mode.
+func renderRowColor(seg memoryGetter, row uint, addr int) {
 	ypos := row * 2
 
 	// Build array of all 560 dots in this row
@@ -145,14 +145,14 @@ func renderDHiresRowColor(seg DHiresGetter, row uint, addr int) {
 		}
 	}
 
-	renderDHiresRowWithSlidingWindow(dots, ypos)
+	renderRowWithSlidingWindow(dots, ypos)
 }
 
-// renderDHiresRowWithSlidingWindow renders using a per-dot sliding window.
-// Each of the 560 dots gets its own color based on a 4-dot window starting at
-// that position. The result should be something that resembles NTSC color
+// renderRowWithSlidingWindow renders using a per-dot sliding window. Each of
+// the 560 dots gets its own color based on a 4-dot window starting at that
+// position. The result should be something that resembles NTSC color
 // compositing.
-func renderDHiresRowWithSlidingWindow(dots [560]bool, ypos uint) {
+func renderRowWithSlidingWindow(dots [560]bool, ypos uint) {
 	for dot := range 560 {
 		pattern := 0
 
@@ -167,7 +167,7 @@ func renderDHiresRowWithSlidingWindow(dots [560]bool, ypos uint) {
 			}
 		}
 
-		clr := dhiresColors[pattern]
+		clr := colors[pattern]
 
 		_ = gfx.Screen.SetCell(uint(dot), ypos, clr)
 		_ = gfx.Screen.SetCell(uint(dot), ypos+1, clr)

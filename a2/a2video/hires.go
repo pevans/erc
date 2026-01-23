@@ -146,7 +146,7 @@ func fillHiresDots(seg memory.Getter, row uint, dots []HiresDot) error {
 		return fmt.Errorf("dots slice must contain 280 items")
 	}
 
-	addr := hiresAddrs[row]
+	addr := HiresAddrs[row]
 
 	for byteOffset := range 40 {
 		byt := seg.Get(int(addr) + byteOffset)
