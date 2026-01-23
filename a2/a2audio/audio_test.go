@@ -92,8 +92,8 @@ func TestSingleToggle_WaveformChanges(t *testing.T) {
 	source := &mockEventSource{}
 	clock := &mockClockSource{clockRate: 1_000_000}
 
-	// Generate several toggle events to create a sustained waveform
-	// Toggle every 500 cycles for a 1000 Hz square wave
+	// Generate several toggle events to create a sustained waveform Toggle
+	// every 500 cycles for a 1000 Hz square wave
 	for cycle := uint64(0); cycle < 5000; cycle += 500 {
 		source.Push(ToggleEvent{Cycle: cycle, State: (cycle/500)%2 == 0})
 	}
@@ -114,9 +114,9 @@ func TestSingleToggle_WaveformChanges(t *testing.T) {
 		}
 	}
 
-	// With 5000 cycles of events at 22.68 cycles/sample, we cover ~220 samples
-	// But we only read 100 samples, covering ~2268 cycles
-	// At 500 cycles per toggle, that's ~4-5 toggles, so ~4-5 transitions
+	// With 5000 cycles of events at 22.68 cycles/sample, we cover ~220
+	// samples But we only read 100 samples, covering ~2268 cycles At 500
+	// cycles per toggle, that's ~4-5 toggles, so ~4-5 transitions
 	if transitions < 3 {
 		t.Errorf("expected at least 3 transitions, got %d", transitions)
 	}
