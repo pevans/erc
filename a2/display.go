@@ -140,10 +140,8 @@ func displayOnOrOffReadWrite(a int, stm *memory.StateMap) bool {
 		return true
 	case onDHires:
 		metrics.Increment("soft_display_dhires_on", 1)
-		if stm.Bool(a2state.DisplayIou) {
-			stm.SetBool(a2state.DisplayDoubleHigh, true)
-			gfx.Screen = comp.Screen
-		}
+		stm.SetBool(a2state.DisplayDoubleHigh, true)
+		gfx.Screen = comp.Screen
 		stm.SetBool(a2state.DisplayRedraw, true)
 		return true
 	case offPage2:
@@ -168,9 +166,7 @@ func displayOnOrOffReadWrite(a int, stm *memory.StateMap) bool {
 		return true
 	case offDHires:
 		metrics.Increment("soft_display_dhires_off", 1)
-		if stm.Bool(a2state.DisplayIou) {
-			stm.SetBool(a2state.DisplayDoubleHigh, false)
-		}
+		stm.SetBool(a2state.DisplayDoubleHigh, false)
 		stm.SetBool(a2state.DisplayRedraw, true)
 		return true
 	}
@@ -366,14 +362,18 @@ func (c *Computer) Render() {
 		a2video.RenderText(c.displaySnapshot, c.Font40, start, end, monochromeMode)
 
 	case c.State.Bool(a2state.DisplayHires):
-		var (
-			start = 0x2000
-			end   = 0x4000
-		)
-
 		monochromeMode := c.State.Int(a2state.DisplayMonochrome)
 
-		a2video.RenderHires(c.displaySnapshot, start, end, monochromeMode)
+		if c.State.Bool(a2state.DisplayDoubleHigh) && c.State.Bool(a2state.DisplayCol80) {
+			a2video.RenderDHires(c.displaySnapshot, monochromeMode)
+		} else {
+			var (
+				start = 0x2000
+				end   = 0x4000
+			)
+
+			a2video.RenderHires(c.displaySnapshot, start, end, monochromeMode)
+		}
 
 		if c.screenLog != nil && time.Since(c.lastScreenCapture) >= time.Second {
 			elapsed := time.Since(c.BootTime).Seconds()

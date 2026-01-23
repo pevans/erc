@@ -53,16 +53,8 @@ func (s *a2Suite) TestDisplaySwitcherSwitchRead() {
 		onfn(s.comp, a2state.DisplayMixed, onMixed)
 		onfn(s.comp, a2state.DisplayHires, onHires)
 
-		// doubleHigh will only be set true if iou is true
-		s.comp.State.SetBool(a2state.DisplayIou, true)
+		// doubleHigh is set regardless of IOUDIS state
 		onfn(s.comp, a2state.DisplayDoubleHigh, onDHires)
-
-		// But it would be nice to demonstrate the inverse, that we won't set
-		// it true
-		s.comp.State.SetBool(a2state.DisplayIou, false)
-		s.comp.State.SetBool(a2state.DisplayDoubleHigh, false)
-		displaySwitchRead(onDHires, s.comp.State)
-		s.False(s.comp.State.Bool(a2state.DisplayDoubleHigh))
 	})
 
 	s.Run("reads turn stuff off", func() {
@@ -77,14 +69,8 @@ func (s *a2Suite) TestDisplaySwitcherSwitchRead() {
 		offfn(s.comp, a2state.DisplayMixed, offMixed)
 		offfn(s.comp, a2state.DisplayHires, offHires)
 
-		// Same as for the on-switches, this will only turn off if iou is true
-		s.comp.State.SetBool(a2state.DisplayIou, true)
+		// doubleHigh is cleared regardless of IOUDIS state
 		offfn(s.comp, a2state.DisplayDoubleHigh, offDHires)
-
-		s.comp.State.SetBool(a2state.DisplayIou, false)
-		s.comp.State.SetBool(a2state.DisplayDoubleHigh, true)
-		displaySwitchRead(offDHires, s.comp.State)
-		s.True(s.comp.State.Bool(a2state.DisplayDoubleHigh))
 	})
 }
 
@@ -105,16 +91,8 @@ func (s *a2Suite) TestDisplaySwitcherSwitchWrite() {
 		on(s.comp, a2state.DisplayStore80, on80Store)
 		on(s.comp, a2state.DisplayIou, onIOUDis)
 
-		// doubleHigh will only be set true if iou is true
-		s.comp.State.SetBool(a2state.DisplayIou, true)
+		// doubleHigh is set regardless of IOUDIS state
 		on(s.comp, a2state.DisplayDoubleHigh, onDHires)
-
-		// But it would be nice to demonstrate the inverse, that we won't set
-		// it true
-		s.comp.State.SetBool(a2state.DisplayIou, false)
-		s.comp.State.SetBool(a2state.DisplayDoubleHigh, false)
-		displaySwitchWrite(onDHires, 0x0, s.comp.State)
-		s.False(s.comp.State.Bool(a2state.DisplayDoubleHigh))
 	})
 
 	s.Run("writes turn stuff off", func() {
@@ -133,16 +111,8 @@ func (s *a2Suite) TestDisplaySwitcherSwitchWrite() {
 		off(s.comp, a2state.DisplayStore80, off80Store)
 		off(s.comp, a2state.DisplayIou, offIOUDis)
 
-		// doubleHigh will only be set true if iou is true
-		s.comp.State.SetBool(a2state.DisplayIou, true)
+		// doubleHigh is cleared regardless of IOUDIS state
 		off(s.comp, a2state.DisplayDoubleHigh, offDHires)
-
-		// But it would be nice to demonstrate the inverse, that we won't set
-		// it true
-		s.comp.State.SetBool(a2state.DisplayIou, false)
-		s.comp.State.SetBool(a2state.DisplayDoubleHigh, true)
-		displaySwitchWrite(offDHires, 0x0, s.comp.State)
-		s.True(s.comp.State.Bool(a2state.DisplayDoubleHigh))
 	})
 }
 

@@ -12,8 +12,15 @@ type DisplaySnapshot struct {
 	// text/lores region: 0x400-0x800
 	textLores [0x400]byte
 
-	// hires region: 0x2000-0x4000
+	// hires region: 0x2000-0x4000 (page-aware for regular hires)
 	hires [0x2000]byte
+
+	// hiresMain region: 0x2000-0x4000 (always main memory for double hi-res)
+	hiresMain [0x2000]byte
+
+	// hiresAux region: 0x2000-0x4000 (always auxiliary memory for double
+	// hi-res)
+	hiresAux [0x2000]byte
 }
 
 // NewDisplaySnapshot creates a new empty display snapshot.
@@ -62,6 +69,13 @@ func (s *DisplaySnapshot) CopyFromState(main, aux *memory.Segment, stm *memory.S
 	for i := range 0x2000 {
 		s.hires[i] = hiresSeg.DirectGet(hiresStart + i)
 	}
+
+	// Always capture main and aux hi-res at $2000-$3FFF for double hi-res.
+	// That mode doesn't use page switching -- it always uses both banks.
+	for i := range 0x2000 {
+		s.hiresMain[i] = main.DirectGet(0x2000 + i)
+		s.hiresAux[i] = aux.DirectGet(0x2000 + i)
+	}
 }
 
 // Get returns the byte at the given address from the snapshot.
@@ -83,4 +97,24 @@ func (s *DisplaySnapshot) Get16(addr int) uint16 {
 	hi := uint16(s.Get(addr + 1))
 
 	return (hi << 8) | lo
+}
+
+// GetMain returns the byte at the given address from the main memory
+// snapshot.
+func (s *DisplaySnapshot) GetMain(addr int) uint8 {
+	if addr >= 0x2000 && addr < 0x4000 {
+		return s.hiresMain[addr-0x2000]
+	}
+
+	return 0
+}
+
+// GetAux returns the byte at the given address from the auxiliary memory
+// snapshot.
+func (s *DisplaySnapshot) GetAux(addr int) uint8 {
+	if addr >= 0x2000 && addr < 0x4000 {
+		return s.hiresAux[addr-0x2000]
+	}
+
+	return 0
 }
