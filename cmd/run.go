@@ -29,6 +29,7 @@ var (
 	writeProtectFlag bool
 	shaderFlag       string
 	monochromeFlag   string
+	volumeOffFlag    bool
 )
 
 var runCmd = &cobra.Command{
@@ -52,6 +53,7 @@ func init() {
 	runCmd.Flags().BoolVar(&writeProtectFlag, "write-protect", false, "Whether to write-protect the image")
 	runCmd.Flags().StringVar(&shaderFlag, "shader", "softcrt", "Shader to apply (none, softcrt, curvedcrt, hardcrt)")
 	runCmd.Flags().StringVar(&monochromeFlag, "monochrome", "", "Render in monochrome (green or amber)")
+	runCmd.Flags().BoolVar(&volumeOffFlag, "volume-off", false, "Start with audio muted")
 }
 
 func runEmulator(images []string) {
@@ -86,6 +88,10 @@ func runEmulator(images []string) {
 
 	// Build the computer and screen objects
 	comp := a2.NewComputer(speedFlag)
+
+	if volumeOffFlag {
+		comp.SetMuted(true)
+	}
 
 	if debugMCPFlag {
 		if err := comp.StartMCPServer(); err != nil {

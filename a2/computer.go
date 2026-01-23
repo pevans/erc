@@ -8,8 +8,8 @@ import (
 	"github.com/pevans/erc/a2/a2drive"
 	"github.com/pevans/erc/a2/a2font"
 	"github.com/pevans/erc/a2/a2state"
-	"github.com/pevans/erc/elog"
 	"github.com/pevans/erc/clock"
+	"github.com/pevans/erc/elog"
 	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/memory"
 	"github.com/pevans/erc/mos"
@@ -371,6 +371,25 @@ func (c *Computer) SetAudioStream(stream AudioStream) {
 	c.audioStream = stream
 	// Initialize with default volume (50%)
 	c.volumeLevel = 50
+
+	// Apply muted state if it was set before the stream was available
+	if c.volumeMuted {
+		stream.SetVolume(0.0)
+	}
+}
+
+// SetMuted sets the muted state. Can be called before or after the audio
+// stream is configured.
+func (c *Computer) SetMuted(muted bool) {
+	c.volumeMuted = muted
+
+	if c.audioStream != nil {
+		if muted {
+			c.audioStream.SetVolume(0.0)
+		} else {
+			c.audioStream.SetVolume(float32(c.volumeLevel) / 100.0)
+		}
+	}
 }
 
 // StateMap returns the computer's available state map.
