@@ -29,7 +29,7 @@ func runMCPBridge() {
 		fmt.Fprintf(os.Stderr, "could not connect to erc: %v\n", err)
 		os.Exit(1)
 	}
-	defer conn.Close()
+	defer conn.Close() //nolint:errcheck
 
 	done := make(chan struct{})
 
@@ -46,12 +46,18 @@ func runMCPBridge() {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		line := scanner.Text()
-		fmt.Fprintln(conn, line)
+
+		_, err = fmt.Fprintln(conn, line)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "could not write to connection: %v\n", err)
+			os.Exit(1)
+		}
 	}
 
 	// Close write side so server knows we're done
 	if tcpConn, ok := conn.(*net.TCPConn); ok {
-		tcpConn.CloseWrite()
+		// we're ok with ignoring an error here
+		_ = tcpConn.CloseWrite()
 	}
 
 	<-done

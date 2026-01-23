@@ -38,7 +38,7 @@ func (c *Computer) StartMCPServer() error {
 // we can't understand it, we'll return an error to the requester. Otherwise,
 // we'll run a request handler.
 func (c *Computer) handleMCPConnection(conn net.Conn) {
-	defer conn.Close()
+	defer conn.Close() //nolint:errcheck
 
 	decoder := json.NewDecoder(conn)
 	encoder := json.NewEncoder(conn)
