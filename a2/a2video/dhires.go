@@ -115,9 +115,7 @@ func renderDHiresRowMono(seg DHiresGetter, row uint, addr int, monochromeMode in
 	}
 }
 
-// renderDHiresRowColor renders a row in color mode (140 color pixels). Double
-// hi-res has 560 dots (80 screen columns; 7 bits each). These form 140 color
-// units (columns?) where each color is determined by 4 consecutive dots.
+// renderDHiresRowColor renders a row in color mode.
 func renderDHiresRowColor(seg DHiresGetter, row uint, addr int) {
 	ypos := row * 2
 
@@ -129,7 +127,7 @@ func renderDHiresRowColor(seg DHiresGetter, row uint, addr int) {
 		auxByte := seg.GetAux(byteAddr)
 		mainByte := seg.GetMain(byteAddr)
 
-		// Aux byte goes to even screen column, main to odd Screen columns:
+		// Aux byte goes to even screen column, main to odd screen columns:
 		// aux[0], main[0], aux[1], main[1], ...
 		auxScreenCol := memOffset * 2
 		mainScreenCol := memOffset*2 + 1
@@ -147,33 +145,31 @@ func renderDHiresRowColor(seg DHiresGetter, row uint, addr int) {
 		}
 	}
 
-	// Use the bit patterns that we see to determine the colors to render.
-	// This is a really straightforward approach; the result is a literal
-	// representation of the dot data we have, but doesn't match what an NTSC
-	// monitor would show.
-	var colors [140]int
+	renderDHiresRowWithSlidingWindow(dots, ypos)
+}
 
-	for colorPixel := range 140 {
-		baseX := colorPixel * 4
-		colorVal := 0
+// renderDHiresRowWithSlidingWindow renders using a per-dot sliding window.
+// Each of the 560 dots gets its own color based on a 4-dot window starting at
+// that position. The result should be something that resembles NTSC color
+// compositing.
+func renderDHiresRowWithSlidingWindow(dots [560]bool, ypos uint) {
+	for dot := range 560 {
+		pattern := 0
 
-		for phase := range 4 {
-			if dots[baseX+phase] {
-				colorVal |= (1 << (3 - phase))
+		// Look at 4 dots starting at this position. Map each dot to its bit
+		// position based on its phase in the color cycle
+		for i := range 4 {
+			idx := dot + i
+			if idx < 560 && dots[idx] {
+				// Phase 0 is bit 3, phase 1 is bit 2, etc.
+				phase := idx % 4
+				pattern |= (1 << (3 - phase))
 			}
 		}
 
-		colors[colorPixel] = colorVal
-	}
+		clr := dhiresColors[pattern]
 
-	// Actually draw the colors
-	for colorPixel := range 140 {
-		clr := dhiresColors[colors[colorPixel]]
-		xpos := uint(colorPixel) * 4
-
-		for dx := range uint(4) {
-			_ = gfx.Screen.SetCell(xpos+dx, ypos, clr)
-			_ = gfx.Screen.SetCell(xpos+dx, ypos+1, clr)
-		}
+		_ = gfx.Screen.SetCell(uint(dot), ypos, clr)
+		_ = gfx.Screen.SetCell(uint(dot), ypos+1, clr)
 	}
 }
