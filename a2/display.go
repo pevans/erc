@@ -7,7 +7,7 @@ import (
 	"github.com/pevans/erc/a2/a2hires"
 	"github.com/pevans/erc/a2/a2lores"
 	"github.com/pevans/erc/a2/a2state"
-	"github.com/pevans/erc/a2/a2video"
+	"github.com/pevans/erc/a2/a2text"
 	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/memory"
@@ -362,7 +362,7 @@ func (c *Computer) Render() {
 
 		monochromeMode := c.State.Int(a2state.DisplayMonochrome)
 
-		a2video.RenderText(c.displaySnapshot, c.Font40, start, end, monochromeMode)
+		a2text.Render(c.displaySnapshot, c.Font40, start, end, monochromeMode)
 
 	case c.State.Bool(a2state.DisplayHires):
 		monochromeMode := c.State.Int(a2state.DisplayMonochrome)

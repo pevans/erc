@@ -1,4 +1,4 @@
-package a2video
+package a2text
 
 import (
 	"image/color"
@@ -28,9 +28,9 @@ func recolorGlyph(glyph *gfx.FrameBuffer, monochromeColor color.RGBA) *gfx.Frame
 	return recolored
 }
 
-// RenderText will draw text in the framebuffer starting from a specific
-// memory range, and ending at a specific memory range.
-func RenderText(seg memory.Getter, font *gfx.Font, start, end int, monochromeMode int) {
+// Render will draw text in the framebuffer starting from a specific memory
+// range, and ending at a specific memory range.
+func Render(seg memory.Getter, font *gfx.Font, start, end int, monochromeMode int) {
 	var monochromeColor color.RGBA
 	useMonochrome := false
 
@@ -45,8 +45,8 @@ func RenderText(seg memory.Getter, font *gfx.Font, start, end int, monochromeMod
 
 	for addr := start; addr < end; addr++ {
 		// Try to figure out where the text should be displayed
-		row := textAddressRows[addr-start]
-		col := textAddressCols[addr-start]
+		row := addressRows[addr-start]
+		col := addressCols[addr-start]
 
 		// This address does not contain displayable data, and should be
 		// skipped.
