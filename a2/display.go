@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/pevans/erc/a2/a2dhires"
+	"github.com/pevans/erc/a2/a2hires"
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/a2/a2video"
 	"github.com/pevans/erc/gfx"
@@ -373,7 +374,7 @@ func (c *Computer) Render() {
 				end   = 0x4000
 			)
 
-			a2video.RenderHires(c.displaySnapshot, start, end, monochromeMode)
+			a2hires.Render(c.displaySnapshot, start, end, monochromeMode)
 		}
 
 		if c.screenLog != nil && time.Since(c.lastScreenCapture) >= time.Second {
