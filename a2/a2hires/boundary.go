@@ -1,10 +1,6 @@
 package a2hires
 
-import (
-	"image/color"
-
-	"github.com/pevans/erc/a2/a2video"
-)
+import "image/color"
 
 // boundaryShiftColorMap are the likely shifts that may happen on dots that
 // exist on byte boundaries.
@@ -34,7 +30,7 @@ func shiftBoundaryDots(left, right Dot) (Dot, Dot) {
 		// There's some curious logic here, and I have low confidence that
 		// this is right in all cases. Only a single dot shifts, and only when
 		// there isn't a black dot in the left-hand side.
-		if left.color != a2video.HiresBlack {
+		if left.color != black {
 			right.color = boundaryShiftColorMap[right.color]
 		}
 	}

@@ -3,6 +3,7 @@ package a2dhires
 import (
 	"image/color"
 
+	"github.com/pevans/erc/a2/a2mono"
 	"github.com/pevans/erc/a2/a2video"
 	"github.com/pevans/erc/gfx"
 )
@@ -47,7 +48,7 @@ func Render(seg memoryGetter, monochromeMode int) {
 func renderRow(seg memoryGetter, row uint, monochromeMode int) {
 	addr := int(a2video.HiresAddrs[row])
 
-	if monochromeMode != a2video.MonochromeNone {
+	if monochromeMode != a2mono.None {
 		renderRowMono(seg, row, addr, monochromeMode)
 		return
 	}
@@ -60,9 +61,9 @@ func renderRow(seg memoryGetter, row uint, monochromeMode int) {
 // software on a monochrome monitor, so this is more of a guess as to how it
 // should look.
 func renderRowMono(seg memoryGetter, row uint, addr int, monochromeMode int) {
-	monochromeColor := a2video.HiresMonochromeGreen
-	if monochromeMode == a2video.MonochromeAmber {
-		monochromeColor = a2video.HiresMonochromeAmber
+	monochromeColor := a2mono.Green
+	if monochromeMode == a2mono.AmberScreen {
+		monochromeColor = a2mono.Amber
 	}
 
 	ypos := row * 2
@@ -89,7 +90,7 @@ func renderRowMono(seg memoryGetter, row uint, addr int, monochromeMode int) {
 			if auxByte&(1<<bit) != 0 {
 				clr = monochromeColor
 			} else {
-				clr = a2video.HiresBlack
+				clr = a2mono.Black
 			}
 
 			_ = gfx.Screen.SetCell(xpos, ypos, clr)
@@ -106,7 +107,7 @@ func renderRowMono(seg memoryGetter, row uint, addr int, monochromeMode int) {
 			if mainByte&(1<<bit) != 0 {
 				clr = monochromeColor
 			} else {
-				clr = a2video.HiresBlack
+				clr = a2mono.Black
 			}
 
 			_ = gfx.Screen.SetCell(xpos, ypos, clr)

@@ -3,6 +3,7 @@ package a2video
 import (
 	"image/color"
 
+	"github.com/pevans/erc/a2/a2mono"
 	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/memory"
 )
@@ -34,11 +35,11 @@ func RenderText(seg memory.Getter, font *gfx.Font, start, end int, monochromeMod
 	useMonochrome := false
 
 	switch monochromeMode {
-	case MonochromeGreen:
-		monochromeColor = HiresMonochromeGreen
+	case a2mono.GreenScreen:
+		monochromeColor = a2mono.Green
 		useMonochrome = true
-	case MonochromeAmber:
-		monochromeColor = HiresMonochromeAmber
+	case a2mono.AmberScreen:
+		monochromeColor = a2mono.Amber
 		useMonochrome = true
 	}
 

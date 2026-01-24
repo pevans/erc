@@ -3,6 +3,7 @@ package a2video
 import (
 	"image/color"
 
+	"github.com/pevans/erc/a2/a2mono"
 	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/memory"
 )
@@ -70,8 +71,8 @@ var (
 
 func init() {
 	for i := range 16 {
-		loresMonochromeGreenBlocks[i] = newMonochromeLoresBlock(uint8(i), HiresMonochromeGreen)
-		loresMonochromeAmberBlocks[i] = newMonochromeLoresBlock(uint8(i), HiresMonochromeAmber)
+		loresMonochromeGreenBlocks[i] = newMonochromeLoresBlock(uint8(i), a2mono.Green)
+		loresMonochromeAmberBlocks[i] = newMonochromeLoresBlock(uint8(i), a2mono.Amber)
 	}
 }
 
@@ -140,9 +141,9 @@ func LoresBlock(bitPattern uint8, monochromeMode int) *gfx.FrameBuffer {
 	index := bitPattern & 0xf
 
 	switch monochromeMode {
-	case MonochromeGreen:
+	case a2mono.GreenScreen:
 		return loresMonochromeGreenBlocks[index]
-	case MonochromeAmber:
+	case a2mono.AmberScreen:
 		return loresMonochromeAmberBlocks[index]
 	default:
 		return loresColors[index]

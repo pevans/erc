@@ -10,8 +10,8 @@ import (
 
 	"github.com/peterh/liner"
 	"github.com/pevans/erc/a2"
+	"github.com/pevans/erc/a2/a2mono"
 	"github.com/pevans/erc/a2/a2state"
-	"github.com/pevans/erc/a2/a2video"
 	"github.com/pevans/erc/debug"
 	"github.com/pevans/erc/input"
 	"github.com/pevans/erc/render"
@@ -62,14 +62,14 @@ func runEmulator(images []string) {
 	}
 
 	// Parse monochrome flag
-	monochromeMode := a2video.MonochromeNone
+	monochromeMode := a2mono.None
 	switch monochromeFlag {
 	case "green":
-		monochromeMode = a2video.MonochromeGreen
+		monochromeMode = a2mono.GreenScreen
 	case "amber":
-		monochromeMode = a2video.MonochromeAmber
+		monochromeMode = a2mono.AmberScreen
 	case "":
-		monochromeMode = a2video.MonochromeNone
+		monochromeMode = a2mono.None
 	default:
 		fail("monochrome flag must be either 'green' or 'amber'")
 	}

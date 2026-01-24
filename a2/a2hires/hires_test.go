@@ -5,7 +5,7 @@ import (
 
 	"github.com/pevans/erc/a2"
 	"github.com/pevans/erc/a2/a2hires"
-	"github.com/pevans/erc/a2/a2video"
+	"github.com/pevans/erc/a2/a2mono"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,10 +17,10 @@ func TestPrepareRow(t *testing.T) {
 	emptyDots := []a2hires.Dot{}
 
 	t.Run("an insufficient length row of dots will error", func(t *testing.T) {
-		assert.Error(t, a2hires.PrepareRow(c, 0, emptyDots, a2video.MonochromeNone))
+		assert.Error(t, a2hires.PrepareRow(c, 0, emptyDots, a2mono.None))
 	})
 
 	t.Run("a sufficient length row of dots will work", func(t *testing.T) {
-		assert.NoError(t, a2hires.PrepareRow(c, 0, dots, a2video.MonochromeNone))
+		assert.NoError(t, a2hires.PrepareRow(c, 0, dots, a2mono.None))
 	})
 }

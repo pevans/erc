@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/color"
 
+	"github.com/pevans/erc/a2/a2mono"
 	"github.com/pevans/erc/a2/a2video"
 	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/memory"
@@ -25,6 +26,8 @@ type Dot struct {
 }
 
 var (
+	black       = color.RGBA{R: 0x00, G: 0x00, B: 0x00, A: 0xff}
+	white       = color.RGBA{R: 0xff, G: 0xff, B: 0xff, A: 0xff}
 	green       = color.RGBA{R: 0x2f, G: 0xbc, B: 0x1a, A: 0xff}
 	purple      = color.RGBA{R: 0xd0, G: 0x43, B: 0xe5, A: 0xff}
 	blue        = color.RGBA{R: 0x2f, G: 0x95, B: 0xe5, A: 0xff}
@@ -75,17 +78,17 @@ func PrepareRow(seg memory.Getter, row uint, dots []Dot, monochromeMode int) err
 		return err
 	}
 
-	if monochromeMode != a2video.MonochromeNone {
-		monochromeColor := a2video.HiresMonochromeGreen
-		if monochromeMode == a2video.MonochromeAmber {
-			monochromeColor = a2video.HiresMonochromeAmber
+	if monochromeMode != a2mono.None {
+		monochromeColor := a2mono.Green
+		if monochromeMode == a2mono.AmberScreen {
+			monochromeColor = a2mono.Amber
 		}
 
 		for i := range dots {
 			if dots[i].on {
 				dots[i].color = monochromeColor
 			} else {
-				dots[i].color = a2video.HiresBlack
+				dots[i].color = a2mono.Black
 			}
 		}
 
@@ -107,7 +110,7 @@ func PrepareRow(seg memory.Getter, row uint, dots []Dot, monochromeMode int) err
 
 		switch {
 		case thisOn && prevOn:
-			dots[i].color = a2video.HiresWhite
+			dots[i].color = white
 
 		case thisOn && !prevOn:
 			dots[i].color = colors[colorIndex]
@@ -119,7 +122,7 @@ func PrepareRow(seg memory.Getter, row uint, dots []Dot, monochromeMode int) err
 			dots[i].color = colors[colorIndex^1]
 
 		default:
-			dots[i].color = a2video.HiresBlack
+			dots[i].color = black
 		}
 
 		if i > 0 && dots[i-1].boundary {
