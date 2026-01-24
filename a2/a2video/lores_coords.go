@@ -1,7 +1,7 @@
 package a2video
 
-// Map of address offsets to visible rows
-var loresAddressRows = []int{
+// LoresAddressRows maps address offsets to visible rows
+var LoresAddressRows = []int{
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // $400
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // $410
 	0, 0, 0, 0, 0, 0, 0, 0, 16, 16, 16, 16, 16, 16, 16, 16, // $420
@@ -68,8 +68,8 @@ var loresAddressRows = []int{
 	46, 46, 46, 46, 46, 46, 46, 46, -1, -1, -1, -1, -1, -1, -1, -1, // $7F0
 }
 
-// Map of address offsets to visible columns
-var loresAddressCols = []int{
+// LoresAddressCols maps address offsets to visible columns
+var LoresAddressCols = []int{
 	0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, // $400
 	16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, // $410
 	32, 33, 34, 35, 36, 37, 38, 39, 0, 1, 2, 3, 4, 5, 6, 7, // $420

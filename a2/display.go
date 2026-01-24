@@ -5,6 +5,7 @@ import (
 
 	"github.com/pevans/erc/a2/a2dhires"
 	"github.com/pevans/erc/a2/a2hires"
+	"github.com/pevans/erc/a2/a2lores"
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/a2/a2video"
 	"github.com/pevans/erc/gfx"
@@ -391,7 +392,7 @@ func (c *Computer) Render() {
 
 		monochromeMode := c.State.Int(a2state.DisplayMonochrome)
 
-		a2video.RenderLores(c.displaySnapshot, start, end, monochromeMode)
+		a2lores.Render(c.displaySnapshot, start, end, monochromeMode)
 	}
 
 	c.State.SetBool(a2state.DisplayRedraw, false)
