@@ -5,7 +5,6 @@ import (
 	"image/color"
 
 	"github.com/pevans/erc/a2/a2mono"
-	"github.com/pevans/erc/a2/a2video"
 	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/memory"
 )
@@ -140,10 +139,10 @@ func fillDots(seg memory.Getter, row uint, dots []Dot) error {
 		return fmt.Errorf("dots slice must contain 280 items")
 	}
 
-	addr := a2video.HiresAddrs[row]
+	addr := rowAddresses[row]
 
 	for byteOffset := range 40 {
-		byt := seg.Get(int(addr) + byteOffset)
+		byt := seg.Get(addr + byteOffset)
 		pal := palettePurpleGreen
 
 		// The high bit tells us which palette to use; if it's 1, we switch to

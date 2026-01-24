@@ -4,7 +4,6 @@ import (
 	"image/color"
 
 	"github.com/pevans/erc/a2/a2mono"
-	"github.com/pevans/erc/a2/a2video"
 	"github.com/pevans/erc/gfx"
 )
 
@@ -46,7 +45,7 @@ func Render(seg memoryGetter, monochromeMode int) {
 
 // renderRow renders a single row of double hi-res graphics.
 func renderRow(seg memoryGetter, row uint, monochromeMode int) {
-	addr := int(a2video.HiresAddrs[row])
+	addr := rowAddresses[row]
 
 	if monochromeMode != a2mono.None {
 		renderRowMono(seg, row, addr, monochromeMode)

@@ -1,8 +1,8 @@
-package a2video
+package a2dhires
 
-// HiresAddrs are a set of base addresses which are the starts of rows in a
+// rowAddresses are a set of base addresses which are the starts of rows in a
 // hires graphical context.
-var HiresAddrs = []uint16{
+var rowAddresses = []int{
 	0x2000, 0x2400, 0x2800, 0x2C00, 0x3000, 0x3400, 0x3800, 0x3C00, // 0-7
 	0x2080, 0x2480, 0x2880, 0x2C80, 0x3080, 0x3480, 0x3880, 0x3C80, // 8-15
 	0x2100, 0x2500, 0x2900, 0x2D00, 0x3100, 0x3500, 0x3900, 0x3D00, // 16-23
