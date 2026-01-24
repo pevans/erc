@@ -4,7 +4,6 @@ import (
 	"image/color"
 
 	"github.com/pevans/erc/a2/a2mono"
-	"github.com/pevans/erc/a2/a2video"
 	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/memory"
 )
@@ -148,8 +147,8 @@ func Block(bitPattern uint8, monochromeMode int) *gfx.FrameBuffer {
 // page) and writes that to the Screen framebuffer.
 func Render(seg memory.Getter, start, end int, monochromeMode int) {
 	for addr := start; addr < end; addr++ {
-		row := a2video.LoresAddressRows[addr-start]
-		col := a2video.LoresAddressCols[addr-start]
+		row := addressRows[addr-start]
+		col := addressCols[addr-start]
 
 		if row < 0 || col < 0 {
 			continue
