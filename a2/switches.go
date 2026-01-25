@@ -3,6 +3,7 @@ package a2
 import (
 	"github.com/pevans/erc/a2/a2bank"
 	"github.com/pevans/erc/a2/a2display"
+	"github.com/pevans/erc/a2/a2peripheral"
 )
 
 // A Switcher is a type which provides a way to handle soft switch reads and
@@ -21,7 +22,7 @@ func (c *Computer) MapSoftSwitches() {
 	// Note that there are other peripheral slots beginning with $C090, all
 	// the way until $C100. We just don't emulate them right now.
 	c.MapRange(0xC0E0, 0xC100, diskRead, diskWrite)
-	c.MapRange(0xC100, 0xD000, PCRead, PCWrite)
+	c.MapRange(0xC100, 0xD000, a2peripheral.Read, a2peripheral.Write)
 	c.MapRange(0xD000, 0x10000, a2bank.DFRead, a2bank.DFWrite)
 
 	for _, a := range kbReadSwitches() {
@@ -48,12 +49,12 @@ func (c *Computer) MapSoftSwitches() {
 		c.smap.SetWrite(a, a2bank.SwitchWrite)
 	}
 
-	for _, a := range pcReadSwitches() {
-		c.smap.SetRead(a, pcSwitchRead)
+	for _, a := range a2peripheral.ReadSwitches() {
+		c.smap.SetRead(a, a2peripheral.SwitchRead)
 	}
 
-	for _, a := range pcWriteSwitches() {
-		c.smap.SetWrite(a, pcSwitchWrite)
+	for _, a := range a2peripheral.WriteSwitches() {
+		c.smap.SetWrite(a, a2peripheral.SwitchWrite)
 	}
 
 	for _, a := range a2display.ReadSwitches() {

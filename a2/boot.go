@@ -5,6 +5,7 @@ import (
 
 	"github.com/pevans/erc/a2/a2bank"
 	"github.com/pevans/erc/a2/a2display"
+	"github.com/pevans/erc/a2/a2peripheral"
 	"github.com/pevans/erc/mos"
 	"github.com/pevans/erc/obj"
 )
@@ -62,9 +63,9 @@ func (c *Computer) Reset() {
 	// Set our initial memory mode
 	a2bank.UseDefaults(c.State, c.Main, c.ROM)
 	a2display.UseDefaults(c.State, c.Aux)
+	a2peripheral.UseDefaults(c.State, c.ROM)
 	kbUseDefaults(c)
 	memUseDefaults(c)
-	pcUseDefaults(c)
 	diskUseDefaults(c)
 	speakerUseDefaults(c)
 
