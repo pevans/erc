@@ -10,7 +10,7 @@ func (s *a2Suite) TestComputerLoad() {
 
 	// If we run Load again without calling RemoveDisk, it'll try and save
 	// "something.dsk"
-	s.comp.SelectedDrive.RemoveDisk()
+	s.comp.SelectedDrive().RemoveDisk()
 
 	s.Error(s.comp.Load(nil, "bad"))
 }

@@ -48,7 +48,7 @@ type Computer struct {
 	instDiffMap         *elog.InstructionMap
 	instDiffMapFileName string
 
-	ClockEmulator *clock.Emulator
+	clockEmulator *clock.Emulator
 
 	stateSlot int // the slot where we'll save/load state
 
@@ -74,8 +74,8 @@ type Computer struct {
 	// consistent rendering
 	displaySnapshot *a2display.Snapshot
 
-	// Speaker holds toggle events for audio generation
-	Speaker *SpeakerBuffer
+	// speaker holds toggle events for audio generation
+	speaker *SpeakerBuffer
 
 	// audioStream is the audio stream that converts speaker toggles to audio
 	// samples
@@ -90,9 +90,9 @@ type Computer struct {
 	// when we press a key, we don't want one press to clobber another
 	keyPressMutex sync.Mutex
 
-	Drive1        *a2drive.Drive
-	Drive2        *a2drive.Drive
-	SelectedDrive *a2drive.Drive
+	drive1        *a2drive.Drive
+	drive2        *a2drive.Drive
+	selectedDrive *a2drive.Drive
 
 	// diskLogFileName is the name we'll use to write the diskLog
 	diskLogFileName string
@@ -202,9 +202,9 @@ func NewComputer(speed int) *Computer {
 	comp.Main.UseSoftMap(comp.smap)
 	comp.ROM.UseSoftMap(comp.smap)
 
-	comp.Drive1 = a2drive.NewDrive()
-	comp.Drive2 = a2drive.NewDrive()
-	comp.SelectedDrive = comp.Drive1
+	comp.drive1 = a2drive.NewDrive()
+	comp.drive2 = a2drive.NewDrive()
+	comp.selectedDrive = comp.drive1
 
 	comp.Disks = NewDiskSet()
 
@@ -218,7 +218,7 @@ func NewComputer(speed int) *Computer {
 	// run. I've found that if I use 1.023 MHz, the Apple IIe speed, things
 	// feel much slower than I'd expect. In practice, something approximately
 	// double that number feels more right.
-	comp.ClockEmulator = clock.NewEmulator(appleMhz)
+	comp.clockEmulator = clock.NewEmulator(appleMhz)
 	comp.SetSpeed(speed)
 
 	comp.Font40 = a2font.SystemFont40()
@@ -231,7 +231,7 @@ func NewComputer(speed int) *Computer {
 
 	// Speaker buffer for audio generation - size should hold enough events to
 	// cover a few frames of audio at typical toggle rates
-	comp.Speaker = NewSpeakerBuffer(speakerBufferSize)
+	comp.speaker = NewSpeakerBuffer(speakerBufferSize)
 
 	return comp
 }
@@ -257,7 +257,7 @@ func (c *Computer) NeedsRender() bool {
 func (c *Computer) SetSpeed(n int) {
 	c.ShowText(fmt.Sprintf("speed: %v", n))
 	c.speed = n
-	c.ClockEmulator.ChangeHertz(ClockSpeed(n))
+	c.clockEmulator.ChangeHertz(ClockSpeed(n))
 }
 
 // ShowText flashes a text message on the screen using the gfx package's
@@ -412,7 +412,7 @@ func (c *Computer) CPUClockRate() int64 {
 // IsFullSpeed returns true if the emulator is running at full speed (not
 // emulating clock timing, typically during disk operations).
 func (c *Computer) IsFullSpeed() bool {
-	return c.ClockEmulator.IsFullSpeed()
+	return c.clockEmulator.IsFullSpeed()
 }
 
 // PressKey takes some character and simulates a keyboard press in the
@@ -441,4 +441,58 @@ func (c *Computer) ClearKeys() {
 	defer c.keyPressMutex.Unlock()
 
 	c.State.SetUint8(a2state.KBKeyDown, 0)
+}
+
+// Drive returns the drive with the specified number (1 or 2). Any value other
+// than 1 is treated as 2.
+func (c *Computer) Drive(n int) *a2drive.Drive {
+	if n == 1 {
+		return c.drive1
+	}
+
+	return c.drive2
+}
+
+// SelectedDrive returns the currently selected drive.
+func (c *Computer) SelectedDrive() *a2drive.Drive {
+	return c.selectedDrive
+}
+
+// SelectDrive sets the selected drive to the drive with the specified number
+// (1 or 2). Any value other than 1 is treated as 2.
+func (c *Computer) SelectDrive(n int) {
+	if n == 1 {
+		c.selectedDrive = c.drive1
+	} else {
+		c.selectedDrive = c.drive2
+	}
+}
+
+// ClockEmulator returns the clock emulator.
+func (c *Computer) ClockEmulator() *clock.Emulator {
+	return c.clockEmulator
+}
+
+// Speaker returns the speaker buffer.
+func (c *Computer) Speaker() Speaker {
+	return c.speaker
+}
+
+// LogDiskOp logs a disk operation if disk logging is enabled. This is used for
+// debugging disk operations.
+func (c *Computer) LogDiskOp(op *elog.DiskOp) {
+	if c.diskLog != nil {
+		c.diskLog.Add(op)
+	}
+}
+
+// CPUCurrentInstructionShort returns the short string representation of the
+// current CPU instruction.
+func (c *Computer) CPUCurrentInstructionShort() string {
+	return c.CPU.CurrentInstructionShort()
+}
+
+// StartTime returns the time when the computer was booted or reset.
+func (c *Computer) StartTime() time.Time {
+	return c.BootTime
 }

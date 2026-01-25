@@ -33,10 +33,10 @@ func disk(comp *a2.Computer, tokens []string) {
 // interface to toggle write protection, but it's easy to implement for
 // testing.
 func writeProtect(comp *a2.Computer, _ []string) {
-	comp.SelectedDrive.ToggleWriteProtect()
+	comp.SelectedDrive().ToggleWriteProtect()
 
 	status := "OFF"
-	if comp.SelectedDrive.WriteProtected() {
+	if comp.SelectedDrive().WriteProtected() {
 		status = "ON"
 	}
 

@@ -2,6 +2,7 @@ package a2
 
 import (
 	"github.com/pevans/erc/a2/a2bank"
+	"github.com/pevans/erc/a2/a2disk"
 	"github.com/pevans/erc/a2/a2display"
 	"github.com/pevans/erc/a2/a2kb"
 	"github.com/pevans/erc/a2/a2peripheral"
@@ -20,9 +21,6 @@ func (c *Computer) MapSoftSwitches() {
 	c.MapRange(0x0, 0x200, a2bank.ZPRead, a2bank.ZPWrite)
 	c.MapRange(0x0400, 0x0800, a2display.Read, a2display.Write)
 	c.MapRange(0x2000, 0x4000, a2display.Read, a2display.Write)
-	// Note that there are other peripheral slots beginning with $C090, all
-	// the way until $C100. We just don't emulate them right now.
-	c.MapRange(0xC0E0, 0xC100, diskRead, diskWrite)
 	c.MapRange(0xC100, 0xD000, a2peripheral.Read, a2peripheral.Write)
 	c.MapRange(0xD000, 0x10000, a2bank.DFRead, a2bank.DFWrite)
 
@@ -64,6 +62,14 @@ func (c *Computer) MapSoftSwitches() {
 
 	for _, a := range a2display.WriteSwitches() {
 		c.smap.SetWrite(a, a2display.SwitchWrite)
+	}
+
+	for _, a := range a2disk.ReadSwitches() {
+		c.smap.SetRead(a, a2disk.SwitchRead)
+	}
+
+	for _, a := range a2disk.WriteSwitches() {
+		c.smap.SetWrite(a, a2disk.SwitchWrite)
 	}
 
 	for _, a := range speakerReadSwitches() {

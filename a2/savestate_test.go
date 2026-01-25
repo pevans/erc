@@ -89,7 +89,7 @@ func (s *a2Suite) TestSaveStateSelectedDrive() {
 	filename := filepath.Join(tmpDir, "test.state")
 
 	// Select drive 2
-	s.comp.SelectedDrive = s.comp.Drive2
+	s.comp.selectedDrive = s.comp.drive2
 
 	err := s.comp.SaveState(filename)
 	s.NoError(err)
@@ -98,13 +98,13 @@ func (s *a2Suite) TestSaveStateSelectedDrive() {
 	_ = newComp.Boot()
 
 	// Should default to drive 1
-	s.Equal(newComp.Drive1, newComp.SelectedDrive)
+	s.Equal(newComp.Drive(1), newComp.SelectedDrive())
 
 	err = newComp.LoadState(filename)
 	s.NoError(err)
 
 	// Should be drive 2 after load
-	s.Equal(newComp.Drive2, newComp.SelectedDrive)
+	s.Equal(newComp.Drive(2), newComp.SelectedDrive())
 }
 
 func (s *a2Suite) TestLoadStateFileNotFound() {

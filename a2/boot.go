@@ -4,9 +4,11 @@ import (
 	"time"
 
 	"github.com/pevans/erc/a2/a2bank"
+	"github.com/pevans/erc/a2/a2disk"
 	"github.com/pevans/erc/a2/a2display"
 	"github.com/pevans/erc/a2/a2kb"
 	"github.com/pevans/erc/a2/a2peripheral"
+	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/mos"
 	"github.com/pevans/erc/obj"
 )
@@ -61,13 +63,15 @@ func (c *Computer) Reset() {
 	// page).
 	c.CPU.S = 0xFF
 
+	c.State.SetAny(a2state.Computer, c)
+
 	// Set our initial memory mode
 	a2bank.UseDefaults(c.State, c.Main, c.ROM)
 	a2display.UseDefaults(c.State, c.Aux)
 	a2peripheral.UseDefaults(c.State, c.ROM)
 	a2kb.UseDefaults(c.State)
 	memUseDefaults(c)
-	diskUseDefaults(c)
+	a2disk.UseDefaults(c.State)
 	speakerUseDefaults(c)
 
 	c.BootTime = time.Now()

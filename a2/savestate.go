@@ -45,13 +45,13 @@ func (c *Computer) SaveState(filename string) error {
 		Main:       c.Main.Bytes(),
 		Aux:        c.Aux.Bytes(),
 		StateFlags: *c.snapshotStateFlags(),
-		Drive1:     *c.Drive1.Snapshot(),
-		Drive2:     *c.Drive2.Snapshot(),
+		Drive1:     *c.Drive(1).Snapshot(),
+		Drive2:     *c.Drive(2).Snapshot(),
 		Speed:      c.speed,
 		DiskSet:    *c.Disks.Snapshot(),
 	}
 
-	if c.SelectedDrive == c.Drive1 {
+	if c.SelectedDrive() == c.Drive(1) {
 		state.SelectedDrive = 1
 	} else {
 		state.SelectedDrive = 2
@@ -111,19 +111,19 @@ func (c *Computer) LoadState(filename string) error {
 	c.restoreStateFlags(&state.StateFlags)
 
 	// Restore drives
-	if err := c.Drive1.Restore(&state.Drive1); err != nil {
+	if err := c.Drive(1).Restore(&state.Drive1); err != nil {
 		return fmt.Errorf("could not restore drive 1: %w", err)
 	}
 
-	if err := c.Drive2.Restore(&state.Drive2); err != nil {
+	if err := c.Drive(2).Restore(&state.Drive2); err != nil {
 		return fmt.Errorf("could not restore drive 2: %w", err)
 	}
 
 	// Restore selected drive
 	if state.SelectedDrive == 2 {
-		c.SelectedDrive = c.Drive2
+		c.selectedDrive = c.drive2
 	} else {
-		c.SelectedDrive = c.Drive1
+		c.selectedDrive = c.drive1
 	}
 
 	// Restore disk set

@@ -103,9 +103,9 @@ func Check(ev input.Event, comp *a2.Computer) (bool, error) {
 		return true, nil
 
 	case 'w', 'W':
-		comp.SelectedDrive.ToggleWriteProtect()
+		comp.SelectedDrive().ToggleWriteProtect()
 
-		if comp.SelectedDrive.WriteProtected() {
+		if comp.SelectedDrive().WriteProtected() {
 			gfx.ShowStatus(obj.WriteProtectedPNG())
 		} else {
 			gfx.ShowStatus(obj.WriteablePNG())

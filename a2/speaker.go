@@ -23,6 +23,14 @@ const (
 	speakerToggle int = 0xC030
 )
 
+// Speaker is an interface for accessing speaker-related methods.
+type Speaker interface {
+	Pop() *a2audio.ToggleEvent
+	Peek() *a2audio.ToggleEvent
+	Len() int
+	IsActive() bool
+}
+
 // SpeakerBuffer holds recent speaker toggle events for audio generation. It's
 // designed as a ring buffer.
 type SpeakerBuffer struct {
@@ -151,9 +159,9 @@ func speakerSwitchRead(addr int, stm *memory.StateMap) uint8 {
 	stm.SetBool(a2state.SpeakerState, newState)
 
 	// Push event to the speaker buffer if available
-	if comp.Speaker != nil {
+	if comp.speaker != nil {
 		cycle := comp.CPU.CycleCounter()
-		comp.Speaker.Push(a2audio.ToggleEvent{
+		comp.speaker.Push(a2audio.ToggleEvent{
 			Cycle: cycle,
 			State: newState,
 		})

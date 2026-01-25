@@ -71,11 +71,11 @@ func (c *Computer) Shutdown() error {
 		}
 	}
 
-	if err := c.Drive1.Save(); err != nil {
+	if err := c.Drive(1).Save(); err != nil {
 		return fmt.Errorf("could not save image: %w", err)
 	}
 
-	if err := c.Drive2.Save(); err != nil {
+	if err := c.Drive(2).Save(); err != nil {
 		return fmt.Errorf("could not save image: %w", err)
 	}
 

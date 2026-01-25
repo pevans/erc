@@ -130,7 +130,7 @@ func runEmulator(images []string) {
 	}
 
 	if writeProtectFlag {
-		comp.Drive1.SetWriteProtect(true)
+		comp.Drive(1).SetWriteProtect(true)
 	}
 
 	if err := comp.Boot(); err != nil {
@@ -169,7 +169,7 @@ func runEmulator(images []string) {
 	line := liner.NewLiner()
 	defer line.Close() //nolint:errcheck
 
-	emulator := comp.ClockEmulator
+	emulator := comp.ClockEmulator()
 
 	emulator.SetDebuggerEntry(func() {
 		debug.Prompt(comp, line)

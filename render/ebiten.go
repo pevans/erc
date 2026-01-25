@@ -41,7 +41,7 @@ func DrawLoop(comp *a2.Computer, shaderName string) error {
 
 	// Set up audio
 	audioCtx := audio.NewContext(a2audio.SampleRate)
-	audioStream := a2audio.NewStream(comp.Speaker, comp)
+	audioStream := a2audio.NewStream(comp.Speaker(), comp)
 	audioPlayer, err := audioCtx.NewPlayer(audioStream)
 	if err != nil {
 		slog.Error(fmt.Sprintf("could not create audio player: %v", err))

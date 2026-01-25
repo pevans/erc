@@ -21,11 +21,11 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 		_ = c.diskLog.WriteToFile(c.diskLogFileName)
 	}
 
-	if err := c.SelectedDrive.Save(); err != nil {
+	if err := c.SelectedDrive().Save(); err != nil {
 		return fmt.Errorf("could not save previous image: %w", err)
 	}
 
-	if err := c.SelectedDrive.Load(r, fileName); err != nil {
+	if err := c.SelectedDrive().Load(r, fileName); err != nil {
 		return errors.Wrapf(err, "could not read file: %s", fileName)
 	}
 
@@ -40,7 +40,7 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 		// put this into the state map.
 		c.CPU.InstructionMap = c.InstructionMap
 
-		c.TimeSet = elog.NewTimeset(c.ClockEmulator.TimePerCycle())
+		c.TimeSet = elog.NewTimeset(c.clockEmulator.TimePerCycle())
 		c.TimeSetFileName = fmt.Sprintf("%v.time", fileName)
 
 		c.MetricsFileName = fmt.Sprintf("%v.metrics", fileName)
@@ -60,7 +60,7 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 
 		c.instDiffMapFileName = fmt.Sprintf("%v.diff.asm", fileName)
 
-		return c.SelectedDrive.WriteDataToFile(fmt.Sprintf("%v.physical", fileName))
+		return c.SelectedDrive().WriteDataToFile(fmt.Sprintf("%v.physical", fileName))
 	}
 
 	return nil
