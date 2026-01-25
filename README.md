@@ -31,6 +31,36 @@ run `go build -o erc .`. Either way, you'll be left with an executable named
 `erc`, which you can install in a path you can execute from (like
 `$HOME/bin`).
 
+## Features
+
+Erc can run most Apple II software successfully. It supports:
+
+- Most visual modes, including:
+  - Text mode (40 characters)
+  - Low resolution graphics
+  - High resolution graphics
+  - Double high resolution graphics
+  - Monochrome color graphics in (green and amber)
+- Graphical shaders to simulate the output of a CRT monitor (a soft CRT shader
+  is used by default)
+- DOS 3.3 (.DSK, .DO) and Nibble (.NIB) disk images
+- Basic speaker support
+- Save states: load and save the state of your emulation at any time (up to 10
+  state slots available)
+- Accurate clock cycle emulation: run software at the normal speed of the
+  computer, or run it faster (up to 5x the original clock speed).
+
+Plus, lots of features for folks who want to peek under the hood at what the
+emulation is doing:
+
+- An inline debugger to peek at memory, change state, etc.
+- A large variety of debug files to look at what's being written to disk, the
+  assembly that's been executed, how visuals and audio are produced, and more.
+  Available when running with the `--debug-image` flag.
+- Encode logical disk images to physical images so you can see how those are
+  structured with the `erc encode` command.
+- Look at disk image metadata with the `erc info` command.
+
 ## Running
 
 To run Erc, you need to issue a command like `erc run <somefile>`, where
@@ -47,6 +77,14 @@ erc run disk1.dsk disk2.dsk disk3.dsk
 
 This will load with `disk1.dsk` first. You can use a shortcut to swap disk1
 for disk2; disk2 for disk3; disk3 for disk1; and so forth.
+
+Erc is designed to run with the set of disk images you tell it when first
+executed. There's no load modal to let you load some other disk image later;
+you can only swap disks from within that set.
+
+(If you're truly adventurous, you can still load a disk from outside the
+initial disk set if you invoke the inline debugger and use its `load`
+command.)
 
 ## Floppy disks and disk images
 
