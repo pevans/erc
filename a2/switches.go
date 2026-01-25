@@ -1,6 +1,7 @@
 package a2
 
 import (
+	"github.com/pevans/erc/a2/a2bank"
 	"github.com/pevans/erc/a2/a2display"
 )
 
@@ -14,14 +15,14 @@ type Switcher interface {
 // MapSoftSwitches will add several mappings for the soft switches that our
 // computer uses.
 func (c *Computer) MapSoftSwitches() {
-	c.MapRange(0x0, 0x200, BankZPRead, BankZPWrite)
+	c.MapRange(0x0, 0x200, a2bank.ZPRead, a2bank.ZPWrite)
 	c.MapRange(0x0400, 0x0800, a2display.Read, a2display.Write)
 	c.MapRange(0x2000, 0x4000, a2display.Read, a2display.Write)
 	// Note that there are other peripheral slots beginning with $C090, all
 	// the way until $C100. We just don't emulate them right now.
 	c.MapRange(0xC0E0, 0xC100, diskRead, diskWrite)
 	c.MapRange(0xC100, 0xD000, PCRead, PCWrite)
-	c.MapRange(0xD000, 0x10000, BankDFRead, BankDFWrite)
+	c.MapRange(0xD000, 0x10000, a2bank.DFRead, a2bank.DFWrite)
 
 	for _, a := range kbReadSwitches() {
 		c.smap.SetRead(a, kbSwitchRead)
@@ -39,12 +40,12 @@ func (c *Computer) MapSoftSwitches() {
 		c.smap.SetWrite(a, memSwitchWrite)
 	}
 
-	for _, a := range bankReadSwitches() {
-		c.smap.SetRead(a, bankSwitchRead)
+	for _, a := range a2bank.ReadSwitches() {
+		c.smap.SetRead(a, a2bank.SwitchRead)
 	}
 
-	for _, a := range bankWriteSwitches() {
-		c.smap.SetWrite(a, bankSwitchWrite)
+	for _, a := range a2bank.WriteSwitches() {
+		c.smap.SetWrite(a, a2bank.SwitchWrite)
 	}
 
 	for _, a := range pcReadSwitches() {
