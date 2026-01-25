@@ -3,6 +3,7 @@ package a2
 import (
 	"github.com/pevans/erc/a2/a2bank"
 	"github.com/pevans/erc/a2/a2display"
+	"github.com/pevans/erc/a2/a2kb"
 	"github.com/pevans/erc/a2/a2peripheral"
 )
 
@@ -25,12 +26,12 @@ func (c *Computer) MapSoftSwitches() {
 	c.MapRange(0xC100, 0xD000, a2peripheral.Read, a2peripheral.Write)
 	c.MapRange(0xD000, 0x10000, a2bank.DFRead, a2bank.DFWrite)
 
-	for _, a := range kbReadSwitches() {
-		c.smap.SetRead(a, kbSwitchRead)
+	for _, a := range a2kb.ReadSwitches() {
+		c.smap.SetRead(a, a2kb.SwitchRead)
 	}
 
-	for _, a := range kbWriteSwitches() {
-		c.smap.SetWrite(a, kbSwitchWrite)
+	for _, a := range a2kb.WriteSwitches() {
+		c.smap.SetWrite(a, a2kb.SwitchWrite)
 	}
 
 	for _, a := range memReadSwitches() {

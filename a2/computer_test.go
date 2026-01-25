@@ -1,5 +1,7 @@
 package a2
 
+import "github.com/pevans/erc/a2/a2state"
+
 // mockAudioStream is a mock implementation of AudioStream for testing.
 type mockAudioStream struct {
 	lastVolume float32
@@ -320,4 +322,27 @@ func (s *a2Suite) TestSetAudioStream() {
 
 	s.Equal(50, comp.volumeLevel, "should initialize to 50%")
 	s.Equal(mock, comp.audioStream)
+}
+
+func (s *a2Suite) TestClearKeys() {
+	s.comp.State.SetUint8(a2state.KBKeyDown, 128)
+	s.comp.ClearKeys()
+	s.Zero(s.comp.State.Uint8(a2state.KBKeyDown))
+}
+
+func (s *a2Suite) TestPressKey() {
+	s.Run("clears the high bit and saves the low bits", func() {
+		s.comp.PressKey(0xff)
+		s.Equal(uint8(0x7f), s.comp.State.Uint8(a2state.KBLastKey))
+	})
+
+	s.Run("sets the strobe", func() {
+		s.comp.PressKey(0)
+		s.Equal(uint8(0x80), s.comp.State.Uint8(a2state.KBStrobe))
+	})
+
+	s.Run("sets key down", func() {
+		s.comp.PressKey(0)
+		s.Equal(uint8(0x80), s.comp.State.Uint8(a2state.KBKeyDown))
+	})
 }
