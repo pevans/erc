@@ -29,8 +29,6 @@ Erc is able to emulate Apple II DOS-order software. It can:
 ## Opportunities
 
 - 80-column text
-- Basic sound support
 - Mockingboard sound support
-- State file support
 - Mouse support
-- Double high and low resolution graphics
+- Double low resolution graphics
