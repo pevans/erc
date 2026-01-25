@@ -5,6 +5,7 @@ import (
 	"github.com/pevans/erc/a2/a2disk"
 	"github.com/pevans/erc/a2/a2display"
 	"github.com/pevans/erc/a2/a2kb"
+	"github.com/pevans/erc/a2/a2memory"
 	"github.com/pevans/erc/a2/a2peripheral"
 	"github.com/pevans/erc/a2/a2speaker"
 )
@@ -33,12 +34,12 @@ func (c *Computer) MapSoftSwitches() {
 		c.smap.SetWrite(a, a2kb.SwitchWrite)
 	}
 
-	for _, a := range memReadSwitches() {
-		c.smap.SetRead(a, memSwitchRead)
+	for _, a := range a2memory.ReadSwitches() {
+		c.smap.SetRead(a, a2memory.SwitchRead)
 	}
 
-	for _, a := range memWriteSwitches() {
-		c.smap.SetWrite(a, memSwitchWrite)
+	for _, a := range a2memory.WriteSwitches() {
+		c.smap.SetWrite(a, a2memory.SwitchWrite)
 	}
 
 	for _, a := range a2bank.ReadSwitches() {

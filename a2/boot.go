@@ -7,6 +7,7 @@ import (
 	"github.com/pevans/erc/a2/a2disk"
 	"github.com/pevans/erc/a2/a2display"
 	"github.com/pevans/erc/a2/a2kb"
+	"github.com/pevans/erc/a2/a2memory"
 	"github.com/pevans/erc/a2/a2peripheral"
 	"github.com/pevans/erc/a2/a2speaker"
 	"github.com/pevans/erc/a2/a2state"
@@ -71,7 +72,7 @@ func (c *Computer) Reset() {
 	a2display.UseDefaults(c.State, c.Aux)
 	a2peripheral.UseDefaults(c.State, c.ROM)
 	a2kb.UseDefaults(c.State)
-	memUseDefaults(c)
+	a2memory.UseDefaults(c.State, c.Main, c.Aux)
 	a2disk.UseDefaults(c.State)
 	a2speaker.UseDefaults(c.State)
 

@@ -2,85 +2,8 @@ package a2
 
 import (
 	"github.com/pevans/erc/a2/a2state"
-	"github.com/pevans/erc/internal/metrics"
 	"github.com/pevans/erc/memory"
 )
-
-const (
-	setMemReadMain  = int(0xC002)
-	setMemReadAux   = int(0xC003)
-	setMemWriteMain = int(0xC004)
-	setMemWriteAux  = int(0xC005)
-	rdMemReadAux    = int(0xC013)
-	rdMemWriteAux   = int(0xC014)
-)
-
-func memReadSwitches() []int {
-	return []int{
-		rdMemReadAux,
-		rdMemWriteAux,
-	}
-}
-
-func memWriteSwitches() []int {
-	return []int{
-		setMemReadMain,
-		setMemWriteMain,
-		setMemReadAux,
-		setMemWriteAux,
-	}
-}
-
-func memUseDefaults(c *Computer) {
-	c.State.SetBool(a2state.MemReadAux, false)
-	c.State.SetBool(a2state.MemWriteAux, false)
-	c.State.SetSegment(a2state.MemReadSegment, c.Main)
-	c.State.SetSegment(a2state.MemWriteSegment, c.Main)
-	c.State.SetSegment(a2state.MemAuxSegment, c.Aux)
-	c.State.SetSegment(a2state.MemMainSegment, c.Main)
-}
-
-func memSwitchRead(addr int, stm *memory.StateMap) uint8 {
-	var (
-		hi uint8 = 0x80
-		lo uint8 = 0x00
-	)
-
-	switch addr {
-	case rdMemReadAux:
-		if stm.Bool(a2state.MemReadAux) {
-			return hi
-		}
-
-	case rdMemWriteAux:
-		if stm.Bool(a2state.MemWriteAux) {
-			return hi
-		}
-	}
-
-	return lo
-}
-
-func memSwitchWrite(addr int, val uint8, stm *memory.StateMap) {
-	switch addr {
-	case setMemReadAux:
-		metrics.Increment("soft_memory_read_aux_on", 1)
-		stm.SetBool(a2state.MemReadAux, true)
-		stm.SetSegment(a2state.MemReadSegment, stm.Segment(a2state.MemAuxSegment))
-	case setMemReadMain:
-		metrics.Increment("soft_memory_read_aux_off", 1)
-		stm.SetBool(a2state.MemReadAux, false)
-		stm.SetSegment(a2state.MemReadSegment, stm.Segment(a2state.MemMainSegment))
-	case setMemWriteAux:
-		metrics.Increment("soft_memory_write_aux_on", 1)
-		stm.SetBool(a2state.MemWriteAux, true)
-		stm.SetSegment(a2state.MemWriteSegment, stm.Segment(a2state.MemAuxSegment))
-	case setMemWriteMain:
-		metrics.Increment("soft_memory_write_aux_off", 1)
-		stm.SetBool(a2state.MemWriteAux, false)
-		stm.SetSegment(a2state.MemWriteSegment, stm.Segment(a2state.MemMainSegment))
-	}
-}
 
 // Get will return the byte at addr, or will execute a read switch if one is
 // present at the given address.
