@@ -159,7 +159,7 @@ func onOrOffReadWrite(addr int, stm *memory.StateMap) bool {
 	case OnDHires:
 		metrics.Increment("soft_display_dhires_on", 1)
 		stm.SetBool(a2state.DisplayDoubleHigh, true)
-		comp := stm.Any(a2state.DiskComputer).(ComputerState)
+		comp := stm.Any(a2state.Computer).(ComputerState)
 		gfx.Screen = comp.GetScreen()
 		stm.SetBool(a2state.DisplayRedraw, true)
 		return true
@@ -204,7 +204,7 @@ func SwitchRead(addr int, stm *memory.StateMap) uint8 {
 		return lo
 	}
 
-	comp := stm.Any(a2state.DiskComputer).(ComputerState)
+	comp := stm.Any(a2state.Computer).(ComputerState)
 
 	switch addr {
 	case RdAltChar:

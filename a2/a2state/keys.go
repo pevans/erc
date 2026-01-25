@@ -15,7 +15,7 @@ const (
 	Debugger
 	DebuggerLookAhead
 	DebugImage
-	DiskComputer
+	Computer
 	DisplayAltChar
 	DisplayAuxSegment
 	DisplayCol80
@@ -60,7 +60,7 @@ var keyStringMap = map[int]string{
 	Debugger:            "Debugger",
 	DebuggerLookAhead:   "DebuggerLookAhead",
 	DebugImage:          "DebugImage",
-	DiskComputer:        "DiskComputer",
+	Computer:            "Computer",
 	DisplayAltChar:      "DisplayAltChar",
 	DisplayAuxSegment:   "DisplayAuxSegment",
 	DisplayCol80:        "DisplayCol80",

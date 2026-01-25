@@ -11,13 +11,13 @@ import (
 )
 
 func diskUseDefaults(c *Computer) {
-	c.State.SetAny(a2state.DiskComputer, c) // :cry:
+	c.State.SetAny(a2state.Computer, c) // :cry:
 }
 
 func diskReadWrite(addr int, val *uint8, stm *memory.StateMap) {
 	var (
 		nib       = uint8(addr & 0xF)
-		c         = stm.Any(a2state.DiskComputer).(*Computer)
+		c         = stm.Any(a2state.Computer).(*Computer)
 		debugging = stm.Bool(a2state.DebuggerLookAhead)
 	)
 

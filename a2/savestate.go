@@ -284,8 +284,8 @@ func (c *Computer) rebuildSegmentReferences() {
 		c.State.SetSegment(a2state.BankSysBlockSegment, c.Main)
 	}
 
-	// Restore DiskComputer reference
-	c.State.SetAny(a2state.DiskComputer, c)
+	// Restore Computer reference
+	c.State.SetAny(a2state.Computer, c)
 }
 
 // Snapshot returns a snapshot of the DiskSet for serialization.

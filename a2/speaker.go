@@ -143,7 +143,7 @@ func speakerSwitchRead(addr int, stm *memory.StateMap) uint8 {
 
 	metrics.Increment("soft_read_speaker_toggle", 1)
 
-	comp := stm.Any(a2state.DiskComputer).(*Computer)
+	comp := stm.Any(a2state.Computer).(*Computer)
 
 	// Toggle the speaker state
 	currentState := stm.Bool(a2state.SpeakerState)

@@ -34,7 +34,7 @@ func (s *displaySuite) SetupTest() {
 
 	// Create and store mock Computer for ComputerState interface
 	mockComp := &mockComputer{screen: gfx.NewFrameBuffer(560, 192)}
-	s.state.SetAny(a2state.DiskComputer, mockComp)
+	s.state.SetAny(a2state.Computer, mockComp)
 }
 
 // mockComputer implements ComputerState interface
