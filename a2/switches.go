@@ -6,6 +6,7 @@ import (
 	"github.com/pevans/erc/a2/a2display"
 	"github.com/pevans/erc/a2/a2kb"
 	"github.com/pevans/erc/a2/a2peripheral"
+	"github.com/pevans/erc/a2/a2speaker"
 )
 
 // A Switcher is a type which provides a way to handle soft switch reads and
@@ -72,7 +73,7 @@ func (c *Computer) MapSoftSwitches() {
 		c.smap.SetWrite(a, a2disk.SwitchWrite)
 	}
 
-	for _, a := range speakerReadSwitches() {
-		c.smap.SetRead(a, speakerSwitchRead)
+	for _, a := range a2speaker.ReadSwitches() {
+		c.smap.SetRead(a, a2speaker.SwitchRead)
 	}
 }

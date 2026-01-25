@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/pevans/erc/a2/a2drive"
+	"github.com/pevans/erc/a2/a2speaker"
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/clock"
 	"github.com/pevans/erc/elog"
@@ -16,23 +17,18 @@ const (
 	diskBase = 0xC0E0
 )
 
-// Computer is an interface for accessing the computer's disk-related state and
-// methods. This allows the disk switches to work with the computer without
-// creating a circular dependency.
+// Computer is an interface for accessing the computer's disk-related state
+// and methods. This allows the disk switches to work with the computer
+// without creating a circular dependency.
 type Computer interface {
 	Drive(n int) *a2drive.Drive
 	SelectedDrive() *a2drive.Drive
 	SelectDrive(n int)
 	ClockEmulator() *clock.Emulator
-	Speaker() Speaker
+	Speaker() a2speaker.Speaker
 	LogDiskOp(op *elog.DiskOp)
 	CPUCurrentInstructionShort() string
 	StartTime() time.Time
-}
-
-// Speaker is an interface for accessing speaker-related methods.
-type Speaker interface {
-	IsActive() bool
 }
 
 // ReadSwitches returns the list of disk switch addresses that support reads.
@@ -44,7 +40,8 @@ func ReadSwitches() []int {
 	return switches
 }
 
-// WriteSwitches returns the list of disk switch addresses that support writes.
+// WriteSwitches returns the list of disk switch addresses that support
+// writes.
 func WriteSwitches() []int {
 	switches := make([]int, 0x10)
 	for i := range 0x10 {
@@ -234,8 +231,8 @@ func SwitchWrite(addr int, val uint8, stm *memory.StateMap) {
 	readWrite(addr, &val, stm)
 }
 
-// UseDefaults sets up the default state for the disk controller.
-// Note: The computer reference is stored in the state map by memUseDefaults.
+// UseDefaults sets up the default state for the disk controller. Note: The
+// computer reference is stored in the state map by memUseDefaults.
 func UseDefaults(_ *memory.StateMap) {
 	// Nothing to initialize for disk controller
 }

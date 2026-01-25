@@ -1,14 +1,20 @@
-package a2
+package a2speaker
 
 import (
 	"sync"
 	"time"
 
 	"github.com/pevans/erc/a2/a2audio"
-	"github.com/pevans/erc/a2/a2state"
-	"github.com/pevans/erc/internal/metrics"
-	"github.com/pevans/erc/memory"
 )
+
+// Speaker is an interface for accessing speaker-related methods.
+type Speaker interface {
+	Push(cycle uint64, state bool)
+	Pop() *a2audio.ToggleEvent
+	Peek() *a2audio.ToggleEvent
+	Len() int
+	IsActive() bool
+}
 
 const (
 	// speakerActivityTimeout is how long after the last speaker toggle we
@@ -18,18 +24,6 @@ const (
 	// Apple II WAIT routine with A=$C0 is ~180ms).
 	speakerActivityTimeout = 300 * time.Millisecond
 )
-
-const (
-	speakerToggle int = 0xC030
-)
-
-// Speaker is an interface for accessing speaker-related methods.
-type Speaker interface {
-	Pop() *a2audio.ToggleEvent
-	Peek() *a2audio.ToggleEvent
-	Len() int
-	IsActive() bool
-}
 
 // SpeakerBuffer holds recent speaker toggle events for audio generation. It's
 // designed as a ring buffer.
@@ -58,11 +52,14 @@ func NewSpeakerBuffer(size int) *SpeakerBuffer {
 }
 
 // Push adds a toggle event to the buffer.
-func (sb *SpeakerBuffer) Push(ev a2audio.ToggleEvent) {
+func (sb *SpeakerBuffer) Push(cycle uint64, state bool) {
 	sb.mu.Lock()
 	defer sb.mu.Unlock()
 
-	sb.events[sb.head] = ev
+	sb.events[sb.head] = a2audio.ToggleEvent{
+		Cycle: cycle,
+		State: state,
+	}
 	sb.head = (sb.head + 1) % sb.size
 	sb.Pushed++
 	sb.lastActivity = time.Now()
@@ -138,39 +135,4 @@ func (sb *SpeakerBuffer) Stats() (pushed, popped, dropped uint64) {
 	sb.mu.Lock()
 	defer sb.mu.Unlock()
 	return sb.Pushed, sb.Popped, sb.Dropped
-}
-
-func speakerReadSwitches() []int {
-	return []int{speakerToggle}
-}
-
-func speakerSwitchRead(addr int, stm *memory.StateMap) uint8 {
-	if addr != speakerToggle {
-		return 0
-	}
-
-	metrics.Increment("soft_read_speaker_toggle", 1)
-
-	comp := stm.Any(a2state.Computer).(*Computer)
-
-	// Toggle the speaker state
-	currentState := stm.Bool(a2state.SpeakerState)
-	newState := !currentState
-	stm.SetBool(a2state.SpeakerState, newState)
-
-	// Push event to the speaker buffer if available
-	if comp.speaker != nil {
-		cycle := comp.CPU.CycleCounter()
-		comp.speaker.Push(a2audio.ToggleEvent{
-			Cycle: cycle,
-			State: newState,
-		})
-	}
-
-	// Return floating bus value (we'll just return 0 for now)
-	return 0
-}
-
-func speakerUseDefaults(c *Computer) {
-	c.State.SetBool(a2state.SpeakerState, false)
 }

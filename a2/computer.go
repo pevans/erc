@@ -8,6 +8,7 @@ import (
 	"github.com/pevans/erc/a2/a2display"
 	"github.com/pevans/erc/a2/a2drive"
 	"github.com/pevans/erc/a2/a2font"
+	"github.com/pevans/erc/a2/a2speaker"
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/clock"
 	"github.com/pevans/erc/elog"
@@ -75,7 +76,7 @@ type Computer struct {
 	displaySnapshot *a2display.Snapshot
 
 	// speaker holds toggle events for audio generation
-	speaker *SpeakerBuffer
+	speaker *a2speaker.SpeakerBuffer
 
 	// audioStream is the audio stream that converts speaker toggles to audio
 	// samples
@@ -231,7 +232,7 @@ func NewComputer(speed int) *Computer {
 
 	// Speaker buffer for audio generation - size should hold enough events to
 	// cover a few frames of audio at typical toggle rates
-	comp.speaker = NewSpeakerBuffer(speakerBufferSize)
+	comp.speaker = a2speaker.NewSpeakerBuffer(speakerBufferSize)
 
 	return comp
 }
@@ -473,13 +474,18 @@ func (c *Computer) ClockEmulator() *clock.Emulator {
 	return c.clockEmulator
 }
 
+// CycleCounter returns the current CPU cycle count.
+func (c *Computer) CycleCounter() uint64 {
+	return c.CPU.CycleCounter()
+}
+
 // Speaker returns the speaker buffer.
-func (c *Computer) Speaker() Speaker {
+func (c *Computer) Speaker() a2speaker.Speaker {
 	return c.speaker
 }
 
-// LogDiskOp logs a disk operation if disk logging is enabled. This is used for
-// debugging disk operations.
+// LogDiskOp logs a disk operation if disk logging is enabled. This is used
+// for debugging disk operations.
 func (c *Computer) LogDiskOp(op *elog.DiskOp) {
 	if c.diskLog != nil {
 		c.diskLog.Add(op)
