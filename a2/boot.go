@@ -3,6 +3,7 @@ package a2
 import (
 	"time"
 
+	"github.com/pevans/erc/a2/a2display"
 	"github.com/pevans/erc/mos"
 	"github.com/pevans/erc/obj"
 )
@@ -59,7 +60,7 @@ func (c *Computer) Reset() {
 
 	// Set our initial memory mode
 	bankUseDefaults(c)
-	displayUseDefaults(c)
+	a2display.UseDefaults(c.State, c.Aux)
 	kbUseDefaults(c)
 	memUseDefaults(c)
 	pcUseDefaults(c)

@@ -1,14 +1,14 @@
-package a2
+package a2display
 
 import (
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/memory"
 )
 
-// DisplaySnapshot holds a point-in-time copy of display memory. This prevents
+// Snapshot holds a point-in-time copy of display memory. This prevents
 // tearing/flickering during rendering by ensuring the render functions see a
 // consistent state even if the CPU modifies display memory mid-render.
-type DisplaySnapshot struct {
+type Snapshot struct {
 	// text/lores region: 0x400-0x800
 	textLores [0x400]byte
 
@@ -23,13 +23,13 @@ type DisplaySnapshot struct {
 	hiresAux [0x2000]byte
 }
 
-// NewDisplaySnapshot creates a new empty display snapshot.
-func NewDisplaySnapshot() *DisplaySnapshot {
-	return &DisplaySnapshot{}
+// NewSnapshot creates a new empty display snapshot.
+func NewSnapshot() *Snapshot {
+	return &Snapshot{}
 }
 
 // CopyFrom copies display memory from the given segment into the snapshot.
-func (s *DisplaySnapshot) CopyFrom(seg *memory.Segment) {
+func (s *Snapshot) CopyFrom(seg *memory.Segment) {
 	for i := range 0x400 {
 		s.textLores[i] = seg.DirectGet(0x400 + i)
 	}
@@ -41,7 +41,7 @@ func (s *DisplaySnapshot) CopyFrom(seg *memory.Segment) {
 
 // CopyFromState copies display memory into the snapshot, respecting the
 // current display page and memory configuration (80STORE, page 1/2, etc).
-func (s *DisplaySnapshot) CopyFromState(main, aux *memory.Segment, stm *memory.StateMap) {
+func (s *Snapshot) CopyFromState(main, aux *memory.Segment, stm *memory.StateMap) {
 	// Determine which segment and address range to use for text/lores
 	textSeg := main
 	if stm.Bool(a2state.DisplayStore80) && stm.Bool(a2state.DisplayPage2) {
@@ -85,7 +85,7 @@ func (s *DisplaySnapshot) CopyFromState(main, aux *memory.Segment, stm *memory.S
 }
 
 // Get returns the byte at the given address from the snapshot.
-func (s *DisplaySnapshot) Get(addr int) uint8 {
+func (s *Snapshot) Get(addr int) uint8 {
 	if addr >= 0x400 && addr < 0x800 {
 		return s.textLores[addr-0x400]
 	}
@@ -98,7 +98,7 @@ func (s *DisplaySnapshot) Get(addr int) uint8 {
 }
 
 // Get16 returns a 16-bit value at the given address from the snapshot.
-func (s *DisplaySnapshot) Get16(addr int) uint16 {
+func (s *Snapshot) Get16(addr int) uint16 {
 	lo := uint16(s.Get(addr))
 	hi := uint16(s.Get(addr + 1))
 
@@ -107,7 +107,7 @@ func (s *DisplaySnapshot) Get16(addr int) uint16 {
 
 // GetMain returns the byte at the given address from the main memory
 // snapshot.
-func (s *DisplaySnapshot) GetMain(addr int) uint8 {
+func (s *Snapshot) GetMain(addr int) uint8 {
 	if addr >= 0x2000 && addr < 0x4000 {
 		return s.hiresMain[addr-0x2000]
 	}
@@ -117,7 +117,7 @@ func (s *DisplaySnapshot) GetMain(addr int) uint8 {
 
 // GetAux returns the byte at the given address from the auxiliary memory
 // snapshot.
-func (s *DisplaySnapshot) GetAux(addr int) uint8 {
+func (s *Snapshot) GetAux(addr int) uint8 {
 	if addr >= 0x2000 && addr < 0x4000 {
 		return s.hiresAux[addr-0x2000]
 	}

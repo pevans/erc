@@ -1,5 +1,9 @@
 package a2
 
+import (
+	"github.com/pevans/erc/a2/a2display"
+)
+
 // A Switcher is a type which provides a way to handle soft switch reads and
 // writes in a relatively generic way.
 type Switcher interface {
@@ -11,8 +15,8 @@ type Switcher interface {
 // computer uses.
 func (c *Computer) MapSoftSwitches() {
 	c.MapRange(0x0, 0x200, BankZPRead, BankZPWrite)
-	c.MapRange(0x0400, 0x0800, DisplayRead, DisplayWrite)
-	c.MapRange(0x2000, 0x4000, DisplayRead, DisplayWrite)
+	c.MapRange(0x0400, 0x0800, a2display.Read, a2display.Write)
+	c.MapRange(0x2000, 0x4000, a2display.Read, a2display.Write)
 	// Note that there are other peripheral slots beginning with $C090, all
 	// the way until $C100. We just don't emulate them right now.
 	c.MapRange(0xC0E0, 0xC100, diskRead, diskWrite)
@@ -51,12 +55,12 @@ func (c *Computer) MapSoftSwitches() {
 		c.smap.SetWrite(a, pcSwitchWrite)
 	}
 
-	for _, a := range displayReadSwitches() {
-		c.smap.SetRead(a, displaySwitchRead)
+	for _, a := range a2display.ReadSwitches() {
+		c.smap.SetRead(a, a2display.SwitchRead)
 	}
 
-	for _, a := range displayWriteSwitches() {
-		c.smap.SetWrite(a, displaySwitchWrite)
+	for _, a := range a2display.WriteSwitches() {
+		c.smap.SetWrite(a, a2display.SwitchWrite)
 	}
 
 	for _, a := range speakerReadSwitches() {

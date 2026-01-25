@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pevans/erc/a2/a2display"
 	"github.com/pevans/erc/a2/a2drive"
 	"github.com/pevans/erc/a2/a2font"
 	"github.com/pevans/erc/a2/a2state"
@@ -71,7 +72,7 @@ type Computer struct {
 
 	// displaySnapshot holds a point-in-time copy of display memory for
 	// consistent rendering
-	displaySnapshot *DisplaySnapshot
+	displaySnapshot *a2display.Snapshot
 
 	// Speaker holds toggle events for audio generation
 	Speaker *SpeakerBuffer
@@ -226,7 +227,7 @@ func NewComputer(speed int) *Computer {
 	comp.Screen = gfx.NewFrameBuffer(screenWidth, screenHeight)
 	gfx.Screen = comp.Screen
 
-	comp.displaySnapshot = NewDisplaySnapshot()
+	comp.displaySnapshot = a2display.NewSnapshot()
 
 	// Speaker buffer for audio generation - size should hold enough events to
 	// cover a few frames of audio at typical toggle rates
@@ -238,6 +239,11 @@ func NewComputer(speed int) *Computer {
 // Dimensions returns the screen dimensions of an Apple II.
 func (c *Computer) Dimensions() (width, height uint) {
 	return screenWidth, screenHeight
+}
+
+// GetScreen returns the framebuffer for this computer.
+func (c *Computer) GetScreen() *gfx.FrameBuffer {
+	return c.Screen
 }
 
 // NeedsRender returns true if we think the screen needs to be redrawn.
