@@ -21,14 +21,15 @@ import (
 )
 
 var (
-	debugImageFlag   bool
-	debugBreakFlag   string
-	profileFlag      bool
-	speedFlag        int
-	writeProtectFlag bool
-	shaderFlag       string
-	monochromeFlag   string
-	volumeOffFlag    bool
+	debugImageFlag      bool
+	debugBreakFlag      string
+	profileFlag         bool
+	speedFlag           int
+	writeProtectFlag    bool
+	shaderFlag          string
+	monochromeFlag      string
+	volumeOffFlag       bool
+	startInDebuggerFlag bool
 )
 
 var runCmd = &cobra.Command{
@@ -52,6 +53,7 @@ func init() {
 	runCmd.Flags().StringVar(&shaderFlag, "shader", "softcrt", "Shader to apply (none, softcrt, curvedcrt, hardcrt)")
 	runCmd.Flags().StringVar(&monochromeFlag, "monochrome", "", "Render in monochrome (green or amber)")
 	runCmd.Flags().BoolVar(&volumeOffFlag, "volume-off", false, "Start with audio muted")
+	runCmd.Flags().BoolVar(&startInDebuggerFlag, "start-in-debugger", false, "Start the emulator in the debugger")
 }
 
 func runEmulator(images []string) {
@@ -127,6 +129,10 @@ func runEmulator(images []string) {
 
 	if err := comp.Boot(); err != nil {
 		fail(fmt.Sprintf("could not boot emulator: %v", err))
+	}
+
+	if startInDebuggerFlag {
+		comp.State.SetBool(a2state.Debugger, true)
 	}
 
 	// Set up keyboard input handler
