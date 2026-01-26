@@ -42,7 +42,7 @@ func DrawLoop(comp *a2.Computer, shaderName string) error {
 	// Set up audio
 	audioCtx := audio.NewContext(a2audio.SampleRate)
 	audioStream := a2audio.NewStream(comp.Speaker(), comp)
-	audioPlayer, err := audioCtx.NewPlayer(audioStream)
+	audioPlayer, err := audioCtx.NewPlayerF32(audioStream)
 	if err != nil {
 		slog.Error(fmt.Sprintf("could not create audio player: %v", err))
 	}
@@ -61,11 +61,9 @@ func DrawLoop(comp *a2.Computer, shaderName string) error {
 		audioPlayer: audioPlayer,
 	}
 
-	// Start audio playback with reduced buffer for lower latency
+	// Start audio playback
 	if g.audioPlayer != nil {
-		// Smaller buffer = lower latency but higher risk of glitches Default
-		// is typically ~46ms, we use ~23ms (1024 samples at 44100 Hz)
-		g.audioPlayer.SetBufferSize(a2audio.BufferSamples * 4) // 4 bytes per stereo sample
+		g.audioPlayer.SetBufferSize(0) // 0 = use Ebiten's default buffer size
 		g.audioPlayer.Play()
 	}
 

@@ -23,9 +23,9 @@ type AudioFrame struct {
 	// Timestamp is the time since boot when this frame was captured
 	Timestamp float64
 
-	// Samples contains the audio sample values (16-bit signed integers) This
-	// is mono data - one sample per time point
-	Samples []int16
+	// Samples contains the audio sample values (32-bit floats in range [-1.0,
+	// 1.0]). This is mono data - one sample per time point
+	Samples []float32
 }
 
 // AudioLog is a collection of AudioFrames, representing all audio captured
@@ -46,14 +46,14 @@ func NewAudioLog() *AudioLog {
 	return &AudioLog{
 		frames: make([]AudioFrame, 0),
 		currentFrame: AudioFrame{
-			Samples: make([]int16, 0, SamplesPerFrame),
+			Samples: make([]float32, 0, SamplesPerFrame),
 		},
 	}
 }
 
 // AddSamples adds audio samples to the log. When a full second of samples has
 // been collected, it creates a new frame.
-func (a *AudioLog) AddSamples(samples []int16, timestamp float64) {
+func (a *AudioLog) AddSamples(samples []float32, timestamp float64) {
 	for _, sample := range samples {
 		a.currentFrame.Samples = append(a.currentFrame.Samples, sample)
 		a.sampleCount++
@@ -65,7 +65,7 @@ func (a *AudioLog) AddSamples(samples []int16, timestamp float64) {
 
 			// Start a new frame
 			a.currentFrame = AudioFrame{
-				Samples: make([]int16, 0, SamplesPerFrame),
+				Samples: make([]float32, 0, SamplesPerFrame),
 			}
 			a.sampleCount = 0
 		}
@@ -75,7 +75,7 @@ func (a *AudioLog) AddSamples(samples []int16, timestamp float64) {
 // renderWaveform converts audio samples to a text waveform visualization.
 // Each line represents a portion of time, and uses characters to show
 // amplitude.
-func renderWaveform(samples []int16, width int) []string {
+func renderWaveform(samples []float32, width int) []string {
 	if len(samples) == 0 {
 		return []string{}
 	}
@@ -104,30 +104,27 @@ func renderWaveform(samples []int16, width int) []string {
 			sumSquares += val * val
 		}
 		rms := math.Sqrt(sumSquares / float64(endIdx-startIdx))
-
-		// Normalize to 0-1 range (assuming max amplitude is 16384)
-		normalized := rms / 16384.0
-		if normalized > 1.0 {
-			normalized = 1.0
+		if rms > 1.0 {
+			rms = 1.0
 		}
 
 		// Map to height (0 at bottom, height-1 at top) We'll use the middle
 		// as zero, and show amplitude symmetrically
 		midHeight := height / 2
-		amplitudeHeight := int(normalized * float64(midHeight))
+		amplitudeHeight := int(rms * float64(midHeight))
 
 		// Plot symmetrically above and below middle
 		for h := midHeight - amplitudeHeight; h <= midHeight+amplitudeHeight; h++ {
 			if h >= 0 && h < height {
 				// Use different characters for different amplitudes
 				char := '·'
-				if normalized > 0.8 {
+				if rms > 0.8 {
 					char = '█'
-				} else if normalized > 0.6 {
+				} else if rms > 0.6 {
 					char = '▓'
-				} else if normalized > 0.4 {
+				} else if rms > 0.4 {
 					char = '▒'
-				} else if normalized > 0.2 {
+				} else if rms > 0.2 {
 					char = '░'
 				}
 
@@ -158,7 +155,7 @@ type FrameAnalysis struct {
 }
 
 // analyzeFrame computes dropout and pop detection metrics.
-func analyzeFrame(samples []int16) FrameAnalysis {
+func analyzeFrame(samples []float32) FrameAnalysis {
 	if len(samples) == 0 {
 		return FrameAnalysis{}
 	}
@@ -166,7 +163,7 @@ func analyzeFrame(samples []int16) FrameAnalysis {
 	var zeroCrossings int
 	var maxRunLength int
 	var currentRunLength int
-	var lastSample int16
+	var lastSample float32
 
 	// Count active windows (100ms windows with >10 sample changes)
 	const windowSize = AudioSampleRate / 10 // 100ms windows
@@ -197,7 +194,7 @@ func analyzeFrame(samples []int16) FrameAnalysis {
 		if i > 0 && i%windowSize == 0 {
 			// Check how active this window was
 			windowStart := i - windowSize
-			uniqueValues := make(map[int16]bool)
+			uniqueValues := make(map[float32]bool)
 			for j := windowStart; j < i && j < len(samples); j++ {
 				uniqueValues[samples[j]] = true
 			}
@@ -286,8 +283,8 @@ func (a *AudioLog) WriteToFile(filename string) error {
 		}
 
 		// Calculate statistics for this frame
-		var minSample, maxSample int16
-		var sumAbs int64
+		var minSample, maxSample float32
+		var sumAbs float64
 		if len(frame.Samples) > 0 {
 			minSample = frame.Samples[0]
 			maxSample = frame.Samples[0]
@@ -299,15 +296,15 @@ func (a *AudioLog) WriteToFile(filename string) error {
 					maxSample = sample
 				}
 				if sample < 0 {
-					sumAbs += int64(-sample)
+					sumAbs += float64(-sample)
 				} else {
-					sumAbs += int64(sample)
+					sumAbs += float64(sample)
 				}
 			}
 		}
-		avgAbs := float64(sumAbs) / float64(len(frame.Samples))
+		avgAbs := sumAbs / float64(len(frame.Samples))
 
-		_, err = fmt.Fprintf(file, "  Samples: %d, Min: %d, Max: %d, Avg Amplitude: %.1f\n",
+		_, err = fmt.Fprintf(file, "  Samples: %d, Min: %.6f, Max: %.6f, Avg Amplitude: %.6f\n",
 			len(frame.Samples), minSample, maxSample, avgAbs)
 		if err != nil {
 			return err

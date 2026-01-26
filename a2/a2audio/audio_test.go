@@ -1,6 +1,8 @@
 package a2audio
 
 import (
+	"encoding/binary"
+	"math"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -50,15 +52,16 @@ func (m *mockClockSource) IsFullSpeed() bool {
 	return m.fullSpeed
 }
 
-// sampleValue extracts the int16 sample value from a buffer position. Buffer
-// is stereo 16-bit, so each sample is 4 bytes.
-func sampleValue(buf []byte, sampleIndex int) int16 {
-	offset := sampleIndex * 4
-	return int16(buf[offset]) | int16(buf[offset+1])<<8
+// sampleValue extracts the float32 sample value from a buffer position.
+// Buffer is stereo 32-bit float, so each sample is 8 bytes.
+func sampleValue(buf []byte, sampleIndex int) float32 {
+	offset := sampleIndex * 8
+	bits := binary.LittleEndian.Uint32(buf[offset:])
+	return math.Float32frombits(bits)
 }
 
 // isHigh returns true if the sample represents speaker-high state.
-func isHigh(sample int16) bool {
+func isHigh(sample float32) bool {
 	return sample > 0
 }
 
@@ -67,21 +70,21 @@ func TestNoEvents_ConstantOutput(t *testing.T) {
 	clock := &mockClockSource{clockRate: 1_000_000} // 1 MHz
 
 	stream := NewStream(source, clock)
-	buf := make([]byte, 400) // 100 stereo samples
+	buf := make([]byte, 800) // 100 stereo samples
 
 	n, err := stream.Read(buf)
 	if err != nil {
 		t.Fatalf("Read error: %v", err)
 	}
-	if n != 400 {
-		t.Fatalf("expected 400 bytes, got %d", n)
+	if n != 800 {
+		t.Fatalf("expected 800 bytes, got %d", n)
 	}
 
 	// All samples should be silence (0) when there are no events
 	for i := range 100 {
 		sample := sampleValue(buf, i)
 		if sample != 0 {
-			t.Errorf("sample %d should be 0 (silence), got %d", i, sample)
+			t.Errorf("sample %d should be 0 (silence), got %f", i, sample)
 		}
 	}
 }
@@ -100,7 +103,7 @@ func TestSingleToggle_WaveformChanges(t *testing.T) {
 
 	stream := NewStream(source, clock)
 
-	buf := make([]byte, 400) // 100 samples
+	buf := make([]byte, 800) // 100 samples
 	_, err := stream.Read(buf)
 	assert.NoError(t, err)
 
@@ -138,7 +141,7 @@ func TestSquareWave_CorrectFrequency(t *testing.T) {
 
 	stream := NewStream(source, clock)
 
-	buf := make([]byte, 4000) // 1000 samples
+	buf := make([]byte, 8000) // 1000 samples
 	_, err := stream.Read(buf)
 	assert.NoError(t, err)
 
@@ -175,7 +178,7 @@ func TestMultipleReads_Continuity(t *testing.T) {
 	stream := NewStream(source, clock)
 
 	// First read: 20 samples (covers ~453 cycles at 22.68 cycles/sample)
-	buf1 := make([]byte, 80)
+	buf1 := make([]byte, 160)
 	_, err := stream.Read(buf1)
 	assert.NoError(t, err)
 
@@ -187,7 +190,7 @@ func TestMultipleReads_Continuity(t *testing.T) {
 	}
 
 	// Second read: 40 samples (covers cycles ~453 to ~1360)
-	buf2 := make([]byte, 160)
+	buf2 := make([]byte, 320)
 	_, err = stream.Read(buf2)
 	assert.NoError(t, err)
 
@@ -212,7 +215,7 @@ func TestFullSpeed_OutputsSilenceAndDiscardsEvents(t *testing.T) {
 	clock := &mockClockSource{clockRate: 1_000_000, fullSpeed: true}
 
 	stream := NewStream(source, clock)
-	buf := make([]byte, 400)
+	buf := make([]byte, 800)
 	_, err := stream.Read(buf)
 	assert.NoError(t, err)
 
@@ -242,7 +245,7 @@ func TestSpeedChange_StillProducesOutput(t *testing.T) {
 	stream := NewStream(source, clock)
 
 	// First read at 1 MHz
-	buf1 := make([]byte, 400) // 100 samples
+	buf1 := make([]byte, 800) // 100 samples
 	_, err := stream.Read(buf1)
 	assert.NoError(t, err)
 
@@ -257,7 +260,7 @@ func TestSpeedChange_StillProducesOutput(t *testing.T) {
 	}
 
 	// Read after speed change
-	buf2 := make([]byte, 400) // 100 samples
+	buf2 := make([]byte, 800) // 100 samples
 	_, err = stream.Read(buf2)
 	assert.NoError(t, err)
 
@@ -294,7 +297,7 @@ func TestEventGap_RecoversGracefully(t *testing.T) {
 	stream := NewStream(source, clock)
 
 	// Read through the first batch
-	buf := make([]byte, 4000) // 1000 samples covers ~22680 cycles
+	buf := make([]byte, 8000) // 1000 samples covers ~22680 cycles
 	_, err := stream.Read(buf)
 	assert.NoError(t, err)
 
@@ -303,7 +306,7 @@ func TestEventGap_RecoversGracefully(t *testing.T) {
 	// Now we're past the first batch, next event is at cycle 500000 This is a
 	// huge gap - the stream should cap it and continue
 
-	buf2 := make([]byte, 4000)
+	buf2 := make([]byte, 8000)
 	_, err = stream.Read(buf2)
 	assert.NoError(t, err)
 
@@ -362,7 +365,7 @@ func TestLongRunning_NoDrift(t *testing.T) {
 	}
 	var checkpoints []checkpoint
 
-	buf := make([]byte, samplesPerRead*4)
+	buf := make([]byte, samplesPerRead*8)
 
 	// Calculate actual expected based on cycles covered
 	cyclesPerSample := float64(1_023_000) / float64(44100)
@@ -448,7 +451,7 @@ func TestPauseResume_RecoversGracefully(t *testing.T) {
 	stream := NewStream(source, clock)
 
 	// First read - normal operation
-	buf1 := make([]byte, 400)
+	buf1 := make([]byte, 800)
 	_, err := stream.Read(buf1)
 	assert.NoError(t, err)
 	transitions1 := countTransitions(buf1, 100)
@@ -460,7 +463,7 @@ func TestPauseResume_RecoversGracefully(t *testing.T) {
 	}
 
 	// Read after "pause" - should handle the gap gracefully
-	buf2 := make([]byte, 400)
+	buf2 := make([]byte, 800)
 	_, err = stream.Read(buf2)
 	assert.NoError(t, err)
 
@@ -473,5 +476,30 @@ func TestPauseResume_RecoversGracefully(t *testing.T) {
 	}
 	if transitions2 == 0 {
 		t.Error("no transitions after pause - recovery failed")
+	}
+}
+
+func TestVolumeZero_ProducesSilence(t *testing.T) {
+	source := &mockEventSource{}
+	clock := &mockClockSource{clockRate: 1_000_000}
+
+	// Generate events that would normally produce sound
+	for cycle := uint64(0); cycle < 5000; cycle += 500 {
+		source.Push(ToggleEvent{Cycle: cycle, State: (cycle/500)%2 == 0})
+	}
+
+	stream := NewStream(source, clock)
+	stream.SetVolume(0.0) // Mute the audio
+
+	buf := make([]byte, 800)
+	_, err := stream.Read(buf)
+	assert.NoError(t, err)
+
+	// All samples should be silence (0.0) when volume is 0
+	for i := range 100 {
+		sample := sampleValue(buf, i)
+		if sample != 0.0 {
+			t.Errorf("sample %d should be 0.0 (muted), got %f", i, sample)
+		}
 	}
 }

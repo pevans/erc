@@ -382,6 +382,8 @@ func (c *Computer) SetAudioStream(stream AudioStream) {
 	// Apply muted state if it was set before the stream was available
 	if c.volumeMuted {
 		stream.SetVolume(0.0)
+	} else {
+		stream.SetVolume(float32(c.volumeLevel) / 100.0)
 	}
 }
 

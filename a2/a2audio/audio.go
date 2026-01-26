@@ -2,6 +2,7 @@ package a2audio
 
 import (
 	"encoding/binary"
+	"math"
 	"sync"
 )
 
@@ -36,18 +37,18 @@ type ClockSource interface {
 
 // AudioLogger is an interface for logging audio samples.
 type AudioLogger interface {
-	AddSamples(samples []int16, timestamp float64)
+	AddSamples(samples []float32, timestamp float64)
 }
 
 // StreamStats contains diagnostic counters for audio stream health
 // monitoring.
 type StreamStats struct {
-	SamplesGenerated uint64 // Total samples produced
-	EventsProcessed  uint64 // Toggle events consumed
-	GapsDetected     uint64 // Timeline resyncs to event stream
-	FullSpeedSamples uint64 // Samples output as silence during fullspeed
-	LastSample       int16  // Most recent sample value output
-	CurrentBufferLen int    // Current event buffer length
+	SamplesGenerated uint64  // Total samples produced
+	EventsProcessed  uint64  // Toggle events consumed
+	GapsDetected     uint64  // Timeline resyncs to event stream
+	FullSpeedSamples uint64  // Samples output as silence during fullspeed
+	LastSample       float32 // Most recent sample value output
+	CurrentBufferLen int     // Current event buffer length
 }
 
 // Stream generates audio samples by syncing to the speaker toggle event
@@ -62,7 +63,7 @@ type Stream struct {
 
 	speakerHigh bool
 	volume      float32
-	lastSample  int16 // Most recent sample value, for diagnostics
+	lastSample  float32 // Most recent sample value, for diagnostics
 
 	// Cycle tracking (synced to event stream)
 	currentCycle uint64
@@ -122,18 +123,19 @@ func (s *Stream) Read(buf []byte) (int, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	const bytesPerSample = 4
+	const bytesPerSample = 8 // 4 bytes per float32, stereo = 8 bytes per sample
 	numSamples := len(buf) / bytesPerSample
 	clockRate := s.clock.CPUClockRate()
 	cyclesPerSample := float64(clockRate) / float64(SampleRate)
 
 	// Track samples for logging (mono only)
-	var logSamples []int16
+	var logSamples []float32
 	if s.audioLogger != nil {
-		logSamples = make([]int16, 0, numSamples)
+		logSamples = make([]float32, 0, numSamples)
 	}
 
-	amplitude := float64(int16(float32(16384) * s.volume))
+	// Scale volume by 0.5 -- otherwise, the sound can be quite loud
+	amplitude := s.volume * 0.5
 
 	// If in fullspeed mode, consume events and output silence
 	if s.clock.IsFullSpeed() {
@@ -143,9 +145,11 @@ func (s *Stream) Read(buf []byte) (int, error) {
 
 		s.currentCycle = 0 // Reset timeline and resync when fullspeed ends
 
-		// Output silence
-		for i := range buf {
-			buf[i] = 0
+		// Output silence (0.0 for float32)
+		for i := range numSamples {
+			offset := i * bytesPerSample
+			binary.LittleEndian.PutUint32(buf[offset:], math.Float32bits(0.0))
+			binary.LittleEndian.PutUint32(buf[offset+4:], math.Float32bits(0.0))
 		}
 
 		s.fullSpeedSamples += uint64(numSamples)
@@ -176,15 +180,15 @@ func (s *Stream) Read(buf []byte) (int, error) {
 		if !hasEventsInRange && s.source.Len() == 0 {
 			// No events -- output silence rather than a DC offset. Sound is
 			// produced by transitions, not by holding a state.
-			var sample int16 = 0
+			var sample float32 = 0.0
 
 			if s.audioLogger != nil {
 				logSamples = append(logSamples, sample)
 			}
 
 			offset := i * bytesPerSample
-			binary.LittleEndian.PutUint16(buf[offset:], uint16(sample))
-			binary.LittleEndian.PutUint16(buf[offset+2:], uint16(sample))
+			binary.LittleEndian.PutUint32(buf[offset:], math.Float32bits(sample))
+			binary.LittleEndian.PutUint32(buf[offset+4:], math.Float32bits(sample))
 			s.lastSample = sample
 			s.samplesGenerated++
 
@@ -236,22 +240,22 @@ func (s *Stream) Read(buf []byte) (int, error) {
 			}
 		}
 
-		// Calculate sample value
+		// Calculate sample value (normalized to [-1.0, 1.0] range)
 		totalCycles := highCycles + lowCycles
-		var sample int16
+		var sample float32
 		if totalCycles > 0 {
-			avgValue := (highCycles*amplitude - lowCycles*amplitude) / totalCycles
-			sample = int16(avgValue)
+			avgValue := (highCycles - lowCycles) / totalCycles
+			sample = float32(avgValue) * amplitude
 		}
-		// If totalCycles == 0, sample remains 0 (silence)
+		// If totalCycles == 0, sample remains 0.0 (silence)
 
 		if s.audioLogger != nil {
 			logSamples = append(logSamples, sample)
 		}
 
 		offset := i * bytesPerSample
-		binary.LittleEndian.PutUint16(buf[offset:], uint16(sample))
-		binary.LittleEndian.PutUint16(buf[offset+2:], uint16(sample))
+		binary.LittleEndian.PutUint32(buf[offset:], math.Float32bits(sample))
+		binary.LittleEndian.PutUint32(buf[offset+4:], math.Float32bits(sample))
 
 		s.lastSample = sample
 		s.samplesGenerated++
