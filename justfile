@@ -11,7 +11,7 @@ quick image: build
     - ./erc run --speed 5 {{image}}
 
 debug image: build
-    - ./erc run --debug-image --debug-mcp {{image}}
+    - ./erc run --debug-image {{image}}
 
 lint:
     - golangci-lint \
