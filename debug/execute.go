@@ -42,6 +42,10 @@ func execute(comp *a2.Computer, cmd string) {
 	case "keypress":
 		keypress(comp, tokens)
 
+		// debugging
+	case "dbatch":
+		dbatch(comp, tokens)
+
 		// the rest
 	case "disk":
 		disk(comp, tokens)
@@ -79,6 +83,9 @@ func help() {
 	say("    until <instruction>  execute until <instruction>")
 	say("  [simulation]")
 	say("    keypress <val> ..... simulate a keypress with hex ascii code <val>")
+	say("  [debugging]")
+	say("    dbatch start ....... start recording assembly instructions")
+	say("    dbatch stop ........ stop recording and write to file")
 	say("  [the rest]")
 	say("    disk <file> ........ load <file> into drive")
 	say("    writeprotect ....... toggle write protect on drive 1")

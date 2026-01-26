@@ -23,7 +23,6 @@ import (
 var (
 	debugImageFlag   bool
 	debugBreakFlag   string
-	debugMCPFlag     bool
 	profileFlag      bool
 	speedFlag        int
 	writeProtectFlag bool
@@ -47,7 +46,6 @@ func init() {
 
 	runCmd.Flags().BoolVar(&debugImageFlag, "debug-image", false, "Write out debugging files to debug image loading")
 	runCmd.Flags().StringVar(&debugBreakFlag, "debug-break", "", "Set breakpoints for a comma-separated list of addresses (eg 3FC8,9D94)")
-	runCmd.Flags().BoolVar(&debugMCPFlag, "debug-mcp", false, "Start MCP server for to allow an agent to debug a running instance")
 	runCmd.Flags().BoolVar(&profileFlag, "profile", false, "Write out a profile trace")
 	runCmd.Flags().IntVar(&speedFlag, "speed", 1, "Starting speed of the emulator (more is faster)")
 	runCmd.Flags().BoolVar(&writeProtectFlag, "write-protect", false, "Whether to write-protect the image")
@@ -91,12 +89,6 @@ func runEmulator(images []string) {
 
 	if volumeOffFlag {
 		comp.SetMuted(true)
-	}
-
-	if debugMCPFlag {
-		if err := comp.StartMCPServer(); err != nil {
-			fail(fmt.Sprintf("could not start MCP server: %v", err))
-		}
 	}
 
 	// Set up a signal handler for graceful shutdown
