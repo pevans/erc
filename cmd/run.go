@@ -196,21 +196,3 @@ func fail(reason string) {
 	fmt.Fprintln(os.Stderr, reason)
 	os.Exit(1)
 }
-
-// clockspeed returns hertz based on the given abstract speed. Relatively
-// larger speeds imply a larger hertz; i.e. clockspeed(2) > clockspeed(1).
-func clockspeed(speed int) int64 {
-	// Use the basic clockspeed of an Apple IIe as a starting point
-	hertz := int64(1_023_000)
-
-	// Don't allow the caller to get too crazy
-	if speed > 5 {
-		speed = 5
-	}
-
-	for i := 1; i < speed; i++ {
-		hertz *= 2
-	}
-
-	return hertz
-}

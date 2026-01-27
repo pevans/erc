@@ -40,13 +40,6 @@ type encoder struct {
 	physicalOffset  int
 }
 
-func newEncoder(logSize, physSize int) *encoder {
-	return &encoder{
-		logicalSegment:  memory.NewSegment(logSize),
-		physicalSegment: memory.NewSegment(physSize),
-	}
-}
-
 // Encode62 returns a segment that is the six-and-two encoded form of the
 // input segment, essentially translating from a logical to a physical
 // structure.
