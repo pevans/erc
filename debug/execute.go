@@ -37,6 +37,8 @@ func execute(comp *a2.Computer, cmd string) {
 		step(comp, tokens)
 	case "until":
 		until(comp, tokens)
+	case "runfor":
+		runfor(comp, tokens)
 
 		// simulation
 	case "keypress":
@@ -81,6 +83,7 @@ func help() {
 	say("  [execution]")
 	say("    step <times> ....... execute <times> instructions")
 	say("    until <instruction>  execute until <instruction>")
+	say("    runfor <seconds> ... run for <seconds>, then reenter the debugger")
 	say("  [simulation]")
 	say("    keypress <val> ..... simulate a keypress with hex ascii code <val>")
 	say("  [debugging]")
