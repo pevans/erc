@@ -1,12 +1,11 @@
 package gfx
 
 import (
-	"image/color"
+	"bytes"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/text"
-	"golang.org/x/image/font"
-	"golang.org/x/image/font/basicfont"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"golang.org/x/image/font/gofont/goregular"
 )
 
 const (
@@ -23,6 +22,7 @@ type TextOverlay struct {
 	fadeRate     float64
 	screenWidth  int
 	screenHeight int
+	faceSource   *text.GoTextFaceSource
 }
 
 // TextNotification is the global text overlay for disk swap notifications.
@@ -34,8 +34,14 @@ func init() {
 
 // NewTextOverlay creates a new text overlay.
 func NewTextOverlay() *TextOverlay {
+	faceSource, err := text.NewGoTextFaceSource(bytes.NewReader(goregular.TTF))
+	if err != nil {
+		panic("failed to create font source: " + err.Error())
+	}
+
 	return &TextOverlay{
-		fadeRate: 1.0 / (textOverlayFadeDuration * textOverlayTPS),
+		fadeRate:   1.0 / (textOverlayFadeDuration * textOverlayTPS),
+		faceSource: faceSource,
 	}
 }
 
@@ -68,25 +74,24 @@ func (t *TextOverlay) Draw(screen *ebiten.Image) {
 		return
 	}
 
-	face := basicfont.Face7x13
+	face := &text.GoTextFace{
+		Source: t.faceSource,
+		Size:   16,
+	}
 
 	// Measure text width for centering
-	bounds, _ := font.BoundString(face, t.text)
-	textWidth := (bounds.Max.X - bounds.Min.X).Ceil()
+	width, _ := text.Measure(t.text, face, 0)
 
-	x := (t.screenWidth - textWidth) / 2
-	y := t.screenHeight - textOverlayMarginBottom
+	x := float64(t.screenWidth-int(width)) / 2
+	y := float64(t.screenHeight - textOverlayMarginBottom)
 
-	// Create a temporary image to render text with alpha
-	textImg := ebiten.NewImage(textWidth+4, 20)
-	text.Draw(textImg, t.text, face, 2, 14, color.White)
+	// Draw text directly to screen with alpha applied via ColorScale
+	opts := &text.DrawOptions{}
+	opts.GeoM.Translate(x, y)
 
-	// Draw the text image with alpha
-	opts := &ebiten.DrawImageOptions{}
-	opts.GeoM.Translate(float64(x), float64(y))
-
+	// Apply fade alpha
 	a := float32(t.alpha)
 	opts.ColorScale.Scale(a, a, a, a)
 
-	screen.DrawImage(textImg, opts)
+	text.Draw(screen, t.text, face, opts)
 }
