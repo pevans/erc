@@ -3,9 +3,7 @@ package a2state
 import "fmt"
 
 const (
-	noop = iota
-
-	BankDFBlockBank2
+	BankDFBlockBank2 = iota
 	BankROMSegment
 	BankReadAttempts
 	BankReadRAM
