@@ -12,13 +12,10 @@ import (
 type sixtwoSuite struct {
 	suite.Suite
 
-	physDisk   *memory.Segment
-	physTrack  *memory.Segment
-	physSector *memory.Segment
-	logDisk    *memory.Segment
-	logTrack   *memory.Segment
-	logSector  *memory.Segment
-	imageType  int
+	logDisk   *memory.Segment
+	logTrack  *memory.Segment
+	logSector *memory.Segment
+	imageType int
 
 	baseDir string
 }
