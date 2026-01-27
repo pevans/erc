@@ -2,12 +2,11 @@ package elog
 
 import (
 	"fmt"
+	"maps"
 	"os"
 	"slices"
 	"sync"
 	"time"
-
-	"golang.org/x/exp/maps"
 )
 
 // A TimeSetEntry records information about the execution of some instruction
@@ -85,8 +84,7 @@ func (set *TimeSet) WriteToFile(file string) error {
 	set.mu.Lock()
 	defer set.mu.Unlock()
 
-	calls := maps.Keys(set.calls)
-	slices.Sort(calls)
+	calls := slices.Sorted(maps.Keys(set.calls))
 
 	fp, err := os.Create(file)
 	if err != nil {

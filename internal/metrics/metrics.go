@@ -2,11 +2,10 @@ package metrics
 
 import (
 	"fmt"
+	"maps"
 	"os"
 	"slices"
 	"sync"
-
-	"golang.org/x/exp/maps"
 )
 
 var (
@@ -54,8 +53,7 @@ func WriteToFile(file string) error {
 	metricMutex.Lock()
 	defer metricMutex.Unlock()
 
-	keys := maps.Keys(metricMap)
-	slices.Sort(keys)
+	keys := slices.Sorted(maps.Keys(metricMap))
 
 	fp, err := os.Create(file)
 	if err != nil {

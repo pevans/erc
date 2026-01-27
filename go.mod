@@ -8,7 +8,6 @@ require (
 	github.com/pkg/profile v1.6.0
 	github.com/spf13/cobra v1.10.1
 	github.com/stretchr/testify v1.7.0
-	golang.org/x/exp v0.0.0-20240525044651-4c93da0ed11d
 	golang.org/x/image v0.31.0
 )
 
