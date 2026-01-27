@@ -9,7 +9,6 @@ import (
 	"github.com/pevans/erc/elog"
 	"github.com/pevans/erc/gfx"
 	"github.com/pevans/erc/obj"
-	"github.com/pkg/errors"
 )
 
 // Load will load a disk image from the given reader. The given filename is
@@ -26,7 +25,7 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 	}
 
 	if err := c.SelectedDrive().Load(r, fileName); err != nil {
-		return errors.Wrapf(err, "could not read file: %s", fileName)
+		return fmt.Errorf("could not read file: %s: %w", fileName, err)
 	}
 
 	c.diskLog = nil

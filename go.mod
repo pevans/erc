@@ -5,7 +5,6 @@ module github.com/pevans/erc
 require (
 	github.com/hajimehoshi/ebiten/v2 v2.8.9
 	github.com/peterh/liner v1.2.2
-	github.com/pkg/errors v0.9.1
 	github.com/pkg/profile v1.6.0
 	github.com/spf13/cobra v1.10.1
 	github.com/stretchr/testify v1.7.0

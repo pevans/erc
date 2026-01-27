@@ -7,7 +7,6 @@ import (
 
 	"github.com/pevans/erc/a2/a2enc"
 	"github.com/pevans/erc/memory"
-	"github.com/pkg/errors"
 )
 
 // ImageType returns the type of image that is suggested by the suffix of the
@@ -36,19 +35,19 @@ func (d *Drive) Load(r io.Reader, file string) error {
 	// See if we can figure out what type of image this is
 	d.imageType, err = ImageType(file)
 	if err != nil {
-		return errors.Wrapf(err, "failed to understand image type")
+		return fmt.Errorf("failed to understand image type: %w", err)
 	}
 
 	// Read the bytes from the file into a buffer
 	bytes, err := io.ReadAll(r)
 	if err != nil {
-		return errors.Wrapf(err, "failed to read file %s", file)
+		return fmt.Errorf("failed to read file %s: %w", file, err)
 	}
 
 	// Validate the file size based on image type
 	expectedSize, err := a2enc.Size(d.imageType)
 	if err != nil {
-		return errors.Wrapf(err, "failed to determine expected size for image type")
+		return fmt.Errorf("failed to determine expected size for image type: %w", err)
 	}
 
 	if len(bytes) != expectedSize {
@@ -63,14 +62,14 @@ func (d *Drive) Load(r io.Reader, file string) error {
 	_, err = d.image.CopySlice(0, []uint8(bytes))
 	if err != nil {
 		d.image = nil
-		return errors.Wrapf(err, "failed to copy bytes into image segment")
+		return fmt.Errorf("failed to copy bytes into image segment: %w", err)
 	}
 
 	// Decode into the data segment
 	d.data, err = a2enc.Encode(d.imageType, d.image)
 	if err != nil {
 		d.image = nil
-		return errors.Wrapf(err, "failed to decode image")
+		return fmt.Errorf("failed to decode image: %w", err)
 	}
 
 	// Reset the sector position, but leave track alone; the drive head has
