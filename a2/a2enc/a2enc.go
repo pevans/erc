@@ -56,7 +56,11 @@ var addressFieldPrologue = []uint8{
 	0xD5, 0xAA, 0x96,
 }
 
-var addressFieldEpilogue = []uint8{
+// addressFieldEpilogue is the presumed end of the address field. It's
+// retained for posterity, but most Apple II software don't look for this
+// marker (and some, when they write back to disk, will not set the full or
+// correct epilogue).
+var addressFieldEpilogue = []uint8{ //nolint:unused
 	0xDE, 0xAA, 0xEB,
 }
 
