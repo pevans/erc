@@ -13,7 +13,8 @@ func (c *Computer) StartDbatch() {
 	c.instDiffMap = elog.NewInstructionMap()
 }
 
-// StopDbatch stops the debug batch recording and writes the instruction diff to file.
+// StopDbatch stops the debug batch recording and writes the instruction diff
+// to file.
 func (c *Computer) StopDbatch() error {
 	c.dbatchMode = false
 	c.dbatchEnded = time.Now()
