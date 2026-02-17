@@ -2,6 +2,7 @@ package a2disk
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/pevans/erc/a2/a2enc"
 	"github.com/pevans/erc/memory"
@@ -76,15 +77,15 @@ const freeSectorTemplate = "FEDCBA98 76543210"
 
 func freeSectors(bitmap1, bitmap2 uint8) string {
 	asBinary := fmt.Sprintf("%08b %08b", bitmap1, bitmap2)
-	asSectors := ""
+	var asSectors strings.Builder
 
 	for i := range len(asBinary) {
 		if asBinary[i] == '1' || asBinary[i] == ' ' {
-			asSectors += string(freeSectorTemplate[i])
+			asSectors.WriteString(string(freeSectorTemplate[i]))
 		} else {
-			asSectors += "."
+			asSectors.WriteString(".")
 		}
 	}
 
-	return asSectors
+	return asSectors.String()
 }
