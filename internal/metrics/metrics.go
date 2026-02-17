@@ -34,9 +34,7 @@ func Export() map[string]int {
 	metricMutex.Lock()
 	defer metricMutex.Unlock()
 
-	for key, val := range metricMap {
-		expMap[key] = val
-	}
+	maps.Copy(expMap, metricMap)
 
 	return expMap
 }
