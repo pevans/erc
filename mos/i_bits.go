@@ -105,9 +105,9 @@ func Rol(c *CPU) {
 }
 
 // Ror implements the ROR (rotate right) instruction, which rotates EffVal by
-// 1. Again, like ROL, this is like a nine-bit rotation: the first bit is
-// saved into the carry flag; the old carry flag value is saved as the eighth
-// bit as a result of the operation.
+//  1. Again, like ROL, this is like a nine-bit rotation: the first bit is
+//     saved into the carry flag; the old carry flag value is saved as the
+//     eighth bit as a result of the operation.
 func Ror(c *CPU) {
 	res := c.EffVal >> 1
 
