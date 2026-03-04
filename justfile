@@ -1,17 +1,17 @@
 test pkg="./...":
-    - go test {{pkg}}
+    go test {{pkg}}
 
 build:
-    - go build -o erc .
+    go build -o erc .
 
 run image: build
-    - ./erc run {{image}}
+    ./erc run {{image}}
 
 quick image: build
-    - ./erc run --speed 5 {{image}}
+    ./erc run --speed 5 {{image}}
 
 debug image: build
-    - ./erc run --debug-image {{image}}
+    ./erc run --debug-image {{image}}
 
 lint:
     golangci-lint run
@@ -25,19 +25,19 @@ cicd-test: lint format-list test
 # Produce hexdumps that we can use to compute a diff of all the data that
 # changed before and after some execution
 hexa image:
-    - xxd {{image}} {{image}}-a
+    xxd {{image}} {{image}}-a
 
 hexb image:
-    - xxd {{image}} {{image}}-b
+    xxd {{image}} {{image}}-b
 
 hexdiff image:
-    - diff -u {{image}}-a {{image}}-b > {{image}}.hex.diff
+    diff -u {{image}}-a {{image}}-b > {{image}}.hex.diff
 
 asma image:
-    - cp {{image}}.asm {{image}}.asm-a
+    cp {{image}}.asm {{image}}.asm-a
 
 asmb image:
-    - cp {{image}}.asm {{image}}.asm-b
+    cp {{image}}.asm {{image}}.asm-b
 
 asmdiff image:
-    - diff -u {{image}}.asm-a {{image}}.asm-b > {{image}}.asm.diff
+    diff -u {{image}}.asm-a {{image}}.asm-b > {{image}}.asm.diff
