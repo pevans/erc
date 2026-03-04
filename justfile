@@ -14,9 +14,13 @@ debug image: build
     - ./erc run --debug-image {{image}}
 
 lint:
-    - golangci-lint \
-      --disable=unused \
-      run
+    golangci-lint run
+
+format-list:
+    x=$(gofmt -l .); if [ "$x" ]; then echo "$x"; fi; test -z "$x"
+    gocomments -l .
+
+cicd-test: lint format-list test
 
 # Produce hexdumps that we can use to compute a diff of all the data that
 # changed before and after some execution
