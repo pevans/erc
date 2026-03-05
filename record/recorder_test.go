@@ -10,22 +10,22 @@ import (
 
 func TestEntryString_byte(t *testing.T) {
 	e := record.Entry{Step: 514, Tag: record.TagMem, Name: "$013F", Old: uint8(0x3A), New: uint8(0x3C)}
-	assert.Equal(t, "step 514: mem $013F: $3A -> $3C", e.String())
+	assert.Equal(t, "step 514: mem $013F $3A -> $3C", e.String())
 }
 
 func TestEntryString_register(t *testing.T) {
 	e := record.Entry{Step: 515, Tag: record.TagReg, Name: "A", Old: uint8(0x00), New: uint8(0x3C)}
-	assert.Equal(t, "step 515: reg A: $00 -> $3C", e.String())
+	assert.Equal(t, "step 515: reg A $00 -> $3C", e.String())
 }
 
 func TestEntryString_pc(t *testing.T) {
 	e := record.Entry{Step: 1, Tag: record.TagReg, Name: "PC", Old: uint16(0x0300), New: uint16(0x0302)}
-	assert.Equal(t, "step 1: reg PC: $0300 -> $0302", e.String())
+	assert.Equal(t, "step 1: reg PC $0300 -> $0302", e.String())
 }
 
 func TestEntryString_bool(t *testing.T) {
 	e := record.Entry{Step: 518, Tag: record.TagComp, Name: "bank-df-ram", Old: true, New: false}
-	assert.Equal(t, "step 518: comp bank-df-ram: true -> false", e.String())
+	assert.Equal(t, "step 518: comp bank-df-ram true -> false", e.String())
 }
 
 func TestRecorder_stepCountStartsAtOne(t *testing.T) {
@@ -99,7 +99,7 @@ func TestRecorder_memObserver(t *testing.T) {
 
 	entries := r.Entries()
 	assert.Len(t, entries, 1)
-	assert.Equal(t, "step 1: mem $013F: $3A -> $3C", entries[0].String())
+	assert.Equal(t, "step 1: mem $013F $3A -> $3C", entries[0].String())
 }
 
 func TestRecorder_string(t *testing.T) {
@@ -110,6 +110,6 @@ func TestRecorder_string(t *testing.T) {
 	r.Step(func() { val = 1 })
 	r.Step(func() { val = 2 })
 
-	expected := "step 1: reg A: $00 -> $01\nstep 2: reg A: $01 -> $02"
+	expected := "step 1: reg A $00 -> $01\nstep 2: reg A $01 -> $02"
 	assert.Equal(t, expected, r.String())
 }

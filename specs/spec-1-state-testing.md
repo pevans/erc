@@ -50,16 +50,16 @@ piece of state -- one memory address, one register, one flag, etc.
 When rendered as text, a state entry uses the following format:
 
 ```
-step <step>: <tag> <name>: <old> -> <new>
+step <step>: <tag> <name> <old> -> <new>
 ```
 
 Examples:
 
 ```
-step 514: mem $013F: $3A -> $3C
-step 515: reg A: $00 -> $3C
-step 515: reg P: $30 -> $B0
-step 518: comp bank-df-ram: true -> false
+step 514: mem $013F $3A -> $3C
+step 515: reg A $00 -> $3C
+step 515: reg P $30 -> $B0
+step 518: comp bank-df-ram true -> false
 ```
 
 Values are formatted according to their type:

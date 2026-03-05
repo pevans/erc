@@ -21,9 +21,9 @@ type Entry struct {
 
 // String renders the entry in the canonical format:
 //
-// step N: tag name: old -> new
+// step N: tag name old -> new
 func (e Entry) String() string {
-	return fmt.Sprintf("step %d: %s %s: %s -> %s",
+	return fmt.Sprintf("step %d: %s %s %s -> %s",
 		e.Step, e.Tag, e.Name, formatValue(e.Old), formatValue(e.New))
 }
 
