@@ -158,6 +158,13 @@ func (fb *FrameBuffer) SetShader(shaderName string) error {
 	return nil
 }
 
+// Pixels returns a copy of the raw pixel data.
+func (fb *FrameBuffer) Pixels() []byte {
+	cp := make([]byte, len(fb.pixels))
+	copy(cp, fb.pixels)
+	return cp
+}
+
 // Render will accept an ebiten image and ~do something with it~ to render the
 // contents of our frame buffer.
 func (fb *FrameBuffer) Render(img *ebiten.Image) error {
