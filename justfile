@@ -20,7 +20,10 @@ format-list:
     x=$(gofmt -l .); if [ "$x" ]; then echo "$x"; fi; test -z "$x"
     gocomments -l .
 
-cicd-test: lint format-list test
+bats:
+    bats test/
+
+cicd-test: lint format-list test bats
 
 # Produce hexdumps that we can use to compute a diff of all the data that
 # changed before and after some execution
