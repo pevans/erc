@@ -34,14 +34,8 @@ func init() {
 
 // NewTextOverlay creates a new text overlay.
 func NewTextOverlay() *TextOverlay {
-	faceSource, err := text.NewGoTextFaceSource(bytes.NewReader(goregular.TTF))
-	if err != nil {
-		panic("failed to create font source: " + err.Error())
-	}
-
 	return &TextOverlay{
-		fadeRate:   1.0 / (textOverlayFadeDuration * textOverlayTPS),
-		faceSource: faceSource,
+		fadeRate: 1.0 / (textOverlayFadeDuration * textOverlayTPS),
 	}
 }
 
@@ -72,6 +66,14 @@ func (t *TextOverlay) Update() {
 func (t *TextOverlay) Draw(screen *ebiten.Image) {
 	if !t.active || t.text == "" {
 		return
+	}
+
+	if t.faceSource == nil {
+		fs, err := text.NewGoTextFaceSource(bytes.NewReader(goregular.TTF))
+		if err != nil {
+			return
+		}
+		t.faceSource = fs
 	}
 
 	face := &text.GoTextFace{

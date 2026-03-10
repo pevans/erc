@@ -45,7 +45,6 @@ func NewFrameBuffer(width, height uint) *FrameBuffer {
 	fb.Height = height
 	fb.pixelsLength = width * height * 4
 	fb.pixels = make([]byte, fb.pixelsLength)
-	fb.Image = ebiten.NewImage(int(fb.Width), int(fb.Height))
 
 	return fb
 }
@@ -168,6 +167,10 @@ func (fb *FrameBuffer) Pixels() []byte {
 // Render will accept an ebiten image and ~do something with it~ to render the
 // contents of our frame buffer.
 func (fb *FrameBuffer) Render(img *ebiten.Image) error {
+	if fb.Image == nil {
+		fb.Image = ebiten.NewImage(int(fb.Width), int(fb.Height))
+	}
+
 	fb.Image.WritePixels(fb.pixels)
 
 	if fb.shader != nil {

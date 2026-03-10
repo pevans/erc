@@ -57,10 +57,25 @@ func (v *VideoRecorder) Observe(step int) []Entry {
 	return nil
 }
 
+// NeedsCapture reports whether the given step is in the capture set.
+func (v *VideoRecorder) NeedsCapture(step int) bool {
+	return v.captureSteps[step]
+}
+
 // Frame returns the captured snapshot for a given step, or nil if no capture
 // exists.
 func (v *VideoRecorder) Frame(step int) *frameSnapshot {
 	return v.frames[step]
+}
+
+// Width returns the width of the frame snapshot.
+func (f *frameSnapshot) Width() uint {
+	return f.width
+}
+
+// Height returns the height of the frame snapshot.
+func (f *frameSnapshot) Height() uint {
+	return f.height
 }
 
 // GetPixel returns the color at (x, y) in a frame snapshot.

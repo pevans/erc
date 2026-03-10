@@ -37,6 +37,11 @@ func (r *Recorder) Entries() []Entry {
 	return r.entries
 }
 
+// CurrentStep returns the number of steps executed so far.
+func (r *Recorder) CurrentStep() int {
+	return r.step
+}
+
 // String renders all recorded entries as newline-separated text.
 func (r *Recorder) String() string {
 	lines := make([]string, len(r.entries))

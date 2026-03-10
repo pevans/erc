@@ -26,11 +26,8 @@ func init() {
 
 // NewBorderOverlay creates a new border overlay.
 func NewBorderOverlay() *BorderOverlay {
-	pixel := ebiten.NewImage(1, 1)
-	pixel.Fill(color.White)
 	return &BorderOverlay{
 		fadeRate: 1.0 / (borderFadeDuration * overlayTPS),
-		pixel:    pixel,
 	}
 }
 
@@ -64,6 +61,11 @@ func (b *BorderOverlay) Update() {
 func (b *BorderOverlay) Draw(screen *ebiten.Image) {
 	if !b.active {
 		return
+	}
+
+	if b.pixel == nil {
+		b.pixel = ebiten.NewImage(1, 1)
+		b.pixel.Fill(color.White)
 	}
 
 	a := float32(b.alpha)
