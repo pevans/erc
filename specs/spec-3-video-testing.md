@@ -266,15 +266,9 @@ recorder and incur no overhead. The recorder reads from the existing
 ## 7.1. Debugging Failed Tests
 
 When a video assertion fails, the full captured frame can be written to a file
-for inspection. The recorder supports two output formats:
-
-- **Text grid** -- a character grid using the assertion's color legend, written
-  to a `.frame` file for easy diffing
-- **PNG image** -- the raw framebuffer pixels written as a PNG file for visual
-  inspection in an image viewer
-
-Both outputs are produced for the failing step, allowing the developer to see
-exactly what the emulator rendered.
+for inspection. The recorder writes the captured frame as a text grid using
+the assertion's color legend to a `.frame` file. This format is easy to diff
+and inspect directly in a terminal or editor.
 
 ## 7.2. Frame Capture Without Assertions
 
