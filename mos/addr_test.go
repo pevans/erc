@@ -356,6 +356,39 @@ func (s *mosSuite) TestZpy() {
 	}
 }
 
+func (s *mosSuite) TestZpi() {
+	cases := []struct {
+		name   string
+		oper   uint8  // zero-page address of the pointer
+		ptrVal uint16 // 16-bit pointer stored at oper
+		want   uint8  // value at ptrVal
+	}{
+		{"normal case", 0x10, 0x1234, 0xAB},
+		{"normal case 2", 0x20, 0x5678, 0xCD},
+		{"zero page boundary", 0xFF, 0x2000, 0xEF}, // oper = 0xFF
+	}
+
+	for _, c := range cases {
+		s.Run(c.name, func() {
+			s.cpu.Set(s.cpu.PC+1, c.oper)
+
+			if c.oper == 0xFF {
+				s.cpu.Set(0xFF, uint8(c.ptrVal&0xFF))
+				s.cpu.Set(0x00, uint8(c.ptrVal>>8))
+			} else {
+				s.cpu.Set16(uint16(c.oper), c.ptrVal)
+			}
+
+			s.cpu.Set(c.ptrVal, c.want)
+
+			mos.Zpi(s.cpu)
+
+			s.Equal(c.ptrVal, s.cpu.EffAddr)
+			s.Equal(c.want, s.cpu.EffVal)
+		})
+	}
+}
+
 func (s *mosSuite) TestAddrModeName() {
 	cases := []struct {
 		mode int
@@ -374,6 +407,7 @@ func (s *mosSuite) TestAddrModeName() {
 		{mos.AmIDY, "IDY"},
 		{mos.AmREL, "REL"},
 		{mos.AmZPG, "ZPG"},
+		{mos.AmZPI, "ZPI"},
 		{mos.AmZPX, "ZPX"},
 		{mos.AmZPY, "ZPY"},
 		{999, "???"}, // Unknown mode

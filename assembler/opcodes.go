@@ -49,6 +49,7 @@ var mosToAsm = map[int]int{
 	mos.AmIDX: modeIDX,
 	mos.AmIDY: modeIDY,
 	mos.AmREL: modeREL,
+	mos.AmZPI: modeZPI,
 }
 
 type opcodeKey struct {
@@ -65,20 +66,6 @@ var (
 // mnemonics.
 var mnemNormalize = map[string]string{
 	"BIM": "BIT", // $89 is BIT immediate; mos names it BIM internally
-}
-
-// zpiTable maps mnemonics to their 65C02 zero-page-indirect opcodes. The mos
-// package maps these opcodes to modeZPG (a simplification), so we maintain
-// them separately to support the ($NN) syntax.
-var zpiTable = map[string]byte{
-	"ORA": 0x12,
-	"AND": 0x32,
-	"EOR": 0x52,
-	"ADC": 0x72,
-	"STA": 0x92,
-	"LDA": 0xB2,
-	"CMP": 0xD2,
-	"SBC": 0xF2,
 }
 
 func init() {
@@ -118,11 +105,6 @@ func buildOpcodeTable() map[opcodeKey]byte {
 
 	// NOP is always $EA (implied); earlier opcodes labeled NOP are undefined.
 	table[opcodeKey{"NOP", modeIMP}] = 0xEA
-
-	// ZPI (zero-page indirect) entries use ($NN) syntax.
-	for mnem, opcode := range zpiTable {
-		table[opcodeKey{mnem, modeZPI}] = opcode
-	}
 
 	return table
 }

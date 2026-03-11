@@ -34,6 +34,7 @@ const (
 	AmIDY        // indirect y-index
 	AmREL        // relative
 	AmZPG        // zero page
+	AmZPI        // zero page indirect
 	AmZPX        // zero page x-index
 	AmZPY        // zero page y-index
 )
@@ -53,6 +54,7 @@ var addrModeNames = map[int]string{
 	AmIDY: "IDY",
 	AmREL: "REL",
 	AmZPG: "ZPG",
+	AmZPI: "ZPI",
 	AmZPX: "ZPX",
 	AmZPY: "ZPY",
 }
@@ -333,5 +335,24 @@ func Zpy(c *CPU) {
 	operand := c.Get(c.PC + 1)
 	c.Operand = uint16(operand)
 	c.EffAddr = uint16(operand+c.Y) & 0xFF
+	c.EffVal = c.Get(c.EffAddr)
+}
+
+// Zpi resolves the zero-page indirect address mode. The one-byte operand is a
+// zero-page address holding a two-byte pointer; that pointer is the effective
+// address.
+//
+// Ex. LDA ($10) dereferences the 16-bit pointer at $10/$11 and loads the byte
+// at the resulting address.
+func Zpi(c *CPU) {
+	c.AddrMode = AmZPI
+	c.Operand = uint16(c.Get(c.PC + 1))
+
+	if c.Operand == 0xFF {
+		c.EffAddr = (uint16(c.Get(0)) << 8) | uint16(c.Get(0xFF))
+	} else {
+		c.EffAddr = c.Get16(c.Operand)
+	}
+
 	c.EffVal = c.Get(c.EffAddr)
 }
