@@ -153,18 +153,40 @@ the following flags:
 - `--capture-video STEPS` -- comma-separated step numbers at which to capture
   video frames
 - `--output DIR` -- directory for output files (defaults to current directory)
+- `--start-at ADDR` -- hex address at which to begin counting steps (see 6.3)
 
 ## 6.2. Execution Flow
 
 1. Create an `a2.Computer` (headless-safe after lazy init changes).
 2. Load and boot the disk image(s).
-3. Create a recorder and register observers based on flags.
-4. If `--record-audio`, create an `a2audio.Stream` and `AudioRecorder`.
-5. If `--capture-video`, create a `VideoRecorder` with declared capture steps.
-6. Call the headless `Run()` function.
-7. Write results to the output directory.
+3. If `--start-at` is given, run the warm-up loop (see 6.3).
+4. Create a recorder and register observers based on flags.
+5. If `--record-audio`, create an `a2audio.Stream` and `AudioRecorder`.
+6. If `--capture-video`, create a `VideoRecorder` with declared capture steps.
+7. Call the headless `Run()` function.
+8. Write results to the output directory.
 
-## 6.3. Output Files
+## 6.3. Warm-Up Loop (--start-at)
+
+When `--start-at ADDR` is given, the emulator executes instructions without
+recording, stopping when `comp.CPU.PC` first equals `ADDR`. The `--steps N`
+count then begins from that point, so step 1 is the instruction at `ADDR`.
+
+This is useful when user code begins at a known address (e.g. `$0801` for
+Apple II programs assembled with the default origin) and the test should not
+count ROM boot cycles. Without `--start-at`, `--steps` counts from the very
+first instruction after `comp.Boot()`.
+
+The warm-up loop is capped at 10,000,000 iterations. If `ADDR` is not reached
+within that limit, the command fails with an error. This prevents an infinite
+loop when the address is never executed (e.g. wrong disk image, no code at
+that address).
+
+The warm-up loop calls `comp.Process()` directly, bypassing the recorder.
+Observers are not registered until after the warm-up completes, so no state
+entries are produced for ROM boot instructions.
+
+## 6.4. Output Files
 
 - `state.log` -- state entries as text (spec 1 format), written only if
   entries exist

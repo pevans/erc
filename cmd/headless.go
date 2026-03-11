@@ -26,6 +26,7 @@ var (
 	headlessRecordAudioFlag  bool
 	headlessCaptureVideoFlag string
 	headlessOutputFlag       string
+	headlessStartAtFlag      string
 )
 
 var headlessCmd = &cobra.Command{
@@ -80,6 +81,12 @@ func init() {
 		".",
 		"Directory for output files",
 	)
+	headlessCmd.Flags().StringVar(
+		&headlessStartAtFlag,
+		"start-at",
+		"",
+		"Hex address at which to begin counting steps (e.g. 0801); warm-up runs without recording until PC reaches this address",
+	)
 }
 
 func runHeadless(images []string) {
@@ -97,6 +104,25 @@ func runHeadless(images []string) {
 
 	if err := comp.Boot(); err != nil {
 		fail(fmt.Sprintf("could not boot emulator: %v", err))
+	}
+
+	if headlessStartAtFlag != "" {
+		startAddr, err := strconv.ParseUint(headlessStartAtFlag, 16, 16)
+		if err != nil {
+			fail(fmt.Sprintf("invalid --start-at address %q: %v", headlessStartAtFlag, err))
+		}
+		const maxWarmup = 10_000_000
+		reached := false
+		for range maxWarmup {
+			if comp.CPU.PC == uint16(startAddr) {
+				reached = true
+				break
+			}
+			comp.Process() //nolint:errcheck
+		}
+		if !reached {
+			fail(fmt.Sprintf("--start-at address %04X not reached within %d steps", uint16(startAddr), maxWarmup))
+		}
 	}
 
 	rec := &record.Recorder{}
