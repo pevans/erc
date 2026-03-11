@@ -5,9 +5,12 @@ import (
 	"image/color"
 	"os"
 	"strings"
-
-	"github.com/pevans/erc/gfx"
 )
+
+// PixelSource is anything that can return a pixel color by coordinate.
+type PixelSource interface {
+	GetPixel(x, y uint) color.RGBA
+}
 
 // A ScreenFrame is a container of a single visual frame (as would have been
 // rendered on screen) as text.
@@ -32,7 +35,7 @@ func NewScreenLog() *ScreenLog {
 
 // CaptureFrame records a ScreenFrame from the given FrameBuffer. That frame
 // is appended to the ScreenLog receiver.
-func (s *ScreenLog) CaptureFrame(fb *gfx.FrameBuffer, timestamp float64) {
+func (s *ScreenLog) CaptureFrame(fb PixelSource, timestamp float64) {
 	frame := ScreenFrame{Timestamp: timestamp}
 
 	for y := range 192 {

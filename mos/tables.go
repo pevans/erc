@@ -113,6 +113,11 @@ var addrModes = [256]int{
 	AmREL, AmIDY, AmZPG, AmIMP, AmBY2, AmZPX, AmZPX, AmIMP, AmIMP, AmABY, AmIMP, AmIMP, AmBY3, AmABX, AmABX, AmIMP, // Fx
 }
 
+// OpcodeInstructionName returns the mnemonic string for a given opcode.
+func OpcodeInstructionName(opcode uint8) string {
+	return instructionNames[opcode]
+}
+
 // The offsets table defines the number of bytes we must increment the PC
 // register after a given instruction. The bytes vary based on address mode,
 // rather than the specific instruction. In cases where the instruction would
