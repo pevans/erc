@@ -1,0 +1,738 @@
+# Specification Test Coverage
+# This file tracks which specification sections have black box test coverage
+#
+# Structure:
+#   specs: List of Specifications
+#     - spec: Specification identifier (e.g., spec-4)
+#       title: Specification title
+#       sections: List of sections in the specification
+#         - section: Section number (e.g., 3.1)
+#           title: Section title
+#           testable: Whether this section can be tested with black box tests
+#           tests: List of test files that cover this section (empty list if not tested)
+
+specs:
+  - spec: spec-0
+    title: Specification Definition
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Sections
+        testable: false
+
+      - section: "2.1"
+        title: Subsections
+        testable: false
+
+      - section: "3"
+        title: Implementation
+        testable: false
+
+      - section: "3.1"
+        title: Pseudocode
+        testable: false
+
+  - spec: spec-1
+    title: State Testing
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Concepts
+        testable: false
+
+      - section: "2.1"
+        title: State Entry
+        testable: false
+
+      - section: "2.2"
+        title: Recorder
+        testable: false
+
+      - section: "2.3"
+        title: Observer
+        testable: false
+
+      - section: "3"
+        title: State Entry Format
+        testable: true
+        tests:
+          - "test/headless_state.bats::state entries use old -> new format"
+
+      - section: "4"
+        title: Observer Types
+        testable: false
+
+      - section: "4.1"
+        title: Memory Observer
+        testable: true
+        tests:
+          - "test/headless_state.bats::watch-mem produces state.log with mem entries"
+          - "test/headless_state.bats::combined watch flags produce all tag types"
+
+      - section: "4.2"
+        title: Register Observer
+        testable: true
+        tests:
+          - "test/headless_state.bats::watch-reg produces state.log with reg entries"
+          - "test/headless_state.bats::combined watch flags produce all tag types"
+
+      - section: "4.3"
+        title: Computer State Observer
+        testable: true
+        tests:
+          - "test/headless_state.bats::watch-comp produces state.log with comp entries"
+          - "test/headless_state.bats::combined watch flags produce all tag types"
+
+      - section: "5"
+        title: Recording Lifecycle
+        testable: false
+
+      - section: "5.1"
+        title: Setup
+        testable: false
+
+      - section: "5.2"
+        title: Per-Step Recording
+        testable: false
+
+      - section: "5.3"
+        title: Retrieval
+        testable: false
+
+      - section: "6"
+        title: Testing Model
+        testable: false
+
+      - section: "6.1"
+        title: Black Box Test Structure
+        testable: false
+
+      - section: "6.2"
+        title: Comparison
+        testable: false
+
+      - section: "6.3"
+        title: Test-Only Concern
+        testable: false
+
+      - section: "7"
+        title: Design Considerations
+        testable: false
+
+      - section: "7.1"
+        title: Generality
+        testable: false
+
+      - section: "7.2"
+        title: Granularity
+        testable: false
+
+      - section: "7.3"
+        title: Performance
+        testable: false
+
+      - section: "7.4"
+        title: Step Counting
+        testable: false
+
+  - spec: spec-2
+    title: Audio Testing
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Concepts
+        testable: false
+
+      - section: "2.1"
+        title: Audio Recorder
+        testable: true
+        tests:
+          - "test/headless_audio.bats::record-audio produces audio.pcm"
+
+      - section: "2.2"
+        title: Audio Segment
+        testable: false
+
+      - section: "2.3"
+        title: Audio Fingerprint
+        testable: false
+
+      - section: "2.4"
+        title: Audio Assertion
+        testable: false
+
+      - section: "3"
+        title: Recording
+        testable: false
+
+      - section: "3.1"
+        title: Tap Point
+        testable: false
+
+      - section: "3.2"
+        title: Step-to-Sample Mapping
+        testable: true
+        tests:
+          # float32 mono samples are 4 bytes each; a multiple-of-4 size
+          # confirms the correct sample format
+          - "test/headless_audio.bats::audio.pcm size is a multiple of 4 bytes"
+
+      - section: "3.3"
+        title: Channel Labels
+        testable: false
+
+      - section: "4"
+        title: Fingerprinting
+        testable: false
+
+      - section: "4.1"
+        title: Frequency Estimation
+        testable: false
+
+      - section: "4.2"
+        title: Amplitude Envelope
+        testable: false
+
+      - section: "4.3"
+        title: Silence Detection
+        testable: false
+
+      - section: "4.4"
+        title: Duty Cycle
+        testable: false
+
+      - section: "5"
+        title: Testing Model
+        testable: false
+
+      - section: "5.1"
+        title: Audio Test Structure
+        testable: false
+
+      - section: "5.2"
+        title: Assertion Matching
+        testable: false
+
+      - section: "5.3"
+        title: Combining with State Tests
+        testable: false
+
+      - section: "6"
+        title: Raw Sample Capture
+        testable: false
+
+      - section: "6.1"
+        title: Debugging Failed Tests
+        testable: false
+
+      - section: "6.2"
+        title: Not Used for Comparison
+        testable: false
+
+      - section: "7"
+        title: Design Considerations
+        testable: false
+
+      - section: "7.1"
+        title: Scalability
+        testable: false
+
+      - section: "7.2"
+        title: Independence from Synthesis Method
+        testable: false
+
+      - section: "7.3"
+        title: Tolerance and Precision
+        testable: false
+
+      - section: "7.4"
+        title: Test-Only Concern
+        testable: false
+
+  - spec: spec-3
+    title: Video Testing
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Concepts
+        testable: false
+
+      - section: "2.1"
+        title: Video Recorder
+        testable: true
+        tests:
+          - "test/headless_video.bats::capture-video produces video.frame"
+
+      - section: "2.2"
+        title: Frame Snapshot
+        testable: true
+        tests:
+          - "test/headless_video.bats::video.frame has step header and colors legend"
+
+      - section: "2.3"
+        title: Color Legend
+        testable: true
+        tests:
+          - "test/headless_video.bats::video.frame has step header and colors legend"
+
+      - section: "2.4"
+        title: Sampling Resolution
+        testable: false
+
+      - section: "2.5"
+        title: Video Assertion
+        testable: false
+
+      - section: "3"
+        title: Recording
+        testable: false
+
+      - section: "3.1"
+        title: Capture Point
+        testable: false
+
+      - section: "3.2"
+        title: Capture Timing
+        testable: true
+        tests:
+          - "test/headless_video.bats::multiple capture steps appear in video.frame"
+          - "test/headless_video.bats::no capture-video produces no video.frame"
+
+      - section: "4"
+        title: Assertion Format
+        testable: false
+
+      - section: "4.1"
+        title: Full Screen Assertion
+        testable: false
+
+      - section: "4.2"
+        title: Region Assertion
+        testable: false
+
+      - section: "4.3"
+        title: Row Assertion
+        testable: false
+
+      - section: "5"
+        title: Comparison
+        testable: false
+
+      - section: "5.1"
+        title: Cell-by-Cell Matching
+        testable: false
+
+      - section: "5.2"
+        title: Failure Reporting
+        testable: false
+
+      - section: "5.3"
+        title: Diff Output
+        testable: false
+
+      - section: "6"
+        title: Testing Model
+        testable: false
+
+      - section: "6.1"
+        title: Video Test Structure
+        testable: false
+
+      - section: "6.2"
+        title: Combining with State and Audio Tests
+        testable: false
+
+      - section: "6.3"
+        title: Test-Only Concern
+        testable: false
+
+      - section: "7"
+        title: Raw Frame Capture
+        testable: false
+
+      - section: "7.1"
+        title: Debugging Failed Tests
+        testable: true
+        tests:
+          - "test/headless_video.bats::video.frame has step header and colors legend"
+
+      - section: "7.2"
+        title: Frame Capture Without Assertions
+        testable: true
+        tests:
+          - "test/headless_video.bats::capture-video produces video.frame"
+          - "test/headless_video.bats::multiple capture steps appear in video.frame"
+
+      - section: "8"
+        title: Design Considerations
+        testable: false
+
+      - section: "8.1"
+        title: Why Not Per-Pixel Transitions
+        testable: false
+
+      - section: "8.2"
+        title: Why Not Fingerprinting
+        testable: false
+
+      - section: "8.3"
+        title: Machine Independence
+        testable: false
+
+      - section: "8.4"
+        title: Region Assertions as the Common Case
+        testable: false
+
+      - section: "8.5"
+        title: Step Counting
+        testable: false
+
+  - spec: spec-4
+    title: Headless Mode
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Problem
+        testable: false
+
+      - section: "2.1"
+        title: FrameBuffer Constructor
+        testable: false
+
+      - section: "2.2"
+        title: Package-Level init() Functions
+        testable: false
+
+      - section: "2.3"
+        title: What Is Already Headless-Compatible
+        testable: false
+
+      - section: "3"
+        title: Lazy Ebiten Resource Creation
+        testable: false
+
+      - section: "3.1"
+        title: FrameBuffer
+        testable: false
+
+      - section: "3.2"
+        title: BorderOverlay
+        testable: false
+
+      - section: "3.3"
+        title: TextOverlay
+        testable: false
+
+      - section: "4"
+        title: Headless Execution Loop
+        testable: false
+
+      - section: "4.1"
+        title: Run Function
+        testable: true
+        tests:
+          - "test/headless_state.bats::watch-mem produces state.log with mem entries"
+          - "test/headless_state.bats::watch-reg produces state.log with reg entries"
+          - "test/headless_state.bats::watch-comp produces state.log with comp entries"
+          - "test/headless_audio.bats::record-audio produces audio.pcm"
+          - "test/headless_video.bats::capture-video produces video.frame"
+
+      - section: "4.2"
+        title: Per-Step Behavior
+        testable: true
+        tests:
+          - "test/headless_state.bats::watch-mem produces state.log with mem entries"
+          - "test/headless_state.bats::watch-reg produces state.log with reg entries"
+
+      - section: "4.3"
+        title: Render Function
+        testable: true
+        tests:
+          - "test/headless_video.bats::capture-video produces video.frame"
+          - "test/headless_video.bats::multiple capture steps appear in video.frame"
+
+      - section: "4.4"
+        title: Audio
+        testable: true
+        tests:
+          - "test/headless_audio.bats::record-audio produces audio.pcm"
+          - "test/headless_audio.bats::audio.pcm size is a multiple of 4 bytes"
+
+      - section: "4.5"
+        title: Audio and Full-Speed Mode
+        testable: false
+
+      - section: "5"
+        title: Supporting Methods
+        testable: false
+
+      - section: "5.1"
+        title: Recorder.CurrentStep()
+        testable: false
+
+      - section: "5.2"
+        title: VideoRecorder.NeedsCapture()
+        testable: false
+
+      - section: "6"
+        title: CLI Subcommand
+        testable: false
+
+      - section: "6.1"
+        title: Command
+        testable: true
+        tests:
+          - "test/headless_state.bats::watch-mem produces state.log with mem entries"
+          - "test/headless_state.bats::watch-reg produces state.log with reg entries"
+          - "test/headless_state.bats::watch-comp produces state.log with comp entries"
+          - "test/headless_state.bats::combined watch flags produce all tag types"
+          - "test/headless_audio.bats::record-audio produces audio.pcm"
+          - "test/headless_video.bats::capture-video produces video.frame"
+          - "test/headless_video.bats::multiple capture steps appear in video.frame"
+
+      - section: "6.2"
+        title: Execution Flow
+        testable: true
+        tests:
+          - "test/headless_state.bats::watch-mem produces state.log with mem entries"
+          - "test/headless_state.bats::watch-reg produces state.log with reg entries"
+          - "test/headless_state.bats::watch-comp produces state.log with comp entries"
+          - "test/headless_audio.bats::record-audio produces audio.pcm"
+          - "test/headless_video.bats::capture-video produces video.frame"
+
+      - section: "6.3"
+        title: Output Files
+        testable: true
+        tests:
+          - "test/headless_state.bats::watch-mem produces state.log with mem entries"
+          - "test/headless_state.bats::watch-reg produces state.log with reg entries"
+          - "test/headless_state.bats::watch-comp produces state.log with comp entries"
+          - "test/headless_state.bats::no observers produces no state.log"
+          - "test/headless_audio.bats::record-audio produces audio.pcm"
+          - "test/headless_audio.bats::no record-audio produces no audio.pcm"
+          - "test/headless_video.bats::capture-video produces video.frame"
+          - "test/headless_video.bats::no capture-video produces no video.frame"
+
+      - section: "7"
+        title: Files
+        testable: false
+
+      - section: "8"
+        title: What Does Not Change
+        testable: false
+
+      - section: "9"
+        title: Verification
+        testable: true
+        tests:
+          - "test/headless_state.bats::watch-mem produces state.log with mem entries"
+          - "test/headless_state.bats::watch-reg produces state.log with reg entries"
+          - "test/headless_state.bats::watch-comp produces state.log with comp entries"
+          - "test/headless_audio.bats::record-audio produces audio.pcm"
+          - "test/headless_video.bats::capture-video produces video.frame"
+
+  - spec: spec-5
+    title: Mini Assembler
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Scope
+        testable: false
+
+      - section: "3"
+        title: Source Format
+        testable: false
+
+      - section: "3.1"
+        title: Lines
+        testable: true
+        tests:
+          - "test/assembler.bats::valid program exits with status 0"
+          - "test/assembler.bats::blank lines are ignored"
+
+      - section: "3.2"
+        title: Comments
+        testable: true
+        tests:
+          - "test/assembler.bats::comments are ignored"
+
+      - section: "3.3"
+        title: Labels
+        testable: true
+        tests:
+          - "test/assembler.bats::label on its own line sets address for next instruction"
+          - "test/assembler.bats::forward branch label resolves to correct relative offset"
+          - "test/assembler.bats::backward branch label resolves to correct negative relative offset"
+          - "test/assembler.bats::JMP to label uses absolute addressing"
+          - "test/assembler.bats::duplicate label exits with non-zero status"
+          - "test/assembler.bats::duplicate label error message mentions duplicate"
+
+      - section: "3.4"
+        title: Identifiers as Operands
+        testable: true
+        tests:
+          - "test/assembler.bats::forward branch label resolves to correct relative offset"
+          - "test/assembler.bats::backward branch label resolves to correct negative relative offset"
+          - "test/assembler.bats::JMP to label uses absolute addressing"
+          - "test/assembler.bats::undefined label reference exits with non-zero status"
+          - "test/assembler.bats::undefined label error message mentions undefined"
+
+      - section: "4"
+        title: Instructions
+        testable: false
+
+      - section: "4.1"
+        title: Addressing Modes
+        testable: true
+        tests:
+          - "test/assembler.bats::immediate mode: LDA #$FF"
+          - "test/assembler.bats::zero page mode: LDA $10"
+          - "test/assembler.bats::four-digit hex forces absolute mode: LDA $0010"
+          - "test/assembler.bats::implied mode: NOP"
+          - "test/assembler.bats::implied mode: CLC"
+          - "test/assembler.bats::accumulator mode: ASL A"
+          - "test/assembler.bats::absolute X-indexed mode: LDA $0400,X"
+          - "test/assembler.bats::zero page X-indexed mode: LDA $10,X"
+          - "test/assembler.bats::absolute indirect mode: JMP ($FFFC)"
+          - "test/assembler.bats::X-indexed indirect mode: LDA ($10,X)"
+          - "test/assembler.bats::indirect Y-indexed mode: LDA ($10),Y"
+          - "test/assembler.bats::zero page indirect mode: LDA ($10)"
+          - "test/assembler.bats::forward branch label resolves to correct relative offset"
+          - "test/assembler.bats::backward branch label resolves to correct negative relative offset"
+          - "test/assembler.bats::branch target out of range exits with non-zero status"
+          - "test/assembler.bats::branch target out of range error message mentions range"
+
+      - section: "4.2"
+        title: Accumulator Disambiguation
+        testable: true
+        tests:
+          - "test/assembler.bats::accumulator mode: ASL A"
+          - "test/assembler.bats::accumulator mode: ASL with no operand"
+
+      - section: "5"
+        title: Directives
+        testable: false
+
+      - section: "5.1"
+        title: .byte
+        testable: true
+        tests:
+          - "test/assembler.bats::.byte emits the specified bytes"
+
+      - section: "5.2"
+        title: .word
+        testable: true
+        tests:
+          - "test/assembler.bats::.word emits 16-bit values in little-endian order"
+
+      - section: "5.3"
+        title: .org
+        testable: true
+        tests:
+          - "test/assembler.bats::.org changes the assembly origin"
+
+      - section: "5.4"
+        title: .halt
+        testable: true
+        tests:
+          - "test/assembler.bats::.halt emits JMP to current address"
+
+      - section: "6"
+        title: Assembly Process
+        testable: false
+
+      - section: "6.1"
+        title: Two-Pass Assembly
+        testable: true
+        tests:
+          # Forward label reference proves pass 1 records labels before pass 2
+          # resolves them
+          - "test/assembler.bats::forward branch label resolves to correct relative offset"
+          - "test/assembler.bats::JMP to label uses absolute addressing"
+
+      - section: "6.2"
+        title: Error Reporting
+        testable: true
+        tests:
+          - "test/assembler.bats::unknown mnemonic exits with non-zero status"
+          - "test/assembler.bats::unknown mnemonic error message includes filename and line number"
+          - "test/assembler.bats::duplicate label exits with non-zero status"
+          - "test/assembler.bats::duplicate label error message mentions duplicate"
+          - "test/assembler.bats::undefined label reference exits with non-zero status"
+          - "test/assembler.bats::undefined label error message mentions undefined"
+          - "test/assembler.bats::branch target out of range exits with non-zero status"
+          - "test/assembler.bats::branch target out of range error message mentions range"
+
+      - section: "7"
+        title: Disk Image Output
+        testable: false
+
+      - section: "7.1"
+        title: Layout
+        testable: true
+        tests:
+          - "test/assembler.bats::output is exactly 143360 bytes"
+          - "test/assembler.bats::small program sets sector count to 1"
+          - "test/assembler.bats::256-byte program sets sector count to 2"
+
+      - section: "7.2"
+        title: Sector Interleaving
+        testable: true
+        tests:
+          # Correct byte values at specific dsk offsets proves the interleave
+          # is applied correctly
+          - "test/assembler.bats::.halt emits JMP to current address"
+          - "test/assembler.bats::immediate mode: LDA #$FF"
+          - "test/assembler.bats::zero page mode: LDA $10"
+
+      - section: "7.3"
+        title: Size Limit
+        testable: false
+
+      - section: "8"
+        title: Interface
+        testable: true
+        tests:
+          - "test/assembler.bats::valid program exits with status 0"
+          - "test/assembler.bats::stdin input via - produces correct output"
+          - "test/assembler.bats::stdout output when -o is omitted"
+          - "test/assembler.bats::unknown mnemonic exits with non-zero status"
+          - "test/assembler.bats::lowercase mnemonics are accepted"
+
+      - section: "9"
+        title: Design Considerations
+        testable: false
+
+      - section: "9.1"
+        title: Opcode Table
+        testable: false
+
+      - section: "9.2"
+        title: No Macro System
+        testable: false
+
+      - section: "9.3"
+        title: Relationship to Existing Packages
+        testable: false
+
+      - section: "9.4"
+        title: Test Disk Workflow
+        testable: false

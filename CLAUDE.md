@@ -7,6 +7,13 @@ Apple II computer, specifically the Apple //e "enhanced" model.
 Erc is a CLI program that is written in Go. For its graphics, it makes use of
 the 2D graphics library, ebiten.
 
+Black box tests are implemented with a tool called
+[bats](https://github.com/bats-core/bats-core). You can find them in the
+`tests/` directory.
+
+Code is only testable if it passes a lint check (`just lint`) and a formatter
+check (`just format-list`).
+
 ## Commands
 
 - `just lint`: run a linter on every source code file
