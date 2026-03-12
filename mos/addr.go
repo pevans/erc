@@ -237,6 +237,15 @@ func Idx(c *CPU) {
 	c.EffVal = c.Get(c.EffAddr)
 }
 
+// zpDeref reads the 16-bit little-endian pointer stored at the given
+// zero-page address, wrapping correctly at the zero-page boundary ($FF/$00).
+func zpDeref(c *CPU, addr uint16) uint16 {
+	if addr == 0xFF {
+		return (uint16(c.Get(0)) << 8) | uint16(c.Get(0xFF))
+	}
+	return c.Get16(addr)
+}
+
 // Idy resolves the indirect indexed address mode, which is essentially a
 // zero-page pointer that addresses something else and let's us loop on the
 // _something else_.
@@ -246,23 +255,8 @@ func Idx(c *CPU) {
 // effective address and the looked-up byte at <addr2>.
 func Idy(c *CPU) {
 	c.AddrMode = AmIDY
-
-	// The base address for the instruction; the `$NN` part of the operand.
 	c.Operand = uint16(c.Get(c.PC + 1))
-
-	// This dereferences the base address, essentially resolving the `()` part
-	// of the operand.
-	effAddr := uint16(0)
-
-	if c.Operand == 0xFF {
-		effAddr = (uint16(c.Get(0)) << 8) | uint16(c.Get(0xFF))
-	} else {
-		effAddr = c.Get16(c.Operand)
-	}
-
-	// And here we account for the `,Y` part; Y is added to the dereferenced
-	// address.
-	c.EffAddr = effAddr + uint16(c.Y)
+	c.EffAddr = zpDeref(c, c.Operand) + uint16(c.Y)
 	c.EffVal = c.Get(c.EffAddr)
 }
 
@@ -347,12 +341,6 @@ func Zpy(c *CPU) {
 func Zpi(c *CPU) {
 	c.AddrMode = AmZPI
 	c.Operand = uint16(c.Get(c.PC + 1))
-
-	if c.Operand == 0xFF {
-		c.EffAddr = (uint16(c.Get(0)) << 8) | uint16(c.Get(0xFF))
-	} else {
-		c.EffAddr = c.Get16(c.Operand)
-	}
-
+	c.EffAddr = zpDeref(c, c.Operand)
 	c.EffVal = c.Get(c.EffAddr)
 }
