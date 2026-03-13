@@ -736,3 +736,369 @@ specs:
       - section: "9.4"
         title: Test Disk Workflow
         testable: false
+
+  - spec: spec-6
+    title: MOS 65C02 CPU
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Registers
+        testable: false
+
+      - section: "2.1"
+        title: Program Counter (PC)
+        testable: false
+
+      - section: "2.2"
+        title: Accumulator (A)
+        testable: false
+
+      - section: "2.3"
+        title: Index Registers (X, Y)
+        testable: false
+
+      - section: "2.4"
+        title: Stack Pointer (S)
+        testable: false
+
+      - section: "2.5"
+        title: Status Register (P)
+        testable: false
+
+      - section: "2.6"
+        title: Internal State (LastPC, Opcode)
+        testable: false
+
+      - section: "3"
+        title: Memory Interface
+        testable: false
+
+      - section: "4"
+        title: Addressing Modes
+        testable: false
+
+      - section: "4.1"
+        title: Implied (IMP)
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::mode: implied -- INX operates on X with no operand"
+
+      - section: "4.2"
+        title: Accumulator (ACC)
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::mode: accumulator -- ASL A shifts accumulator not memory"
+          - "test/mos_cpu.bats::ASL accumulator shifts left; old bit 7 goes to C"
+
+      - section: "4.3"
+        title: Immediate (IMM)
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::mode: immediate -- LDA #$5A -> A == $5A"
+          - "test/mos_cpu.bats::LDA immediate loads value into A"
+
+      - section: "4.4"
+        title: Zero Page (ZPG)
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::mode: zero-page -- LDA $10 reads from zero page"
+          - "test/mos_cpu.bats::LDA zero-page loads from memory"
+
+      - section: "4.5"
+        title: Zero Page X-indexed (ZPX)
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::mode: zero-page X -- LDA $10,X with X=2 reads $12"
+          - "test/mos_cpu.bats::LDA zero-page X-indexed loads from zpg+X"
+
+      - section: "4.6"
+        title: Zero Page Y-indexed (ZPY)
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::mode: zero-page Y -- STX $10,Y with Y=2 writes to $12"
+
+      - section: "4.7"
+        title: Zero Page Indirect (ZPI)
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::mode: zero-page indirect -- LDA ($10) dereferences ZP pointer"
+
+      - section: "4.8"
+        title: Absolute (ABS)
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::mode: absolute -- LDA $0300 loads from full address"
+          - "test/mos_cpu.bats::LDA absolute loads from full 16-bit address"
+
+      - section: "4.9"
+        title: Absolute X-indexed (ABX)
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::mode: absolute X -- LDA $0300,X with X=2 reads $0302"
+          - "test/mos_cpu.bats::LDA absolute X-indexed loads from abs+X"
+
+      - section: "4.10"
+        title: Absolute Y-indexed (ABY)
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::mode: absolute Y -- LDA $0300,Y with Y=2 reads $0302"
+          - "test/mos_cpu.bats::LDA absolute Y-indexed loads from abs+Y"
+
+      - section: "4.11"
+        title: Indirect (IND)
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::mode: indirect -- JMP ($0200) dereferences pointer"
+          - "test/mos_cpu.bats::JMP indirect dereferences pointer"
+
+      - section: "4.12"
+        title: X-indexed Indirect (IDX)
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::mode: X-indexed indirect -- LDA ($10,X) with X=2"
+
+      - section: "4.13"
+        title: Indirect Y-indexed (IDY)
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::mode: indirect Y-indexed -- LDA ($10),Y with Y=2"
+
+      - section: "4.14"
+        title: Relative (REL)
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::mode: relative -- BRA skips a trap value"
+          - "test/mos_cpu.bats::backward branch: loop counts down to zero"
+
+      - section: "4.15"
+        title: Two-byte Placeholder (BY2)
+        testable: false
+
+      - section: "4.16"
+        title: Three-byte Placeholder (BY3)
+        testable: false
+
+      - section: "5"
+        title: Instruction Set
+        testable: false
+
+      - section: "5.1"
+        title: Load and Store
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::LDA immediate loads value into A"
+          - "test/mos_cpu.bats::LDA zero-page loads from memory"
+          - "test/mos_cpu.bats::LDA absolute loads from full 16-bit address"
+          - "test/mos_cpu.bats::LDA zero-page X-indexed loads from zpg+X"
+          - "test/mos_cpu.bats::LDA absolute X-indexed loads from abs+X"
+          - "test/mos_cpu.bats::LDA absolute Y-indexed loads from abs+Y"
+          - "test/mos_cpu.bats::LDX immediate loads value into X"
+          - "test/mos_cpu.bats::LDX zero-page loads from memory"
+          - "test/mos_cpu.bats::LDX absolute loads from full 16-bit address"
+          - "test/mos_cpu.bats::LDY immediate loads value into Y"
+          - "test/mos_cpu.bats::LDY zero-page loads from memory"
+          - "test/mos_cpu.bats::LDY absolute loads from full 16-bit address"
+          - "test/mos_cpu.bats::STX stores X to zero-page"
+          - "test/mos_cpu.bats::STY stores Y to zero-page"
+          - "test/mos_cpu.bats::STZ zero-page stores zero"
+          - "test/mos_cpu.bats::STZ absolute stores zero"
+          - "test/mos_cpu.bats::LDA #$80 sets N flag; LDA #$40 clears N flag"
+          - "test/mos_cpu.bats::LDA #$00 sets Z flag; LDA #$01 clears Z flag"
+
+      - section: "5.2"
+        title: Register Transfers
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::TAX copies A to X and sets N/Z flags"
+          - "test/mos_cpu.bats::TXA copies X to A and sets N/Z flags"
+          - "test/mos_cpu.bats::TAY copies A to Y"
+          - "test/mos_cpu.bats::TYA copies Y to A"
+          - "test/mos_cpu.bats::TSX copies S to X and sets N/Z flags"
+          - "test/mos_cpu.bats::TXS copies X to S without affecting flags"
+
+      - section: "5.3"
+        title: Stack Operations
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::PHA/PLA round-trip preserves value"
+          - "test/mos_cpu.bats::PHX/PLX round-trip preserves value"
+          - "test/mos_cpu.bats::PHY/PLY round-trip preserves value"
+          - "test/mos_cpu.bats::PHP/PLP round-trip preserves P"
+          - "test/mos_cpu.bats::multiple pushes stack in LIFO order"
+          - "test/mos_cpu.bats::S decrements on push and increments on pull"
+
+      - section: "5.4"
+        title: Arithmetic
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::ADC basic addition without carry"
+          - "test/mos_cpu.bats::ADC with carry-in adds 1 extra"
+          - "test/mos_cpu.bats::ADC carry-out sets C flag"
+          - "test/mos_cpu.bats::ADC overflow sets V flag ($7F + $01)"
+          - "test/mos_cpu.bats::ADC result $00 sets Z flag"
+          - "test/mos_cpu.bats::ADC result with bit 7 set sets N flag"
+          - "test/mos_cpu.bats::SBC basic subtraction"
+          - "test/mos_cpu.bats::SBC borrow clears C flag"
+          - "test/mos_cpu.bats::SBC overflow $80 - $01 sets V flag"
+          - "test/mos_cpu.bats::INX increments X by 1"
+          - "test/mos_cpu.bats::INX wraps $FF to $00 and sets Z"
+          - "test/mos_cpu.bats::INY increments Y by 1"
+          - "test/mos_cpu.bats::DEX decrements X by 1"
+          - "test/mos_cpu.bats::DEX wraps $00 to $FF and sets N"
+          - "test/mos_cpu.bats::DEY decrements Y by 1"
+          - "test/mos_cpu.bats::INC zero-page increments memory and sets Z on $FF->$00"
+          - "test/mos_cpu.bats::DEC zero-page decrements memory"
+
+      - section: "5.5"
+        title: Compare
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::CMP equal: Z=1 C=1 N=0; register unchanged"
+          - "test/mos_cpu.bats::CMP greater: Z=0 C=1 N=0"
+          - "test/mos_cpu.bats::CMP less: Z=0 C=0 N=1"
+          - "test/mos_cpu.bats::CPX equal sets Z and C flags"
+          - "test/mos_cpu.bats::CPX greater: Z=0 C=1 N=0"
+          - "test/mos_cpu.bats::CPX less: Z=0 C=0 N=1"
+          - "test/mos_cpu.bats::CPY equal sets Z and C flags"
+          - "test/mos_cpu.bats::CPY greater: Z=0 C=1 N=0"
+          - "test/mos_cpu.bats::CPY less: Z=0 C=0 N=1"
+          - "test/mos_cpu.bats::CMP does not modify the compared register"
+
+      - section: "5.6"
+        title: Bitwise and Shift
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::AND masks bits correctly"
+          - "test/mos_cpu.bats::AND result $00 sets Z flag"
+          - "test/mos_cpu.bats::ORA sets bits correctly"
+          - "test/mos_cpu.bats::ORA result with bit 7 set sets N flag"
+          - "test/mos_cpu.bats::EOR flips bits correctly"
+          - "test/mos_cpu.bats::EOR self-XOR produces $00 and sets Z flag"
+          - "test/mos_cpu.bats::ASL accumulator shifts left; old bit 7 goes to C"
+          - "test/mos_cpu.bats::LSR accumulator shifts right; old bit 0 goes to C"
+          - "test/mos_cpu.bats::ROL accumulator rotates left through C"
+          - "test/mos_cpu.bats::ROR accumulator rotates right through C"
+          - "test/mos_cpu.bats::ASL zero-page shifts memory byte left"
+          - "test/mos_cpu.bats::LSR zero-page shifts memory byte right"
+          - "test/mos_cpu.bats::ASL twice equals multiply by 4"
+          - "test/mos_cpu.bats::ROL/ROR round-trip restores original value"
+          - "test/mos_cpu.bats::ROL/ROR round-trip on zero-page memory restores original value"
+          - "test/mos_cpu.bats::BIT immediate: Z set when A AND imm == 0"
+          - "test/mos_cpu.bats::BIT zero-page: N/V copied from bits 7/6 of memory"
+          - "test/mos_cpu.bats::BIT zero-page: Z set when A AND M == 0"
+          - "test/mos_cpu.bats::BIT absolute: N/V copied from bits 7/6 of memory"
+          - "test/mos_cpu.bats::TSB sets bits in memory that are set in A"
+          - "test/mos_cpu.bats::TRB clears bits in memory that are set in A"
+
+      - section: "5.7"
+        title: Branch
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::BEQ taken when Z=1: skips alternate path"
+          - "test/mos_cpu.bats::BEQ not-taken when Z=0: falls through"
+          - "test/mos_cpu.bats::BNE taken when Z=0: skips alternate path"
+          - "test/mos_cpu.bats::BNE not-taken when Z=1: falls through"
+          - "test/mos_cpu.bats::BCC taken when C=0"
+          - "test/mos_cpu.bats::BCC not-taken when C=1"
+          - "test/mos_cpu.bats::BCS taken when C=1"
+          - "test/mos_cpu.bats::BCS not-taken when C=0"
+          - "test/mos_cpu.bats::BMI taken when N=1"
+          - "test/mos_cpu.bats::BMI not-taken when N=0"
+          - "test/mos_cpu.bats::BPL taken when N=0"
+          - "test/mos_cpu.bats::BPL not-taken when N=1"
+          - "test/mos_cpu.bats::BVC taken when V=0"
+          - "test/mos_cpu.bats::BVC not-taken when V=1"
+          - "test/mos_cpu.bats::BVS taken when V=1"
+          - "test/mos_cpu.bats::BVS not-taken when V=0"
+          - "test/mos_cpu.bats::BRA always branches unconditionally"
+          - "test/mos_cpu.bats::backward branch: loop counts down to zero"
+
+      - section: "5.8"
+        title: Jump and Call
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::JMP absolute moves PC to target"
+          - "test/mos_cpu.bats::JMP indirect dereferences pointer"
+          - "test/mos_cpu.bats::JSR jumps to subroutine; RTS returns"
+          - "test/mos_cpu.bats::nested JSR/RTS unwinds stack correctly"
+          - "test/mos_cpu.bats::S decrements by 2 on JSR and increments by 2 on RTS"
+
+      - section: "5.9"
+        title: Interrupt and Break
+        testable: false
+
+      - section: "5.10"
+        title: Status Flag Operations
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::CLC clears C; SEC sets C"
+          - "test/mos_cpu.bats::CLV clears V after overflow sets it"
+          - "test/mos_cpu.bats::SEI sets I flag; CLI clears I flag"
+          - "test/mos_cpu.bats::SED sets D flag; CLD clears D flag"
+
+      - section: "5.11"
+        title: No Operation
+        testable: false
+
+      - section: "6"
+        title: Execution Model
+        testable: false
+
+      - section: "6.1"
+        title: Instruction Cycle
+        testable: false
+
+      - section: "6.2"
+        title: Flag Maintenance
+        testable: true
+        tests:
+          # Every PHP/PLA/STA $02 capture implicitly verifies that Unused
+          # and Break are set, since assert_flag checks against the captured P
+          - "test/mos_cpu.bats::CLC clears C; SEC sets C"
+          - "test/mos_cpu.bats::SEI sets I flag; CLI clears I flag"
+
+      - section: "7"
+        title: Stack
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::PHA/PLA round-trip preserves value"
+          - "test/mos_cpu.bats::multiple pushes stack in LIFO order"
+          - "test/mos_cpu.bats::S decrements on push and increments on pull"
+          - "test/mos_cpu.bats::S decrements by 2 on JSR and increments by 2 on RTS"
+
+      - section: "8"
+        title: Decimal (BCD) Mode
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::SED enables decimal mode; CLD restores binary mode"
+
+      - section: "9"
+        title: Cycle Counting
+        testable: false
+
+      - section: "9.1"
+        title: Page-Boundary Crossing
+        testable: false
+
+      - section: "9.2"
+        title: Branch Instructions
+        testable: false
+
+      - section: "9.3"
+        title: Decimal Mode
+        testable: false
+
+      - section: "9.4"
+        title: Cycle Accumulation
+        testable: false
+
+      - section: "10"
+        title: State Serialization
+        testable: false
+
+      - section: "11"
+        title: Exported Interface
+        testable: false
