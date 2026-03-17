@@ -356,5 +356,16 @@ func (s *mosSuite) TestSbc() {
 
 		mos.Sbc(s.cpu)
 		s.Equal(uint8(0x9), s.cpu.A)
+		s.Equal(mos.CARRY, s.cpu.P&mos.CARRY)
+	})
+
+	s.Run("decimal borrow clears carry", func() {
+		s.cpu.A = 0x00
+		s.cpu.EffVal = 0x01
+		s.cpu.P = mos.DECIMAL | mos.CARRY
+
+		mos.Sbc(s.cpu)
+		s.Equal(uint8(0x99), s.cpu.A)
+		s.Equal(uint8(0), s.cpu.P&mos.CARRY)
 	})
 }

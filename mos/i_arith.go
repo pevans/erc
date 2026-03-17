@@ -155,7 +155,7 @@ func Sbc(c *CPU) {
 
 		c.ApplyZ(uint8(decimalAccumulator.Result))
 		c.ApplyStatus(decimalAccumulator.Negative, NEGATIVE)
-		c.ApplyStatus(decimalAccumulator.Result >= 0, CARRY)
+		c.ApplyStatus(!decimalAccumulator.Negative, CARRY)
 
 		c.A = uint8(decimalAccumulator.Binary())
 		return
