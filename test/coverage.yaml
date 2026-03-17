@@ -1028,7 +1028,13 @@ specs:
 
       - section: "5.9"
         title: Interrupt and Break
-        testable: false
+        testable: true
+        tests:
+          # BRK is not directly testable in this harness: the Apple II ROM
+          # owns the interrupt vector at $FFFE/$FFFF and its BRK handler
+          # cannot be overridden from assembly in the disk image.
+          - "test/mos_cpu.bats::RTI restores PC from stack: jumps past trap to success code"
+          - "test/mos_cpu.bats::RTI restores P flags from stack"
 
       - section: "5.10"
         title: Status Flag Operations
@@ -1041,7 +1047,9 @@ specs:
 
       - section: "5.11"
         title: No Operation
-        testable: false
+        testable: true
+        tests:
+          - "test/mos_cpu.bats::NOP does not affect registers or memory"
 
       - section: "6"
         title: Execution Model
@@ -1074,6 +1082,10 @@ specs:
         testable: true
         tests:
           - "test/mos_cpu.bats::SED enables decimal mode; CLD restores binary mode"
+          - "test/mos_cpu.bats::BCD add $99 + $01 = $00 with carry"
+          - "test/mos_cpu.bats::BCD add crossing nibble boundary: $28 + $14 = $42"
+          - "test/mos_cpu.bats::BCD subtract $20 - $01 = $19"
+          - "test/mos_cpu.bats::BCD subtract with borrow: $00 - $01 = $99 C=0"
 
       - section: "9"
         title: Cycle Counting
