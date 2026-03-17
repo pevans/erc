@@ -960,6 +960,38 @@ teardown()   { load mos_helper; teardown; }
 	[[ "$s_before" == "$s_after" ]]
 }
 
+@test "RTI restores PC from stack: jumps past trap to success code" {
+	# Manually push a fake interrupt frame (PCH, PCL, P) then RTI.
+	# RTI pops P first, then PCL, then PCH.
+	# Byte layout: 7 setup instrs + RTI = $080A; trap at $080B-$0811;
+	# success code at $0812 (PCH=$08, PCL=$12).
+	cpu_run \
+		'LDA #$08' 'PHA' \
+		'LDA #$12' 'PHA' \
+		'LDA #$30' 'PHA' \
+		'RTI' \
+		'LDA #$FF' 'STA $00' '.halt' \
+		'LDA #$42' 'STA $00' '.halt'
+	[[ $status -eq 0 ]]
+	assert_zp 0 42
+}
+
+@test "RTI restores P flags from stack" {
+	# Push P=$31 (Carry|Break|Unused); RTI should land at $0812 with Carry set.
+	# Success code immediately captures P via PHP/PLA/STA $02.
+	# Byte layout: same setup as above; success code at $0812.
+	cpu_run \
+		'LDA #$08' 'PHA' \
+		'LDA #$12' 'PHA' \
+		'LDA #$31' 'PHA' \
+		'RTI' \
+		'LDA #$FF' 'STA $00' '.halt' \
+		'PHP' 'PLA' 'STA $02' 'LDA #$42' 'STA $00' '.halt'
+	[[ $status -eq 0 ]]
+	assert_zp 0 42
+	assert_flag $CARRY
+}
+
 # ---------------------------------------------------------------------------
 # 9. Stack (PHA, PLA, PHX, PLX, PHY, PLY, PHP, PLP)
 # ---------------------------------------------------------------------------
