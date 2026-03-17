@@ -1487,3 +1487,17 @@ teardown()   { load mos_helper; teardown; }
 	[[ $status -eq 0 ]]
 	refute_flag $CARRY
 }
+
+# ---------------------------------------------------------------------------
+# 15. No Operation (NOP)
+# ---------------------------------------------------------------------------
+
+@test "NOP does not affect registers or memory" {
+	cpu_run \
+		'LDA #$42' \
+		'NOP' \
+		'STA $00' \
+		'.halt'
+	[[ $status -eq 0 ]]
+	assert_zp 0 42
+}
