@@ -292,6 +292,58 @@ teardown()   { load mos_helper; teardown; }
 	assert_zp 0 0A
 }
 
+@test "BCD add \$99 + \$01 = \$00 with carry" {
+	cpu_run \
+		'SED' \
+		'CLC' \
+		'LDA #$99' 'ADC #$01' \
+		'STA $00' \
+		'PHP' 'PLA' 'STA $02' \
+		'CLD' \
+		'.halt'
+	[[ $status -eq 0 ]]
+	assert_zp 0 00
+	assert_flag $CARRY
+}
+
+@test "BCD add crossing nibble boundary: \$28 + \$14 = \$42" {
+	cpu_run \
+		'SED' \
+		'CLC' \
+		'LDA #$28' 'ADC #$14' \
+		'STA $00' \
+		'CLD' \
+		'.halt'
+	[[ $status -eq 0 ]]
+	assert_zp 0 42
+}
+
+@test "BCD subtract \$20 - \$01 = \$19" {
+	cpu_run \
+		'SED' \
+		'SEC' \
+		'LDA #$20' 'SBC #$01' \
+		'STA $00' \
+		'CLD' \
+		'.halt'
+	[[ $status -eq 0 ]]
+	assert_zp 0 19
+}
+
+@test "BCD subtract with borrow: \$00 - \$01 = \$99 C=0" {
+	cpu_run \
+		'SED' \
+		'SEC' \
+		'LDA #$00' 'SBC #$01' \
+		'STA $00' \
+		'PHP' 'PLA' 'STA $02' \
+		'CLD' \
+		'.halt'
+	[[ $status -eq 0 ]]
+	assert_zp 0 99
+	refute_flag $CARRY
+}
+
 # ---------------------------------------------------------------------------
 # 3. Logic (AND, ORA, EOR)
 # ---------------------------------------------------------------------------
