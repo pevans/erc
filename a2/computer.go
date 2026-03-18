@@ -233,6 +233,7 @@ func NewComputer(speed int) *Computer {
 	// Speaker buffer for audio generation - size should hold enough events to
 	// cover a few frames of audio at typical toggle rates
 	comp.speaker = a2speaker.NewSpeakerBuffer(speakerBufferSize)
+	comp.volumeLevel = 50
 
 	return comp
 }
@@ -299,17 +300,15 @@ func (c *Computer) SpeedDown() {
 // VolumeUp increases the audio volume by the specified amount (as a
 // percentage), capping at 100%.
 func (c *Computer) VolumeUp(amount int) {
-	if c.audioStream == nil {
-		return
-	}
-
 	// Use effective volume (0 when muted) rather than preserved volumeLevel
 	currentVolume := c.GetVolume()
 	newVolume := min(currentVolume+amount, 100)
 
 	c.volumeMuted = false
 	c.volumeLevel = newVolume
-	c.audioStream.SetVolume(float32(newVolume) / 100.0)
+	if c.audioStream != nil {
+		c.audioStream.SetVolume(float32(newVolume) / 100.0)
+	}
 	c.ShowText(fmt.Sprintf("volume: %v%%", newVolume))
 }
 
@@ -318,10 +317,6 @@ func (c *Computer) VolumeUp(amount int) {
 // (like macOS behavior) while preserving the last non-zero volume for toggle
 // restoration.
 func (c *Computer) VolumeDown(amount int) {
-	if c.audioStream == nil {
-		return
-	}
-
 	// Use effective volume (0 when muted) rather than preserved volumeLevel
 	currentVolume := c.GetVolume()
 	newVolume := max(currentVolume-amount, 0)
@@ -330,12 +325,16 @@ func (c *Computer) VolumeDown(amount int) {
 		// Volume reached zero - treat as muted but preserve volumeLevel for
 		// toggle
 		c.volumeMuted = true
-		c.audioStream.SetVolume(0.0)
+		if c.audioStream != nil {
+			c.audioStream.SetVolume(0.0)
+		}
 		c.ShowText("volume: 0%")
 	} else {
 		c.volumeMuted = false
 		c.volumeLevel = newVolume
-		c.audioStream.SetVolume(float32(newVolume) / 100.0)
+		if c.audioStream != nil {
+			c.audioStream.SetVolume(float32(newVolume) / 100.0)
+		}
 		c.ShowText(fmt.Sprintf("volume: %v%%", newVolume))
 	}
 }
@@ -343,18 +342,18 @@ func (c *Computer) VolumeDown(amount int) {
 // VolumeToggle toggles audio mute on/off. When unmuting, restores the last
 // volume level.
 func (c *Computer) VolumeToggle() {
-	if c.audioStream == nil {
-		return
-	}
-
 	if c.volumeMuted {
 		// Unmute: restore last volume
-		c.audioStream.SetVolume(float32(c.volumeLevel) / 100.0)
+		if c.audioStream != nil {
+			c.audioStream.SetVolume(float32(c.volumeLevel) / 100.0)
+		}
 		c.volumeMuted = false
 		c.ShowText(fmt.Sprintf("volume: %v%%", c.volumeLevel))
 	} else {
 		// Mute: set to 0 (volumeLevel already stores the level to restore)
-		c.audioStream.SetVolume(0.0)
+		if c.audioStream != nil {
+			c.audioStream.SetVolume(0.0)
+		}
 		c.volumeMuted = true
 		c.ShowText("volume: muted")
 	}
@@ -373,13 +372,26 @@ func (c *Computer) IsMuted() bool {
 	return c.volumeMuted
 }
 
+// GetVolumeLevel returns the stored volume level regardless of mute state.
+func (c *Computer) GetVolumeLevel() int {
+	return c.volumeLevel
+}
+
+// GetSpeed returns the current speed setting.
+func (c *Computer) GetSpeed() int {
+	return c.speed
+}
+
+// GetStateSlot returns the current state slot number.
+func (c *Computer) GetStateSlot() int {
+	return c.stateSlot
+}
+
 // SetAudioStream sets the audio stream for volume control.
 func (c *Computer) SetAudioStream(stream AudioStream) {
 	c.audioStream = stream
-	// Initialize with default volume (50%)
-	c.volumeLevel = 50
 
-	// Apply muted state if it was set before the stream was available
+	// Apply current volume state to the newly attached stream
 	if c.volumeMuted {
 		stream.SetVolume(0.0)
 	} else {

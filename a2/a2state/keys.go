@@ -10,10 +10,11 @@ const (
 	BankSysBlockAux
 	BankSysBlockSegment
 	BankWriteRAM
+	Computer
+	DebugImage
 	Debugger
 	DebuggerLookAhead
-	DebugImage
-	Computer
+	DiskIndex
 	DisplayAltChar
 	DisplayAuxSegment
 	DisplayCol80
@@ -21,8 +22,8 @@ const (
 	DisplayHires
 	DisplayIou
 	DisplayMixed
-	DisplayPage2
 	DisplayMonochrome
+	DisplayPage2
 	DisplayRedraw
 	DisplayStore80
 	DisplayText
@@ -36,7 +37,6 @@ const (
 	MemReadSegment
 	MemWriteAux
 	MemWriteSegment
-	Paused
 	PCExpSlot
 	PCExpansion
 	PCIOSelect
@@ -44,7 +44,13 @@ const (
 	PCROMSegment
 	PCSlotC3
 	PCSlotCX
+	Paused
 	SpeakerState
+	Speed
+	StateSlot
+	VolumeLevel
+	VolumeMuted
+	WriteProtect
 )
 
 var keyStringMap = map[int]string{
@@ -55,10 +61,11 @@ var keyStringMap = map[int]string{
 	BankSysBlockAux:     "BankSysBlockAux",
 	BankSysBlockSegment: "BankSysBlockSegment",
 	BankWriteRAM:        "BankWriteRAM",
+	Computer:            "Computer",
+	DebugImage:          "DebugImage",
 	Debugger:            "Debugger",
 	DebuggerLookAhead:   "DebuggerLookAhead",
-	DebugImage:          "DebugImage",
-	Computer:            "Computer",
+	DiskIndex:           "DiskIndex",
 	DisplayAltChar:      "DisplayAltChar",
 	DisplayAuxSegment:   "DisplayAuxSegment",
 	DisplayCol80:        "DisplayCol80",
@@ -81,7 +88,6 @@ var keyStringMap = map[int]string{
 	MemReadSegment:      "MemReadSegment",
 	MemWriteAux:         "MemWriteAux",
 	MemWriteSegment:     "MemWriteSegment",
-	Paused:              "Paused",
 	PCExpSlot:           "PCExpSlot",
 	PCExpansion:         "PCExpansion",
 	PCIOSelect:          "PCIOSelect",
@@ -89,7 +95,13 @@ var keyStringMap = map[int]string{
 	PCROMSegment:        "PCROMSegment",
 	PCSlotC3:            "PCSlotC3",
 	PCSlotCX:            "PCSlotCX",
+	Paused:              "Paused",
 	SpeakerState:        "SpeakerState",
+	Speed:               "Speed",
+	StateSlot:           "StateSlot",
+	VolumeLevel:         "VolumeLevel",
+	VolumeMuted:         "VolumeMuted",
+	WriteProtect:        "WriteProtect",
 }
 
 func KeyToString(key any) string {
