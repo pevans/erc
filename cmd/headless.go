@@ -209,7 +209,7 @@ func runHeadless(images []string) {
 		videoRec.CaptureAt(captureSteps...)
 	}
 
-	var keyEvents map[int][]input.Event
+	var keyEvents map[int]input.Event
 	if headlessKeysFlag != "" {
 		var err error
 		keyEvents, err = parseKeyEvents(headlessKeysFlag)
@@ -222,16 +222,14 @@ func runHeadless(images []string) {
 	for i := range headlessStepsFlag {
 		step := i
 		rec.Step(func() {
-			if events, ok := keyEvents[step]; ok {
-				for _, ev := range events {
-					consumed, err := shortcut.Check(ev, comp)
-					if err != nil {
-						earlyExit = true
-						return
-					}
-					if !consumed {
-						comp.PressKey(uint8(ev.Key))
-					}
+			if ev, ok := keyEvents[step]; ok {
+				consumed, err := shortcut.Check(ev, comp)
+				if err != nil {
+					earlyExit = true
+					return
+				}
+				if !consumed {
+					comp.PressKey(uint8(ev.Key))
 				}
 			}
 			if !earlyExit {
@@ -287,8 +285,8 @@ func runHeadless(images []string) {
 	}
 }
 
-func parseKeyEvents(flagVal string) (map[int][]input.Event, error) {
-	events := make(map[int][]input.Event)
+func parseKeyEvents(flagVal string) (map[int]input.Event, error) {
+	events := make(map[int]input.Event)
 	for entry := range strings.SplitSeq(flagVal, ",") {
 		entry = strings.TrimSpace(entry)
 		if entry == "" {
@@ -314,7 +312,7 @@ func parseKeyEvents(flagVal string) (map[int][]input.Event, error) {
 		if err != nil {
 			return nil, fmt.Errorf("invalid keyspec %q: %w", keyspec, err)
 		}
-		events[step] = []input.Event{ev}
+		events[step] = ev
 	}
 	return events, nil
 }
