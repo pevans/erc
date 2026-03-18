@@ -44,6 +44,15 @@ teardown()   { load test_helper; teardown; }
 	grep -q 'comp Speed .* -> 2' "$OUT/state.log"
 }
 
+@test "ctrl-a = increases speed" {
+	run_headless --steps 1000 \
+		--keys "100:ctrl-a,101:=" \
+		--watch-comp Speed \
+		"$DISK"
+	[[ $status -eq 0 ]]
+	grep -q 'comp Speed .* -> 2' "$OUT/state.log"
+}
+
 @test "ctrl-a - at minimum speed stays at 1" {
 	run_headless --steps 1000 \
 		--keys "100:ctrl-a,101:-" \
@@ -51,6 +60,28 @@ teardown()   { load test_helper; teardown; }
 		"$DISK"
 	[[ $status -eq 0 ]]
 	[[ ! -f "$OUT/state.log" ]] || ! grep -q 'comp Speed' "$OUT/state.log"
+}
+
+@test "ctrl-a _ decreases speed" {
+	# First increase to 2, then decrease with _ back to 1
+	run_headless --steps 1000 \
+		--keys "100:ctrl-a,101:+,200:ctrl-a,201:_" \
+		--watch-comp Speed \
+		"$DISK"
+	[[ $status -eq 0 ]]
+	grep -q 'comp Speed .* -> 2' "$OUT/state.log"
+	grep -q 'comp Speed .* -> 1' "$OUT/state.log"
+}
+
+@test "speed clamps at maximum of 5" {
+	# Increase 5 times (1->2->3->4->5->5), then check no transition beyond 5
+	run_headless --steps 2000 \
+		--keys "100:ctrl-a,101:+,200:ctrl-a,201:+,300:ctrl-a,301:+,400:ctrl-a,401:+,500:ctrl-a,501:+" \
+		--watch-comp Speed \
+		"$DISK"
+	[[ $status -eq 0 ]]
+	grep -q 'comp Speed .* -> 5' "$OUT/state.log"
+	! grep -q 'comp Speed .* -> 6' "$OUT/state.log"
 }
 
 # --- Volume ---
@@ -80,6 +111,37 @@ teardown()   { load test_helper; teardown; }
 		"$DISK"
 	[[ $status -eq 0 ]]
 	grep -q 'comp VolumeLevel .* -> 40' "$OUT/state.log"
+}
+
+@test "ctrl-a v toggles mute off after muting" {
+	run_headless --steps 1000 \
+		--keys "100:ctrl-a,101:v,200:ctrl-a,201:v" \
+		--watch-comp VolumeMuted \
+		"$DISK"
+	[[ $status -eq 0 ]]
+	grep -q 'comp VolumeMuted .* -> true' "$OUT/state.log"
+	grep -q 'comp VolumeMuted .* -> false' "$OUT/state.log"
+}
+
+@test "volume decrease to zero sets muted" {
+	# Default volume is 50; five decreases of 10 reaches 0
+	run_headless --steps 2000 \
+		--keys "100:ctrl-a,101:[,200:ctrl-a,201:[,300:ctrl-a,301:[,400:ctrl-a,401:[,500:ctrl-a,501:[" \
+		--watch-comp VolumeLevel,VolumeMuted \
+		"$DISK"
+	[[ $status -eq 0 ]]
+	grep -q 'comp VolumeMuted .* -> true' "$OUT/state.log"
+}
+
+@test "volume increase clears muted" {
+	# Mute first, then increase volume -- should clear muted
+	run_headless --steps 1000 \
+		--keys "100:ctrl-a,101:v,200:ctrl-a,201:]" \
+		--watch-comp VolumeMuted,VolumeLevel \
+		"$DISK"
+	[[ $status -eq 0 ]]
+	grep -q 'comp VolumeMuted .* -> true' "$OUT/state.log"
+	grep -q 'comp VolumeMuted .* -> false' "$OUT/state.log"
 }
 
 # --- Write Protect ---
