@@ -4,6 +4,9 @@ test pkg="./...":
 build:
     go build -o erc .
 
+install: build
+    mv ./erc ~/bin
+
 run image: build
     ./erc run {{image}}
 
