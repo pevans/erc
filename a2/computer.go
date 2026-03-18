@@ -297,6 +297,12 @@ func (c *Computer) SpeedDown() {
 	c.SetSpeed(c.speed - 1)
 }
 
+func (c *Computer) setStreamVolume(level int) {
+	if c.audioStream != nil {
+		c.audioStream.SetVolume(float32(level) / 100.0)
+	}
+}
+
 // VolumeUp increases the audio volume by the specified amount (as a
 // percentage), capping at 100%.
 func (c *Computer) VolumeUp(amount int) {
@@ -306,9 +312,7 @@ func (c *Computer) VolumeUp(amount int) {
 
 	c.volumeMuted = false
 	c.volumeLevel = newVolume
-	if c.audioStream != nil {
-		c.audioStream.SetVolume(float32(newVolume) / 100.0)
-	}
+	c.setStreamVolume(newVolume)
 	c.ShowText(fmt.Sprintf("volume: %v%%", newVolume))
 }
 
@@ -325,16 +329,12 @@ func (c *Computer) VolumeDown(amount int) {
 		// Volume reached zero - treat as muted but preserve volumeLevel for
 		// toggle
 		c.volumeMuted = true
-		if c.audioStream != nil {
-			c.audioStream.SetVolume(0.0)
-		}
+		c.setStreamVolume(0)
 		c.ShowText("volume: 0%")
 	} else {
 		c.volumeMuted = false
 		c.volumeLevel = newVolume
-		if c.audioStream != nil {
-			c.audioStream.SetVolume(float32(newVolume) / 100.0)
-		}
+		c.setStreamVolume(newVolume)
 		c.ShowText(fmt.Sprintf("volume: %v%%", newVolume))
 	}
 }
@@ -344,16 +344,12 @@ func (c *Computer) VolumeDown(amount int) {
 func (c *Computer) VolumeToggle() {
 	if c.volumeMuted {
 		// Unmute: restore last volume
-		if c.audioStream != nil {
-			c.audioStream.SetVolume(float32(c.volumeLevel) / 100.0)
-		}
+		c.setStreamVolume(c.volumeLevel)
 		c.volumeMuted = false
 		c.ShowText(fmt.Sprintf("volume: %v%%", c.volumeLevel))
 	} else {
 		// Mute: set to 0 (volumeLevel already stores the level to restore)
-		if c.audioStream != nil {
-			c.audioStream.SetVolume(0.0)
-		}
+		c.setStreamVolume(0)
 		c.volumeMuted = true
 		c.ShowText("volume: muted")
 	}
@@ -393,9 +389,9 @@ func (c *Computer) SetAudioStream(stream AudioStream) {
 
 	// Apply current volume state to the newly attached stream
 	if c.volumeMuted {
-		stream.SetVolume(0.0)
+		c.setStreamVolume(0)
 	} else {
-		stream.SetVolume(float32(c.volumeLevel) / 100.0)
+		c.setStreamVolume(c.volumeLevel)
 	}
 }
 
@@ -404,12 +400,10 @@ func (c *Computer) SetAudioStream(stream AudioStream) {
 func (c *Computer) SetMuted(muted bool) {
 	c.volumeMuted = muted
 
-	if c.audioStream != nil {
-		if muted {
-			c.audioStream.SetVolume(0.0)
-		} else {
-			c.audioStream.SetVolume(float32(c.volumeLevel) / 100.0)
-		}
+	if muted {
+		c.setStreamVolume(0)
+	} else {
+		c.setStreamVolume(c.volumeLevel)
 	}
 }
 
