@@ -14,7 +14,9 @@ import (
 	"github.com/pevans/erc/a2"
 	"github.com/pevans/erc/a2/a2audio"
 	"github.com/pevans/erc/a2/a2state"
+	"github.com/pevans/erc/input"
 	"github.com/pevans/erc/record"
+	"github.com/pevans/erc/shortcut"
 	"github.com/spf13/cobra"
 )
 
@@ -27,6 +29,7 @@ var (
 	headlessCaptureVideoFlag string
 	headlessOutputFlag       string
 	headlessStartAtFlag      string
+	headlessKeysFlag         string
 )
 
 var headlessCmd = &cobra.Command{
@@ -86,6 +89,12 @@ func init() {
 		"start-at",
 		"",
 		"Hex address at which to begin counting steps (e.g. 0801); warm-up runs without recording until PC reaches this address",
+	)
+	headlessCmd.Flags().StringVar(
+		&headlessKeysFlag,
+		"keys",
+		"",
+		"Comma-separated timed key events to inject (e.g. \"100:ctrl-a,101:esc\")",
 	)
 }
 
@@ -200,13 +209,47 @@ func runHeadless(images []string) {
 		videoRec.CaptureAt(captureSteps...)
 	}
 
-	record.Run(
-		func() { comp.Process() }, //nolint:errcheck
-		rec,
-		videoRec,
-		headlessStepsFlag,
-		comp.Render,
-	)
+	var keyEvents map[int][]input.Event
+	if headlessKeysFlag != "" {
+		var err error
+		keyEvents, err = parseKeyEvents(headlessKeysFlag)
+		if err != nil {
+			fail(fmt.Sprintf("invalid --keys value: %v", err))
+		}
+	}
+
+	earlyExit := false
+	for i := range headlessStepsFlag {
+		step := i
+		rec.Step(func() {
+			if events, ok := keyEvents[step]; ok {
+				for _, ev := range events {
+					consumed, err := shortcut.Check(ev, comp)
+					if err != nil {
+						earlyExit = true
+						return
+					}
+					if !consumed {
+						comp.PressKey(uint8(ev.Key))
+					}
+				}
+			}
+			if !earlyExit {
+				comp.Process() //nolint:errcheck
+			}
+		})
+		if earlyExit {
+			break
+		}
+
+		if videoRec != nil {
+			step := rec.CurrentStep()
+			if videoRec.NeedsCapture(step) {
+				comp.Render()
+				videoRec.Observe(step)
+			}
+		}
+	}
 
 	if err := os.MkdirAll(headlessOutputFlag, 0o755); err != nil {
 		fail(fmt.Sprintf("could not create output directory: %v", err))
@@ -242,6 +285,55 @@ func runHeadless(images []string) {
 			}
 		}
 	}
+}
+
+func parseKeyEvents(flagVal string) (map[int][]input.Event, error) {
+	events := make(map[int][]input.Event)
+	for entry := range strings.SplitSeq(flagVal, ",") {
+		entry = strings.TrimSpace(entry)
+		if entry == "" {
+			continue
+		}
+		colon := strings.IndexByte(entry, ':')
+		if colon < 0 {
+			return nil, fmt.Errorf("invalid key event %q: missing colon", entry)
+		}
+		stepStr := entry[:colon]
+		keyspec := entry[colon+1:]
+		if keyspec == "" {
+			return nil, fmt.Errorf("empty keyspec at step %q", stepStr)
+		}
+		step, err := strconv.Atoi(stepStr)
+		if err != nil {
+			return nil, fmt.Errorf("invalid step number %q: %w", stepStr, err)
+		}
+		if _, exists := events[step]; exists {
+			return nil, fmt.Errorf("duplicate step number %d", step)
+		}
+		ev, err := parseKeySpec(keyspec)
+		if err != nil {
+			return nil, fmt.Errorf("invalid keyspec %q: %w", keyspec, err)
+		}
+		events[step] = []input.Event{ev}
+	}
+	return events, nil
+}
+
+func parseKeySpec(spec string) (input.Event, error) {
+	if strings.HasPrefix(spec, "ctrl-") {
+		rest := spec[5:]
+		if len(rest) != 1 {
+			return input.Event{}, fmt.Errorf("expected single character after ctrl-, got %q", rest)
+		}
+		return input.Event{Key: rune(rest[0]), Modifier: input.ModControl}, nil
+	}
+	if spec == "esc" {
+		return input.Event{Key: 0x1B}, nil
+	}
+	if len(spec) == 1 {
+		return input.Event{Key: rune(spec[0])}, nil
+	}
+	return input.Event{}, fmt.Errorf("unrecognized keyspec %q", spec)
 }
 
 func parseHeadlessMemRange(comp *a2.Computer, rangeStr string) ([]record.Observer, error) {
@@ -300,6 +392,7 @@ var headlessStateNameToKey = map[string]int{
 	"BankSysBlockAux":     a2state.BankSysBlockAux,
 	"BankSysBlockSegment": a2state.BankSysBlockSegment,
 	"BankWriteRAM":        a2state.BankWriteRAM,
+	"Debugger":            a2state.Debugger,
 	"DisplayAltChar":      a2state.DisplayAltChar,
 	"DisplayAuxSegment":   a2state.DisplayAuxSegment,
 	"DisplayCol80":        a2state.DisplayCol80,
@@ -325,7 +418,22 @@ var headlessStateNameToKey = map[string]int{
 	"SpeakerState":        a2state.SpeakerState,
 }
 
+var headlessStateGetterMap = map[string]func(*a2.Computer) any{
+	"DiskIndex":    func(c *a2.Computer) any { return c.Disks.CurrentIndex() },
+	"Speed":        func(c *a2.Computer) any { return c.GetSpeed() },
+	"StateSlot":    func(c *a2.Computer) any { return c.GetStateSlot() },
+	"VolumeLevel":  func(c *a2.Computer) any { return c.GetVolumeLevel() },
+	"VolumeMuted":  func(c *a2.Computer) any { return c.IsMuted() },
+	"WriteProtect": func(c *a2.Computer) any { return c.SelectedDrive().WriteProtected() },
+}
+
 func headlessCompStateObserver(comp *a2.Computer, name string) (record.Observer, error) {
+	if getter, ok := headlessStateGetterMap[name]; ok {
+		return record.NewObserver(record.TagComp, name, func() any {
+			return getter(comp)
+		}), nil
+	}
+
 	key, ok := headlessStateNameToKey[name]
 	if !ok {
 		return nil, fmt.Errorf("unknown state %q", name)
