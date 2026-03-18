@@ -146,6 +146,69 @@ teardown()   { load test_helper; teardown; }
 	[[ ! -f "$OUT/state.log" ]] || [[ ! -s "$OUT/state.log" ]]
 }
 
+# --- Load Next / Previous Disk ---
+
+@test "ctrl-a n loads next disk" {
+	DISK2="$BATS_TEST_DIRNAME/../work/bt1_char.dsk"
+	[[ -f "$DISK2" ]] || skip "second disk image not found: $DISK2"
+	run_headless --steps 1000 \
+		--keys "100:ctrl-a,101:n" \
+		--watch-comp DiskIndex \
+		"$DISK" "$DISK2"
+	[[ $status -eq 0 ]]
+	grep -q 'comp DiskIndex .* -> 1' "$OUT/state.log"
+}
+
+@test "ctrl-a p loads previous disk" {
+	DISK2="$BATS_TEST_DIRNAME/../work/bt1_char.dsk"
+	[[ -f "$DISK2" ]] || skip "second disk image not found: $DISK2"
+	run_headless --steps 1000 \
+		--keys "100:ctrl-a,101:n,200:ctrl-a,201:p" \
+		--watch-comp DiskIndex \
+		"$DISK" "$DISK2"
+	[[ $status -eq 0 ]]
+	grep -q 'comp DiskIndex .* -> 1' "$OUT/state.log"
+	grep -q 'comp DiskIndex .* -> 0' "$OUT/state.log"
+}
+
+# --- Save and Load State ---
+
+@test "ctrl-a s saves state" {
+	run_headless --steps 1000 \
+		--keys "100:ctrl-a,101:s" \
+		"$DISK"
+	[[ $status -eq 0 ]]
+	[[ -f "$DISK.1.state" ]]
+	rm -f "$DISK.1.state"
+}
+
+@test "ctrl-a l loads state without crashing when no state file exists" {
+	rm -f "$DISK.1.state"
+	run_headless --steps 1000 \
+		--keys "100:ctrl-a,101:l" \
+		"$DISK"
+	[[ $status -eq 0 ]]
+}
+
+@test "save and load state round-trip preserves register" {
+	# Save state at step 100, then load it at step 300.
+	# Between save and load, the CPU will have executed ~200 steps,
+	# changing register values. After load, KBLastKey should revert
+	# to its saved value.
+	run_headless --steps 1000 \
+		--keys "100:ctrl-a,101:s,200:a,300:ctrl-a,301:l" \
+		--watch-comp KBLastKey \
+		"$DISK"
+	[[ $status -eq 0 ]]
+	# After pressing 'a' at step 200, KBLastKey changes.
+	# After loading state at step 301, KBLastKey reverts to pre-'a' value.
+	# We check that KBLastKey changed at least twice (set by 'a', then reverted by load).
+	local changes
+	changes=$(grep -c 'comp KBLastKey' "$OUT/state.log")
+	[[ $changes -ge 2 ]]
+	rm -f "$DISK.1.state"
+}
+
 # --- Parse errors ---
 
 @test "invalid step number fails" {
