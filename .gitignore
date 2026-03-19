@@ -10,6 +10,7 @@
 *.disklog
 *.physical
 *.time
+*.state
 
 # erc binary
 /erc
