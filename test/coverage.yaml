@@ -1345,3 +1345,281 @@ specs:
           - "test/headless_shortcuts.bats::ctrl-a b enables debugger"
           - "test/headless_shortcuts.bats::ctrl-a q exits cleanly"
           - "test/headless_shortcuts.bats::double ctrl-a sends literal ctrl-a to machine"
+
+  - spec: spec-8
+    title: Debugger Testing
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Problem
+        testable: false
+
+      - section: "3"
+        title: "Approach: tmux Sessions"
+        testable: false
+
+      - section: "3.1"
+        title: Why tmux
+        testable: false
+
+      - section: "3.2"
+        title: Session Lifecycle
+        testable: false
+
+      - section: "3.3"
+        title: Waiting for the Prompt
+        testable: false
+
+      - section: "3.4"
+        title: Sending Commands
+        testable: false
+
+      - section: "3.5"
+        title: Capturing Output
+        testable: false
+
+      - section: "4"
+        title: Test Helper
+        testable: false
+
+      - section: "4.1"
+        title: Helper Functions
+        testable: false
+
+      - section: "4.2"
+        title: Session Naming
+        testable: false
+
+      - section: "5"
+        title: Testable Commands
+        testable: false
+
+      - section: "5.1"
+        title: help
+        testable: true
+        tests:
+          - "test/debugger.bats::help lists available commands"
+
+      - section: "5.2"
+        title: status
+        testable: true
+        tests:
+          - "test/debugger.bats::status shows registers and instructions"
+
+      - section: "5.3"
+        title: get
+        testable: true
+        tests:
+          - "test/debugger.bats::get prints value at address"
+
+      - section: "5.4"
+        title: set and get round-trip
+        testable: true
+        tests:
+          - "test/debugger.bats::set then get returns written value"
+
+      - section: "5.5"
+        title: reg and status round-trip
+        testable: true
+        tests:
+          - "test/debugger.bats::reg writes register visible in status"
+          - "test/debugger.bats::reg pc writes PC visible in status"
+
+      - section: "5.6"
+        title: step
+        testable: true
+        tests:
+          - "test/debugger.bats::step executes one instruction"
+          - "test/debugger.bats::step N executes N instructions"
+          - "test/debugger.bats::step 0 executes zero times"
+
+      - section: "5.7"
+        title: until
+        testable: true
+        tests:
+          - "test/debugger.bats::until steps to matching instruction"
+
+      - section: "5.8"
+        title: state
+        testable: true
+        tests:
+          - "test/debugger.bats::state shows known state keys"
+
+      - section: "5.9"
+        title: keypress
+        testable: true
+        tests:
+          - "test/debugger.bats::keypress completes without error"
+
+      - section: "5.10"
+        title: resume and re-entry via --debug-break
+        testable: true
+        tests:
+          - "test/debugger.bats::resume runs until breakpoint and re-enters debugger"
+
+      - section: "5.11"
+        title: quit
+        testable: true
+        tests:
+          - "test/debugger.bats::quit exits the emulator"
+
+      - section: "5.12"
+        title: dbatch
+        testable: true
+        tests:
+          - "test/debugger.bats::dbatch start and stop"
+
+      - section: "5.13"
+        title: Error handling
+        testable: true
+        tests:
+          - "test/debugger.bats::empty command shows error"
+          - "test/debugger.bats::unknown command shows error"
+          - "test/debugger.bats::get with no address shows error"
+          - "test/debugger.bats::set with no arguments shows error"
+          - "test/debugger.bats::reg with invalid register shows error"
+          - "test/debugger.bats::reg with invalid value shows error"
+          - "test/debugger.bats::step with negative value shows error"
+          - "test/debugger.bats::until with short mnemonic shows error"
+          - "test/debugger.bats::get with invalid address shows error"
+          - "test/debugger.bats::set with missing value shows error"
+          - "test/debugger.bats::set with invalid value shows error"
+          - "test/debugger.bats::keypress with no argument shows error"
+          - "test/debugger.bats::keypress with invalid hex shows error"
+          - "test/debugger.bats::step 0 executes zero times"
+          - "test/debugger.bats::dbatch with no subcommand shows usage"
+          - "test/debugger.bats::dbatch with unknown subcommand shows error"
+
+      - section: "5.14"
+        title: disk
+        testable: true
+        tests:
+          - "test/debugger.bats::disk loads image into drive"
+
+      - section: "5.15"
+        title: writeprotect
+        testable: true
+        tests:
+          - "test/debugger.bats::writeprotect toggles on and off"
+
+      - section: "5.16"
+        title: runfor
+        testable: false
+
+      - section: "6"
+        title: Bats Test Structure
+        testable: false
+
+      - section: "6.1"
+        title: "Example: help"
+        testable: false
+
+      - section: "6.2"
+        title: "Example: get"
+        testable: false
+
+      - section: "6.3"
+        title: "Example: set/get round-trip"
+        testable: false
+
+      - section: "6.4"
+        title: "Example: reg/status round-trip"
+        testable: false
+
+      - section: "6.5"
+        title: "Example: reg pc/status round-trip"
+        testable: false
+
+      - section: "6.6"
+        title: "Example: step"
+        testable: false
+
+      - section: "6.7"
+        title: "Example: dbatch"
+        testable: false
+
+      - section: "6.8"
+        title: "Example: unknown command"
+        testable: false
+
+      - section: "6.9"
+        title: "Example: error cases"
+        testable: false
+
+      - section: "6.10"
+        title: "Example: quit"
+        testable: false
+
+      - section: "6.11"
+        title: "Example: additional error cases"
+        testable: false
+
+      - section: "6.12"
+        title: "Example: writeprotect toggle"
+        testable: false
+
+      - section: "6.13"
+        title: "Example: disk"
+        testable: false
+
+      - section: "7"
+        title: Implementation Notes
+        testable: false
+
+      - section: "7.1"
+        title: Adding Debugger Support to Headless
+        testable: true
+        tests:
+          - "test/debugger.bats::help lists available commands"
+          - "test/debugger.bats::resume runs until breakpoint and re-enters debugger"
+
+      - section: "7.1.1"
+        title: Step Loop Integration
+        testable: true
+        tests:
+          - "test/debugger.bats::resume runs until breakpoint and re-enters debugger"
+
+      - section: "7.1.2"
+        title: Liner Integration
+        testable: false
+
+      - section: "7.2"
+        title: Scrollback vs. Visible Pane
+        testable: false
+
+      - section: "7.3"
+        title: Prompt Counting
+        testable: false
+
+      - section: "7.4"
+        title: Parallel Execution
+        testable: false
+
+      - section: "7.5"
+        title: CI Requirements
+        testable: false
+
+      - section: "8"
+        title: Files
+        testable: false
+
+      - section: "9"
+        title: What Does Not Change
+        testable: false
+
+      - section: "10"
+        title: Verification
+        testable: true
+        tests:
+          - "test/debugger.bats::help lists available commands"
+          - "test/debugger.bats::status shows registers and instructions"
+          - "test/debugger.bats::get prints value at address"
+          - "test/debugger.bats::set then get returns written value"
+          - "test/debugger.bats::step executes one instruction"
+          - "test/debugger.bats::quit exits the emulator"
+          - "test/debugger.bats::resume runs until breakpoint and re-enters debugger"
+          - "test/debugger.bats::disk loads image into drive"
+          - "test/debugger.bats::writeprotect toggles on and off"

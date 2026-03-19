@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"strconv"
-	"strings"
 	"syscall"
 
 	"github.com/peterh/liner"
@@ -76,13 +74,8 @@ func runEmulator(images []string) {
 
 	// Parse and add breakpoints if provided
 	if debugBreakFlag != "" {
-		for addrStr := range strings.SplitSeq(debugBreakFlag, ",") {
-			addrStr = strings.TrimSpace(addrStr)
-			addr, err := strconv.ParseInt(addrStr, 16, 17)
-			if err != nil {
-				fail(fmt.Sprintf("invalid breakpoint address '%s': %v", addrStr, err))
-			}
-			debug.AddBreakpoint(int(addr))
+		if err := debug.ParseBreakpoints(debugBreakFlag); err != nil {
+			fail(err.Error())
 		}
 	}
 

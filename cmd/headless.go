@@ -11,9 +11,11 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/peterh/liner"
 	"github.com/pevans/erc/a2"
 	"github.com/pevans/erc/a2/a2audio"
 	"github.com/pevans/erc/a2/a2state"
+	"github.com/pevans/erc/debug"
 	"github.com/pevans/erc/input"
 	"github.com/pevans/erc/record"
 	"github.com/pevans/erc/shortcut"
@@ -30,6 +32,8 @@ var (
 	headlessOutputFlag       string
 	headlessStartAtFlag      string
 	headlessKeysFlag         string
+	headlessStartInDebugger  bool
+	headlessDebugBreakFlag   string
 )
 
 var headlessCmd = &cobra.Command{
@@ -95,6 +99,18 @@ func init() {
 		"keys",
 		"",
 		"Comma-separated timed key events to inject (e.g. \"100:ctrl-a,101:esc\")",
+	)
+	headlessCmd.Flags().BoolVar(
+		&headlessStartInDebugger,
+		"start-in-debugger",
+		false,
+		"Enter the debugger prompt before executing any steps",
+	)
+	headlessCmd.Flags().StringVar(
+		&headlessDebugBreakFlag,
+		"debug-break",
+		"",
+		"Comma-separated hex addresses at which to enter the debugger (e.g. FA62,0801)",
 	)
 }
 
@@ -209,6 +225,27 @@ func runHeadless(images []string) {
 		videoRec.CaptureAt(captureSteps...)
 	}
 
+	hasBreakpoints := headlessDebugBreakFlag != ""
+	if hasBreakpoints {
+		if err := debug.ParseBreakpoints(headlessDebugBreakFlag); err != nil {
+			fail(err.Error())
+		}
+	}
+
+	debugMode := headlessStartInDebugger || hasBreakpoints
+
+	var line *liner.State
+	if debugMode {
+		line = liner.NewLiner()
+		defer line.Close() //nolint:errcheck
+
+		if headlessStartInDebugger {
+			comp.State.SetBool(a2state.Debugger, true)
+		}
+
+		enterDebugger(comp, line)
+	}
+
 	var keyEvents map[int]input.Event
 	if headlessKeysFlag != "" {
 		var err error
@@ -220,6 +257,14 @@ func runHeadless(images []string) {
 
 	earlyExit := false
 	for i := range headlessStepsFlag {
+		if hasBreakpoints && debug.HasBreakpoint(int(comp.CPU.PC)) {
+			comp.State.SetBool(a2state.Debugger, true)
+		}
+
+		if debugMode && comp.State.Bool(a2state.Debugger) {
+			enterDebugger(comp, line)
+		}
+
 		step := i
 		rec.Step(func() {
 			if ev, ok := keyEvents[step]; ok {
@@ -282,6 +327,12 @@ func runHeadless(images []string) {
 				fail(fmt.Sprintf("could not write video.frame: %v", err))
 			}
 		}
+	}
+}
+
+func enterDebugger(comp *a2.Computer, line *liner.State) {
+	for comp.State.Bool(a2state.Debugger) {
+		debug.Prompt(comp, line)
 	}
 }
 

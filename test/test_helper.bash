@@ -1,4 +1,4 @@
-DISK="$BATS_TEST_DIRNAME/../work/bt1_boot.dsk"
+DISK="$BATS_TEST_DIRNAME/../data/memreg.dsk"
 
 setup_file() {
 	if [[ ! -f "$DISK" ]]; then
