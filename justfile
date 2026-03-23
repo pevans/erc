@@ -24,7 +24,7 @@ format-list:
     gocomments -l .
 
 bats:
-    bats test/
+    bats tests/
 
 cicd-test: lint format-list test bats
 
