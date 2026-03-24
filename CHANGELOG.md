@@ -6,6 +6,34 @@ The format is based on [Keep a
 Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2026-03-24
+
+### Added
+
+- A headless mode has been added. This allows Erc to run without graphics or
+  sound. In headless mode, Erc is able to watch and logs various computer
+  states, memory addresses, registers and so forth. Headless mode is intended
+  to support black box testing.
+- A miniature assembler was built as a standalone command (erc-assembler)
+  which is used to build one-off disk images for black box testing. The
+  assembler compiles an input program and writes the program data into the
+  first track of the disk. Anything more than that won't work, as the Apple's
+  first stage boot loader will only read the first track into memory.
+- Added a large cohort of black box tests to support the new headless mode;
+  the MOS 65c02 CPU; keyboard shortcuts; the inline interactive debugger; and
+  40-column TEXT mode. In all we have over 280 black box tests now.
+- Support ZPI (zero page indirect) address mode for the MOS 65c02 CPU.
+
+### Fixed
+
+- Carry flag is now set if the decimal accumulator is not negative after a
+  subtraction. The previous behavior (setting carry if the result was >= 0)
+  wasn't correct in that context.
+- Text page 2 ($0800-$0BFF) and display page 2 ($4000-$5FFF) are properly
+  mapped for graphic display. Previously they had not been, which meant that
+  updates to those areas might not cause a screen rerender. One way I've seen
+  this problem is a static text screen where some characters are missing.
+
 ## [0.1.1] - 2026-03-04
 
 ### Added
@@ -28,5 +56,6 @@ Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 
 ## [0.1.0] - 2026-01-25
 
+[0.1.2]: https://github.com/pevans/erc/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/pevans/erc/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/pevans/erc/releases/tag/v0.1.0
