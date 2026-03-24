@@ -1,5 +1,7 @@
 # erc
 
+[![Hypercommit](https://img.shields.io/badge/Hypercommit-DB2475)](https://hypercommit.com/erc)
+
 The _erc_ (**e**mulator of **r**etro **c**omputers) system is designed to
 emulate an Apple IIe (enhanced) computer and run software for it. It is
 written to be flexible enough to handle multiple machine architectures, and
