@@ -1623,3 +1623,241 @@ specs:
           - "test/debugger.bats::resume runs until breakpoint and re-enters debugger"
           - "test/debugger.bats::disk loads image into drive"
           - "test/debugger.bats::writeprotect toggles on and off"
+
+  - spec: spec-9
+    title: 40-Column Text Mode
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Screen Geometry
+        testable: false
+
+      - section: "2.1"
+        title: Logical Dimensions
+        testable: false
+
+      - section: "2.2"
+        title: Pixel Dimensions
+        testable: true
+        tests:
+          - "tests/text40.bats::40-col text frame is 560x384"
+
+      - section: "3"
+        title: Text Page Memory
+        testable: false
+
+      - section: "3.1"
+        title: Page 1
+        testable: true
+        tests:
+          - "tests/text40.bats::writing to hole byte $0478 does not affect the display"
+
+      - section: "3.2"
+        title: Page 2
+        testable: true
+        tests:
+          - "tests/text40.bats::PAGE2 switch changes the displayed content"
+          - "tests/text40.bats::PAGE2 with 80STORE on shows auxiliary memory"
+
+      - section: "3.3"
+        title: Interleaved Address Mapping
+        testable: true
+        tests:
+          - "tests/text40.bats::address $0400 maps to row 0: character in pixel rows 0-15"
+          - "tests/text40.bats::address $0480 maps to row 1: character in pixel rows 16-31"
+          - "tests/text40.bats::address $0428 maps to row 8: character in pixel rows 128-143"
+          - "tests/text40.bats::address $0450 maps to row 16: character in pixel rows 256-271"
+          - "tests/text40.bats::address $07D0 maps to row 23: character in pixel rows 368-383"
+          - "tests/text40.bats::address $0401 maps to column 1: character in pixel columns 14-27"
+          - "tests/text40.bats::writing to hole byte $0478 does not affect the display"
+
+      - section: "3.4"
+        title: Base Address Formula
+        testable: false
+
+      - section: "3.5"
+        title: Address Lookup Tables
+        testable: false
+
+      - section: "4"
+        title: Character Encoding
+        testable: false
+
+      - section: "4.1"
+        title: Character Byte Layout
+        testable: true
+        tests:
+          - "tests/text40.bats::screen filled with spaces has one color"
+          - "tests/text40.bats::screen filled with normal A has two colors"
+          - "tests/text40.bats::screen filled with inverse A has two colors"
+          - "tests/text40.bats::screen filled with flash A has two colors"
+          - "tests/text40.bats::screen filled with lowercase a has two colors"
+
+      - section: "4.2"
+        title: Display Modes
+        testable: true
+        tests:
+          - "tests/text40.bats::normal and inverse A use different color palettes"
+          - "tests/text40.bats::flash A and inverse A use the same color palette"
+          - "tests/text40.bats::lowercase and uppercase A use different pixel patterns"
+
+      - section: "4.3"
+        title: Alternate Character Set
+        testable: true
+        tests:
+          - "tests/text40.bats::toggling ALTCHAR on logs DisplayAltChar state change"
+          - "tests/text40.bats::toggling ALTCHAR off logs DisplayAltChar state change"
+
+      - section: "5"
+        title: Glyph Definitions
+        testable: false
+
+      - section: "5.1"
+        title: Base Glyph Format
+        testable: false
+
+      - section: "5.2"
+        title: Character Sets
+        testable: true
+        tests:
+          - "tests/text40.bats::screen filled with spaces has one color"
+          - "tests/text40.bats::screen filled with normal A has two colors"
+          - "tests/text40.bats::screen filled with inverse A has two colors"
+          - "tests/text40.bats::screen filled with flash A has two colors"
+          - "tests/text40.bats::screen filled with lowercase a has two colors"
+
+      - section: "5.3"
+        title: Doubling for 40-Column Display
+        testable: true
+        tests:
+          - "tests/text40.bats::40-col text frame is 560x384"
+
+      - section: "5.4"
+        title: Inverse Mask
+        testable: true
+        tests:
+          - "tests/text40.bats::normal and inverse A use different color palettes"
+
+      - section: "5.5"
+        title: Font Construction
+        testable: true
+        tests:
+          - "tests/text40.bats::screen filled with spaces has one color"
+          - "tests/text40.bats::screen filled with normal A has two colors"
+          - "tests/text40.bats::screen filled with inverse A has two colors"
+          - "tests/text40.bats::screen filled with flash A has two colors"
+          - "tests/text40.bats::screen filled with lowercase a has two colors"
+
+      - section: "6"
+        title: Soft Switches
+        testable: false
+
+      - section: "6.1"
+        title: Mode Selection
+        testable: true
+        tests:
+          - "tests/text40.bats::toggling TEXT off logs DisplayText state change"
+          - "tests/text40.bats::toggling TEXT on logs DisplayText state change"
+          - "tests/text40.bats::toggling PAGE2 on logs DisplayPage2 state change"
+          - "tests/text40.bats::toggling PAGE2 off logs DisplayPage2 state change"
+          - "tests/text40.bats::toggling MIXED on logs DisplayMixed state change"
+          - "tests/text40.bats::toggling MIXED off logs DisplayMixed state change"
+          - "tests/text40.bats::toggling 80COL on logs DisplayCol80 state change"
+          - "tests/text40.bats::toggling 80COL off logs DisplayCol80 state change"
+          - "tests/text40.bats::toggling 80STORE on logs DisplayStore80 state change"
+          - "tests/text40.bats::toggling 80STORE off logs DisplayStore80 state change"
+          - "tests/text40.bats::toggling ALTCHAR on logs DisplayAltChar state change"
+          - "tests/text40.bats::toggling ALTCHAR off logs DisplayAltChar state change"
+
+      - section: "6.2"
+        title: Status Reads
+        testable: true
+        tests:
+          - "tests/text40.bats::reading $C01A returns $80 when TEXT is on"
+          - "tests/text40.bats::reading $C01A returns $00 when TEXT is off"
+          - "tests/text40.bats::reading $C01B returns $80 when MIXED is on"
+          - "tests/text40.bats::reading $C01B returns $00 when MIXED is off"
+          - "tests/text40.bats::reading $C01C returns $80 when PAGE2 is on"
+          - "tests/text40.bats::reading $C01C returns $00 when PAGE2 is off"
+          - "tests/text40.bats::reading $C01E returns $00 when ALTCHAR is off"
+          - "tests/text40.bats::reading $C01E returns $80 when ALTCHAR is on"
+          - "tests/text40.bats::reading $C01F returns $00 when 80COL is off"
+          - "tests/text40.bats::reading $C01F returns $80 when 80COL is on"
+          - "tests/text40.bats::reading $C018 returns $00 when 80STORE is off"
+          - "tests/text40.bats::reading $C018 returns $80 when 80STORE is on"
+
+      - section: "6.3"
+        title: Vertical Blank
+        testable: true
+        tests:
+          - "tests/text40.bats::reading $C019 returns $80 during vertical blank"
+
+      - section: "6.4"
+        title: Redraw Flag
+        testable: false
+
+      - section: "7"
+        title: Rendering Pipeline
+        testable: false
+
+      - section: "7.1"
+        title: Overview
+        testable: false
+
+      - section: "7.2"
+        title: Display Memory Snapshot
+        testable: false
+
+      - section: "7.3"
+        title: Mode Dispatch
+        testable: true
+        tests:
+          - "tests/text40.bats::toggling TEXT off logs DisplayText state change"
+
+      - section: "7.4"
+        title: Character Rendering Loop
+        testable: true
+        tests:
+          - "tests/text40.bats::address $0400 maps to row 0: character in pixel rows 0-15"
+          - "tests/text40.bats::address $0480 maps to row 1: character in pixel rows 16-31"
+          - "tests/text40.bats::address $0428 maps to row 8: character in pixel rows 128-143"
+          - "tests/text40.bats::address $0450 maps to row 16: character in pixel rows 256-271"
+          - "tests/text40.bats::address $07D0 maps to row 23: character in pixel rows 368-383"
+          - "tests/text40.bats::address $0401 maps to column 1: character in pixel columns 14-27"
+
+      - section: "7.5"
+        title: Monochrome Modes
+        testable: false
+
+      - section: "7.6"
+        title: Framebuffer Output
+        testable: true
+        tests:
+          - "tests/text40.bats::40-col text frame is 560x384"
+
+      - section: "8"
+        title: "Unimplemented: Flash"
+        testable: false
+
+      - section: "9"
+        title: Design Considerations
+        testable: false
+
+      - section: "9.1"
+        title: Lookup Tables vs. Computation
+        testable: false
+
+      - section: "9.2"
+        title: Glyph Doubling at Font Creation Time
+        testable: false
+
+      - section: "9.3"
+        title: Snapshot-Based Rendering
+        testable: false
+
+      - section: "9.4"
+        title: Shared Framebuffer with Other Modes
+        testable: false
