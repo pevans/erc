@@ -44,12 +44,20 @@ func (s *Snapshot) CopyFrom(seg *memory.Segment) {
 func (s *Snapshot) CopyFromState(main, aux *memory.Segment, stm *memory.StateMap) {
 	// Determine which segment and address range to use for text/lores
 	textSeg := main
-	if stm.Bool(a2state.DisplayStore80) && stm.Bool(a2state.DisplayPage2) {
-		textSeg = aux
+	textStart := 0x400
+
+	if stm.Bool(a2state.DisplayPage2) {
+		if stm.Bool(a2state.DisplayStore80) {
+			// Page 2 with 80STORE: use aux memory at 0x0400-0x07FF
+			textSeg = aux
+		} else {
+			// Page 2 without 80STORE: use main memory at 0x0800-0x0BFF
+			textStart = 0x800
+		}
 	}
 
 	for i := range 0x400 {
-		s.textLores[i] = textSeg.DirectGet(0x400 + i)
+		s.textLores[i] = textSeg.DirectGet(textStart + i)
 	}
 
 	// Determine which segment and address range to use for hi-res

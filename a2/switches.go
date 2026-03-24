@@ -21,7 +21,7 @@ type Switcher interface {
 // computer uses.
 func (c *Computer) MapSoftSwitches() {
 	c.MapRange(0x0, 0x200, a2bank.ZPRead, a2bank.ZPWrite)
-	c.MapRange(0x0400, 0x0800, a2display.Read, a2display.Write)
+	c.MapRange(0x0400, 0x0C00, a2display.Read, a2display.Write)
 	c.MapRange(0x2000, 0x4000, a2display.Read, a2display.Write)
 	c.MapRange(0xC100, 0xD000, a2peripheral.Read, a2peripheral.Write)
 	c.MapRange(0xD000, 0x10000, a2bank.DFRead, a2bank.DFWrite)
