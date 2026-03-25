@@ -2044,3 +2044,242 @@ specs:
       - section: "9.4"
         title: Monochrome Shade Rationale
         testable: false
+
+  - spec: spec-11
+    title: High-Resolution Graphics Mode
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Screen Geometry
+        testable: false
+
+      - section: "2.1"
+        title: Logical Dimensions
+        testable: false
+
+      - section: "2.2"
+        title: Dot Dimensions
+        testable: true
+        tests:
+          - "tests/hires.bats::hires frame is 560x384"
+          - "tests/hires.bats::single dot is 2 pixels wide"
+
+      - section: "3"
+        title: Display Memory
+        testable: false
+
+      - section: "3.1"
+        title: Memory Region
+        testable: true
+        tests:
+          - "tests/hires.bats::hires page 1 uses $2000-$3FFF"
+
+      - section: "3.2"
+        title: Address Interleaving
+        testable: true
+        tests:
+          - "tests/hires.bats::address $2000 maps to hires row 0: pixel rows 0-1"
+          - "tests/hires.bats::address $2080 maps to hires row 8: pixel rows 16-17"
+          - "tests/hires.bats::address $2028 maps to hires row 64: pixel rows 128-129"
+          - "tests/hires.bats::address $2050 maps to hires row 128: pixel rows 256-257"
+          - "tests/hires.bats::writing to hole byte $2078 does not affect the hires display"
+
+      - section: "3.2.1"
+        title: Address Table
+        testable: true
+        tests:
+          - "tests/hires.bats::address $2000 maps to hires row 0: pixel rows 0-1"
+          - "tests/hires.bats::address $2080 maps to hires row 8: pixel rows 16-17"
+          - "tests/hires.bats::address $2028 maps to hires row 64: pixel rows 128-129"
+          - "tests/hires.bats::address $2050 maps to hires row 128: pixel rows 256-257"
+
+      - section: "3.3"
+        title: Byte Layout
+        testable: true
+        tests:
+          - "tests/hires.bats::bit 0 controls leftmost dot in byte"
+          - "tests/hires.bats::bit 6 controls rightmost dot in byte"
+          - "tests/hires.bats::bit 7 selects palette without adding a dot"
+
+      - section: "4"
+        title: Color Generation
+        testable: false
+
+      - section: "4.1"
+        title: The Six Hires Colors
+        testable: true
+        tests:
+          - "tests/hires.bats::all dots off produces black"
+          - "tests/hires.bats::all dots on with palette 0 produces white"
+          - "tests/hires.bats::palette 0 isolated dot produces purple and green"
+          - "tests/hires.bats::palette 1 isolated dot produces blue and orange"
+
+      - section: "4.2"
+        title: Color Palettes
+        testable: true
+        tests:
+          - "tests/hires.bats::palette 0 isolated dot produces purple and green"
+          - "tests/hires.bats::palette 1 isolated dot produces blue and orange"
+          - "tests/hires.bats::palette 0 and palette 1 produce different colors"
+          - "tests/hires.bats::even-position dot gets first palette color, odd gets second"
+
+      - section: "4.3"
+        title: Color Rules
+        testable: true
+        tests:
+          - "tests/hires.bats::consecutive on bits produce white"
+          - "tests/hires.bats::isolated on bit produces colored dot, not white"
+          - "tests/hires.bats::palette 0 isolated dot produces purple and green"
+          - "tests/hires.bats::all dots off produces black"
+          - "tests/hires.bats::first dot in a row behaves as if previous dot were off"
+
+      - section: "4.4"
+        title: White and Black Generation
+        testable: true
+        tests:
+          - "tests/hires.bats::all dots on with palette 0 produces white"
+          - "tests/hires.bats::all dots off produces black"
+          - "tests/hires.bats::$7F and $00 produce different colors"
+          - "tests/hires.bats::consecutive on bits produce white with palette 1"
+
+      - section: "5"
+        title: Byte Boundary Effects
+        testable: false
+
+      - section: "5.1"
+        title: Overview
+        testable: false
+
+      - section: "5.2"
+        title: Boundary Detection
+        testable: true
+        tests:
+          - "tests/hires.bats::adjacent bytes with different palettes produce boundary shift colors"
+
+      - section: "5.3"
+        title: Color Shift Rules
+        testable: true
+        tests:
+          - "tests/hires.bats::adjacent bytes with different palettes produce boundary shift colors"
+          - "tests/hires.bats::boundary shift produces dark colors when right byte is palette 0"
+          - "tests/hires.bats::boundary shift produces light colors when right byte is palette 1 and left is non-black"
+          - "tests/hires.bats::no boundary shift when left boundary dot is black and right is palette 1"
+
+      - section: "6"
+        title: Monochrome Modes
+        testable: false
+
+      - section: "6.1"
+        title: Overview
+        testable: false
+
+      - section: "6.2"
+        title: Monochrome Colors
+        testable: true
+        tests:
+          - "tests/hires.bats::green screen renders on-dots as 98FF98"
+          - "tests/hires.bats::amber screen renders on-dots as FFBF00"
+
+      - section: "6.3"
+        title: Rendering Behavior
+        testable: true
+        tests:
+          - "tests/hires.bats::monochrome ignores palette bit"
+          - "tests/hires.bats::monochrome isolated dot has no color fringing"
+
+      - section: "7"
+        title: Rendering Pipeline
+        testable: false
+
+      - section: "7.1"
+        title: Mode Dispatch
+        testable: true
+        tests:
+          - "tests/hires.bats::TEXT off and HIRES on activates hires mode"
+          - "tests/hires.bats::TEXT on returns from hires to text mode"
+          - "tests/hires.bats::HIRES off returns from hires to lores mode"
+
+      - section: "7.2"
+        title: Display Memory Snapshot
+        testable: false
+
+      - section: "7.3"
+        title: Per-Row Rendering
+        testable: true
+        tests:
+          - "tests/hires.bats::address $2000 maps to hires row 0: pixel rows 0-1"
+          - "tests/hires.bats::address $2080 maps to hires row 8: pixel rows 16-17"
+          - "tests/hires.bats::single dot is 2 pixels wide"
+
+      - section: "7.4"
+        title: Dot Struct
+        testable: false
+
+      - section: "8"
+        title: Soft Switches
+        testable: false
+
+      - section: "8.1"
+        title: Mode Selection
+        testable: true
+        tests:
+          - "tests/hires.bats::toggling HIRES on logs DisplayHires state change"
+          - "tests/hires.bats::toggling HIRES off logs DisplayHires state change"
+
+      - section: "8.2"
+        title: Read Switches
+        testable: true
+        tests:
+          - "tests/hires.bats::RDPAGE2 returns bit 7 high when PAGE2 is on"
+          - "tests/hires.bats::RDPAGE2 returns bit 7 low when PAGE2 is off"
+          - "tests/hires.bats::RDMIXED returns bit 7 high when MIXED is on"
+          - "tests/hires.bats::RDMIXED returns bit 7 low when MIXED is off"
+          - "tests/hires.bats::RDHIRES returns bit 7 high when HIRES is on"
+          - "tests/hires.bats::RDHIRES returns bit 7 low when HIRES is off"
+
+      - section: "8.3"
+        title: Page Selection and 80STORE
+        testable: true
+        tests:
+          - "tests/hires.bats::80STORE routes hires writes to aux when PAGE2 is on"
+          - "tests/hires.bats::PAGE2 displays hires page 2 content"
+          - "tests/hires.bats::PAGE2 switch changes hires displayed content"
+
+      - section: "8.4"
+        title: Display Redraw
+        testable: false
+
+      - section: "9"
+        title: Mixed Mode
+        testable: false
+
+      - section: "9.1"
+        title: Overview
+        testable: false
+
+      - section: "9.2"
+        title: Current Status
+        testable: false
+
+      - section: "10"
+        title: Design Considerations
+        testable: false
+
+      - section: "10.1"
+        title: Two-Pass Color Assignment
+        testable: false
+
+      - section: "10.2"
+        title: Precomputed Row Addresses
+        testable: false
+
+      - section: "10.3"
+        title: Boundary Shift as Post-Processing
+        testable: false
+
+      - section: "10.4"
+        title: Double Hires (Out of Scope)
+        testable: false
