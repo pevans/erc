@@ -9,7 +9,8 @@ the 2D graphics library, ebiten.
 
 Black box tests are implemented with a tool called
 [bats](https://github.com/bats-core/bats-core). You can find them in the
-`tests/` directory.
+`tests/` directory. Any tests you write must be added to the `coverage.yaml`
+file in `tests/`.
 
 Code is only testable if it passes a lint check (`just lint`) and a formatter
 check (`just format-list`).
