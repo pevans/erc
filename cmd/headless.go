@@ -14,6 +14,7 @@ import (
 	"github.com/peterh/liner"
 	"github.com/pevans/erc/a2"
 	"github.com/pevans/erc/a2/a2audio"
+	"github.com/pevans/erc/a2/a2mono"
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/debug"
 	"github.com/pevans/erc/input"
@@ -34,6 +35,7 @@ var (
 	headlessKeysFlag         string
 	headlessStartInDebugger  bool
 	headlessDebugBreakFlag   string
+	headlessMonochromeFlag   string
 )
 
 var headlessCmd = &cobra.Command{
@@ -112,6 +114,12 @@ func init() {
 		"",
 		"Comma-separated hex addresses at which to enter the debugger (e.g. FA62,0801)",
 	)
+	headlessCmd.Flags().StringVar(
+		&headlessMonochromeFlag,
+		"monochrome",
+		"",
+		"Render in monochrome (green or amber)",
+	)
 }
 
 func runHeadless(images []string) {
@@ -129,6 +137,17 @@ func runHeadless(images []string) {
 
 	if err := comp.Boot(); err != nil {
 		fail(fmt.Sprintf("could not boot emulator: %v", err))
+	}
+
+	switch headlessMonochromeFlag {
+	case "green":
+		comp.State.SetInt(a2state.DisplayMonochrome, a2mono.GreenScreen)
+	case "amber":
+		comp.State.SetInt(a2state.DisplayMonochrome, a2mono.AmberScreen)
+	case "":
+		// default: no monochrome
+	default:
+		fail("monochrome flag must be either 'green' or 'amber'")
 	}
 
 	if headlessStartAtFlag != "" {

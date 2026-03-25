@@ -154,17 +154,20 @@ the following flags:
   video frames
 - `--output DIR` -- directory for output files (defaults to current directory)
 - `--start-at ADDR` -- hex address at which to begin counting steps (see 6.3)
+- `--monochrome MODE` -- render in monochrome (`green` or `amber`); applies to
+  video captures
 
 ## 6.2. Execution Flow
 
 1. Create an `a2.Computer` (headless-safe after lazy init changes).
 2. Load and boot the disk image(s).
-3. If `--start-at` is given, run the warm-up loop (see 6.3).
-4. Create a recorder and register observers based on flags.
-5. If `--record-audio`, create an `a2audio.Stream` and `AudioRecorder`.
-6. If `--capture-video`, create a `VideoRecorder` with declared capture steps.
-7. Call the headless `Run()` function.
-8. Write results to the output directory.
+3. If `--monochrome` is given, set `DisplayMonochrome` on the computer state.
+4. If `--start-at` is given, run the warm-up loop (see 6.3).
+5. Create a recorder and register observers based on flags.
+6. If `--record-audio`, create an `a2audio.Stream` and `AudioRecorder`.
+7. If `--capture-video`, create a `VideoRecorder` with declared capture steps.
+8. Call the headless `Run()` function.
+9. Write results to the output directory.
 
 ## 6.3. Warm-Up Loop (--start-at)
 
