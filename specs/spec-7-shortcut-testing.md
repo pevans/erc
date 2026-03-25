@@ -155,219 +155,9 @@ Each shortcut and its observable effects:
   should produce no state changes. The prefix is consumed and the key is
   discarded.
 
-# 6. Bats Test Structure
+# 6. Implementation Notes
 
-Tests live in `test/headless_shortcuts.bats` and use the existing
-`test_helper.bash` (which builds erc and provides `run_headless`).
-
-Each test:
-
-1. Calls `run_headless` with `--keys`, `--steps`, and the appropriate
-   `--watch-comp` flag.
-2. Asserts exit status.
-3. Greps `state.log` for the expected state transitions.
-
-## 6.1. Example: Pause and Resume
-
-```bash
-@test "ctrl-a esc pauses the computer" {
-    run_headless --steps 1000 \
-        --keys "100:ctrl-a,101:esc" \
-        --watch-comp Paused \
-        "$DISK"
-    [[ $status -eq 0 ]]
-    grep -q 'comp Paused .* -> true' "$OUT/state.log"
-}
-
-@test "esc while paused resumes" {
-    run_headless --steps 1000 \
-        --keys "100:ctrl-a,101:esc,200:esc" \
-        --watch-comp Paused \
-        "$DISK"
-    [[ $status -eq 0 ]]
-    # Paused goes true then back to false
-    grep -q 'comp Paused .* -> true' "$OUT/state.log"
-    grep -q 'comp Paused .* -> false' "$OUT/state.log"
-}
-```
-
-## 6.2. Example: Speed
-
-```bash
-@test "ctrl-a + increases speed" {
-    run_headless --steps 1000 \
-        --keys "100:ctrl-a,101:+" \
-        --watch-comp Speed \
-        "$DISK"
-    [[ $status -eq 0 ]]
-    grep -q 'comp Speed .* -> 2' "$OUT/state.log"
-}
-```
-
-## 6.3. Example: Double Ctrl-A
-
-```bash
-@test "double ctrl-a sends literal ctrl-a to machine" {
-    run_headless --steps 1000 \
-        --keys "100:ctrl-a,101:ctrl-a" \
-        --watch-comp KBLastKey \
-        "$DISK"
-    [[ $status -eq 0 ]]
-    grep -q 'comp KBLastKey .* -> 1' "$OUT/state.log"
-}
-```
-
-## 6.4. Example: Volume
-
-```bash
-@test "ctrl-a v mutes audio" {
-    run_headless --steps 1000 \
-        --keys "100:ctrl-a,101:v" \
-        --watch-comp VolumeMuted \
-        "$DISK"
-    [[ $status -eq 0 ]]
-    grep -q 'comp VolumeMuted .* -> true' "$OUT/state.log"
-}
-
-@test "ctrl-a ] increases volume" {
-    run_headless --steps 1000 \
-        --keys "100:ctrl-a,101:]" \
-        --watch-comp VolumeLevel \
-        "$DISK"
-    [[ $status -eq 0 ]]
-    grep -q 'comp VolumeLevel .* -> 60' "$OUT/state.log"
-}
-
-@test "ctrl-a [ decreases volume" {
-    run_headless --steps 1000 \
-        --keys "100:ctrl-a,101:[" \
-        --watch-comp VolumeLevel,VolumeMuted \
-        "$DISK"
-    [[ $status -eq 0 ]]
-    grep -q 'comp VolumeLevel .* -> 40' "$OUT/state.log"
-}
-```
-
-## 6.5. Example: Write Protect
-
-```bash
-@test "ctrl-a w toggles write protect" {
-    run_headless --steps 1000 \
-        --keys "100:ctrl-a,101:w" \
-        --watch-comp WriteProtect \
-        "$DISK"
-    [[ $status -eq 0 ]]
-    grep -q 'comp WriteProtect .* -> true' "$OUT/state.log"
-}
-```
-
-## 6.6. Example: Debugger
-
-```bash
-@test "ctrl-a b enables debugger" {
-    run_headless --steps 1000 \
-        --keys "100:ctrl-a,101:b" \
-        --watch-comp Debugger \
-        "$DISK"
-    [[ $status -eq 0 ]]
-    grep -q 'comp Debugger .* -> true' "$OUT/state.log"
-}
-```
-
-## 6.7. Example: State Slot
-
-```bash
-@test "ctrl-a 3 selects state slot 3" {
-    run_headless --steps 1000 \
-        --keys "100:ctrl-a,101:3" \
-        --watch-comp StateSlot \
-        "$DISK"
-    [[ $status -eq 0 ]]
-    grep -q 'comp StateSlot .* -> 3' "$OUT/state.log"
-}
-```
-
-## 6.8. Example: Load Next Disk
-
-```bash
-@test "ctrl-a n loads next disk" {
-    run_headless --steps 1000 \
-        --keys "100:ctrl-a,101:n" \
-        --watch-comp DiskIndex \
-        "$DISK" "$DISK2"
-    [[ $status -eq 0 ]]
-    grep -q 'comp DiskIndex .* -> 1' "$OUT/state.log"
-}
-```
-
-## 6.9. Example: Quit
-
-```bash
-@test "ctrl-a q exits cleanly" {
-    run_headless --steps 100000 \
-        --keys "100:ctrl-a,101:q" \
-        "$DISK"
-    [[ $status -eq 0 ]]
-}
-```
-
-## 6.10. Example: Non-ESC Key While Paused
-
-```bash
-@test "non-esc key while paused stays paused" {
-    run_headless --steps 1000 \
-        --keys "100:ctrl-a,101:esc,200:a" \
-        --watch-comp Paused \
-        "$DISK"
-    [[ $status -eq 0 ]]
-    grep -q 'comp Paused .* -> true' "$OUT/state.log"
-    # Paused never goes back to false
-    ! grep -q 'comp Paused .* -> false' "$OUT/state.log"
-}
-```
-
-## 6.11. Example: Unrecognized Key After Prefix
-
-```bash
-@test "unrecognized key after prefix produces no state change" {
-    run_headless --steps 1000 \
-        --keys "100:ctrl-a,101:x" \
-        --watch-comp Paused,Speed \
-        "$DISK"
-    [[ $status -eq 0 ]]
-    # state.log should either not exist or contain no entries
-    [[ ! -f "$OUT/state.log" ]] || [[ ! -s "$OUT/state.log" ]]
-}
-```
-
-## 6.12. Example: Parse Errors
-
-```bash
-@test "invalid step number fails" {
-    run_headless --steps 1000 \
-        --keys "abc:ctrl-a" \
-        "$DISK"
-    [[ $status -ne 0 ]]
-}
-
-@test "empty keyspec fails" {
-    run_headless --steps 1000 \
-        --keys "100:" \
-        "$DISK"
-    [[ $status -ne 0 ]]
-}
-
-@test "duplicate step numbers fail" {
-    run_headless --steps 1000 \
-        --keys "100:ctrl-a,100:esc" \
-        "$DISK"
-    [[ $status -ne 0 ]]
-}
-```
-
-# 7. Implementation Notes
-
-## 7.1. Parsing --keys
+## 6.1. Parsing --keys
 
 The flag value is split on commas. Each entry is split on the first colon to
 separate the step number from the keyspec. The keyspec is parsed into an
@@ -381,19 +171,19 @@ separate the step number from the keyspec. The keyspec is parsed into an
 Invalid entries (bad step number, empty keyspec) cause the command to fail
 with an error before execution begins.
 
-## 7.2. Event Dispatch in the Headless Loop
+## 6.2. Event Dispatch in the Headless Loop
 
 The headless loop should be extended to check for scheduled key events at each
 step. A sorted slice or map of step-to-events works. Before calling
 `comp.Process()`, any events for the current step are dispatched through
 `shortcut.Check()`. If not consumed, they fall through to `comp.PressKey()`.
 
-## 7.3. Quit Handling
+## 6.3. Quit Handling
 
 When `shortcut.Check()` returns an error from `comp.Shutdown()`, the headless
 loop should break early and exit cleanly rather than calling `fail()`.
 
-# 8. Files
+# 7. Files
 
 | File | Change |
 |------|--------|
@@ -402,7 +192,7 @@ loop should break early and exit cleanly rather than calling `fail()`.
 | `a2/computer.go` | Expose speed/volume as observable state (getters or state map entries) |
 | `test/headless_shortcuts.bats` | New -- black-box shortcut tests |
 
-# 9. What Does Not Change
+# 8. What Does Not Change
 
 - `shortcut/shortcut.go` -- the shortcut handler is tested as-is.
 - `input/event.go` -- the `Event` type is reused without modification.
@@ -410,7 +200,7 @@ loop should break early and exit cleanly rather than calling `fail()`.
   struct fields but never draw).
 - Existing headless tests and flags.
 
-# 10. Verification
+# 9. Verification
 
 1. `just lint` passes.
 2. `go test ./...` passes.

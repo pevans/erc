@@ -239,209 +239,9 @@ The `runfor` command is not tested. It resumes emulation for a timed duration
 using a background goroutine and calls `gfx.ShowStatus`, which makes it
 difficult to exercise meaningfully in headless/tmux mode.
 
-# 6. Bats Test Structure
+# 6. Implementation Notes
 
-Tests live in `test/debugger.bats` and load `debugger_helper.bash`.
-
-## 6.1. Example: help
-
-```bash
-@test "help lists available commands" {
-    send_cmd "help"
-    capture
-    [[ "$PANE" == *"get <addr>"* ]]
-    [[ "$PANE" == *"step <times>"* ]]
-    [[ "$PANE" == *"resume"* ]]
-}
-```
-
-## 6.2. Example: get
-
-```bash
-@test "get prints value at address" {
-    send_cmd "get 0000"
-    capture
-    [[ "$PANE" == *"address \$0000"* ]]
-}
-```
-
-## 6.3. Example: set/get round-trip
-
-```bash
-@test "set then get returns written value" {
-    send_cmd "set 0050 42"
-    send_cmd "get 0050"
-    capture
-    [[ "$PANE" == *'$42'* ]]
-}
-```
-
-## 6.4. Example: reg/status round-trip
-
-```bash
-@test "reg writes register visible in status" {
-    send_cmd "reg a ff"
-    send_cmd "status"
-    capture
-    [[ "$PANE" == *'A:$FF'* ]]
-}
-```
-
-## 6.5. Example: reg pc/status round-trip
-
-```bash
-@test "reg pc writes PC visible in status" {
-    send_cmd "reg pc 1234"
-    send_cmd "status"
-    capture
-    [[ "$PANE" == *'PC:$1234'* ]]
-}
-```
-
-## 6.6. Example: step
-
-```bash
-@test "step executes one instruction" {
-    send_cmd "step"
-    capture
-    [[ "$PANE" == *"executed 1 times"* ]]
-}
-
-@test "step N executes N instructions" {
-    send_cmd "step 5"
-    capture
-    [[ "$PANE" == *"executed 5 times"* ]]
-}
-```
-
-## 6.7. Example: dbatch
-
-```bash
-@test "dbatch start and stop" {
-    send_cmd "dbatch start"
-    capture
-    [[ "$PANE" == *"debug batch started"* ]]
-    send_cmd "dbatch stop"
-    capture
-    [[ "$PANE" == *"debug batch stopped"* ]]
-}
-```
-
-## 6.8. Example: unknown command
-
-```bash
-@test "unknown command shows error and help" {
-    send_cmd "foobar"
-    capture
-    [[ "$PANE" == *'unknown command: "foobar"'* ]]
-}
-```
-
-## 6.9. Example: error cases
-
-```bash
-@test "empty command shows error" {
-    send_cmd ""
-    capture
-    [[ "$PANE" == *"no command given"* ]]
-}
-
-@test "set with no arguments shows error" {
-    send_cmd "set"
-    capture
-    [[ "$PANE" == *"requires an address and value"* ]]
-}
-
-@test "reg with invalid register shows error" {
-    send_cmd "reg q ff"
-    capture
-    [[ "$PANE" == *"invalid register"* ]]
-}
-
-@test "dbatch with no subcommand shows usage" {
-    send_cmd "dbatch"
-    capture
-    [[ "$PANE" == *"usage"* ]]
-}
-```
-
-## 6.10. Example: quit
-
-```bash
-@test "quit exits the emulator" {
-    tmux send-keys -t "$SESSION" "quit" Enter
-    sleep 1
-    ! tmux has-session -t "$SESSION" 2>/dev/null
-}
-```
-
-## 6.11. Example: additional error cases
-
-```bash
-@test "get with invalid address shows error" {
-    send_cmd "get zzzz"
-    capture
-    [[ "$PANE" == *"invalid address"* ]]
-}
-
-@test "set with missing value shows error" {
-    send_cmd "set 0050"
-    capture
-    [[ "$PANE" == *"requires an address and value"* ]]
-}
-
-@test "set with invalid value shows error" {
-    send_cmd "set 0050 zz"
-    capture
-    [[ "$PANE" == *"invalid value"* ]]
-}
-
-@test "keypress with no argument shows error" {
-    send_cmd "keypress"
-    capture
-    [[ "$PANE" == *"requires a hex ascii value"* ]]
-}
-
-@test "keypress with invalid hex shows error" {
-    send_cmd "keypress zz"
-    capture
-    [[ "$PANE" == *"invalid value"* ]]
-}
-
-@test "step 0 executes zero times" {
-    send_cmd "step 0"
-    capture
-    [[ "$PANE" == *"executed 0 times"* ]]
-}
-```
-
-## 6.12. Example: writeprotect toggle
-
-```bash
-@test "writeprotect toggles on and off" {
-    send_cmd "writeprotect"
-    capture
-    [[ "$PANE" == *"write protect on drive 1 is ON"* ]]
-    send_cmd "writeprotect"
-    capture
-    [[ "$PANE" == *"write protect on drive 1 is OFF"* ]]
-}
-```
-
-## 6.13. Example: disk
-
-```bash
-@test "disk loads image into drive" {
-    send_cmd "disk $DISK"
-    capture
-    [[ "$PANE" == *"loaded"* ]]
-    [[ "$PANE" == *"into drive"* ]]
-}
-```
-
-# 7. Implementation Notes
-
-## 7.1. Adding Debugger Support to Headless
+## 6.1. Adding Debugger Support to Headless
 
 The `erc headless` command currently runs a fixed step loop and exits. To
 support the debugger, two new flags are added:
@@ -458,7 +258,7 @@ debugger is not active, the process exits normally. If the debugger is active
 when steps run out, the debugger remains open until the user issues `resume` or
 `quit`.
 
-### 7.1.1. Step Loop Integration
+### 6.1.1. Step Loop Integration
 
 The graphical `erc run` command uses the `clock.Emulator` process loop, which
 calls `breakpointCheckFunc` on every iteration and enters the debugger whenever
@@ -485,7 +285,7 @@ If `--start-in-debugger` is set, the headless command sets
 `comp.State.SetBool(a2state.Debugger, true)` before the step loop begins, so
 the debugger entry check triggers on the first iteration.
 
-### 7.1.2. Liner Integration
+### 6.1.2. Liner Integration
 
 The headless command must create a `liner.State` to provide the `debug> `
 readline prompt, just as `erc run` does. The liner is created once before the
@@ -510,34 +310,34 @@ This works under tmux because the tmux PTY provides a real terminal that
 `liner` can read from. It does not work with plain stdin piping (liner requires
 a TTY), which is why the tests use tmux rather than shell pipes.
 
-## 7.2. Scrollback vs. Visible Pane
+## 6.2. Scrollback vs. Visible Pane
 
 By default, `tmux capture-pane -p` only captures the visible portion of the
 pane (typically 24 lines). For commands that produce long output (like `state`
 or `until`), use `tmux capture-pane -p -S -` to include scrollback. The helper
 should use scrollback capture by default.
 
-## 7.3. Prompt Counting
+## 6.3. Prompt Counting
 
 A robust `send_cmd` implementation counts the number of `debug> ` strings in
 the captured output. Before sending a command, record the current count. After
 sending, wait until the count increments. This avoids races where the test
 reads stale output.
 
-## 7.4. Parallel Execution
+## 6.4. Parallel Execution
 
 bats can run test files in parallel, but tests within a file run sequentially.
 Since each test gets its own tmux session (via unique session names), parallel
 file execution is safe. Tests within `debugger.bats` should be independent --
 each test starts a fresh session.
 
-## 7.5. CI Requirements
+## 6.5. CI Requirements
 
 The CI environment must have `tmux` installed. Most Linux CI images include it
 or can install it with `apt-get install tmux`. macOS runners have it available
 via Homebrew.
 
-# 8. Files
+# 7. Files
 
 | File | Change |
 |------|--------|
@@ -545,14 +345,14 @@ via Homebrew.
 | `test/debugger_helper.bash` | New -- tmux session management and helper functions |
 | `test/debugger.bats` | New -- black-box debugger tests |
 
-# 9. What Does Not Change
+# 8. What Does Not Change
 
 - `debug/*.go` -- the debugger package is tested as-is, without modification.
 - `cmd/run.go` -- the graphical run command is not modified.
 - `render/` -- the draw loop is not involved; headless never opens a window.
 - Existing bats tests and helpers.
 
-# 10. Verification
+# 9. Verification
 
 1. `just lint` passes.
 2. `go test ./...` passes.
