@@ -1830,7 +1830,12 @@ specs:
 
       - section: "7.5"
         title: Monochrome Modes
-        testable: false
+        testable: true
+        tests:
+          - "tests/text40.bats::green screen renders white pixels as 98FF98"
+          - "tests/text40.bats::amber screen renders white pixels as FFBF00"
+          - "tests/text40.bats::monochrome spaces screen has one color (black)"
+          - "tests/text40.bats::monochrome normal A has two colors"
 
       - section: "7.6"
         title: Framebuffer Output
@@ -1939,11 +1944,20 @@ specs:
 
       - section: "5.2"
         title: Shade Mapping
-        testable: false
+        testable: true
+        tests:
+          - "tests/lores.bats::green screen renders $FF as 98FF98"
+          - "tests/lores.bats::amber screen renders $FF as FFBF00"
+          - "tests/lores.bats::monochrome $00 is black"
+          - "tests/lores.bats::monochrome $FF is full monochrome color"
+          - "tests/lores.bats::monochrome mid-color is a shade of green"
 
       - section: "5.3"
         title: Shade Computation
-        testable: false
+        testable: true
+        tests:
+          - "tests/lores.bats::monochrome mid-color is a shade of green"
+          - "tests/lores.bats::monochrome different colors produce different shades"
 
       - section: "5.4"
         title: Precomputation

@@ -46,6 +46,23 @@ asm_state() {
 		"$TMP/test.dsk"
 }
 
+# asm_video_mono MODE LINE [LINE...] -- like asm_video but with monochrome
+# rendering.  MODE is "green" or "amber".
+asm_video_mono() {
+	local mode="$1"
+	shift
+	local src="$TMP/test.s"
+	printf '%s\n' "$@" >"$src"
+	"$ASSEMBLER" -o "$TMP/test.dsk" "$src" || return 1
+	run "$ERC" headless \
+		--output "$OUT" \
+		--steps 5000 \
+		--start-at 0801 \
+		--capture-video 4999 \
+		--monochrome "$mode" \
+		"$TMP/test.dsk"
+}
+
 # color_count -- print the number of distinct colors in the captured frame.
 color_count() {
 	sed -n '2p' "$OUT/video.frame" | grep -o '=' | wc -l | tr -d ' '

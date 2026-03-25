@@ -372,6 +372,106 @@ teardown()   { load lores_helper; teardown; }
 }
 
 # ---------------------------------------------------------------------------
+# Monochrome colors (5.2)
+# ---------------------------------------------------------------------------
+
+@test "green screen renders \$FF as 98FF98" {
+	asm_video_mono green \
+		'LDA #$FF' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' \
+		'STA $C050' '.halt'
+	[[ $status -eq 0 ]]
+	local rgb
+	rgb=$(legend_rgb)
+	echo "$rgb" | grep -q '98FF98'
+}
+
+@test "amber screen renders \$FF as FFBF00" {
+	asm_video_mono amber \
+		'LDA #$FF' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' \
+		'STA $C050' '.halt'
+	[[ $status -eq 0 ]]
+	local rgb
+	rgb=$(legend_rgb)
+	echo "$rgb" | grep -q 'FFBF00'
+}
+
+@test "monochrome \$00 is black" {
+	asm_video_mono green \
+		'LDA #$00' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' \
+		'STA $C050' '.halt'
+	[[ $status -eq 0 ]]
+	[[ $(color_count) -eq 1 ]]
+	local rgb
+	rgb=$(legend_rgb)
+	[[ "$rgb" == "000000" ]]
+}
+
+@test "monochrome \$FF is full monochrome color" {
+	asm_video_mono green \
+		'LDA #$FF' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' \
+		'STA $C050' '.halt'
+	[[ $status -eq 0 ]]
+	[[ $(color_count) -eq 1 ]]
+	local rgb
+	rgb=$(legend_rgb)
+	[[ "$rgb" == "98FF98" ]]
+}
+
+# ---------------------------------------------------------------------------
+# Monochrome shade mapping (5.3)
+# ---------------------------------------------------------------------------
+
+@test "monochrome mid-color is a shade of green" {
+	# Color index 1 (magenta) at 50% intensity -> shade of green, not full green
+	asm_video_mono green \
+		'LDA #$11' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' \
+		'STA $C050' '.halt'
+	[[ $status -eq 0 ]]
+	[[ $(color_count) -eq 1 ]]
+	local rgb
+	rgb=$(legend_rgb)
+	# Should not be black, full green, or full white
+	[[ "$rgb" != "000000" ]]
+	[[ "$rgb" != "98FF98" ]]
+	[[ "$rgb" != "FFFFFF" ]]
+}
+
+@test "monochrome different colors produce different shades" {
+	# Color index 2 (dark blue, shade=dark/25%) vs index 7 (light blue, shade=light/75%)
+	asm_video_mono green \
+		'LDA #$22' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' \
+		'STA $C050' '.halt'
+	[[ $status -eq 0 ]]
+	local dark_rgb
+	dark_rgb=$(legend_rgb)
+
+	rm -rf "$OUT"; mkdir -p "$OUT"
+
+	asm_video_mono green \
+		'LDA #$77' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' \
+		'STA $C050' '.halt'
+	[[ $status -eq 0 ]]
+	local light_rgb
+	light_rgb=$(legend_rgb)
+
+	[[ "$dark_rgb" != "$light_rgb" ]]
+}
+
+# ---------------------------------------------------------------------------
 # Soft switches
 # ---------------------------------------------------------------------------
 

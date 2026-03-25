@@ -517,3 +517,50 @@ teardown()   { load text40_helper; teardown; }
 	col_range_is_uniform 0 0 14
 	col_range_has_mixed_colors 0 14 14
 }
+
+# ---------------------------------------------------------------------------
+# Monochrome modes (7.5)
+# ---------------------------------------------------------------------------
+
+@test "green screen renders white pixels as 98FF98" {
+	asm_video_mono green \
+		'LDA #$C1' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' '.halt'
+	[[ $status -eq 0 ]]
+	local rgb
+	rgb=$(legend_rgb)
+	echo "$rgb" | grep -q '98FF98'
+}
+
+@test "amber screen renders white pixels as FFBF00" {
+	asm_video_mono amber \
+		'LDA #$C1' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' '.halt'
+	[[ $status -eq 0 ]]
+	local rgb
+	rgb=$(legend_rgb)
+	echo "$rgb" | grep -q 'FFBF00'
+}
+
+@test "monochrome spaces screen has one color (black)" {
+	asm_video_mono green \
+		'LDA #$A0' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' '.halt'
+	[[ $status -eq 0 ]]
+	[[ $(color_count) -eq 1 ]]
+	local rgb
+	rgb=$(legend_rgb)
+	[[ "$rgb" == "000000" ]]
+}
+
+@test "monochrome normal A has two colors" {
+	asm_video_mono green \
+		'LDA #$C1' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' '.halt'
+	[[ $status -eq 0 ]]
+	[[ $(color_count) -eq 2 ]]
+}
