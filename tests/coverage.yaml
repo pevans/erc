@@ -1861,3 +1861,186 @@ specs:
       - section: "9.4"
         title: Shared Framebuffer with Other Modes
         testable: false
+
+  - spec: spec-10
+    title: Low-Resolution Graphics Mode
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Screen Geometry
+        testable: false
+
+      - section: "2.1"
+        title: Logical Dimensions
+        testable: false
+
+      - section: "2.2"
+        title: Block Dimensions
+        testable: true
+        tests:
+          - "tests/lores.bats::lores frame is 560x384"
+          - "tests/lores.bats::single block is 14 pixels wide"
+          - "tests/lores.bats::low nibble sets top block color"
+
+      - section: "3"
+        title: Display Memory
+        testable: false
+
+      - section: "3.1"
+        title: Shared Memory with Text Mode
+        testable: true
+        tests:
+          - "tests/lores.bats::address $0400 maps to lores rows 0-1: pixel rows 0-15"
+          - "tests/lores.bats::address $0480 maps to lores rows 2-3: pixel rows 16-31"
+          - "tests/lores.bats::address $0428 maps to lores rows 16-17: pixel rows 128-143"
+          - "tests/lores.bats::address $07D0 maps to lores rows 46-47: pixel rows 368-383"
+          - "tests/lores.bats::writing to hole byte $0478 does not affect the lores display"
+
+      - section: "3.2"
+        title: Nibble Encoding
+        testable: true
+        tests:
+          - "tests/lores.bats::low nibble sets top block color"
+          - "tests/lores.bats::high nibble sets bottom block color"
+          - "tests/lores.bats::byte $F0 produces two colors (top black, bottom white)"
+          - "tests/lores.bats::$F0 and $0F produce different pixel patterns"
+
+      - section: "4"
+        title: Color Palette
+        testable: false
+
+      - section: "4.1"
+        title: The 16 Colors
+        testable: true
+        tests:
+          - "tests/lores.bats::all 16 color indices produce correct RGB values"
+          - "tests/lores.bats::screen filled with $00 has one color"
+          - "tests/lores.bats::screen filled with $FF has one color"
+          - "tests/lores.bats::$00 and $FF screens produce different colors"
+
+      - section: "4.2"
+        title: Color Block Construction
+        testable: true
+        tests:
+          - "tests/lores.bats::screen filled with $00 has one color"
+          - "tests/lores.bats::screen filled with $FF has one color"
+          - "tests/lores.bats::byte $F0 produces two colors (top black, bottom white)"
+
+      - section: "5"
+        title: Monochrome Modes
+        testable: false
+
+      - section: "5.1"
+        title: Overview
+        testable: false
+
+      - section: "5.2"
+        title: Shade Mapping
+        testable: false
+
+      - section: "5.3"
+        title: Shade Computation
+        testable: false
+
+      - section: "5.4"
+        title: Precomputation
+        testable: false
+
+      - section: "6"
+        title: Rendering Pipeline
+        testable: false
+
+      - section: "6.1"
+        title: Mode Dispatch
+        testable: true
+        tests:
+          - "tests/lores.bats::TEXT off changes display from text to lores"
+          - "tests/lores.bats::TEXT on returns from lores to text mode"
+          - "tests/lores.bats::HIRES on overrides lores mode"
+
+      - section: "6.2"
+        title: Display Memory Snapshot
+        testable: false
+
+      - section: "6.3"
+        title: Rendering Loop
+        testable: true
+        tests:
+          - "tests/lores.bats::address $0400 maps to lores rows 0-1: pixel rows 0-15"
+          - "tests/lores.bats::address $0480 maps to lores rows 2-3: pixel rows 16-31"
+          - "tests/lores.bats::address $0428 maps to lores rows 16-17: pixel rows 128-143"
+          - "tests/lores.bats::address $07D0 maps to lores rows 46-47: pixel rows 368-383"
+          - "tests/lores.bats::low nibble sets top block color"
+          - "tests/lores.bats::high nibble sets bottom block color"
+          - "tests/lores.bats::writing to hole byte $0478 does not affect the lores display"
+
+      - section: "6.4"
+        title: Address Lookup Tables
+        testable: true
+        tests:
+          - "tests/lores.bats::address $0400 maps to lores rows 0-1: pixel rows 0-15"
+          - "tests/lores.bats::address $0480 maps to lores rows 2-3: pixel rows 16-31"
+          - "tests/lores.bats::address $0428 maps to lores rows 16-17: pixel rows 128-143"
+          - "tests/lores.bats::address $07D0 maps to lores rows 46-47: pixel rows 368-383"
+          - "tests/lores.bats::writing to hole byte $0478 does not affect the lores display"
+
+      - section: "7"
+        title: Soft Switches
+        testable: false
+
+      - section: "7.1"
+        title: Mode Selection
+        testable: true
+        tests:
+          - "tests/lores.bats::TEXT off changes display from text to lores"
+          - "tests/lores.bats::TEXT on returns from lores to text mode"
+          - "tests/lores.bats::HIRES on overrides lores mode"
+          - "tests/lores.bats::toggling HIRES on logs DisplayHires state change"
+          - "tests/lores.bats::toggling HIRES off logs DisplayHires state change"
+          - "tests/lores.bats::PAGE2 switch changes lores displayed content"
+
+      - section: "7.2"
+        title: Irrelevant Switches
+        testable: false
+
+      - section: "7.3"
+        title: Page Selection
+        testable: true
+        tests:
+          - "tests/lores.bats::PAGE2 displays explicitly filled page 2 content"
+          - "tests/lores.bats::PAGE2 switch changes lores displayed content"
+
+      - section: "8"
+        title: Mixed Mode
+        testable: false
+
+      - section: "8.1"
+        title: Overview
+        testable: false
+
+      - section: "8.2"
+        title: Current Status
+        testable: false
+
+      - section: "9"
+        title: Design Considerations
+        testable: false
+
+      - section: "9.1"
+        title: Shared Infrastructure with Text Mode
+        testable: false
+
+      - section: "9.2"
+        title: Precomputed Color Blocks
+        testable: false
+
+      - section: "9.3"
+        title: Double Lores (Out of Scope)
+        testable: false
+
+      - section: "9.4"
+        title: Monochrome Shade Rationale
+        testable: false
