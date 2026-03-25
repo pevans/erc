@@ -2297,3 +2297,201 @@ specs:
       - section: "10.4"
         title: Double Hires (Out of Scope)
         testable: false
+
+  - spec: spec-12
+    title: Double High-Resolution Graphics Mode
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Screen Geometry
+        testable: false
+
+      - section: "2.1"
+        title: Logical Dimensions
+        testable: false
+
+      - section: "2.2"
+        title: Dot Dimensions
+        testable: true
+        tests:
+          - "tests/dhires.bats::dhires frame is 560x384"
+          - "tests/dhires.bats::dhires single dot is 1 pixel wide"
+
+      - section: "3"
+        title: Display Memory
+        testable: false
+
+      - section: "3.1"
+        title: Memory Regions
+        testable: true
+        tests:
+          - "tests/dhires.bats::dhires page 1 uses main and aux $2000-$3FFF"
+
+      - section: "3.2"
+        title: Address Interleaving
+        testable: true
+        tests:
+          - "tests/dhires.bats::address $2000 maps to dhires row 0: pixel rows 0-1"
+          - "tests/dhires.bats::address $2080 maps to dhires row 8: pixel rows 16-17"
+          - "tests/dhires.bats::address $2028 maps to dhires row 64: pixel rows 128-129"
+          - "tests/dhires.bats::address $2050 maps to dhires row 128: pixel rows 256-257"
+          - "tests/dhires.bats::writing to hole byte $2078 does not affect the dhires display"
+
+      - section: "3.3"
+        title: Byte Interleaving Within a Row
+        testable: true
+        tests:
+          - "tests/dhires.bats::aux byte at offset 0 produces leftmost dots in column pair"
+          - "tests/dhires.bats::main byte at offset 0 produces rightmost dots in column pair"
+
+      - section: "3.4"
+        title: Byte Layout
+        testable: true
+        tests:
+          - "tests/dhires.bats::dhires bit 0 controls leftmost dot in byte"
+          - "tests/dhires.bats::dhires bit 6 controls rightmost dot in byte"
+          - "tests/dhires.bats::dhires bit 7 is unused and does not affect display"
+
+      - section: "4"
+        title: Color Generation
+        testable: false
+
+      - section: "4.1"
+        title: The 16 Double Hires Colors
+        testable: true
+        tests:
+          - "tests/dhires.bats::dhires all dots off produces black"
+          - "tests/dhires.bats::dhires all dots on produces white"
+          - "tests/dhires.bats::dhires $7F and $00 produce different colors"
+
+      - section: "4.2"
+        title: Sliding Window Color Assignment
+        testable: true
+        tests:
+          - "tests/dhires.bats::4 on-dots at position 0 produce white at dot 0"
+          - "tests/dhires.bats::single on-dot does not produce white"
+          - "tests/dhires.bats::first dot in a row behaves as if previous dot were off"
+
+      - section: "4.3"
+        title: Color vs. Hires Color
+        testable: false
+
+      - section: "5"
+        title: Monochrome Modes
+        testable: false
+
+      - section: "5.1"
+        title: Overview
+        testable: false
+
+      - section: "5.2"
+        title: Monochrome Colors
+        testable: true
+        tests:
+          - "tests/dhires.bats::dhires green screen renders on-dots as 98FF98"
+          - "tests/dhires.bats::dhires amber screen renders on-dots as FFBF00"
+
+      - section: "5.3"
+        title: Rendering Behavior
+        testable: true
+        tests:
+          - "tests/dhires.bats::dhires monochrome ignores bit 7"
+          - "tests/dhires.bats::dhires monochrome has no color grouping"
+
+      - section: "6"
+        title: Rendering Pipeline
+        testable: false
+
+      - section: "6.1"
+        title: Mode Dispatch
+        testable: true
+        tests:
+          - "tests/dhires.bats::DHIRES+80COL+HIRES+TEXT_off activates double hires"
+          - "tests/dhires.bats::disabling 80COL falls back to standard hires"
+          - "tests/dhires.bats::disabling DHIRES falls back to standard hires"
+          - "tests/dhires.bats::TEXT on returns from dhires to text mode"
+
+      - section: "6.2"
+        title: Display Memory Snapshot
+        testable: false
+
+      - section: "6.3"
+        title: Per-Row Rendering (Monochrome)
+        testable: true
+        tests:
+          - "tests/dhires.bats::dhires monochrome has no color grouping"
+          - "tests/dhires.bats::dhires monochrome ignores bit 7"
+
+      - section: "6.4"
+        title: Per-Row Rendering (Color)
+        testable: true
+        tests:
+          - "tests/dhires.bats::4 on-dots at position 0 produce white at dot 0"
+          - "tests/dhires.bats::dhires all dots on produces white"
+          - "tests/dhires.bats::dhires all dots off produces black"
+
+      - section: "7"
+        title: Soft Switches
+        testable: false
+
+      - section: "7.1"
+        title: Mode Selection
+        testable: true
+        tests:
+          - "tests/dhires.bats::DHIRES+80COL+HIRES+TEXT_off activates double hires"
+          - "tests/dhires.bats::disabling 80COL falls back to standard hires"
+          - "tests/dhires.bats::disabling DHIRES falls back to standard hires"
+
+      - section: "7.2"
+        title: Read Switches
+        testable: true
+        tests:
+          - "tests/dhires.bats::RDDHIRES returns bit 7 high when DHIRES is on"
+          - "tests/dhires.bats::RDDHIRES returns bit 7 low when DHIRES is off"
+          - "tests/dhires.bats::RD80COL returns bit 7 high when 80COL is on"
+          - "tests/dhires.bats::RD80COL returns bit 7 low when 80COL is off"
+
+      - section: "7.3"
+        title: Page Selection
+        testable: true
+        tests:
+          - "tests/dhires.bats::PAGE2 displays dhires page 2 content"
+
+      - section: "7.4"
+        title: Display Redraw
+        testable: false
+
+      - section: "8"
+        title: Mixed Mode
+        testable: false
+
+      - section: "8.1"
+        title: Current Status
+        testable: false
+
+      - section: "9"
+        title: Comparison with Standard Hires
+        testable: false
+
+      - section: "10"
+        title: Design Considerations
+        testable: false
+
+      - section: "10.1"
+        title: Sliding Window vs. Neighbor Rules
+        testable: false
+
+      - section: "10.2"
+        title: Shared Address Table
+        testable: false
+
+      - section: "10.3"
+        title: Snapshot Isolation
+        testable: false
+
+      - section: "10.4"
+        title: 1x2 Pixel Blocks
+        testable: false
