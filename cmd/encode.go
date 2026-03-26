@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var outputFlag string
+var encodeOutputFlag string
 
 var encodeCmd = &cobra.Command{
 	Use:   "encode [image]",
@@ -19,17 +19,17 @@ var encodeCmd = &cobra.Command{
 	Long:  "Encode a logically formatted disk image (DOS 3.3 or ProDOS) into a physical image file that is 6-and-2 encoded.",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		if outputFlag == "" {
+		if encodeOutputFlag == "" {
 			fail("output file must be specified with -o flag")
 		}
-		encodeImage(args[0], outputFlag)
+		encodeImage(args[0], encodeOutputFlag)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(encodeCmd)
 
-	encodeCmd.Flags().StringVarP(&outputFlag, "output", "o", "", "Output file path (required)")
+	encodeCmd.Flags().StringVarP(&encodeOutputFlag, "output", "o", "", "Output file path (required)")
 	encodeCmd.MarkFlagRequired("output") //nolint:errcheck
 }
 

@@ -2495,3 +2495,291 @@ specs:
       - section: "10.4"
         title: 1x2 Pixel Blocks
         testable: false
+
+  - spec: spec-13
+    title: Disk Images
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Disk Geometry
+        testable: true
+        tests:
+          - "tests/disk_images.bats::encoded output is 223440 bytes"
+          - "tests/disk_images.bats::track 34 has valid address field at expected offset"
+
+      - section: "3"
+        title: Image Formats
+        testable: false
+
+      - section: "3.1"
+        title: DOS 3.3 (.dsk, .do)
+        testable: true
+        tests:
+          - "tests/disk_images.bats::encode accepts .dsk input"
+          - "tests/disk_images.bats::encode accepts .do input"
+
+      - section: "3.2"
+        title: ProDOS (.po)
+        testable: true
+        tests:
+          - "tests/disk_images.bats::encode accepts .po input"
+
+      - section: "3.3"
+        title: Nibble (.nib)
+        testable: true
+        tests:
+          - "tests/disk_images.bats::encode rejects .nib input"
+
+      - section: "4"
+        title: Logical vs. Physical Data
+        testable: false
+
+      - section: "5"
+        title: Sector Interleaving
+        testable: false
+
+      - section: "5.1"
+        title: DOS 3.3 Interleave
+        testable: true
+        tests:
+          - "tests/disk_images.bats::encode accepts .dsk input"
+          - "tests/disk_images.bats::.dsk and .po encode identically for uniform data"
+          - "tests/disk_images.bats::.dsk and .po produce different output for non-uniform data"
+
+      - section: "5.2"
+        title: ProDOS Interleave
+        testable: true
+        tests:
+          - "tests/disk_images.bats::encode accepts .po input"
+          - "tests/disk_images.bats::.dsk and .po encode identically for uniform data"
+          - "tests/disk_images.bats::.dsk and .po produce different output for non-uniform data"
+
+      - section: "5.3"
+        title: Direction of Mapping
+        testable: false
+
+      - section: "6"
+        title: Physical Track Layout
+        testable: false
+
+      - section: "6.1"
+        title: Track Structure
+        testable: true
+        tests:
+          - "tests/disk_images.bats::gap1 is 48 FF bytes at start of track 0"
+          - "tests/disk_images.bats::track 1 gap1 starts at offset 6384"
+
+      - section: "6.2"
+        title: Sector Structure
+        testable: true
+        tests:
+          - "tests/disk_images.bats::second sector starts 396 bytes after first"
+          - "tests/disk_images.bats::gap2 is 6 FF bytes between address and data fields"
+          - "tests/disk_images.bats::gap3 is 27 FF bytes after data field"
+
+      - section: "6.3"
+        title: Gap Bytes
+        testable: true
+        tests:
+          - "tests/disk_images.bats::gap1 is 48 FF bytes at start of track 0"
+          - "tests/disk_images.bats::gap2 is 6 FF bytes between address and data fields"
+          - "tests/disk_images.bats::gap3 is 27 FF bytes after data field"
+
+      - section: "6.4"
+        title: Physical Track and Sector Sizes
+        testable: true
+        tests:
+          - "tests/disk_images.bats::encoded output is 223440 bytes"
+          - "tests/disk_images.bats::second sector starts 396 bytes after first"
+          - "tests/disk_images.bats::track 1 gap1 starts at offset 6384"
+
+      - section: "7"
+        title: Address Field
+        testable: false
+
+      - section: "7.1"
+        title: Address Field Layout
+        testable: true
+        tests:
+          - "tests/disk_images.bats::address field prologue is D5 AA 96"
+          - "tests/disk_images.bats::volume marker is 4-and-4 encoded FE"
+          - "tests/disk_images.bats::track 0 sector 0 encoded in address field"
+          - "tests/disk_images.bats::address checksum is volume XOR track XOR sector"
+          - "tests/disk_images.bats::address field epilogue is DE AA EB"
+          - "tests/disk_images.bats::physical sector 5 has sector 5 in address field"
+          - "tests/disk_images.bats::track 34 has valid address field at expected offset"
+
+      - section: "7.2"
+        title: Volume Marker
+        testable: true
+        tests:
+          - "tests/disk_images.bats::volume marker is 4-and-4 encoded FE"
+
+      - section: "7.3"
+        title: 4-and-4 Encoding
+        testable: true
+        tests:
+          - "tests/disk_images.bats::volume marker is 4-and-4 encoded FE"
+          - "tests/disk_images.bats::track 0 sector 0 encoded in address field"
+          - "tests/disk_images.bats::track 1 address field has track number 1"
+          - "tests/disk_images.bats::physical sector 5 has sector 5 in address field"
+          - "tests/disk_images.bats::track 34 has valid address field at expected offset"
+
+      - section: "8"
+        title: Data Field
+        testable: false
+
+      - section: "8.1"
+        title: Data Field Layout
+        testable: true
+        tests:
+          - "tests/disk_images.bats::data field prologue is D5 AA AD"
+          - "tests/disk_images.bats::data field epilogue is DE AA EB"
+
+      - section: "8.2"
+        title: Prologue and Epilogue
+        testable: true
+        tests:
+          - "tests/disk_images.bats::data field prologue is D5 AA AD"
+          - "tests/disk_images.bats::data field epilogue is DE AA EB"
+
+      - section: "8.3"
+        title: 6-and-2 Encoding
+        testable: true
+        tests:
+          - "tests/disk_images.bats::encoded data bytes are valid GCR values"
+          - "tests/disk_images.bats::encode then decode round-trips to identical .dsk"
+
+      - section: "8.4"
+        title: XOR Chaining
+        testable: true
+        tests:
+          - "tests/disk_images.bats::encode then decode round-trips to identical .dsk"
+
+      - section: "8.5"
+        title: GCR Translation
+        testable: true
+        tests:
+          - "tests/disk_images.bats::encoded data bytes are valid GCR values"
+          - "tests/disk_images.bats::encode then decode round-trips to identical .dsk"
+
+      - section: "9"
+        title: Encoding and Decoding
+        testable: false
+
+      - section: "9.1"
+        title: Encoding (Logical to Physical)
+        testable: true
+        tests:
+          - "tests/disk_images.bats::encoded output is 223440 bytes"
+          - "tests/disk_images.bats::encoding different data produces different output"
+          - "tests/disk_images.bats::.dsk and .po encode identically for uniform data"
+          - "tests/disk_images.bats::.dsk and .po produce different output for non-uniform data"
+          - "tests/disk_images.bats::track 34 has valid address field at expected offset"
+
+      - section: "9.2"
+        title: Decoding (Physical to Logical)
+        testable: true
+        tests:
+          - "tests/disk_images.bats::boot loads program from track 0 into memory"
+          - "tests/disk_images.bats::encode then decode round-trips to identical .dsk"
+          - "tests/disk_images.bats::encode then decode round-trips to identical .po"
+
+      - section: "10"
+        title: Drive Emulation
+        testable: false
+
+      - section: "10.1"
+        title: Loading
+        testable: true
+        tests:
+          - "tests/disk_images.bats::disk boots and reaches program"
+          - "tests/disk_images.bats::encode rejects wrong-size input"
+
+      - section: "10.2"
+        title: Saving
+        testable: false
+
+      - section: "10.3"
+        title: Write Protection
+        testable: true
+        tests:
+          - "tests/disk_images.bats::write protection defaults to off"
+          - "tests/disk_images.bats::C0EE in read mode reports write-protect status"
+
+      - section: "10.4"
+        title: Multiple Drives
+        testable: false
+
+      - section: "10.5"
+        title: The Latch
+        testable: true
+        tests:
+          - "tests/disk_images.bats::C0EC reads a byte from disk"
+          - "tests/disk_images.bats::C0ED returns latch without advancing position"
+
+      - section: "10.6"
+        title: Position
+        testable: true
+        tests:
+          - "tests/disk_images.bats::consecutive C0EC reads advance sector position"
+
+      - section: "10.7"
+        title: Stepper Motor Phases
+        testable: false
+
+      - section: "11"
+        title: Disk Controller Soft Switches
+        testable: false
+
+      - section: "11.1"
+        title: Switch Table
+        testable: true
+        tests:
+          - "tests/disk_images.bats::C0EC reads a byte from disk"
+          - "tests/disk_images.bats::C0EE in read mode reports write-protect status"
+          - "tests/disk_images.bats::consecutive C0EC reads advance sector position"
+          - "tests/disk_images.bats::C0ED returns latch without advancing position"
+
+      - section: "11.2"
+        title: The Shift Operation ($C0EC)
+        testable: true
+        tests:
+          - "tests/disk_images.bats::C0EC reads a byte from disk"
+          - "tests/disk_images.bats::consecutive C0EC reads advance sector position"
+
+      - section: "11.3"
+        title: The Latch Switch ($C0ED)
+        testable: true
+        tests:
+          - "tests/disk_images.bats::C0ED returns latch without advancing position"
+
+      - section: "11.4"
+        title: Full-Speed Mode
+        testable: false
+
+      - section: "12"
+        title: Boot Sequence
+        testable: true
+        tests:
+          - "tests/disk_images.bats::disk boots and reaches program"
+          - "tests/disk_images.bats::boot loads program from track 0 into memory"
+
+      - section: "13"
+        title: Data Flow Summary
+        testable: false
+
+      - section: "13.1"
+        title: Loading and Reading
+        testable: false
+
+      - section: "13.2"
+        title: Writing and Saving
+        testable: false
+
+      - section: "13.3"
+        title: Nibble Images
+        testable: false
