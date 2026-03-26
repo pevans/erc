@@ -428,3 +428,168 @@ teardown()   { load disk_images_helper; teardown; }
 	hex="$(printf '%02X' "0x${val#\$}")"
 	[[ "$hex" == "AB" ]]
 }
+
+# ---------------------------------------------------------------------------
+# Spec 14: Encode/Decode Commands
+# ---------------------------------------------------------------------------
+
+# --- Section 2.2: Encode Input ---
+
+@test "encode prints success message with file paths" {
+	asm 'NOP' '.halt'
+	encode "$TMP/test.dsk" "$TMP/out.enc"
+	[[ $status -eq 0 ]]
+	[[ "$output" == *"$TMP/test.dsk"* ]]
+	[[ "$output" == *"$TMP/out.enc"* ]]
+}
+
+# --- Section 2.3: Encode Rejected Input ---
+
+@test "encode rejects unrecognized extension" {
+	make_zeros "$TMP/test.xyz" 143360
+	encode "$TMP/test.xyz" "$TMP/out.enc"
+	[[ $status -ne 0 ]]
+}
+
+# --- Section 3.2: Decode Input ---
+
+@test "decode rejects wrong-size input" {
+	make_zeros "$TMP/small.enc" 1024
+	decode "$TMP/small.enc" "$TMP/out.dsk"
+	[[ $status -ne 0 ]]
+	[[ "$output" == *"unexpected size"* ]]
+}
+
+# --- Section 3.3: Decode Output ---
+
+@test "decode accepts .dsk output" {
+	make_patterned "$TMP/original.dsk"
+	encode "$TMP/original.dsk" "$TMP/encoded.enc"
+	[[ $status -eq 0 ]]
+	decode "$TMP/encoded.enc" "$TMP/out.dsk"
+	[[ $status -eq 0 ]]
+}
+
+@test "decode accepts .do output" {
+	make_patterned "$TMP/original.dsk"
+	encode "$TMP/original.dsk" "$TMP/encoded.enc"
+	[[ $status -eq 0 ]]
+	decode "$TMP/encoded.enc" "$TMP/out.do"
+	[[ $status -eq 0 ]]
+}
+
+@test "decode accepts .po output" {
+	make_patterned "$TMP/original.dsk"
+	encode "$TMP/original.dsk" "$TMP/encoded.enc"
+	[[ $status -eq 0 ]]
+	decode "$TMP/encoded.enc" "$TMP/out.po"
+	[[ $status -eq 0 ]]
+}
+
+@test "decoded output is 143360 bytes" {
+	make_patterned "$TMP/original.dsk"
+	encode "$TMP/original.dsk" "$TMP/encoded.enc"
+	[[ $status -eq 0 ]]
+	decode "$TMP/encoded.enc" "$TMP/out.dsk"
+	[[ $status -eq 0 ]]
+	local size
+	size=$(wc -c <"$TMP/out.dsk" | tr -d ' ')
+	[[ "$size" -eq 143360 ]]
+}
+
+@test "decode prints success message with file paths" {
+	make_patterned "$TMP/original.dsk"
+	encode "$TMP/original.dsk" "$TMP/encoded.enc"
+	[[ $status -eq 0 ]]
+	decode "$TMP/encoded.enc" "$TMP/decoded.dsk"
+	[[ $status -eq 0 ]]
+	[[ "$output" == *"$TMP/encoded.enc"* ]]
+	[[ "$output" == *"$TMP/decoded.dsk"* ]]
+}
+
+# --- Section 3.4: Decode Rejected Output Formats ---
+
+@test "decode rejects .nib output" {
+	make_zeros "$TMP/input.enc" 223440
+	decode "$TMP/input.enc" "$TMP/out.nib"
+	[[ $status -ne 0 ]]
+	[[ "$output" == *"cannot decode to nibble format"* ]]
+}
+
+@test "decode rejects unrecognized output extension" {
+	make_zeros "$TMP/input.enc" 223440
+	decode "$TMP/input.enc" "$TMP/out.xyz"
+	[[ $status -ne 0 ]]
+}
+
+# --- Section 4: Error Handling ---
+
+@test "encode fails when -o flag is missing" {
+	make_zeros "$TMP/test.dsk" 143360
+	run "$ERC_BIN" encode "$TMP/test.dsk"
+	[[ $status -ne 0 ]]
+}
+
+@test "decode fails when -o flag is missing" {
+	make_zeros "$TMP/input.enc" 223440
+	run "$ERC_BIN" decode "$TMP/input.enc"
+	[[ $status -ne 0 ]]
+}
+
+@test "encode fails when input file does not exist" {
+	encode "$TMP/nonexistent.dsk" "$TMP/out.enc"
+	[[ $status -ne 0 ]]
+}
+
+@test "decode fails when input file does not exist" {
+	decode "$TMP/nonexistent.enc" "$TMP/out.dsk"
+	[[ $status -ne 0 ]]
+}
+
+# --- Section 3.2: Decode input extension is ignored ---
+
+@test "decode ignores input file extension" {
+	make_patterned "$TMP/original.dsk"
+	encode "$TMP/original.dsk" "$TMP/encoded.enc"
+	[[ $status -eq 0 ]]
+
+	cp "$TMP/encoded.enc" "$TMP/encoded.weird"
+	decode "$TMP/encoded.weird" "$TMP/out.dsk"
+	[[ $status -eq 0 ]]
+
+	cmp -s "$TMP/original.dsk" "$TMP/out.dsk"
+}
+
+# --- Section 5: Round-Trip (.do) ---
+
+@test "decode to .dsk vs .po produces different output for non-uniform data" {
+	make_patterned "$TMP/patterned.dsk"
+	encode "$TMP/patterned.dsk" "$TMP/encoded.enc"
+	[[ $status -eq 0 ]]
+
+	decode "$TMP/encoded.enc" "$TMP/out.dsk"
+	[[ $status -eq 0 ]]
+
+	decode "$TMP/encoded.enc" "$TMP/out.po"
+	[[ $status -eq 0 ]]
+
+	! cmp -s "$TMP/out.dsk" "$TMP/out.po"
+}
+
+@test "decode fails on corrupted encoded data" {
+	make_zeros "$TMP/corrupted.enc" 223440
+	decode "$TMP/corrupted.enc" "$TMP/out.dsk"
+	[[ $status -ne 0 ]]
+}
+
+@test "encode then decode round-trips to identical .do" {
+	make_patterned "$TMP/original.dsk"
+	cp "$TMP/original.dsk" "$TMP/original.do"
+	encode "$TMP/original.do" "$TMP/encoded.enc"
+	[[ $status -eq 0 ]]
+
+	decode "$TMP/encoded.enc" "$TMP/decoded.do"
+	[[ $status -eq 0 ]]
+
+	cmp -s "$TMP/original.do" "$TMP/decoded.do"
+}

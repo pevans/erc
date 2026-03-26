@@ -2783,3 +2783,102 @@ specs:
       - section: "13.3"
         title: Nibble Images
         testable: false
+
+  - spec: spec-14
+    title: Encode/Decode Commands
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Encode Command
+        testable: false
+
+      - section: "2.1"
+        title: Usage
+        testable: false
+
+      - section: "2.2"
+        title: Input
+        testable: true
+        tests:
+          - "tests/disk_images.bats::encode accepts .dsk input"
+          - "tests/disk_images.bats::encode accepts .do input"
+          - "tests/disk_images.bats::encode accepts .po input"
+          - "tests/disk_images.bats::encode rejects wrong-size input"
+
+      - section: "2.3"
+        title: Rejected Input
+        testable: true
+        tests:
+          - "tests/disk_images.bats::encode rejects .nib input"
+          - "tests/disk_images.bats::encode rejects unrecognized extension"
+
+      - section: "2.4"
+        title: Output
+        testable: true
+        tests:
+          - "tests/disk_images.bats::encoded output is 223440 bytes"
+          - "tests/disk_images.bats::encode prints success message with file paths"
+
+      - section: "3"
+        title: Decode Command
+        testable: false
+
+      - section: "3.1"
+        title: Usage
+        testable: false
+
+      - section: "3.2"
+        title: Input
+        testable: true
+        tests:
+          - "tests/disk_images.bats::decode rejects wrong-size input"
+          - "tests/disk_images.bats::decode ignores input file extension"
+
+      - section: "3.3"
+        title: Output
+        testable: true
+        tests:
+          - "tests/disk_images.bats::decode accepts .dsk output"
+          - "tests/disk_images.bats::decode accepts .do output"
+          - "tests/disk_images.bats::decode accepts .po output"
+          - "tests/disk_images.bats::decoded output is 143360 bytes"
+          - "tests/disk_images.bats::decode prints success message with file paths"
+          - "tests/disk_images.bats::decode to .dsk vs .po produces different output for non-uniform data"
+
+      - section: "3.4"
+        title: Rejected Output Formats
+        testable: true
+        tests:
+          - "tests/disk_images.bats::decode rejects .nib output"
+          - "tests/disk_images.bats::decode rejects unrecognized output extension"
+
+      - section: "4"
+        title: Error Handling
+        testable: true
+        tests:
+          - "tests/disk_images.bats::encode rejects wrong-size input"
+          - "tests/disk_images.bats::encode rejects .nib input"
+          - "tests/disk_images.bats::encode rejects unrecognized extension"
+          - "tests/disk_images.bats::encode fails when -o flag is missing"
+          - "tests/disk_images.bats::encode fails when input file does not exist"
+          - "tests/disk_images.bats::decode rejects wrong-size input"
+          - "tests/disk_images.bats::decode rejects .nib output"
+          - "tests/disk_images.bats::decode rejects unrecognized output extension"
+          - "tests/disk_images.bats::decode fails when -o flag is missing"
+          - "tests/disk_images.bats::decode fails when input file does not exist"
+          - "tests/disk_images.bats::decode fails on corrupted encoded data"
+
+      - section: "5"
+        title: Round-Trip Invariant
+        testable: true
+        tests:
+          - "tests/disk_images.bats::encode then decode round-trips to identical .dsk"
+          - "tests/disk_images.bats::encode then decode round-trips to identical .po"
+          - "tests/disk_images.bats::encode then decode round-trips to identical .do"
+
+      - section: "6"
+        title: Relationship to Spec 13
+        testable: false
