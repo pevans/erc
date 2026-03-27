@@ -153,7 +153,8 @@ func UseDefaults(state *memory.StateMap, mainSeg, romSeg *memory.Segment) {
 	// of RAM."
 	state.SetBool(a2state.BankReadRAM, false)
 	state.SetBool(a2state.BankWriteRAM, true)
-	state.SetBool(a2state.BankDFBlockBank2, false)
+	state.SetBool(a2state.BankDFBlockBank2, true)
+	state.SetInt(a2state.BankReadAttempts, 0)
 	state.SetBool(a2state.BankSysBlockAux, false)
 	state.SetSegment(a2state.BankSysBlockSegment, mainSeg)
 	state.SetSegment(a2state.BankROMSegment, romSeg)

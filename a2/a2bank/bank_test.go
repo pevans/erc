@@ -44,7 +44,7 @@ func (s *bankSuite) TestUseDefaults() {
 	UseDefaults(s.state, s.main, s.rom)
 	s.False(s.state.Bool(a2state.BankReadRAM))
 	s.True(s.state.Bool(a2state.BankWriteRAM))
-	s.False(s.state.Bool(a2state.BankDFBlockBank2))
+	s.True(s.state.Bool(a2state.BankDFBlockBank2))
 	s.False(s.state.Bool(a2state.BankSysBlockAux))
 }
 
