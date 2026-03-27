@@ -94,6 +94,17 @@ func OperandSize(opcode uint8) uint16 {
 	return 1
 }
 
+// resolveEffVal reads the byte at c.EffAddr into c.EffVal, but only if the
+// current instruction actually reads from memory. Write-only instructions
+// (STA, STX, etc.) do not read their target address on real hardware, so
+// skipping the read prevents address-mode resolution from accidentally
+// triggering soft-switch side effects.
+func resolveEffVal(c *CPU) {
+	if c.State.Bool(a2state.InstructionReadOp) {
+		c.EffVal = c.Get(c.EffAddr)
+	}
+}
+
 // Abs resolves the Absolute address mode. Given a 16-bit operand, we
 // dereference that for our effective value.
 //
@@ -102,7 +113,7 @@ func Abs(c *CPU) {
 	c.AddrMode = AmABS
 	c.EffAddr = c.Get16(c.PC + 1)
 	c.Operand = c.EffAddr
-	c.EffVal = c.Get(c.EffAddr)
+	resolveEffVal(c)
 }
 
 // Abx resolves Absolute X address mode, which is like Absolute mode but adds
@@ -121,7 +132,7 @@ func Abx(c *CPU) {
 
 	c.Operand = c.Get16(c.PC + 1)
 	c.EffAddr = c.Operand + uint16(c.X)
-	c.EffVal = c.Get(c.EffAddr)
+	resolveEffVal(c)
 }
 
 // Aby is much like ABX, except that it adds the Y register content.
@@ -139,7 +150,7 @@ func Aby(c *CPU) {
 
 	c.Operand = c.Get16(c.PC + 1)
 	c.EffAddr = c.Operand + uint16(c.Y)
-	c.EffVal = c.Get(c.EffAddr)
+	resolveEffVal(c)
 }
 
 // Acc will resolve the Accumulator address mode, which is very simple: the
@@ -202,7 +213,7 @@ func Ind(c *CPU) {
 	// address; so we derefence that `($NNNN)` to get the value.
 	c.Operand = c.Get16(c.PC + 1)
 	c.EffAddr = c.Get16(c.Operand)
-	c.EffVal = c.Get(c.EffAddr)
+	resolveEffVal(c)
 
 	// TODO: according to AppleWin, we should be adding a cycle of complexity
 	// if Operand ends in 0xFF
@@ -234,7 +245,7 @@ func Idx(c *CPU) {
 	// Our effective address is the dereferenced value found at the base
 	// address.
 
-	c.EffVal = c.Get(c.EffAddr)
+	resolveEffVal(c)
 }
 
 // zpDeref reads the 16-bit little-endian pointer stored at the given
@@ -257,7 +268,7 @@ func Idy(c *CPU) {
 	c.AddrMode = AmIDY
 	c.Operand = uint16(c.Get(c.PC + 1))
 	c.EffAddr = zpDeref(c, c.Operand) + uint16(c.Y)
-	c.EffVal = c.Get(c.EffAddr)
+	resolveEffVal(c)
 }
 
 // Rel resolves the relative address mode. This is only used by branch
@@ -305,7 +316,7 @@ func Zpg(c *CPU) {
 	c.AddrMode = AmZPG
 	c.Operand = uint16(c.Get(c.PC + 1))
 	c.EffAddr = c.Operand
-	c.EffVal = c.Get(c.EffAddr)
+	resolveEffVal(c)
 }
 
 // Zpx resolves the zero page x address mode. This is analogous to ABX, except
@@ -317,7 +328,7 @@ func Zpx(c *CPU) {
 	operand := c.Get(c.PC + 1)
 	c.Operand = uint16(operand)
 	c.EffAddr = uint16(operand+c.X) & 0xFF
-	c.EffVal = c.Get(c.EffAddr)
+	resolveEffVal(c)
 }
 
 // Zpy resolves the zero page y address mode. This is analogous to ABY, except
@@ -329,7 +340,7 @@ func Zpy(c *CPU) {
 	operand := c.Get(c.PC + 1)
 	c.Operand = uint16(operand)
 	c.EffAddr = uint16(operand+c.Y) & 0xFF
-	c.EffVal = c.Get(c.EffAddr)
+	resolveEffVal(c)
 }
 
 // Zpi resolves the zero-page indirect address mode. The one-byte operand is a
@@ -342,5 +353,5 @@ func Zpi(c *CPU) {
 	c.AddrMode = AmZPI
 	c.Operand = uint16(c.Get(c.PC + 1))
 	c.EffAddr = zpDeref(c, c.Operand)
-	c.EffVal = c.Get(c.EffAddr)
+	resolveEffVal(c)
 }

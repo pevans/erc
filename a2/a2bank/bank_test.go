@@ -83,7 +83,6 @@ func (s *bankSuite) TestSwitchRead() {
 	}
 
 	rd := func(addr int) bool {
-		s.state.SetBool(a2state.InstructionReadOp, true)
 		_ = SwitchRead(int(addr), s.state)
 		return s.state.Bool(a2state.BankReadRAM)
 	}
@@ -91,7 +90,6 @@ func (s *bankSuite) TestSwitchRead() {
 	wr := func(addr int) bool {
 		// Because the read attempts are adjusted in the computer Process
 		// method, we simulate that here.
-		s.state.SetBool(a2state.InstructionReadOp, true)
 		_ = SwitchRead(int(addr), s.state)
 
 		switch addr {
@@ -102,9 +100,7 @@ func (s *bankSuite) TestSwitchRead() {
 				a2state.BankReadAttempts,
 				s.state.Int(a2state.BankReadAttempts)+1,
 			)
-			s.state.SetBool(a2state.InstructionReadOp, true)
 		default:
-			s.state.SetBool(a2state.InstructionReadOp, false)
 			s.state.SetInt(a2state.BankReadAttempts, 0)
 		}
 
@@ -112,7 +108,6 @@ func (s *bankSuite) TestSwitchRead() {
 	}
 
 	df := func(addr int) bool {
-		s.state.SetBool(a2state.InstructionReadOp, true)
 		_ = SwitchRead(int(addr), s.state)
 		return s.state.Bool(a2state.BankDFBlockBank2)
 	}

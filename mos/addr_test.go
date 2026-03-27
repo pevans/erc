@@ -3,6 +3,7 @@ package mos_test
 import (
 	"testing"
 
+	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/memory"
 	"github.com/pevans/erc/mos"
 	"github.com/stretchr/testify/suite"
@@ -17,9 +18,13 @@ type mosSuite struct {
 func (s *mosSuite) SetupTest() {
 	seg := memory.NewSegment(0x10000)
 	s.cpu = new(mos.CPU)
-	s.cpu.State = new(memory.StateMap)
+	s.cpu.State = memory.NewStateMap()
 	s.cpu.RMem = seg
 	s.cpu.WMem = seg
+
+	// Address mode tests generally expect EffVal to be populated, which
+	// requires InstructionReadOp to be true.
+	s.cpu.State.SetBool(a2state.InstructionReadOp, true)
 }
 
 func TestMosSuite(t *testing.T) {

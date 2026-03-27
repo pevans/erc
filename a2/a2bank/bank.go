@@ -66,14 +66,6 @@ func SwitchRead(addr int, stm *memory.StateMap) uint8 {
 		return bit7(stm.Bool(a2state.BankSysBlockAux))
 	}
 
-	// Bank switches at $C080-$C08F are read-triggered only. If the CPU is
-	// executing a write instruction (e.g. STA $C080), the address mode
-	// resolver will read from this address to compute EffVal, but that
-	// incidental read must not trigger the switch.
-	if !stm.Bool(a2state.InstructionReadOp) {
-		return 0x00
-	}
-
 	switch addr {
 	case 0xC080, 0xC084:
 		stm.SetBool(a2state.BankReadRAM, true)
