@@ -24,29 +24,44 @@ func ReadSwitches() []int {
 	return []int{speakerToggle}
 }
 
+// WriteSwitches returns the list of speaker switch addresses that support
+// writes.
+func WriteSwitches() []int {
+	return []int{speakerToggle}
+}
+
 // SwitchRead handles reads from speaker soft switches.
 func SwitchRead(addr int, stm *memory.StateMap) uint8 {
 	if addr != speakerToggle {
 		return 0
 	}
 
+	toggle(stm)
+	return 0
+}
+
+// SwitchWrite handles writes to speaker soft switches.
+func SwitchWrite(addr int, val uint8, stm *memory.StateMap) {
+	if addr != speakerToggle {
+		return
+	}
+
+	toggle(stm)
+}
+
+func toggle(stm *memory.StateMap) {
 	metrics.Increment("soft_read_speaker_toggle", 1)
 
 	comp := stm.Any(a2state.Computer).(Computer)
 
-	// Toggle the speaker state
 	currentState := stm.Bool(a2state.SpeakerState)
 	newState := !currentState
 	stm.SetBool(a2state.SpeakerState, newState)
 
-	// Push event to the speaker buffer if available
 	if comp.Speaker() != nil {
 		cycle := comp.CycleCounter()
 		comp.Speaker().Push(cycle, newState)
 	}
-
-	// Return floating bus value (we'll just return 0 for now)
-	return 0
 }
 
 // UseDefaults sets up the default state for the speaker. Note: The computer

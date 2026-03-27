@@ -77,4 +77,8 @@ func (c *Computer) MapSoftSwitches() {
 	for _, a := range a2speaker.ReadSwitches() {
 		c.smap.SetRead(a, a2speaker.SwitchRead)
 	}
+
+	for _, a := range a2speaker.WriteSwitches() {
+		c.smap.SetWrite(a, a2speaker.SwitchWrite)
+	}
 }
