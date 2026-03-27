@@ -2882,3 +2882,125 @@ specs:
       - section: "6"
         title: Relationship to Spec 13
         testable: false
+
+  - spec: spec-15
+    title: Bank Memory
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Memory Map
+        testable: false
+
+      - section: "3"
+        title: State
+        testable: false
+
+      - section: "3.1"
+        title: Default State
+        testable: true
+        tests:
+          - "tests/bank_memory.bats::default state: ReadRAM is false (C012 returns 00)"
+          - "tests/bank_memory.bats::default state: WriteRAM is true"
+          - "tests/bank_memory.bats::default state: DFBlockBank2 is true (C011 returns 80)"
+
+      - section: "4"
+        title: RAM Layout
+        testable: true
+        tests:
+          - "tests/bank_memory.bats::bank 1 and bank 2 hold independent values in D000-DFFF"
+          - "tests/bank_memory.bats::E000-FFFF is shared regardless of bank selection"
+
+      - section: "5"
+        title: Soft Switches
+        testable: true
+        tests:
+          - "tests/bank_memory.bats::reading a bank soft switch returns 00"
+          - "tests/bank_memory.bats::writing to a bank soft switch has no effect"
+
+      - section: "5.1"
+        title: Switch Table
+        testable: true
+        tests:
+          - "tests/bank_memory.bats::C080 sets ReadRAM=true WriteRAM=false"
+          - "tests/bank_memory.bats::C080 selects bank 2"
+          - "tests/bank_memory.bats::C082 sets ReadRAM=false WriteRAM=false"
+          - "tests/bank_memory.bats::C082 selects bank 2"
+          - "tests/bank_memory.bats::C088 sets ReadRAM=true WriteRAM=false DFBlockBank2=false"
+          - "tests/bank_memory.bats::C08A sets ReadRAM=false WriteRAM=false DFBlockBank2=false"
+          - "tests/bank_memory.bats::C084 duplicates C080"
+          - "tests/bank_memory.bats::C086 duplicates C082"
+          - "tests/bank_memory.bats::C08C duplicates C088"
+          - "tests/bank_memory.bats::C08E duplicates C08A"
+          - "tests/bank_memory.bats::C085 duplicates C081"
+          - "tests/bank_memory.bats::C087 duplicates C083"
+          - "tests/bank_memory.bats::C08D duplicates C089"
+          - "tests/bank_memory.bats::C08F duplicates C08B"
+          - "tests/bank_memory.bats::double read of C081 enables WriteRAM with ReadRAM=false"
+          - "tests/bank_memory.bats::double read of C089 sets ReadRAM=false WriteRAM=true bank2=false"
+
+      - section: "5.2"
+        title: Non-Write-Enable Switches
+        testable: true
+        tests:
+          - "tests/bank_memory.bats::C080 sets ReadRAM=true WriteRAM=false"
+          - "tests/bank_memory.bats::C082 sets ReadRAM=false WriteRAM=false"
+          - "tests/bank_memory.bats::C088 sets ReadRAM=true WriteRAM=false DFBlockBank2=false"
+          - "tests/bank_memory.bats::C08A sets ReadRAM=false WriteRAM=false DFBlockBank2=false"
+
+      - section: "5.3"
+        title: Double-Read Write Protection
+        testable: true
+        tests:
+          - "tests/bank_memory.bats::single read of C083 does not enable WriteRAM"
+          - "tests/bank_memory.bats::double read of C083 enables WriteRAM"
+          - "tests/bank_memory.bats::single read of C08B does not enable WriteRAM"
+          - "tests/bank_memory.bats::double read of C08B enables WriteRAM"
+          - "tests/bank_memory.bats::two different write-enable switches satisfy double-read"
+          - "tests/bank_memory.bats::non-write-enable switch between two write-enable reads resets counter"
+
+      - section: "5.4"
+        title: Instruction Read Requirement
+        testable: false
+
+      - section: "6"
+        title: Status Switches
+        testable: true
+        tests:
+          - "tests/bank_memory.bats::C011 returns 80 when DFBlockBank2 is true"
+          - "tests/bank_memory.bats::C011 returns 00 when DFBlockBank2 is false"
+          - "tests/bank_memory.bats::C012 returns 00 when ReadRAM is false"
+          - "tests/bank_memory.bats::C012 returns 80 when ReadRAM is true"
+          - "tests/bank_memory.bats::C016 returns 00 when SETSTDZP is active"
+          - "tests/bank_memory.bats::C016 returns 80 when SETALTZP is active"
+
+      - section: "7"
+        title: Zero Page and Stack Page Switching
+        testable: true
+        tests:
+          - "tests/bank_memory.bats::C008 write sets SETSTDZP"
+          - "tests/bank_memory.bats::C009 write sets SETALTZP"
+          - "tests/bank_memory.bats::reading C008 or C009 has no effect and returns 00"
+
+      - section: "8"
+        title: Read Logic
+        testable: true
+        tests:
+          - "tests/bank_memory.bats::default state reads ROM in D000-FFFF range"
+          - "tests/bank_memory.bats::C080 enables RAM reads in D000-FFFF range"
+          - "tests/bank_memory.bats::bank 1 and bank 2 hold independent values in D000-DFFF"
+          - "tests/bank_memory.bats::E000-FFFF is shared regardless of bank selection"
+
+      - section: "9"
+        title: Write Logic
+        testable: true
+        tests:
+          - "tests/bank_memory.bats::writes are discarded when WriteRAM is false"
+          - "tests/bank_memory.bats::bank 1 and bank 2 hold independent values in D000-DFFF"
+          - "tests/bank_memory.bats::write and read back in E000-FFFF shared region"
+
+      - section: "10"
+        title: Mapping Range
+        testable: false

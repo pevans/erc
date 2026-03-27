@@ -50,12 +50,13 @@ On power-up or reset, the bank switches are initialized to:
 
     ReadRAM       = false   (read from ROM)
     WriteRAM      = true    (writes go to RAM)
-    DFBlockBank2  = false   (use bank 1)
+    DFBlockBank2  = true    (use bank 2)
     ReadAttempts  = 0
 
-This means the computer boots reading ROM and writing RAM in bank 1. This is
-the expected state for the system monitor and Applesoft BASIC ROM to be
-accessible on startup.
+This means the computer boots reading ROM and writing RAM in bank 2. Bank 2 is
+the original language card bank and the default on the Apple IIe. This is the
+expected state for the system monitor and Applesoft BASIC ROM to be accessible
+on startup.
 
 # 4. RAM Layout
 
@@ -112,9 +113,19 @@ Writes to $C080-$C08F have no effect. Only reads trigger state changes.
     $C08F     yes        yes*        1       duplicate of $C08B
 
 Entries marked with * require the double-read mechanism described in section
-5.2 to enable WriteRAM.
+5.3 to enable WriteRAM.
 
-## 5.2. Double-Read Write Protection
+## 5.2. Non-Write-Enable Switches
+
+Switches that do not enable WriteRAM ($C080, $C082, $C084, $C086, $C088,
+$C08A, $C08C, $C08E) take effect immediately on a single read. ReadRAM,
+WriteRAM, and DFBlockBank2 are all set according to the switch table. In
+particular, these switches set WriteRAM to false unconditionally.
+
+Reading a non-write-enable switch also resets the ReadAttempts counter to zero
+(see section 5.3).
+
+## 5.3. Double-Read Write Protection
 
 Switches that enable WriteRAM ($C081, $C083, $C085, $C087, $C089, $C08B,
 $C08D, $C08F) do not enable it on the first access. The CPU must read a
@@ -138,7 +149,7 @@ This mechanism prevents accidental write-enable by stray reads. A single
 `LDA $C083` will not enable writing; the program must execute two consecutive
 reads of a write-enable switch.
 
-## 5.3. Instruction Read Requirement
+## 5.4. Instruction Read Requirement
 
 The double-read mechanism only counts reads that are part of an instruction's
 operand fetch -- that is, reads initiated by the CPU as part of executing an
@@ -163,13 +174,16 @@ it is implemented alongside the other bank status switches.
 
 # 7. Zero Page and Stack Page Switching
 
-Two write-only soft switches control which memory segment is used for page
-zero ($0000-$00FF) and page one ($0100-$01FF, the hardware stack):
+Two soft switches control which memory segment is used for page zero
+($0000-$00FF) and page one ($0100-$01FF, the hardware stack):
 
     Address   Name       Effect
     -------   ----       ------
     $C008     SETSTDZP   Use main memory for pages 0 and 1
     $C009     SETALTZP   Use auxiliary memory for pages 0 and 1
+
+These switches are write-triggered -- the CPU writes to the address to activate
+the switch. Reads of these addresses have no effect and return $00.
 
 When SETALTZP is active, reads and writes to $0000-$01FF are directed to the
 auxiliary memory segment instead of main memory. This also affects which
