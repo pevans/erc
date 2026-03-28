@@ -39,6 +39,7 @@ func UseDefaults(state *memory.StateMap, romSeg *memory.Segment) {
 	state.SetBool(a2state.PCIOStrobe, false)
 	state.SetBool(a2state.PCSlotC3, false)
 	state.SetBool(a2state.PCSlotCX, true)
+	state.SetInt(a2state.PCExpSlot, 0)
 	state.SetSegment(a2state.PCROMSegment, romSeg)
 }
 
