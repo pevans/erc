@@ -66,9 +66,19 @@ func (s *peripheralSuite) TestSwitchRead() {
 		s.Equal(hi, SwitchRead(int(0xC017), s.state))
 	})
 
+	s.Run("read of slotc3 returns lo when false", func() {
+		s.state.SetBool(a2state.PCSlotC3, false)
+		s.Equal(lo, SwitchRead(int(0xC017), s.state))
+	})
+
 	s.Run("read of slot cx returns lo", func() {
 		s.state.SetBool(a2state.PCSlotCX, true)
 		s.Equal(lo, SwitchRead(int(0xC015), s.state))
+	})
+
+	s.Run("read of slot cx returns hi when false", func() {
+		s.state.SetBool(a2state.PCSlotCX, false)
+		s.Equal(hi, SwitchRead(int(0xC015), s.state))
 	})
 }
 
@@ -102,5 +112,91 @@ func (s *peripheralSuite) TestRead() {
 
 		s.state.SetBool(a2state.PCSlotCX, false)
 		s.Equal(s.rom.DirectGet(irc401), Read(uc401, s.state))
+	})
+
+	s.Run("sets IOSelect and ExpSlot on slot ROM read", func() {
+		s.state.SetBool(a2state.PCSlotCX, true)
+		s.state.SetBool(a2state.PCIOSelect, false)
+		s.state.SetInt(a2state.PCExpSlot, 0)
+
+		Read(uc401, s.state)
+
+		s.True(s.state.Bool(a2state.PCIOSelect))
+		s.Equal(4, s.state.Int(a2state.PCExpSlot))
+	})
+
+	s.Run("sets IOStrobe on expansion ROM range read", func() {
+		s.state.SetBool(a2state.PCSlotCX, true)
+		s.state.SetBool(a2state.PCIOSelect, false)
+		s.state.SetBool(a2state.PCIOStrobe, false)
+
+		Read(0xC900, s.state)
+
+		s.True(s.state.Bool(a2state.PCIOStrobe))
+	})
+
+	s.Run("activates expansion ROM when IOSelect and IOStrobe", func() {
+		s.state.SetBool(a2state.PCSlotCX, true)
+		s.state.SetBool(a2state.PCIOSelect, true)
+		s.state.SetBool(a2state.PCExpansion, false)
+
+		Read(0xC900, s.state)
+
+		s.True(s.state.Bool(a2state.PCIOStrobe))
+		s.True(s.state.Bool(a2state.PCExpansion))
+	})
+
+	s.Run("does not activate expansion ROM without IOSelect", func() {
+		s.state.SetBool(a2state.PCSlotCX, true)
+		s.state.SetBool(a2state.PCIOSelect, false)
+		s.state.SetBool(a2state.PCExpansion, false)
+
+		Read(0xC900, s.state)
+
+		s.True(s.state.Bool(a2state.PCIOStrobe))
+		s.False(s.state.Bool(a2state.PCExpansion))
+	})
+
+	s.Run("CFFF read returns value then disables expansion", func() {
+		s.state.SetBool(a2state.PCSlotCX, true)
+		s.state.SetBool(a2state.PCIOSelect, true)
+		s.state.SetBool(a2state.PCIOStrobe, true)
+		s.state.SetBool(a2state.PCExpansion, true)
+		s.state.SetInt(a2state.PCExpSlot, 6)
+
+		expected := s.rom.DirectGet(iromAddr(0xCFFF))
+		val := Read(0xCFFF, s.state)
+
+		s.Equal(expected, val)
+		s.False(s.state.Bool(a2state.PCIOSelect))
+		s.False(s.state.Bool(a2state.PCIOStrobe))
+		s.False(s.state.Bool(a2state.PCExpansion))
+		s.Equal(0, s.state.Int(a2state.PCExpSlot))
+	})
+}
+
+func (s *peripheralSuite) TestWrite() {
+	s.Run("CFFF write disables expansion", func() {
+		s.state.SetBool(a2state.PCIOSelect, true)
+		s.state.SetBool(a2state.PCIOStrobe, true)
+		s.state.SetBool(a2state.PCExpansion, true)
+		s.state.SetInt(a2state.PCExpSlot, 6)
+
+		Write(0xCFFF, 0x00, s.state)
+
+		s.False(s.state.Bool(a2state.PCIOSelect))
+		s.False(s.state.Bool(a2state.PCIOStrobe))
+		s.False(s.state.Bool(a2state.PCExpansion))
+		s.Equal(0, s.state.Int(a2state.PCExpSlot))
+	})
+
+	s.Run("non-CFFF write does not disable expansion", func() {
+		s.state.SetBool(a2state.PCExpansion, true)
+		s.state.SetInt(a2state.PCExpSlot, 6)
+
+		Write(0xC500, 0x00, s.state)
+
+		s.True(s.state.Bool(a2state.PCExpansion))
+		s.Equal(6, s.state.Int(a2state.PCExpSlot))
 	})
 }

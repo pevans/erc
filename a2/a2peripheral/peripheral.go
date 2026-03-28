@@ -54,7 +54,8 @@ func SwitchRead(addr int, stm *memory.StateMap) uint8 {
 		if stm.Bool(a2state.PCSlotC3) {
 			return hi
 		}
-		// it _seems_ like this should return lo instead of hi...?
+
+		return lo
 
 	case rdSlotCXROM:
 		metrics.Increment("soft_pc_read_slot_cx_rom", 1)
@@ -66,29 +67,6 @@ func SwitchRead(addr int, stm *memory.StateMap) uint8 {
 
 	case offExpROM:
 		metrics.Increment("soft_pc_exp_rom_off", 1)
-
-		// This is kind of an unusual switch, though, in that calling it
-		// produces a side effect while returning from ROM.
-		val := Read(addr, stm)
-
-		// Hitting this address will clear the IO SELECT' and IO STROBE'
-		// signals in the hardware, which essentially means that expansion rom
-		// is turned off. But only after we get the return value.
-		stm.SetBool(a2state.PCExpansion, false)
-		stm.SetInt(a2state.PCExpSlot, 0)
-
-		return val
-	}
-
-	if slotXROM(addr) {
-		metrics.Increment("soft_pc_xrom", 1)
-		stm.SetInt(a2state.PCExpSlot, slotFromAddr(addr))
-		return Read(addr, stm)
-	}
-
-	if expROM(addr) && stm.Int(a2state.PCExpSlot) > 0 {
-		metrics.Increment("soft_pc_exp_rom", 1)
-		stm.SetBool(a2state.PCExpansion, true)
 		return Read(addr, stm)
 	}
 
@@ -143,18 +121,17 @@ func Read(addr int, stm *memory.StateMap) uint8 {
 		pcrom      = stm.Segment(a2state.PCROMSegment)
 	)
 
-	// Regardless of circumstances, any read of the expansion disable address
-	// should wipe our expansion state.
 	if addr == offExpROM {
+		val := pcrom.DirectGet(intAddr)
 		disableExpansion(stm)
+		return val
 	}
 
 	switch {
 	case stm.Bool(a2state.PCSlotCX):
-		// Special case #1: we should turn on IOSelect if it's a slotCX
-		// address.
 		if slotXROM(addr) {
 			stm.SetBool(a2state.PCIOSelect, true)
+			stm.SetInt(a2state.PCExpSlot, slotFromAddr(addr))
 		}
 
 		// Even though we want to return peripheral ROM for Cxxx addresses, if
