@@ -3004,3 +3004,138 @@ specs:
       - section: "10"
         title: Mapping Range
         testable: false
+
+  - spec: spec-16
+    title: Auxiliary Memory
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Memory Segments
+        testable: false
+
+      - section: "3"
+        title: State
+        testable: false
+
+      - section: "3.1"
+        title: Default State
+        testable: true
+        tests:
+          - "tests/aux_memory.bats::default state: ReadAux is false (C013 returns 00)"
+          - "tests/aux_memory.bats::default state: WriteAux is false (C014 returns 00)"
+          - "tests/aux_memory.bats::default state: 80STORE is off (C018 returns 00)"
+          - "tests/aux_memory.bats::default state: PAGE2 is off (C01C returns 00)"
+          - "tests/aux_memory.bats::default state: HIRES is off (C01D returns 00)"
+
+      - section: "4"
+        title: Soft Switches
+        testable: true
+        tests:
+          - "tests/aux_memory.bats::C003 write sets ReadAux true"
+          - "tests/aux_memory.bats::C002 write sets ReadAux false"
+          - "tests/aux_memory.bats::C005 write sets WriteAux true"
+          - "tests/aux_memory.bats::C004 write sets WriteAux false"
+          - "tests/aux_memory.bats::reading RAMRD/RAMWRT on switches returns 00 and has no effect"
+          - "tests/aux_memory.bats::reading RAMRD/RAMWRT off switches returns 00 and has no effect"
+
+      - section: "4.1"
+        title: Independence
+        testable: true
+        tests:
+          - "tests/aux_memory.bats::ReadAux and WriteAux are independent"
+
+      - section: "5"
+        title: Status Switches
+        testable: true
+        tests:
+          - "tests/aux_memory.bats::default state: ReadAux is false (C013 returns 00)"
+          - "tests/aux_memory.bats::C013 returns 80 when ReadAux is true"
+          - "tests/aux_memory.bats::C014 returns 80 when WriteAux is true"
+          - "tests/aux_memory.bats::default state: WriteAux is false (C014 returns 00)"
+          - "tests/aux_memory.bats::C018 returns 80 when 80STORE is on"
+          - "tests/aux_memory.bats::default state: 80STORE is off (C018 returns 00)"
+          - "tests/aux_memory.bats::C01C returns 80 when PAGE2 is on"
+          - "tests/aux_memory.bats::default state: PAGE2 is off (C01C returns 00)"
+          - "tests/aux_memory.bats::C01D returns 80 when HIRES is on"
+          - "tests/aux_memory.bats::default state: HIRES is off (C01D returns 00)"
+          - "tests/aux_memory.bats::writing to status addresses has no effect"
+
+      - section: "6"
+        title: Interaction with Display Modes (80STORE)
+        testable: false
+
+      - section: "6.1"
+        title: 80STORE Soft Switch
+        testable: true
+        tests:
+          - "tests/aux_memory.bats::C001 write enables 80STORE"
+          - "tests/aux_memory.bats::C000 write disables 80STORE"
+          - "tests/aux_memory.bats::reading C000 does not trigger 80STORE"
+          - "tests/aux_memory.bats::reading C001 does not trigger 80STORE"
+
+      - section: "6.2"
+        title: PAGE2 Soft Switch
+        testable: true
+        tests:
+          - "tests/aux_memory.bats::C055 write enables PAGE2"
+          - "tests/aux_memory.bats::C054 write disables PAGE2"
+          - "tests/aux_memory.bats::reading C055 triggers PAGE2 and returns 00"
+          - "tests/aux_memory.bats::reading C054 triggers PAGE2 off and returns 00"
+
+      - section: "6.3"
+        title: 80STORE Override Rules
+        testable: true
+        tests:
+          - "tests/aux_memory.bats::C057 write enables HIRES"
+          - "tests/aux_memory.bats::C056 write disables HIRES"
+          - "tests/aux_memory.bats::reading C057 triggers HIRES and returns 00"
+          - "tests/aux_memory.bats::reading C056 triggers HIRES off and returns 00"
+          - "tests/aux_memory.bats::80STORE+PAGE2 routes text page to aux"
+          - "tests/aux_memory.bats::80STORE on PAGE2 off routes text page to main"
+          - "tests/aux_memory.bats::80STORE+HIRES+PAGE2 routes hires page to aux"
+          - "tests/aux_memory.bats::80STORE+HIRES on PAGE2 off routes hires page to main"
+          - "tests/aux_memory.bats::80STORE without HIRES does not override hires page"
+          - "tests/aux_memory.bats::80STORE text override ignores RAMRD"
+          - "tests/aux_memory.bats::80STORE hires override ignores RAMRD"
+
+      - section: "7"
+        title: Interaction with Zero Page Switching
+        testable: false
+
+      - section: "8"
+        title: Read Logic
+        testable: true
+        tests:
+          - "tests/aux_memory.bats::ReadAux routes reads to aux segment"
+          - "tests/aux_memory.bats::80STORE+PAGE2 routes text page to aux"
+          - "tests/aux_memory.bats::80STORE on PAGE2 off routes text page to main"
+          - "tests/aux_memory.bats::80STORE+HIRES+PAGE2 routes hires page to aux"
+          - "tests/aux_memory.bats::80STORE+HIRES on PAGE2 off routes hires page to main"
+          - "tests/aux_memory.bats::without 80STORE text page follows RAMWRT"
+          - "tests/aux_memory.bats::without 80STORE hires page follows RAMWRT"
+          - "tests/aux_memory.bats::80STORE text override ignores RAMRD"
+          - "tests/aux_memory.bats::80STORE hires override ignores RAMRD"
+
+      - section: "9"
+        title: Write Logic
+        testable: true
+        tests:
+          - "tests/aux_memory.bats::WriteAux routes writes to aux segment"
+          - "tests/aux_memory.bats::without 80STORE text page follows RAMWRT"
+          - "tests/aux_memory.bats::without 80STORE hires page follows RAMWRT"
+          - "tests/aux_memory.bats::80STORE+PAGE2 routes text page to aux"
+          - "tests/aux_memory.bats::80STORE+HIRES+PAGE2 routes hires page to aux"
+
+      - section: "10"
+        title: Mapping Ranges
+        testable: true
+        tests:
+          - "tests/aux_memory.bats::80STORE does not affect text page 2 range"
+          - "tests/aux_memory.bats::80STORE does not affect hires page 2 range"
+
+      - section: "11"
+        title: Summary of Address Space Routing
+        testable: false
