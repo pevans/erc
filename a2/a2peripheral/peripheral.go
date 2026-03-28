@@ -124,7 +124,21 @@ func Read(addr int, stm *memory.StateMap) uint8 {
 	)
 
 	if addr == offExpROM {
-		val := pcrom.DirectGet(intAddr)
+		var val uint8
+
+		switch {
+		case stm.Bool(a2state.PCSlotCX):
+			if stm.Bool(a2state.PCIOSelect) {
+				val = expansionROM(stm, addr)
+			} else {
+				val = pcrom.DirectGet(periphAddr)
+			}
+		case stm.Bool(a2state.PCExpansion):
+			val = expansionROM(stm, addr)
+		default:
+			val = pcrom.DirectGet(intAddr)
+		}
+
 		disableExpansion(stm)
 		return val
 	}
