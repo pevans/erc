@@ -6,6 +6,35 @@ The format is based on [Keep a
 Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.1.3 - 2026-03-28
+
+### Added
+
+- A new subcommand, `decode`, is available. You can run this command to decode
+  a physically-formatted (nibble) disk image to a DOS 3.3 or ProDOS
+  logically-formatted disk image.
+
+### Fixed
+
+- Keyboard data is returned on reads to soft switches in the 0x range of the
+  $C0 page.
+- The correct ROM's byte is returned (expansion or PC) when reading $CFFF.
+  Previously, we were always returning the PC ROM byte.
+- Expansion slot is always set to zero on machine reset
+- Expansion slot is set on reads to $C100-$CFFF when SlotCX is true
+- The speaker toggle is now be triggered on both reads and writes to its soft
+  switch
+- Bank 2 RAM is now enabled by default when the Apple II machine resets.
+- The internal state variable that tracks consecutive read attempts to enable
+  writing to bank 1 and bank 2 RAM is now reset to zero when the Apple II
+  machine resets.
+- Address modes no longer inadvertantly trigger soft switch reads
+  when resolving for non-read instructions. (E.g., STA $C088 should not count
+  as both a read and a write on $C088; it should only count as a write.) This
+  was happening because address modes call the `Get()` method of a segment to
+  fetch an effective value of an address regardless of what the instruction
+  intends to do.
+
 ## [0.1.2] - 2026-03-24
 
 ### Added
@@ -56,6 +85,9 @@ Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 
 ## [0.1.0] - 2026-01-25
 
+Initial versioned release of Erc.
+
+[0.1.3]: https://github.com/pevans/erc/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/pevans/erc/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/pevans/erc/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/pevans/erc/releases/tag/v0.1.0
