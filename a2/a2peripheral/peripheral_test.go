@@ -80,6 +80,21 @@ func (s *peripheralSuite) TestSwitchRead() {
 		s.state.SetUint8(a2state.KBLastKey, 0x41)
 		s.Equal(uint8(0x80|0x41), SwitchRead(int(0xC015), s.state))
 	})
+
+	s.Run("read of control switches returns keyboard data latch", func() {
+		s.state.SetUint8(a2state.KBLastKey, 0x41)
+		s.state.SetUint8(a2state.KBStrobe, 0x80)
+
+		for _, addr := range []int{0xC006, 0xC007, 0xC00A, 0xC00B} {
+			s.Equal(uint8(0x80|0x41), SwitchRead(addr, s.state))
+		}
+
+		s.state.SetUint8(a2state.KBStrobe, 0x00)
+
+		for _, addr := range []int{0xC006, 0xC007, 0xC00A, 0xC00B} {
+			s.Equal(uint8(0x41), SwitchRead(addr, s.state))
+		}
+	})
 }
 
 func (s *peripheralSuite) TestRead() {

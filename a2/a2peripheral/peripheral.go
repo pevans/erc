@@ -19,6 +19,10 @@ const (
 func ReadSwitches() []int {
 	return []int{
 		offExpROM,
+		offSlotC3ROM,
+		offSlotCXROM,
+		onSlotC3ROM,
+		onSlotCXROM,
 		rdSlotC3ROM,
 		rdSlotCXROM,
 	}
@@ -45,12 +49,15 @@ func UseDefaults(state *memory.StateMap, romSeg *memory.Segment) {
 
 func SwitchRead(addr int, stm *memory.StateMap) uint8 {
 	var (
-		hi   uint8 = 0x80
-		lo   uint8 = 0x00
-		loBits = stm.Uint8(a2state.KBLastKey)
+		hi     uint8 = 0x80
+		lo     uint8 = 0x00
+		loBits       = stm.Uint8(a2state.KBLastKey)
 	)
 
 	switch addr {
+	case offSlotC3ROM, offSlotCXROM, onSlotC3ROM, onSlotCXROM:
+		return stm.Uint8(a2state.KBLastKey) | stm.Uint8(a2state.KBStrobe)
+
 	case rdSlotC3ROM:
 		metrics.Increment("soft_pc_read_slot_c3_rom", 1)
 		if stm.Bool(a2state.PCSlotC3) {
