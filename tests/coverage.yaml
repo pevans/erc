@@ -3139,3 +3139,143 @@ specs:
       - section: "11"
         title: Summary of Address Space Routing
         testable: false
+
+  - spec: spec-17
+    title: Peripheral Support
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Peripheral ROM Visibility
+        testable: false
+
+      - section: "2.1"
+        title: ROM Segments
+        testable: false
+
+      - section: "3"
+        title: ROM Switching State
+        testable: true
+        tests:
+          - "tests/peripheral.bats::default state: SlotCX is true"
+          - "tests/peripheral.bats::default state: SlotC3 is false"
+          - "tests/peripheral.bats::default state: Expansion is false"
+          - "tests/peripheral.bats::default state: IOSelect is false"
+          - "tests/peripheral.bats::default state: IOStrobe is false"
+          - "tests/peripheral.bats::default state: ExpSlot is 0"
+          - "tests/peripheral.bats::default state: RDCXROM returns 00 (SlotCX is true)"
+          - "tests/peripheral.bats::default state: RDC3ROM returns 00 (SlotC3 is false)"
+
+      - section: "4"
+        title: ROM Switching Soft Switches
+        testable: false
+
+      - section: "4.1"
+        title: Control Switches
+        testable: true
+        tests:
+          - "tests/peripheral.bats::C007 write sets SlotCX false"
+          - "tests/peripheral.bats::C006 write sets SlotCX true"
+          - "tests/peripheral.bats::C00B write sets SlotC3 true"
+          - "tests/peripheral.bats::C00A write sets SlotC3 false"
+          - "tests/peripheral.bats::reading C006 does not change SlotCX"
+          - "tests/peripheral.bats::reading C007 does not change SlotCX"
+          - "tests/peripheral.bats::reading C00A does not change SlotC3"
+          - "tests/peripheral.bats::reading C00B does not change SlotC3"
+          - "tests/peripheral.bats::reading C006 returns keyboard data latch"
+          - "tests/peripheral.bats::reading C007 returns keyboard data latch"
+          - "tests/peripheral.bats::reading C00A returns keyboard data latch"
+          - "tests/peripheral.bats::reading C00B returns keyboard data latch"
+
+      - section: "4.2"
+        title: Status Switches
+        testable: true
+        tests:
+          - "tests/peripheral.bats::C015 returns 00 when SlotCX is true"
+          - "tests/peripheral.bats::C015 returns 80 when SlotCX is false"
+          - "tests/peripheral.bats::C017 returns 80 when SlotC3 is true"
+          - "tests/peripheral.bats::C017 returns 00 when SlotC3 is false"
+          - "tests/peripheral.bats::C015 returns keyboard latch in lower bits"
+          - "tests/peripheral.bats::C017 returns keyboard latch in lower bits"
+          - "tests/peripheral.bats::writing to C015 has no effect"
+          - "tests/peripheral.bats::writing to C017 has no effect"
+
+      - section: "4.3"
+        title: Expansion ROM Disable
+        testable: true
+        tests:
+          - "tests/peripheral.bats::reading CFFF clears expansion state"
+          - "tests/peripheral.bats::writing CFFF clears expansion state"
+          - "tests/peripheral.bats::CFFF returns expansion ROM before clearing when IOSelect is set"
+
+      - section: "5"
+        title: ROM Read Logic
+        testable: true
+        tests:
+          - "tests/peripheral.bats::reading C100-C7FF with SlotCX true sets IOSelect"
+          - "tests/peripheral.bats::reading C100-C7FF with SlotCX false does not set IOSelect"
+          - "tests/peripheral.bats::reading C100 sets ExpSlot to 1"
+          - "tests/peripheral.bats::reading C200 sets ExpSlot to 2"
+          - "tests/peripheral.bats::reading C500 sets ExpSlot to 5"
+          - "tests/peripheral.bats::reading C800-CFFE with SlotCX true sets IOStrobe"
+          - "tests/peripheral.bats::reading C800-CFFE with SlotCX false does not set IOStrobe"
+          - "tests/peripheral.bats::reading C800 after IOSelect enables Expansion"
+          - "tests/peripheral.bats::reading CFFF does not set IOStrobe"
+          - "tests/peripheral.bats::C800 without prior IOSelect does not enable Expansion"
+          - "tests/peripheral.bats::C800 returns peripheral ROM when SlotCX true but IOSelect false"
+          - "tests/peripheral.bats::C300 returns internal ROM when SlotC3 is false and SlotCX is true"
+          - "tests/peripheral.bats::C300 returns peripheral ROM when SlotC3 is true and SlotCX is false"
+          - "tests/peripheral.bats::C300 returns peripheral ROM when SlotC3 true and SlotCX true"
+          - "tests/peripheral.bats::C300 returns internal ROM when SlotC3 false and SlotCX false"
+          - "tests/peripheral.bats::C100 returns internal ROM when SlotCX is false"
+          - "tests/peripheral.bats::Expansion ROM active when SlotCX false but Expansion was enabled"
+          - "tests/peripheral.bats::CFFF returns expansion ROM when SlotCX false but Expansion true"
+
+      - section: "5.1"
+        title: Expansion ROM Content
+        testable: false
+
+      - section: "6"
+        title: ROM Write Logic
+        testable: true
+        tests:
+          - "tests/peripheral.bats::writes to C100-CFFF are ignored (ROM is read-only)"
+          - "tests/peripheral.bats::writing CFFF clears expansion state"
+
+      - section: "7"
+        title: Scope
+        testable: false
+
+      - section: "8"
+        title: Subsystems Not Currently Emulated
+        testable: false
+
+      - section: "8.1"
+        title: Game I/O (Joystick / Paddles)
+        testable: false
+
+      - section: "8.2"
+        title: Printer Card
+        testable: false
+
+      - section: "8.3"
+        title: Serial / Super Serial Card
+        testable: false
+
+      - section: "8.4"
+        title: 80-Column Firmware
+        testable: false
+
+      - section: "8.5"
+        title: Mouse Card
+        testable: false
+
+      - section: "8.6"
+        title: Clock Card
+        testable: false
+
+      - section: "8.7"
+        title: Slot 7
+        testable: false

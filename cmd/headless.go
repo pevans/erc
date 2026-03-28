@@ -482,6 +482,12 @@ var headlessStateNameToKey = map[string]int{
 	"MemReadSegment":      a2state.MemReadSegment,
 	"MemWriteAux":         a2state.MemWriteAux,
 	"MemWriteSegment":     a2state.MemWriteSegment,
+	"PCExpSlot":           a2state.PCExpSlot,
+	"PCExpansion":         a2state.PCExpansion,
+	"PCIOSelect":          a2state.PCIOSelect,
+	"PCIOStrobe":          a2state.PCIOStrobe,
+	"PCSlotC3":            a2state.PCSlotC3,
+	"PCSlotCX":            a2state.PCSlotCX,
 	"Paused":              a2state.Paused,
 	"SpeakerState":        a2state.SpeakerState,
 }
