@@ -30,6 +30,7 @@ func (s *peripheralSuite) TestUseDefaults() {
 	s.False(s.state.Bool(a2state.PCExpansion))
 	s.False(s.state.Bool(a2state.PCSlotC3))
 	s.True(s.state.Bool(a2state.PCSlotCX))
+	s.Equal(0, s.state.Int(a2state.PCExpSlot))
 }
 
 func (s *peripheralSuite) TestSwitchWrite() {
@@ -56,29 +57,28 @@ func (s *peripheralSuite) TestSwitchWrite() {
 }
 
 func (s *peripheralSuite) TestSwitchRead() {
-	var (
-		hi uint8 = 0x80
-		lo uint8 = 0x00
-	)
-
-	s.Run("read of slotc3 returns hi", func() {
+	s.Run("read of slotc3 returns hi with keyboard latch", func() {
 		s.state.SetBool(a2state.PCSlotC3, true)
-		s.Equal(hi, SwitchRead(int(0xC017), s.state))
+		s.state.SetUint8(a2state.KBLastKey, 0x41)
+		s.Equal(uint8(0x80|0x41), SwitchRead(int(0xC017), s.state))
 	})
 
-	s.Run("read of slotc3 returns lo when false", func() {
+	s.Run("read of slotc3 returns lo with keyboard latch", func() {
 		s.state.SetBool(a2state.PCSlotC3, false)
-		s.Equal(lo, SwitchRead(int(0xC017), s.state))
+		s.state.SetUint8(a2state.KBLastKey, 0x41)
+		s.Equal(uint8(0x41), SwitchRead(int(0xC017), s.state))
 	})
 
-	s.Run("read of slot cx returns lo", func() {
+	s.Run("read of slot cx returns lo with keyboard latch", func() {
 		s.state.SetBool(a2state.PCSlotCX, true)
-		s.Equal(lo, SwitchRead(int(0xC015), s.state))
+		s.state.SetUint8(a2state.KBLastKey, 0x41)
+		s.Equal(uint8(0x41), SwitchRead(int(0xC015), s.state))
 	})
 
-	s.Run("read of slot cx returns hi when false", func() {
+	s.Run("read of slot cx returns hi with keyboard latch", func() {
 		s.state.SetBool(a2state.PCSlotCX, false)
-		s.Equal(hi, SwitchRead(int(0xC015), s.state))
+		s.state.SetUint8(a2state.KBLastKey, 0x41)
+		s.Equal(uint8(0x80|0x41), SwitchRead(int(0xC015), s.state))
 	})
 }
 
@@ -157,7 +157,7 @@ func (s *peripheralSuite) TestRead() {
 		s.False(s.state.Bool(a2state.PCExpansion))
 	})
 
-	s.Run("CFFF read returns value then disables expansion", func() {
+	s.Run("CFFF read returns expansion ROM when active", func() {
 		s.state.SetBool(a2state.PCSlotCX, true)
 		s.state.SetBool(a2state.PCIOSelect, true)
 		s.state.SetBool(a2state.PCIOStrobe, true)
@@ -172,6 +172,29 @@ func (s *peripheralSuite) TestRead() {
 		s.False(s.state.Bool(a2state.PCIOStrobe))
 		s.False(s.state.Bool(a2state.PCExpansion))
 		s.Equal(0, s.state.Int(a2state.PCExpSlot))
+	})
+
+	s.Run("CFFF read returns peripheral ROM when SlotCX without IOSelect", func() {
+		s.state.SetBool(a2state.PCSlotCX, true)
+		s.state.SetBool(a2state.PCIOSelect, false)
+		s.state.SetBool(a2state.PCExpansion, false)
+
+		s.rom.DirectSet(iromAddr(0xCFFF), 0xAA)
+		s.rom.DirectSet(promAddr(0xCFFF), 0xBB)
+
+		val := Read(0xCFFF, s.state)
+		s.Equal(uint8(0xBB), val)
+	})
+
+	s.Run("CFFF read returns internal ROM when SlotCX is false", func() {
+		s.state.SetBool(a2state.PCSlotCX, false)
+		s.state.SetBool(a2state.PCExpansion, false)
+
+		s.rom.DirectSet(iromAddr(0xCFFF), 0xAA)
+		s.rom.DirectSet(promAddr(0xCFFF), 0xBB)
+
+		val := Read(0xCFFF, s.state)
+		s.Equal(uint8(0xAA), val)
 	})
 }
 
