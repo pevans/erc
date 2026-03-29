@@ -8,13 +8,20 @@ Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 
 ## Unreleased
 
+### Added
+
+- Support for [MouseText](https://en.wikipedia.org/wiki/MouseText) characters.
+  Now you can see the running man (if you wish).
+- Support for flashing characters, which are text that alternate between
+  normal video and inverse video.
+
 ### Removed
 
 - The `info` subcommand has been removed. In my experience, it rarely worked
   as software either didn't support the standardized VTOC or would write
   changes that would invalidate the VTOC.
 
-## 0.1.3 - 2026-03-28
+## [0.1.3] - 2026-03-28
 
 ### Added
 
