@@ -3279,3 +3279,191 @@ specs:
       - section: "8.7"
         title: Slot 7
         testable: false
+
+  - spec: spec-18
+    title: Apple II Fonts
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Base Glyph Format
+        testable: false
+
+      - section: "2.1"
+        title: Dimensions
+        testable: true
+        tests:
+          - "tests/fonts.bats::uppercase 'A' glyph matches font data"
+          - "tests/fonts.bats::lowercase 'a' glyph matches font data"
+
+      - section: "2.2"
+        title: Dot Values
+        testable: true
+        tests:
+          - "tests/fonts.bats::uppercase 'A' glyph matches font data"
+
+      - section: "2.3"
+        title: Storage Order
+        testable: true
+        tests:
+          - "tests/fonts.bats::uppercase 'A' glyph matches font data"
+          - "tests/fonts.bats::lowercase 'a' glyph matches font data"
+
+      - section: "2.4"
+        title: Border Convention
+        testable: true
+        tests:
+          - "tests/fonts.bats::'{' has column 0 on in row 3"
+          - "tests/fonts.bats::'}' has column 6 on in row 3"
+          - "tests/fonts.bats::uppercase '_' glyph matches font data"
+          - "tests/fonts.bats::special '!' glyph matches font data"
+          - "tests/fonts.bats::lowercase 'g' glyph matches font data"
+
+      - section: "3"
+        title: Glyph Sets
+        testable: false
+
+      - section: "3.1"
+        title: Uppercase Set
+        testable: true
+        tests:
+          - "tests/fonts.bats::uppercase '@' glyph matches font data"
+          - "tests/fonts.bats::uppercase 'A' glyph matches font data"
+          - "tests/fonts.bats::uppercase '_' glyph matches font data"
+
+      - section: "3.2"
+        title: Special/Punctuation Set
+        testable: true
+        tests:
+          - "tests/fonts.bats::space glyph is entirely blank"
+          - "tests/fonts.bats::special '!' glyph matches font data"
+
+      - section: "3.3"
+        title: Lowercase Set
+        testable: true
+        tests:
+          - "tests/fonts.bats::lowercase 'a' glyph matches font data"
+          - "tests/fonts.bats::lowercase 'g' glyph matches font data"
+          - "tests/fonts.bats::DEL glyph is entirely blank"
+
+      - section: "3.4"
+        title: MouseText Set
+        testable: true
+        tests:
+          - "tests/fonts.bats::mousetext $40 glyph matches font data (alt charset)"
+          - "tests/fonts.bats::mousetext $48 glyph matches font data (alt charset)"
+          - "tests/fonts.bats::mousetext $53 glyph matches font data (alt charset)"
+          - "tests/fonts.bats::mousetext $5A glyph matches font data (alt charset)"
+          - "tests/fonts.bats::mousetext $5F glyph matches font data (alt charset)"
+          - "tests/fonts.bats::$48 in primary charset is flash uppercase, not mousetext"
+
+      - section: "4"
+        title: Character Space Mapping
+        testable: false
+
+      - section: "4.1"
+        title: The 256-Entry Font
+        testable: true
+        tests:
+          - "tests/fonts.bats::inverse $01 glyph shape matches normal $C1"
+          - "tests/fonts.bats::$81 and $C1 map to the same glyph (uppercase A)"
+          - "tests/fonts.bats::$21 and $A1 map to the same glyph (special '!')"
+          - "tests/fonts.bats::mousetext $48 glyph matches font data (alt charset)"
+          - "tests/fonts.bats::$61 matches special '!' glyph from font data"
+          - "tests/fonts.bats::flash $61 renders as inverse (same as normal $A1)"
+          - "tests/fonts.bats::$00 maps to inverse uppercase '@'"
+          - "tests/fonts.bats::$80 and $C0 both map to normal uppercase '@'"
+          - "tests/fonts.bats::$48 in primary charset renders as inverse uppercase 'H'"
+
+      - section: "4.2"
+        title: Display Modes
+        testable: false
+
+      - section: "4.2.1"
+        title: Normal
+        testable: true
+        tests:
+          - "tests/fonts.bats::normal $C1 has black background"
+          - "tests/fonts.bats::uppercase 'A' glyph matches font data"
+          - "tests/fonts.bats::mousetext $53 has black background in alt charset"
+
+      - section: "4.2.2"
+        title: Inverse
+        testable: true
+        tests:
+          - "tests/fonts.bats::inverse $01 has white background"
+          - "tests/fonts.bats::inverse $21 has white background"
+          - "tests/fonts.bats::inverse $01 glyph shape matches normal $C1"
+          - "tests/fonts.bats::$00 has white background (inverse)"
+
+      - section: "4.2.3"
+        title: Flash
+        testable: true
+        tests:
+          - "tests/fonts.bats::$61 matches special '!' glyph from font data"
+          - "tests/fonts.bats::flash $61 renders as inverse (same as normal $A1)"
+          - "tests/fonts.bats::$48 in primary charset renders as inverse uppercase 'H'"
+
+      - section: "5"
+        title: Scaling for Display Modes
+        testable: false
+
+      - section: "5.1"
+        title: 40-Column Scaling
+        testable: true
+        tests:
+          - "tests/fonts.bats::40-col: each dot row is emitted twice (vertical doubling)"
+          - "tests/fonts.bats::40-col: each dot column is emitted twice (horizontal doubling)"
+
+      - section: "5.2"
+        title: 80-Column Scaling
+        testable: false
+        reason: Render() always uses font40; 80-column text rendering not yet implemented
+
+      - section: "5.3"
+        title: Transformation Order
+        testable: true
+        tests:
+          - "tests/fonts.bats::inverse $01 glyph shape matches normal $C1"
+
+      - section: "6"
+        title: Font Data Files
+        testable: false
+
+      - section: "6.1"
+        title: Location
+        testable: false
+
+      - section: "6.2"
+        title: File Format
+        testable: false
+
+      - section: "6.3"
+        title: Normative Status
+        testable: false
+
+      - section: "7"
+        title: "Unimplemented: Flash Animation"
+        testable: false
+
+      - section: "8"
+        title: Design Considerations
+        testable: false
+
+      - section: "8.1"
+        title: Pre-Rendered Glyphs
+        testable: false
+
+      - section: "8.2"
+        title: Shared Glyph Definitions
+        testable: false
+
+      - section: "8.3"
+        title: Separate Font Objects
+        testable: false
+
+      - section: "8.4"
+        title: External Bitmap Data
+        testable: false

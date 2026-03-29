@@ -24,7 +24,12 @@ func (c *Computer) Render() {
 	// switching and 80STORE settings.
 	c.displaySnapshot.CopyFromState(c.Main, c.Aux, c.State)
 
-	a2display.Render(c.displaySnapshot, c.Font40, c.State)
+	font40 := c.Font40
+	if c.State.Bool(a2state.DisplayAltChar) {
+		font40 = c.Font40Alt
+	}
+
+	a2display.Render(c.displaySnapshot, font40, c.State)
 
 	// Handle screen capture logging for debugging
 	if c.State.Bool(a2state.DisplayHires) {

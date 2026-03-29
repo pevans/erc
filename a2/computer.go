@@ -136,9 +136,13 @@ type Computer struct {
 	// example, text mode, hires, lores, etc.)
 	DisplayMode int
 
-	// We use two different fonts for 40-column and 80-column text
-	Font40 *gfx.Font
-	Font80 *gfx.Font
+	// Primary and alternate character-set fonts for 40-column and 80-column
+	// text. The alternate set is used when DisplayAltChar is true; it
+	// replaces the $40-$5F flash-uppercase range with MouseText glyphs.
+	Font40    *gfx.Font
+	Font40Alt *gfx.Font
+	Font80    *gfx.Font
+	Font80Alt *gfx.Font
 }
 
 const (
@@ -223,7 +227,9 @@ func NewComputer(speed int) *Computer {
 	comp.SetSpeed(speed)
 
 	comp.Font40 = a2font.SystemFont40()
+	comp.Font40Alt = a2font.SystemFont40Alt()
 	comp.Font80 = a2font.SystemFont80()
+	comp.Font80Alt = a2font.SystemFont80Alt()
 
 	comp.Screen = gfx.NewFrameBuffer(screenWidth, screenHeight)
 	gfx.Screen = comp.Screen

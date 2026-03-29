@@ -37,19 +37,36 @@ func define80Glyph(font *gfx.Font, offset int, mask maskFunc, b []byte) {
 	font.DefineGlyph(offset, glyph)
 }
 
-// SystemFont80 returns a font object that contains all the glyphs of the
-// Apple II system font that is suitable for 80-column text
+func newFont80() *gfx.Font {
+	return gfx.NewFont(sysFont80Width, sysFont80Height)
+}
+
+// SystemFont80 returns the primary-character-set 80-column font. $40-$5F
+// holds flashing uppercase (rendered as static inverse).
 func SystemFont80() *gfx.Font {
-	f := gfx.NewFont(
-		sysFont80Width,
-		sysFont80Height,
-	)
+	f := newFont80()
 
 	fontUpperCase(f, 0x00, invert, define80Glyph)
 	fontSpecial(f, 0x20, invert, define80Glyph)
-
-	// TODO: these should be "flashing" characters
 	fontUpperCase(f, 0x40, invert, define80Glyph)
+	fontSpecial(f, 0x60, invert, define80Glyph)
+
+	fontUpperCase(f, 0x80, nil, define80Glyph)
+	fontSpecial(f, 0xa0, nil, define80Glyph)
+	fontUpperCase(f, 0xc0, nil, define80Glyph)
+	fontLowerCase(f, 0xe0, nil, define80Glyph)
+
+	return f
+}
+
+// SystemFont80Alt returns the alternate-character-set 80-column font. $40-$5F
+// holds MouseText glyphs in normal (non-inverted) display mode.
+func SystemFont80Alt() *gfx.Font {
+	f := newFont80()
+
+	fontUpperCase(f, 0x00, invert, define80Glyph)
+	fontSpecial(f, 0x20, invert, define80Glyph)
+	fontMouseText(f, 0x40, nil, define80Glyph)
 	fontSpecial(f, 0x60, invert, define80Glyph)
 
 	fontUpperCase(f, 0x80, nil, define80Glyph)
