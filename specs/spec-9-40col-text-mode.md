@@ -151,7 +151,7 @@ The "uppercase letters" set covers the 32 characters from `@` (`$40`) through
   XOR-flipped).
 - **Flash**: the character alternates between normal and inverse at a rate tied
   to the vertical blank period. On real hardware, the flash rate is
-  approximately 1.9 Hz (toggling every ~16 frames at 30 fps effective).
+  approximately 1.9 Hz (toggling every ~16 NTSC scans at ~60 Hz).
 
 ## 4.3. Alternate Character Set
 
@@ -221,9 +221,9 @@ The 40-column system font is assembled by defining all 256 character entries:
 | `$C0`  | Uppercase   | None    |
 | `$E0`  | Lowercase   | None    |
 
-Note: bytes `$40`-`$7F` should display as flashing characters, but the current
-implementation renders them as static inverse. See section 8 for the flash
-behavior that has not yet been implemented.
+In the primary font, bytes `$40`-`$7F` are rendered as inverse. The flash
+behavior that alternates these between inverse and normal display is described
+in section 8.
 
 # 6. Soft Switches
 
@@ -363,21 +363,83 @@ blitted, the framebuffer's pixel data is written to an Ebiten image for
 display. An optional CRT shader may be applied during this final render step
 to simulate the appearance of a CRT monitor (scanlines, curvature).
 
-# 8. Unimplemented: Flash
+# 8. Flash
 
-Characters in the `$40`-`$7F` range should alternate between normal and
-inverse display at approximately 1.9 Hz. On real hardware, the flash state
-toggles every ~16 VBL periods. The current implementation renders these
-characters as static inverse video.
+Characters in the `$40`-`$7F` range alternate between normal and inverse
+display. On real hardware, the flash state toggles every ~16 VBL periods,
+producing a rate of approximately 1.9 Hz. Flash only applies when the primary
+character set is active; the alternate character set replaces these byte
+values with MouseText glyphs that display without flashing.
 
-A correct implementation would:
+## 8.1. Flash State
 
-1. Maintain a flash state (on/off) that toggles based on a cycle or frame
-   counter.
-2. When constructing or selecting glyphs for bytes `$40`-`$7F`, choose between
-   the normal and inverse renderings based on the current flash state.
-3. Set the redraw flag whenever the flash state changes, so the screen updates
-   even if no memory has been written.
+A boolean flash state tracks whether flash characters are currently shown in
+their normal or inverse rendering. This state is derived from the CPU cycle
+counter: divide the cycle counter by the scan cycle count (17,030) to obtain
+an NTSC scan number (~60 per second), then divide by 16 to obtain a flash
+phase. The flash state is the parity of the flash phase:
+
+```
+frameNumber = cycleCounter / ScanCycleCount
+flashPhase  = frameNumber / 16
+flashOn     = (flashPhase % 2) == 0
+```
+
+When `flashOn` is true, flash characters render as inverse (the current
+behavior for all frames). When `flashOn` is false, flash characters render as
+normal.
+
+The cycle counter is the existing `CPU.CycleCounter()` value already used for
+VBL timing. No additional counter or state key is needed.
+
+## 8.2. Dual-Font Approach
+
+The font system already builds pre-rendered glyphs for every character code at
+font creation time. To support flash, the text renderer uses two fonts rather
+than one: the existing primary font (where `$40`-`$7F` are inverse) and a
+second "flash-alternate" font (where `$40`-`$7F` are normal). The
+flash-alternate font is identical to the primary font in all other ranges.
+
+The flash-alternate 40-column font is constructed exactly like `SystemFont40`,
+except the `$40`-`$5F` range uses uppercase glyphs with no mask (normal
+rendering) and the `$60`-`$7F` range uses special/punctuation glyphs with no
+mask:
+
+| Offset | Glyph Source | Mask (primary) | Mask (flash-alternate) |
+|--------|-------------|----------------|------------------------|
+| `$40`  | Uppercase   | Inverse        | None                   |
+| `$60`  | Special     | Inverse        | None                   |
+
+All other offsets are identical between the two fonts.
+
+The same approach applies to the 80-column primary font.
+
+The alternate character set fonts (`SystemFont40Alt`, `SystemFont80Alt`) are
+not affected; they do not display flash characters.
+
+## 8.3. Font Selection in the Render Path
+
+The text renderer (`a2text.Render`) accepts two font arguments: the primary
+font and the flash-alternate font. It also accepts the current flash state,
+which is computed by `Computer.Render` as described in section 8.4. If
+`flashOn` is true, it uses the primary font (flash characters appear inverse).
+If `flashOn` is false, it uses the flash-alternate font (flash characters
+appear normal).
+
+This is a whole-font swap per frame, not a per-character branch. The cost is
+one comparison before the loop rather than a conditional inside the loop for
+every character.
+
+## 8.4. Triggering Redraws
+
+Flash state changes must cause the screen to redraw even when no memory has
+been written. The `Computer.Render` method computes the current flash state
+before checking the redraw flag. If the flash state differs from the
+previously stored value, the redraw flag is set. This ensures the screen
+updates at the flash toggle points without unnecessary redraws between them.
+
+The previous flash state is stored as a boolean in the state map using a
+`DisplayFlash` key.
 
 # 9. Design Considerations
 
@@ -407,7 +469,18 @@ same frame, causing the top and bottom halves of the screen to show different
 states. The snapshot guarantees a consistent view for the duration of the
 render.
 
-## 9.4. Shared Framebuffer with Other Modes
+## 9.4. Flash via Font Swap
+
+Flash could be implemented by checking each character's byte range inside the
+rendering loop and selecting the appropriate glyph. However, this adds a
+conditional to the inner loop for every character on every frame. The
+dual-font approach moves the decision out of the loop entirely: one comparison
+before the loop selects which font to use, and the loop body remains
+unchanged. The trade-off is storing a second font (an additional 256 glyph
+framebuffers), but since only the `$40`-`$7F` range differs, the memory cost
+is modest and the rendering path needs no per-character flash check.
+
+## 9.5. Shared Framebuffer with Other Modes
 
 The 560 x 384 framebuffer is shared across all display modes (text, lo-res,
 hi-res, double hi-res). The 40-column text renderer fills the entire

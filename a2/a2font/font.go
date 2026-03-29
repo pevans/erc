@@ -28,6 +28,22 @@ type (
 	glyphFunc func(*gfx.Font, int, maskFunc, []byte)
 )
 
+func buildFont(newFn func() *gfx.Font, defg glyphFunc, flashMask maskFunc) *gfx.Font {
+	f := newFn()
+
+	fontUpperCase(f, 0x00, invert, defg)
+	fontSpecial(f, 0x20, invert, defg)
+	fontUpperCase(f, 0x40, flashMask, defg)
+	fontSpecial(f, 0x60, flashMask, defg)
+
+	fontUpperCase(f, 0x80, nil, defg)
+	fontSpecial(f, 0xa0, nil, defg)
+	fontUpperCase(f, 0xc0, nil, defg)
+	fontLowerCase(f, 0xe0, nil, defg)
+
+	return f
+}
+
 // Apply a mask to the font so that the dots are inverted from their
 // definition (e.g. instead of an white "A" rendered a black field, a black
 // "A" rendered on a white field).

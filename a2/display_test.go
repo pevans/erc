@@ -2,6 +2,7 @@ package a2
 
 import (
 	"github.com/pevans/erc/a2/a2display"
+	"github.com/pevans/erc/a2/a2state"
 )
 
 func (s *a2Suite) TestIsVerticalBlank() {
@@ -48,5 +49,29 @@ func (s *a2Suite) TestIsVerticalBlank() {
 		}
 
 		s.True(seenTrue && seenFalse, "should have seen both true and false states")
+	})
+}
+
+func (s *a2Suite) TestRenderFlash() {
+	s.Run("updates lastFlashOn and triggers redraw when flash state differs", func() {
+		// At cycle 0, flashOn=true. Pre-seed lastFlashOn=false so they
+		// differ.
+		s.comp.lastFlashOn = false
+		s.comp.State.SetBool(a2state.DisplayRedraw, false)
+
+		s.comp.Render()
+
+		s.True(s.comp.lastFlashOn)
+	})
+
+	s.Run("does not trigger redraw when flash state is unchanged", func() {
+		// Seed lastFlashOn to match what Render will compute (true at cycle
+		// 0).
+		s.comp.lastFlashOn = true
+		s.comp.State.SetBool(a2state.DisplayRedraw, false)
+
+		s.comp.Render()
+
+		s.False(s.comp.State.Bool(a2state.DisplayRedraw))
 	})
 }

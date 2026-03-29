@@ -564,3 +564,132 @@ teardown()   { load text40_helper; teardown; }
 	[[ $status -eq 0 ]]
 	[[ $(color_count) -eq 2 ]]
 }
+
+# ---------------------------------------------------------------------------
+# Flash (section 8)
+#
+# The flash transition occurs at cycle 272480.  The nested Y/X delay loop
+# below burns ~329000 cycles total; capturing at step 115000 lands at roughly
+# 290000 cycles, safely inside the flash-off window [272480, 544959].
+# ---------------------------------------------------------------------------
+
+@test "flash chars render as normal during flash-off phase" {
+	# Fill with flash A ($41), then spin in a delay loop until the cycle
+	# counter crosses the flash-off boundary.  At capture step 115000 the
+	# flash state is off, so the renderer uses the flash-alternate font and
+	# $41 must appear identical to normal A ($C1).
+	asm_video_long 115000 \
+		'LDA #$41' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' \
+		'LDY #$00' \
+		'outer: LDX #$00' \
+		'inner: DEX' \
+		'BNE inner' \
+		'DEY' \
+		'BNE outer' \
+		'.halt'
+	[[ $status -eq 0 ]]
+	local flash_off_pixels
+	flash_off_pixels=$(tail -n +3 "$OUT/video.frame")
+
+	rm -rf "$OUT"; mkdir -p "$OUT"
+	asm_video \
+		'LDA #$C1' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' '.halt'
+	[[ $status -eq 0 ]]
+	local normal_pixels
+	normal_pixels=$(tail -n +3 "$OUT/video.frame")
+
+	[[ "$flash_off_pixels" == "$normal_pixels" ]]
+}
+
+@test "flash A pixel pattern during flash-on matches inverse A pixel pattern" {
+	asm_video \
+		'LDA #$41' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' '.halt'
+	[[ $status -eq 0 ]]
+	local flash_on_pixels
+	flash_on_pixels=$(tail -n +3 "$OUT/video.frame")
+
+	rm -rf "$OUT"; mkdir -p "$OUT"
+	asm_video \
+		'LDA #$01' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' '.halt'
+	[[ $status -eq 0 ]]
+	local inverse_pixels
+	inverse_pixels=$(tail -n +3 "$OUT/video.frame")
+
+	[[ "$flash_on_pixels" == "$inverse_pixels" ]]
+}
+
+@test "flash \$61 renders as normal during flash-off phase" {
+	asm_video_long 115000 \
+		'LDA #$61' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' \
+		'LDY #$00' \
+		'outer: LDX #$00' \
+		'inner: DEX' \
+		'BNE inner' \
+		'DEY' \
+		'BNE outer' \
+		'.halt'
+	[[ $status -eq 0 ]]
+	local flash_off_pixels
+	flash_off_pixels=$(tail -n +3 "$OUT/video.frame")
+
+	rm -rf "$OUT"; mkdir -p "$OUT"
+	asm_video \
+		'LDA #$A1' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' '.halt'
+	[[ $status -eq 0 ]]
+	local normal_pixels
+	normal_pixels=$(tail -n +3 "$OUT/video.frame")
+
+	[[ "$flash_off_pixels" == "$normal_pixels" ]]
+}
+
+@test "flash chars pixel pattern differs between flash-on and flash-off phases" {
+	# Capture flash A at step 4999 (cycle count ~10000, flashOn=true: inverse).
+	asm_video \
+		'LDA #$41' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' \
+		'LDY #$00' \
+		'outer: LDX #$00' \
+		'inner: DEX' \
+		'BNE inner' \
+		'DEY' \
+		'BNE outer' \
+		'.halt'
+	[[ $status -eq 0 ]]
+	local flash_on_frame
+	flash_on_frame=$(tail -n +2 "$OUT/video.frame")
+
+	rm -rf "$OUT"; mkdir -p "$OUT"
+	# Capture the same program at step 115000 (cycle count ~290000,
+	# flashOn=false: normal).  No memory writes occur after the fill, so
+	# the change in visual output is caused solely by the flash-state
+	# redraw triggered in Computer.Render.
+	asm_video_long 115000 \
+		'LDA #$41' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' \
+		'LDY #$00' \
+		'outer: LDX #$00' \
+		'inner: DEX' \
+		'BNE inner' \
+		'DEY' \
+		'BNE outer' \
+		'.halt'
+	[[ $status -eq 0 ]]
+	local flash_off_frame
+	flash_off_frame=$(tail -n +2 "$OUT/video.frame")
+
+	[[ "$flash_on_frame" != "$flash_off_frame" ]]
+}

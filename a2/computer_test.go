@@ -25,6 +25,12 @@ func (s *a2Suite) TestNewComputer() {
 	s.NotNil(c.CPU)
 	s.Equal(c.CPU.RMem, c)
 	s.Equal(c.CPU.WMem, c)
+	s.NotNil(c.Font40)
+	s.NotNil(c.Font40Alt)
+	s.NotNil(c.Font40FlashAlt)
+	s.NotNil(c.Font80)
+	s.NotNil(c.Font80Alt)
+	s.NotNil(c.Font80FlashAlt)
 }
 
 func (s *a2Suite) TestDimensions() {

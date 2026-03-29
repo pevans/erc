@@ -44,19 +44,13 @@ func newFont80() *gfx.Font {
 // SystemFont80 returns the primary-character-set 80-column font. $40-$5F
 // holds flashing uppercase (rendered as static inverse).
 func SystemFont80() *gfx.Font {
-	f := newFont80()
+	return buildFont(newFont80, define80Glyph, invert)
+}
 
-	fontUpperCase(f, 0x00, invert, define80Glyph)
-	fontSpecial(f, 0x20, invert, define80Glyph)
-	fontUpperCase(f, 0x40, invert, define80Glyph)
-	fontSpecial(f, 0x60, invert, define80Glyph)
-
-	fontUpperCase(f, 0x80, nil, define80Glyph)
-	fontSpecial(f, 0xa0, nil, define80Glyph)
-	fontUpperCase(f, 0xc0, nil, define80Glyph)
-	fontLowerCase(f, 0xe0, nil, define80Glyph)
-
-	return f
+// SystemFont80FlashAlt returns the flash-alternate 80-column font. $40-$7F
+// are rendered normal (no mask) instead of inverse.
+func SystemFont80FlashAlt() *gfx.Font {
+	return buildFont(newFont80, define80Glyph, nil)
 }
 
 // SystemFont80Alt returns the alternate-character-set 80-column font. $40-$5F

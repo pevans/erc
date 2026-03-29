@@ -350,6 +350,8 @@ func Write(addr int, val uint8, stm *memory.StateMap) {
 func Render(
 	snapshot *Snapshot,
 	font40 *gfx.Font,
+	font40FlashAlt *gfx.Font,
+	flashOn bool,
 	state *memory.StateMap,
 ) {
 	switch {
@@ -361,7 +363,7 @@ func Render(
 
 		monochromeMode := state.Int(a2state.DisplayMonochrome)
 
-		a2text.Render(snapshot, font40, start, end, monochromeMode)
+		a2text.Render(snapshot, font40, font40FlashAlt, flashOn, start, end, monochromeMode)
 
 	case state.Bool(a2state.DisplayHires):
 		monochromeMode := state.Int(a2state.DisplayMonochrome)

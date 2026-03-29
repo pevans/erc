@@ -138,11 +138,17 @@ type Computer struct {
 
 	// Primary and alternate character-set fonts for 40-column and 80-column
 	// text. The alternate set is used when DisplayAltChar is true; it
-	// replaces the $40-$5F flash-uppercase range with MouseText glyphs.
-	Font40    *gfx.Font
-	Font40Alt *gfx.Font
-	Font80    *gfx.Font
-	Font80Alt *gfx.Font
+	// replaces the $40-$5F flash-uppercase range with MouseText glyphs. The
+	// flash-alternate fonts render $40-$7F as normal (non-inverted) for use
+	// when the flash phase shows characters in their normal state.
+	Font40         *gfx.Font
+	Font40Alt      *gfx.Font
+	Font40FlashAlt *gfx.Font
+	Font80         *gfx.Font
+	Font80Alt      *gfx.Font
+	Font80FlashAlt *gfx.Font
+
+	lastFlashOn bool
 }
 
 const (
@@ -228,8 +234,10 @@ func NewComputer(speed int) *Computer {
 
 	comp.Font40 = a2font.SystemFont40()
 	comp.Font40Alt = a2font.SystemFont40Alt()
+	comp.Font40FlashAlt = a2font.SystemFont40FlashAlt()
 	comp.Font80 = a2font.SystemFont80()
 	comp.Font80Alt = a2font.SystemFont80Alt()
+	comp.Font80FlashAlt = a2font.SystemFont80FlashAlt()
 
 	comp.Screen = gfx.NewFrameBuffer(screenWidth, screenHeight)
 	gfx.Screen = comp.Screen

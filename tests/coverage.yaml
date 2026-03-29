@@ -1844,8 +1844,34 @@ specs:
           - "tests/text40.bats::40-col text frame is 560x384"
 
       - section: "8"
-        title: "Unimplemented: Flash"
+        title: Flash
         testable: false
+
+      - section: "8.1"
+        title: Flash State
+        testable: true
+        tests:
+          - "tests/text40.bats::flash chars pixel pattern differs between flash-on and flash-off phases"
+
+      - section: "8.2"
+        title: Dual-Font Approach
+        testable: false
+
+      - section: "8.3"
+        title: Font Selection in the Render Path
+        testable: true
+        tests:
+          - "tests/text40.bats::flash chars render as normal during flash-off phase"
+          - "tests/text40.bats::flash chars pixel pattern differs between flash-on and flash-off phases"
+          - "tests/text40.bats::flash A and inverse A use the same color palette"
+          - "tests/text40.bats::flash A pixel pattern during flash-on matches inverse A pixel pattern"
+          - "tests/text40.bats::flash $61 renders as normal during flash-off phase"
+
+      - section: "8.4"
+        title: Triggering Redraws
+        testable: true
+        tests:
+          - "tests/text40.bats::flash chars pixel pattern differs between flash-on and flash-off phases"
 
       - section: "9"
         title: Design Considerations

@@ -53,19 +53,13 @@ func newFont40() *gfx.Font {
 // SystemFont40 returns the primary-character-set 40-column font. $40-$5F
 // holds flashing uppercase (rendered as static inverse).
 func SystemFont40() *gfx.Font {
-	f := newFont40()
+	return buildFont(newFont40, define40Glyph, invert)
+}
 
-	fontUpperCase(f, 0x00, invert, define40Glyph)
-	fontSpecial(f, 0x20, invert, define40Glyph)
-	fontUpperCase(f, 0x40, invert, define40Glyph)
-	fontSpecial(f, 0x60, invert, define40Glyph)
-
-	fontUpperCase(f, 0x80, nil, define40Glyph)
-	fontSpecial(f, 0xa0, nil, define40Glyph)
-	fontUpperCase(f, 0xc0, nil, define40Glyph)
-	fontLowerCase(f, 0xe0, nil, define40Glyph)
-
-	return f
+// SystemFont40FlashAlt returns the flash-alternate 40-column font. $40-$7F
+// are rendered normal (no mask) instead of inverse.
+func SystemFont40FlashAlt() *gfx.Font {
+	return buildFont(newFont40, define40Glyph, nil)
 }
 
 // SystemFont40Alt returns the alternate-character-set 40-column font. $40-$5F

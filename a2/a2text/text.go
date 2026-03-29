@@ -29,8 +29,16 @@ func recolorGlyph(glyph *gfx.FrameBuffer, monochromeColor color.RGBA) *gfx.Frame
 }
 
 // Render will draw text in the framebuffer starting from a specific memory
-// range, and ending at a specific memory range.
-func Render(seg memory.Getter, font *gfx.Font, start, end int, monochromeMode int) {
+// range, and ending at a specific memory range. flashAltFont is used when
+// flashOn is false (flash characters appear normal rather than inverse).
+func Render(
+	seg memory.Getter,
+	font *gfx.Font,
+	flashAltFont *gfx.Font,
+	flashOn bool,
+	start, end int,
+	monochromeMode int,
+) {
 	var monochromeColor color.RGBA
 	useMonochrome := false
 
@@ -41,6 +49,11 @@ func Render(seg memory.Getter, font *gfx.Font, start, end int, monochromeMode in
 	case a2mono.AmberScreen:
 		monochromeColor = a2mono.Amber
 		useMonochrome = true
+	}
+
+	activeFont := font
+	if !flashOn {
+		activeFont = flashAltFont
 	}
 
 	for addr := start; addr < end; addr++ {
@@ -55,12 +68,12 @@ func Render(seg memory.Getter, font *gfx.Font, start, end int, monochromeMode in
 		}
 
 		// Convert the row and column into the framebuffer grid
-		x := uint(col) * font.GlyphWidth
-		y := uint(row) * font.GlyphHeight
+		x := uint(col) * activeFont.GlyphWidth
+		y := uint(row) * activeFont.GlyphHeight
 
 		// Figure out what glyph to render
 		char := seg.Get(int(addr))
-		glyph := font.Glyph(int(char))
+		glyph := activeFont.Glyph(int(char))
 
 		if useMonochrome {
 			glyph = recolorGlyph(glyph, monochromeColor)

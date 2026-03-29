@@ -129,3 +129,21 @@ col_range_is_uniform() {
 col_range_has_mixed_colors() {
 	! col_range_is_uniform "$@"
 }
+
+# asm_video_long CAPTURE_STEP LINE [LINE...] -- like asm_video but runs 130000
+# steps.  Use this when the assembly needs to burn enough cycles to cross the
+# first flash-phase boundary (~272480 cycles, reached around step 108000).
+# CAPTURE_STEP must be <= 130000.
+asm_video_long() {
+	local capture="$1"
+	shift
+	local src="$TMP/test.s"
+	printf '%s\n' "$@" >"$src"
+	"$ASSEMBLER" -o "$TMP/test.dsk" "$src" || return 1
+	run "$ERC" headless \
+		--output "$OUT" \
+		--steps 130000 \
+		--start-at 0801 \
+		--capture-video "$capture" \
+		"$TMP/test.dsk"
+}

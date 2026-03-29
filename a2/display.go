@@ -12,6 +12,17 @@ import (
 // Render will draw an updated picture of our graphics to the local
 // framebuffer
 func (c *Computer) Render() {
+	// Compute flash state from cycle counter and trigger a redraw if it
+	// changed.
+	frameNumber := c.CPU.CycleCounter() / a2display.ScanCycleCount
+	flashPhase := frameNumber / 16
+	flashOn := (flashPhase % 2) == 0
+
+	if flashOn != c.lastFlashOn {
+		c.lastFlashOn = flashOn
+		c.State.SetBool(a2state.DisplayRedraw, true)
+	}
+
 	if !c.State.Bool(a2state.DisplayRedraw) {
 		return
 	}
@@ -25,11 +36,13 @@ func (c *Computer) Render() {
 	c.displaySnapshot.CopyFromState(c.Main, c.Aux, c.State)
 
 	font40 := c.Font40
+	font40FlashAlt := c.Font40FlashAlt
 	if c.State.Bool(a2state.DisplayAltChar) {
 		font40 = c.Font40Alt
+		font40FlashAlt = c.Font40Alt
 	}
 
-	a2display.Render(c.displaySnapshot, font40, c.State)
+	a2display.Render(c.displaySnapshot, font40, font40FlashAlt, flashOn, c.State)
 
 	// Handle screen capture logging for debugging
 	if c.State.Bool(a2state.DisplayHires) {
