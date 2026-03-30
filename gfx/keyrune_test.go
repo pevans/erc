@@ -15,9 +15,9 @@ func TestKeyToRune(t *testing.T) {
 		modifier    int
 		want        rune
 	}{
-		{"lowercase letter", ebiten.KeyA, 0, 'A'},
+		{"unshifted letter", ebiten.KeyA, 0, 'a'},
 		{"shift input", ebiten.KeyDigit1, input.ModShift, '!'},
-		{"uppercase letter (same as lowercase)", ebiten.KeyA, input.ModShift, 'A'},
+		{"shifted letter produces uppercase", ebiten.KeyA, input.ModShift, 'A'},
 		{"unmapped key", ebiten.KeyF1, 0, rune(0)},
 	}
 
