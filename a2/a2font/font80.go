@@ -61,7 +61,7 @@ func SystemFont80Alt() *gfx.Font {
 	fontUpperCase(f, 0x00, invert, define80Glyph)
 	fontSpecial(f, 0x20, invert, define80Glyph)
 	fontMouseText(f, 0x40, nil, define80Glyph)
-	fontSpecial(f, 0x60, invert, define80Glyph)
+	fontLowerCase(f, 0x60, invert, define80Glyph)
 
 	fontUpperCase(f, 0x80, nil, define80Glyph)
 	fontSpecial(f, 0xa0, nil, define80Glyph)
