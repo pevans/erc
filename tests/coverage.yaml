@@ -3668,3 +3668,106 @@ specs:
         testable: true
         tests:
           - "tests/text80.bats::80-col text frame is 560x384"
+
+  - spec: spec-20
+    title: Keyboard
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Hardware Model
+        testable: false
+
+      - section: "3"
+        title: Soft Switches
+        testable: false
+
+      - section: "3.1"
+        title: $C000 -- Keyboard Data (Read)
+        testable: false
+
+      - section: "3.2"
+        title: $C010 -- Any Key Down / Strobe Clear
+        testable: true
+        tests:
+          - "tests/keyboard_sw.bats::reading C010 clears strobe"
+          - "tests/keyboard_sw.bats::writing C010 clears strobe"
+          - "tests/keyboard_sw.bats::reading C010 returns KeyDown"
+
+      - section: "4"
+        title: Key Press
+        testable: true
+        tests:
+          - "tests/keyboard.bats::key press sets LastKey"
+          - "tests/keyboard.bats::key press sets Strobe"
+          - "tests/keyboard.bats::key press sets KeyDown"
+
+      - section: "5"
+        title: Key Release
+        testable: true
+        tests:
+          - "tests/keyboard.bats::key release clears KeyDown"
+
+      - section: "6"
+        title: Key Encoding
+        testable: false
+
+      - section: "6.1"
+        title: Printable Characters
+        testable: true
+        tests:
+          - "tests/keyboard.bats::lowercase letter produces lowercase code"
+          - "tests/keyboard.bats::uppercase letter produces uppercase code"
+          - "tests/keyboard.bats::digit key produces digit code"
+
+      - section: "6.2"
+        title: Control Characters
+        testable: true
+        tests:
+          - "tests/keyboard.bats::ctrl key produces control character"
+          - "tests/keyboard.bats::ctrl with shifted letter produces same control character"
+
+      - section: "6.3"
+        title: Special Keys
+        testable: true
+        tests:
+          - "tests/keyboard.bats::return key produces carriage return code"
+          - "tests/keyboard.bats::escape key produces escape code"
+          - "tests/keyboard.bats::tab key produces tab code"
+          - "tests/keyboard.bats::space key produces space code"
+          - "tests/keyboard.bats::backspace key produces backspace code"
+          - "tests/keyboard.bats::delete key produces delete code"
+
+      - section: "6.4"
+        title: Arrow Keys
+        testable: true
+        tests:
+          - "tests/keyboard.bats::left arrow produces backspace code"
+          - "tests/keyboard.bats::right arrow produces ctrl-u code"
+          - "tests/keyboard.bats::up arrow produces ctrl-k code"
+          - "tests/keyboard.bats::down arrow produces ctrl-j code"
+
+      - section: "7"
+        title: Key Repeat
+        testable: false
+
+      - section: "8"
+        title: Open Bus Behavior
+        testable: true
+        tests:
+          - "tests/peripheral.bats::reading C006 returns keyboard data latch"
+          - "tests/peripheral.bats::reading C007 returns keyboard data latch"
+          - "tests/peripheral.bats::reading C00A returns keyboard data latch"
+          - "tests/peripheral.bats::reading C00B returns keyboard data latch"
+
+      - section: "9"
+        title: Thread Safety
+        testable: false
+
+      - section: "10"
+        title: Interaction with Shortcuts
+        testable: true
+        tests:
+          - "tests/keyboard.bats::ctrl-a prefix does not modify keyboard state"
