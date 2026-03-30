@@ -123,13 +123,26 @@ func (g *game) Update() error {
 }
 
 func (g *game) pushInputEvent() {
+	// Resolve modifiers first with defined precedence: Control > Shift. This
+	// ensures the rune lookup uses the correct modifier regardless of the
+	// order ebiten returns keys.
+	g.inputEvent.Modifier = input.ModNone
 	for _, k := range g.keys {
-		// If we see a modifier among the keys, we set the input event's
-		// modifier. It's possible we've seen multiple modifiers -- if so, the
-		// previous modifier is clobbered.
 		mod := modifier(k)
-		if mod != input.ModNone {
+		if mod == input.ModControl {
+			g.inputEvent.Modifier = input.ModControl
+			break
+		}
+		if mod == input.ModShift && g.inputEvent.Modifier != input.ModControl {
 			g.inputEvent.Modifier = mod
+		}
+		if mod != input.ModNone && g.inputEvent.Modifier == input.ModNone {
+			g.inputEvent.Modifier = mod
+		}
+	}
+
+	for _, k := range g.keys {
+		if modifier(k) != input.ModNone {
 			continue
 		}
 
