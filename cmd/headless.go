@@ -122,6 +122,12 @@ func init() {
 	)
 }
 
+// headlessKeyEvent is a key press or release injected at a specific step.
+type headlessKeyEvent struct {
+	ev      input.Event
+	release bool
+}
+
 func runHeadless(images []string) {
 	comp := a2.NewComputer(1)
 
@@ -265,7 +271,7 @@ func runHeadless(images []string) {
 		enterDebugger(comp, line)
 	}
 
-	var keyEvents map[int]input.Event
+	var keyEvents map[int]headlessKeyEvent
 	if headlessKeysFlag != "" {
 		var err error
 		keyEvents, err = parseKeyEvents(headlessKeysFlag)
@@ -286,14 +292,22 @@ func runHeadless(images []string) {
 
 		step := i
 		rec.Step(func() {
-			if ev, ok := keyEvents[step]; ok {
-				consumed, err := shortcut.Check(ev, comp)
-				if err != nil {
-					earlyExit = true
-					return
-				}
-				if !consumed {
-					comp.PressKey(uint8(ev.Key))
+			if hev, ok := keyEvents[step]; ok {
+				if hev.release {
+					comp.ClearKeys()
+				} else {
+					consumed, err := shortcut.Check(hev.ev, comp)
+					if err != nil {
+						earlyExit = true
+						return
+					}
+					if !consumed {
+						key := hev.ev.Key
+						if hev.ev.Modifier == input.ModControl {
+							key = hev.ev.Key & 0x1F
+						}
+						comp.PressKey(uint8(key))
+					}
 				}
 			}
 			if !earlyExit {
@@ -355,8 +369,8 @@ func enterDebugger(comp *a2.Computer, line *liner.State) {
 	}
 }
 
-func parseKeyEvents(flagVal string) (map[int]input.Event, error) {
-	events := make(map[int]input.Event)
+func parseKeyEvents(flagVal string) (map[int]headlessKeyEvent, error) {
+	events := make(map[int]headlessKeyEvent)
 	for entry := range strings.SplitSeq(flagVal, ",") {
 		entry = strings.TrimSpace(entry)
 		if entry == "" {
@@ -378,11 +392,15 @@ func parseKeyEvents(flagVal string) (map[int]input.Event, error) {
 		if _, exists := events[step]; exists {
 			return nil, fmt.Errorf("duplicate step number %d", step)
 		}
+		if keyspec == "@release" {
+			events[step] = headlessKeyEvent{release: true}
+			continue
+		}
 		ev, err := parseKeySpec(keyspec)
 		if err != nil {
 			return nil, fmt.Errorf("invalid keyspec %q: %w", keyspec, err)
 		}
-		events[step] = ev
+		events[step] = headlessKeyEvent{ev: ev}
 	}
 	return events, nil
 }
@@ -395,8 +413,27 @@ func parseKeySpec(spec string) (input.Event, error) {
 		}
 		return input.Event{Key: rune(rest[0]), Modifier: input.ModControl}, nil
 	}
-	if spec == "esc" {
+	switch spec {
+	case "esc":
 		return input.Event{Key: 0x1B}, nil
+	case "return":
+		return input.Event{Key: 0x0D}, nil
+	case "tab":
+		return input.Event{Key: 0x09}, nil
+	case "space":
+		return input.Event{Key: 0x20}, nil
+	case "backspace":
+		return input.Event{Key: 0x08}, nil
+	case "delete":
+		return input.Event{Key: 0x7F}, nil
+	case "left":
+		return input.Event{Key: 0x08}, nil
+	case "right":
+		return input.Event{Key: 0x15}, nil
+	case "up":
+		return input.Event{Key: 0x0B}, nil
+	case "down":
+		return input.Event{Key: 0x0A}, nil
 	}
 	if len(spec) == 1 {
 		return input.Event{Key: rune(spec[0])}, nil
