@@ -10,10 +10,16 @@ Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 
 ### Added
 
+- Support for 80-column text mode
 - Support for [MouseText](https://en.wikipedia.org/wiki/MouseText) characters.
   Now you can see the running man (if you wish).
 - Support for flashing characters, which are text that alternate between
   normal video and inverse video.
+
+### Fixed
+
+- Alternate character set now shows lowercase letters in the $60-$7F character
+  code range (changed from the special character set).
 
 ### Removed
 
