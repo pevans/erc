@@ -1,6 +1,7 @@
 package a2kb
 
 import (
+	"sync"
 	"testing"
 
 	"github.com/pevans/erc/a2/a2state"
@@ -16,6 +17,7 @@ type kbSuite struct {
 
 func (s *kbSuite) SetupTest() {
 	s.state = memory.NewStateMap()
+	s.state.SetAny(a2state.KBMutex, &sync.Mutex{})
 }
 
 func TestKBSuite(t *testing.T) {
@@ -49,6 +51,15 @@ func (s *kbSuite) TestSwitchRead() {
 		s.state.SetUint8(a2state.KBKeyDown, hi)
 		s.Equal(hi, SwitchRead(anyKeyDown, s.state))
 		s.Zero(s.state.Uint8(a2state.KBStrobe))
+	})
+
+	s.Run("open bus", func() {
+		s.state.SetUint8(a2state.KBLastKey, in&0x7F)
+		s.state.SetUint8(a2state.KBStrobe, 0x80)
+
+		for addr := 0xC001; addr <= 0xC00F; addr++ {
+			s.Equal(out, SwitchRead(addr, s.state))
+		}
 	})
 }
 

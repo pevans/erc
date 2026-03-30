@@ -30,6 +30,7 @@ const (
 	InstructionReadOp
 	KBKeyDown
 	KBLastKey
+	KBMutex
 	KBStrobe
 	MemAuxSegment
 	MemMainSegment
@@ -81,6 +82,7 @@ var keyStringMap = map[int]string{
 	InstructionReadOp:   "InstructionReadOp",
 	KBKeyDown:           "KBKeyDown",
 	KBLastKey:           "KBLastkey",
+	KBMutex:             "KBMutex",
 	KBStrobe:            "KBStrobe",
 	MemAuxSegment:       "MemAuxSegment",
 	MemMainSegment:      "MemMainSegment",

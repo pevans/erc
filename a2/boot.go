@@ -71,6 +71,7 @@ func (c *Computer) Reset() {
 	a2bank.UseDefaults(c.State, c.Main, c.ROM)
 	a2display.UseDefaults(c.State, c.Aux)
 	a2peripheral.UseDefaults(c.State, c.ROM)
+	c.State.SetAny(a2state.KBMutex, &c.keyPressMutex)
 	a2kb.UseDefaults(c.State)
 	a2memory.UseDefaults(c.State, c.Main, c.Aux)
 	a2disk.UseDefaults(c.State)
