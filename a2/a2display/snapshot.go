@@ -12,6 +12,12 @@ type Snapshot struct {
 	// text/lores region: 0x400-0x800
 	textLores [0x400]byte
 
+	// textMain: 0x400-0x800 from main memory (for 80-column text)
+	textMain [0x400]byte
+
+	// textAux: 0x400-0x800 from auxiliary memory (for 80-column text)
+	textAux [0x400]byte
+
 	// hires region: 0x2000-0x4000 (page-aware for regular hires)
 	hires [0x2000]byte
 
@@ -78,6 +84,19 @@ func (s *Snapshot) CopyFromState(main, aux *memory.Segment, stm *memory.StateMap
 		s.hires[i] = hiresSeg.DirectGet(hiresStart + i)
 	}
 
+	// Capture both banks for 80-column text mode. When 80STORE is on, the
+	// display always renders from page 1 ($0400-$07FF) in both banks. Without
+	// 80STORE, PAGE2 selects the address range.
+	text80Start := 0x400
+	if !stm.Bool(a2state.DisplayStore80) && stm.Bool(a2state.DisplayPage2) {
+		text80Start = 0x800
+	}
+
+	for i := range 0x400 {
+		s.textMain[i] = main.DirectGet(text80Start + i)
+		s.textAux[i] = aux.DirectGet(text80Start + i)
+	}
+
 	// Capture main and aux hi-res for double hi-res mode. Double hi-res
 	// supports page switching just like regular hi-res, but uses both main
 	// and aux memory for each page.
@@ -116,6 +135,10 @@ func (s *Snapshot) Get16(addr int) uint16 {
 // GetMain returns the byte at the given address from the main memory
 // snapshot.
 func (s *Snapshot) GetMain(addr int) uint8 {
+	if addr >= 0x400 && addr < 0x800 {
+		return s.textMain[addr-0x400]
+	}
+
 	if addr >= 0x2000 && addr < 0x4000 {
 		return s.hiresMain[addr-0x2000]
 	}
@@ -126,6 +149,10 @@ func (s *Snapshot) GetMain(addr int) uint8 {
 // GetAux returns the byte at the given address from the auxiliary memory
 // snapshot.
 func (s *Snapshot) GetAux(addr int) uint8 {
+	if addr >= 0x400 && addr < 0x800 {
+		return s.textAux[addr-0x400]
+	}
+
 	if addr >= 0x2000 && addr < 0x4000 {
 		return s.hiresAux[addr-0x2000]
 	}

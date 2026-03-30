@@ -365,7 +365,7 @@ teardown()   { load dhires_helper; teardown; }
 }
 
 @test "TEXT on returns from dhires to text mode" {
-	asm_dhires_fill 7F 'STA $C051'
+	asm_dhires_fill 7F 'STA $C051' 'STA $C00C'
 	[[ $status -eq 0 ]]
 	local roundtrip_pixels
 	roundtrip_pixels=$(tail -n +3 "$OUT/video.frame")

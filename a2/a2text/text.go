@@ -8,6 +8,19 @@ import (
 	"github.com/pevans/erc/memory"
 )
 
+// monochromeSetup returns the monochrome color and whether monochrome mode is
+// active for the given mode constant.
+func monochromeSetup(monochromeMode int) (color.RGBA, bool) {
+	switch monochromeMode {
+	case a2mono.GreenScreen:
+		return a2mono.Green, true
+	case a2mono.AmberScreen:
+		return a2mono.Amber, true
+	}
+
+	return color.RGBA{}, false
+}
+
 // recolorGlyph returns a framebuffer that modifies everything to match the
 // provided monochrome color.
 func recolorGlyph(glyph *gfx.FrameBuffer, monochromeColor color.RGBA) *gfx.FrameBuffer {
@@ -39,17 +52,7 @@ func Render(
 	start, end int,
 	monochromeMode int,
 ) {
-	var monochromeColor color.RGBA
-	useMonochrome := false
-
-	switch monochromeMode {
-	case a2mono.GreenScreen:
-		monochromeColor = a2mono.Green
-		useMonochrome = true
-	case a2mono.AmberScreen:
-		monochromeColor = a2mono.Amber
-		useMonochrome = true
-	}
+	monochromeColor, useMonochrome := monochromeSetup(monochromeMode)
 
 	activeFont := font
 	if !flashOn {

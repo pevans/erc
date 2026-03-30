@@ -351,10 +351,22 @@ func Render(
 	snapshot *Snapshot,
 	font40 *gfx.Font,
 	font40FlashAlt *gfx.Font,
+	font80 *gfx.Font,
+	font80FlashAlt *gfx.Font,
 	flashOn bool,
 	state *memory.StateMap,
 ) {
 	switch {
+	case state.Bool(a2state.DisplayText) && state.Bool(a2state.DisplayCol80):
+		var (
+			start = 0x400
+			end   = 0x800
+		)
+
+		monochromeMode := state.Int(a2state.DisplayMonochrome)
+
+		a2text.Render80(snapshot, font80, font80FlashAlt, flashOn, start, end, monochromeMode)
+
 	case state.Bool(a2state.DisplayText):
 		var (
 			start = 0x400

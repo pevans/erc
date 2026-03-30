@@ -3493,3 +3493,178 @@ specs:
       - section: "8.4"
         title: External Bitmap Data
         testable: false
+
+  - spec: spec-19
+    title: 80-Column Text Mode
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Screen Geometry
+        testable: false
+
+      - section: "2.1"
+        title: Logical Dimensions
+        testable: false
+
+      - section: "2.2"
+        title: Pixel Dimensions
+        testable: true
+        tests:
+          - "tests/text80.bats::80-col text frame is 560x384"
+
+      - section: "3"
+        title: Activation
+        testable: false
+
+      - section: "3.1"
+        title: Required State
+        testable: true
+        tests:
+          - "tests/text80.bats::TEXT off with 80COL on does not render 80-col text"
+          - "tests/text80.bats::80COL off does not display aux memory content"
+          - "tests/text80.bats::aux memory character appears in even screen column"
+
+      - section: "3.2"
+        title: Typical Activation Sequence
+        testable: false
+
+      - section: "4"
+        title: Memory Layout
+        testable: false
+
+      - section: "4.1"
+        title: Two-Bank Interleave
+        testable: true
+        tests:
+          - "tests/text80.bats::aux memory character appears in even screen column"
+          - "tests/text80.bats::main memory character appears in odd screen column"
+
+      - section: "4.2"
+        title: Column Mapping
+        testable: true
+        tests:
+          - "tests/text80.bats::aux address $0400 maps to row 0: character in pixel rows 0-15"
+          - "tests/text80.bats::aux address $0480 maps to row 1: character in pixel rows 16-31"
+          - "tests/text80.bats::aux address $07D0 maps to row 23: character in pixel rows 368-383"
+          - "tests/text80.bats::aux address $0401 maps to column 2: character in pixel columns 14-20"
+          - "tests/text80.bats::main address $0480 maps to row 1: character in pixel rows 16-31"
+          - "tests/text80.bats::main address $0401 maps to column 3: character in pixel columns 21-27"
+
+      - section: "4.3"
+        title: Addressing via 80STORE and PAGE2
+        testable: true
+        tests:
+          - "tests/text80.bats::aux memory character appears in even screen column"
+          - "tests/text80.bats::main memory character appears in odd screen column"
+
+      - section: "5"
+        title: Display Memory Snapshot
+        testable: false
+
+      - section: "5.1"
+        title: Snapshot Contents
+        testable: false
+
+      - section: "5.2"
+        title: Snapshot Interface
+        testable: false
+
+      - section: "6"
+        title: Rendering Pipeline
+        testable: false
+
+      - section: "6.1"
+        title: Mode Dispatch
+        testable: true
+        tests:
+          - "tests/text80.bats::TEXT off with 80COL on does not render 80-col text"
+          - "tests/text80.bats::80COL off does not display aux memory content"
+          - "tests/text80.bats::aux memory character appears in even screen column"
+
+      - section: "6.2"
+        title: Rendering Loop
+        testable: true
+        tests:
+          - "tests/text80.bats::80-col screen filled with spaces has one color"
+          - "tests/text80.bats::80-col screen filled with normal A has two colors"
+          - "tests/text80.bats::80-col screen filled with inverse A has two colors"
+          - "tests/text80.bats::aux address $0400 maps to row 0: character in pixel rows 0-15"
+          - "tests/text80.bats::aux address $0480 maps to row 1: character in pixel rows 16-31"
+          - "tests/text80.bats::aux address $07D0 maps to row 23: character in pixel rows 368-383"
+          - "tests/text80.bats::aux address $0401 maps to column 2: character in pixel columns 14-20"
+          - "tests/text80.bats::main address $0480 maps to row 1: character in pixel rows 16-31"
+          - "tests/text80.bats::main address $0401 maps to column 3: character in pixel columns 21-27"
+          - "tests/text80.bats::hole byte $0478 in main does not affect 80-col display"
+          - "tests/text80.bats::hole byte $0478 in aux does not affect 80-col display"
+
+      - section: "6.3"
+        title: Font Selection
+        testable: true
+        tests:
+          - "tests/text80.bats::80-col screen filled with normal A has two colors"
+          - "tests/text80.bats::80-col screen filled with inverse A has two colors"
+          - "tests/text80.bats::80-col ALTCHAR on renders differently from ALTCHAR off for $40-$5F range"
+          - "tests/text80.bats::80-col ALTCHAR on renders differently from ALTCHAR off for $60-$7F range"
+
+      - section: "6.4"
+        title: Flash
+        testable: true
+        tests:
+          - "tests/text80.bats::80-col flash A pixel pattern during flash-on matches inverse A pixel pattern"
+          - "tests/text80.bats::80-col flash chars render as normal during flash-off phase"
+          - "tests/text80.bats::80-col flash chars pixel pattern differs between flash-on and flash-off phases"
+
+      - section: "6.5"
+        title: Monochrome Modes
+        testable: true
+        tests:
+          - "tests/text80.bats::80-col green screen renders white pixels as 98FF98"
+          - "tests/text80.bats::80-col amber screen renders white pixels as FFBF00"
+
+      - section: "7"
+        title: Mixed Mode
+        testable: false
+        reason: Mixed-mode text rendering (lores/hires invoking the text renderer for bottom rows) is not yet implemented.
+
+      - section: "8"
+        title: Page 2
+        testable: false
+
+      - section: "8.1"
+        title: Without 80STORE
+        testable: true
+        tests:
+          - "tests/text80.bats::80-col without 80STORE and PAGE2 on displays page 2 content"
+
+      - section: "8.2"
+        title: With 80STORE
+        testable: true
+        tests:
+          - "tests/text80.bats::aux memory character appears in even screen column"
+          - "tests/text80.bats::main memory character appears in odd screen column"
+          - "tests/text80.bats::80-col with 80STORE displays page 1 regardless of PAGE2 state"
+
+      - section: "9"
+        title: Design Considerations
+        testable: false
+
+      - section: "9.1"
+        title: Reuse of Address Tables
+        testable: false
+
+      - section: "9.2"
+        title: Single Rendering Function
+        testable: false
+
+      - section: "9.3"
+        title: Snapshot Expansion
+        testable: false
+
+      - section: "9.4"
+        title: Framebuffer Compatibility
+        testable: true
+        tests:
+          - "tests/text80.bats::80-col text frame is 560x384"

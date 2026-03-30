@@ -37,12 +37,16 @@ func (c *Computer) Render() {
 
 	font40 := c.Font40
 	font40FlashAlt := c.Font40FlashAlt
+	font80 := c.Font80
+	font80FlashAlt := c.Font80FlashAlt
 	if c.State.Bool(a2state.DisplayAltChar) {
 		font40 = c.Font40Alt
 		font40FlashAlt = c.Font40Alt
+		font80 = c.Font80Alt
+		font80FlashAlt = c.Font80Alt
 	}
 
-	a2display.Render(c.displaySnapshot, font40, font40FlashAlt, flashOn, c.State)
+	a2display.Render(c.displaySnapshot, font40, font40FlashAlt, font80, font80FlashAlt, flashOn, c.State)
 
 	// Handle screen capture logging for debugging
 	if c.State.Bool(a2state.DisplayHires) {
