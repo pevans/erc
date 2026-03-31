@@ -3771,3 +3771,138 @@ specs:
         testable: true
         tests:
           - "tests/keyboard.bats::ctrl-a prefix does not modify keyboard state"
+
+  - spec: spec-21
+    title: Audio
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Hardware Model
+        testable: false
+
+      - section: "2.1"
+        title: The Speaker
+        testable: false
+
+      - section: "2.2"
+        title: No Waveform Generator
+        testable: false
+
+      - section: "3"
+        title: Soft Switch
+        testable: false
+
+      - section: "3.1"
+        title: $C030 -- Speaker Toggle
+        testable: false
+
+      - section: "4"
+        title: Speaker Buffer
+        testable: false
+
+      - section: "4.1"
+        title: Toggle Event
+        testable: false
+
+      - section: "4.2"
+        title: Ring Buffer
+        testable: false
+
+      - section: "4.3"
+        title: Thread Safety
+        testable: false
+
+      - section: "4.4"
+        title: Activity Tracking
+        testable: false
+
+      - section: "5"
+        title: Audio Stream
+        testable: false
+
+      - section: "5.1"
+        title: Output Format
+        testable: true
+        tests:
+          - "tests/headless_audio.bats::record-audio produces audio.pcm"
+          - "tests/headless_audio.bats::audio.pcm size is a multiple of 8 bytes"
+
+      - section: "5.2"
+        title: Stream Interface
+        testable: true
+        tests:
+          - "tests/headless_audio.bats::record-audio produces audio.pcm"
+          - "tests/headless_audio.bats::no record-audio produces no audio.pcm"
+
+      - section: "5.3"
+        title: Cycle-to-Sample Mapping
+        testable: false
+
+      - section: "5.4"
+        title: Sample Generation
+        testable: false
+
+      - section: "5.5"
+        title: Silence
+        testable: false
+
+      - section: "5.6"
+        title: Timeline Synchronization
+        testable: false
+
+      - section: "6"
+        title: Volume Control
+        testable: false
+
+      - section: "6.1"
+        title: Volume Level
+        testable: true
+        tests:
+          - "tests/headless_shortcuts.bats::ctrl-a ] increases volume level"
+          - "tests/headless_shortcuts.bats::ctrl-a [ decreases volume level"
+
+      - section: "6.2"
+        title: Mute
+        testable: true
+        tests:
+          - "tests/headless_shortcuts.bats::ctrl-a v mutes audio"
+          - "tests/headless_shortcuts.bats::ctrl-a v toggles mute off after muting"
+          - "tests/headless_shortcuts.bats::volume increase clears muted"
+
+      - section: "6.3"
+        title: Volume Adjustment
+        testable: true
+        tests:
+          - "tests/headless_shortcuts.bats::ctrl-a ] increases volume level"
+          - "tests/headless_shortcuts.bats::ctrl-a [ decreases volume level"
+          - "tests/headless_shortcuts.bats::volume decrease to zero sets muted"
+          - "tests/headless_shortcuts.bats::volume increase clears muted"
+          - "tests/headless_audio.bats::volume level clamps at maximum of 100"
+          - "tests/headless_audio.bats::volume level clamps at minimum of 0"
+
+      - section: "7"
+        title: Full-Speed Mode
+        testable: false
+
+      - section: "8"
+        title: Interaction with Other Subsystems
+        testable: false
+
+      - section: "8.1"
+        title: CPU
+        testable: false
+
+      - section: "8.2"
+        title: Graphics
+        testable: false
+
+      - section: "8.3"
+        title: Shortcuts
+        testable: true
+        tests:
+          - "tests/headless_shortcuts.bats::ctrl-a v mutes audio"
+          - "tests/headless_shortcuts.bats::ctrl-a ] increases volume level"
+          - "tests/headless_shortcuts.bats::ctrl-a [ decreases volume level"
