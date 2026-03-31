@@ -62,7 +62,7 @@ specs:
         title: State Entry Format
         testable: true
         tests:
-          - "test/headless_state.bats::state entries use old -> new format"
+          - "tests/headless_state.bats::state entries use old -> new format"
 
       - section: "4"
         title: Observer Types
@@ -72,22 +72,22 @@ specs:
         title: Memory Observer
         testable: true
         tests:
-          - "test/headless_state.bats::watch-mem produces state.log with mem entries"
-          - "test/headless_state.bats::combined watch flags produce all tag types"
+          - "tests/headless_state.bats::watch-mem produces state.log with mem entries"
+          - "tests/headless_state.bats::combined watch flags produce all tag types"
 
       - section: "4.2"
         title: Register Observer
         testable: true
         tests:
-          - "test/headless_state.bats::watch-reg produces state.log with reg entries"
-          - "test/headless_state.bats::combined watch flags produce all tag types"
+          - "tests/headless_state.bats::watch-reg produces state.log with reg entries"
+          - "tests/headless_state.bats::combined watch flags produce all tag types"
 
       - section: "4.3"
         title: Computer State Observer
         testable: true
         tests:
-          - "test/headless_state.bats::watch-comp produces state.log with comp entries"
-          - "test/headless_state.bats::combined watch flags produce all tag types"
+          - "tests/headless_state.bats::watch-comp produces state.log with comp entries"
+          - "tests/headless_state.bats::combined watch flags produce all tag types"
 
       - section: "5"
         title: Recording Lifecycle
@@ -156,7 +156,7 @@ specs:
         title: Audio Recorder
         testable: true
         tests:
-          - "test/headless_audio.bats::record-audio produces audio.pcm"
+          - "tests/headless_audio.bats::record-audio produces audio.pcm"
 
       - section: "2.2"
         title: Audio Segment
@@ -184,7 +184,7 @@ specs:
         tests:
           # float32 mono samples are 4 bytes each; a multiple-of-4 size
           # confirms the correct sample format
-          - "test/headless_audio.bats::audio.pcm size is a multiple of 4 bytes"
+          - "tests/headless_audio.bats::audio.pcm size is a multiple of 4 bytes"
 
       - section: "3.3"
         title: Channel Labels
@@ -273,19 +273,19 @@ specs:
         title: Video Recorder
         testable: true
         tests:
-          - "test/headless_video.bats::capture-video produces video.frame"
+          - "tests/headless_video.bats::capture-video produces video.frame"
 
       - section: "2.2"
         title: Frame Snapshot
         testable: true
         tests:
-          - "test/headless_video.bats::video.frame has step header and colors legend"
+          - "tests/headless_video.bats::video.frame has step header and colors legend"
 
       - section: "2.3"
         title: Color Legend
         testable: true
         tests:
-          - "test/headless_video.bats::video.frame has step header and colors legend"
+          - "tests/headless_video.bats::video.frame has step header and colors legend"
 
       - section: "2.4"
         title: Sampling Resolution
@@ -307,8 +307,8 @@ specs:
         title: Capture Timing
         testable: true
         tests:
-          - "test/headless_video.bats::multiple capture steps appear in video.frame"
-          - "test/headless_video.bats::no capture-video produces no video.frame"
+          - "tests/headless_video.bats::multiple capture steps appear in video.frame"
+          - "tests/headless_video.bats::no capture-video produces no video.frame"
 
       - section: "4"
         title: Assertion Format
@@ -366,14 +366,14 @@ specs:
         title: Debugging Failed Tests
         testable: true
         tests:
-          - "test/headless_video.bats::video.frame has step header and colors legend"
+          - "tests/headless_video.bats::video.frame has step header and colors legend"
 
       - section: "7.2"
         title: Frame Capture Without Assertions
         testable: true
         tests:
-          - "test/headless_video.bats::capture-video produces video.frame"
-          - "test/headless_video.bats::multiple capture steps appear in video.frame"
+          - "tests/headless_video.bats::capture-video produces video.frame"
+          - "tests/headless_video.bats::multiple capture steps appear in video.frame"
 
       - section: "8"
         title: Design Considerations
@@ -446,32 +446,32 @@ specs:
         title: Run Function
         testable: true
         tests:
-          - "test/headless_state.bats::watch-mem produces state.log with mem entries"
-          - "test/headless_state.bats::watch-reg produces state.log with reg entries"
-          - "test/headless_state.bats::watch-comp produces state.log with comp entries"
-          - "test/headless_audio.bats::record-audio produces audio.pcm"
-          - "test/headless_video.bats::capture-video produces video.frame"
+          - "tests/headless_state.bats::watch-mem produces state.log with mem entries"
+          - "tests/headless_state.bats::watch-reg produces state.log with reg entries"
+          - "tests/headless_state.bats::watch-comp produces state.log with comp entries"
+          - "tests/headless_audio.bats::record-audio produces audio.pcm"
+          - "tests/headless_video.bats::capture-video produces video.frame"
 
       - section: "4.2"
         title: Per-Step Behavior
         testable: true
         tests:
-          - "test/headless_state.bats::watch-mem produces state.log with mem entries"
-          - "test/headless_state.bats::watch-reg produces state.log with reg entries"
+          - "tests/headless_state.bats::watch-mem produces state.log with mem entries"
+          - "tests/headless_state.bats::watch-reg produces state.log with reg entries"
 
       - section: "4.3"
         title: Render Function
         testable: true
         tests:
-          - "test/headless_video.bats::capture-video produces video.frame"
-          - "test/headless_video.bats::multiple capture steps appear in video.frame"
+          - "tests/headless_video.bats::capture-video produces video.frame"
+          - "tests/headless_video.bats::multiple capture steps appear in video.frame"
 
       - section: "4.4"
         title: Audio
         testable: true
         tests:
-          - "test/headless_audio.bats::record-audio produces audio.pcm"
-          - "test/headless_audio.bats::audio.pcm size is a multiple of 4 bytes"
+          - "tests/headless_audio.bats::record-audio produces audio.pcm"
+          - "tests/headless_audio.bats::audio.pcm size is a multiple of 4 bytes"
 
       - section: "4.5"
         title: Audio and Full-Speed Mode
@@ -497,36 +497,36 @@ specs:
         title: Command
         testable: true
         tests:
-          - "test/headless_state.bats::watch-mem produces state.log with mem entries"
-          - "test/headless_state.bats::watch-reg produces state.log with reg entries"
-          - "test/headless_state.bats::watch-comp produces state.log with comp entries"
-          - "test/headless_state.bats::combined watch flags produce all tag types"
-          - "test/headless_audio.bats::record-audio produces audio.pcm"
-          - "test/headless_video.bats::capture-video produces video.frame"
-          - "test/headless_video.bats::multiple capture steps appear in video.frame"
+          - "tests/headless_state.bats::watch-mem produces state.log with mem entries"
+          - "tests/headless_state.bats::watch-reg produces state.log with reg entries"
+          - "tests/headless_state.bats::watch-comp produces state.log with comp entries"
+          - "tests/headless_state.bats::combined watch flags produce all tag types"
+          - "tests/headless_audio.bats::record-audio produces audio.pcm"
+          - "tests/headless_video.bats::capture-video produces video.frame"
+          - "tests/headless_video.bats::multiple capture steps appear in video.frame"
 
       - section: "6.2"
         title: Execution Flow
         testable: true
         tests:
-          - "test/headless_state.bats::watch-mem produces state.log with mem entries"
-          - "test/headless_state.bats::watch-reg produces state.log with reg entries"
-          - "test/headless_state.bats::watch-comp produces state.log with comp entries"
-          - "test/headless_audio.bats::record-audio produces audio.pcm"
-          - "test/headless_video.bats::capture-video produces video.frame"
+          - "tests/headless_state.bats::watch-mem produces state.log with mem entries"
+          - "tests/headless_state.bats::watch-reg produces state.log with reg entries"
+          - "tests/headless_state.bats::watch-comp produces state.log with comp entries"
+          - "tests/headless_audio.bats::record-audio produces audio.pcm"
+          - "tests/headless_video.bats::capture-video produces video.frame"
 
       - section: "6.3"
         title: Output Files
         testable: true
         tests:
-          - "test/headless_state.bats::watch-mem produces state.log with mem entries"
-          - "test/headless_state.bats::watch-reg produces state.log with reg entries"
-          - "test/headless_state.bats::watch-comp produces state.log with comp entries"
-          - "test/headless_state.bats::no observers produces no state.log"
-          - "test/headless_audio.bats::record-audio produces audio.pcm"
-          - "test/headless_audio.bats::no record-audio produces no audio.pcm"
-          - "test/headless_video.bats::capture-video produces video.frame"
-          - "test/headless_video.bats::no capture-video produces no video.frame"
+          - "tests/headless_state.bats::watch-mem produces state.log with mem entries"
+          - "tests/headless_state.bats::watch-reg produces state.log with reg entries"
+          - "tests/headless_state.bats::watch-comp produces state.log with comp entries"
+          - "tests/headless_state.bats::no observers produces no state.log"
+          - "tests/headless_audio.bats::record-audio produces audio.pcm"
+          - "tests/headless_audio.bats::no record-audio produces no audio.pcm"
+          - "tests/headless_video.bats::capture-video produces video.frame"
+          - "tests/headless_video.bats::no capture-video produces no video.frame"
 
       - section: "7"
         title: Files
@@ -540,11 +540,11 @@ specs:
         title: Verification
         testable: true
         tests:
-          - "test/headless_state.bats::watch-mem produces state.log with mem entries"
-          - "test/headless_state.bats::watch-reg produces state.log with reg entries"
-          - "test/headless_state.bats::watch-comp produces state.log with comp entries"
-          - "test/headless_audio.bats::record-audio produces audio.pcm"
-          - "test/headless_video.bats::capture-video produces video.frame"
+          - "tests/headless_state.bats::watch-mem produces state.log with mem entries"
+          - "tests/headless_state.bats::watch-reg produces state.log with reg entries"
+          - "tests/headless_state.bats::watch-comp produces state.log with comp entries"
+          - "tests/headless_audio.bats::record-audio produces audio.pcm"
+          - "tests/headless_video.bats::capture-video produces video.frame"
 
   - spec: spec-5
     title: Mini Assembler
@@ -565,35 +565,35 @@ specs:
         title: Lines
         testable: true
         tests:
-          - "test/assembler.bats::valid program exits with status 0"
-          - "test/assembler.bats::blank lines are ignored"
+          - "tests/assembler.bats::valid program exits with status 0"
+          - "tests/assembler.bats::blank lines are ignored"
 
       - section: "3.2"
         title: Comments
         testable: true
         tests:
-          - "test/assembler.bats::comments are ignored"
+          - "tests/assembler.bats::comments are ignored"
 
       - section: "3.3"
         title: Labels
         testable: true
         tests:
-          - "test/assembler.bats::label on its own line sets address for next instruction"
-          - "test/assembler.bats::forward branch label resolves to correct relative offset"
-          - "test/assembler.bats::backward branch label resolves to correct negative relative offset"
-          - "test/assembler.bats::JMP to label uses absolute addressing"
-          - "test/assembler.bats::duplicate label exits with non-zero status"
-          - "test/assembler.bats::duplicate label error message mentions duplicate"
+          - "tests/assembler.bats::label on its own line sets address for next instruction"
+          - "tests/assembler.bats::forward branch label resolves to correct relative offset"
+          - "tests/assembler.bats::backward branch label resolves to correct negative relative offset"
+          - "tests/assembler.bats::JMP to label uses absolute addressing"
+          - "tests/assembler.bats::duplicate label exits with non-zero status"
+          - "tests/assembler.bats::duplicate label error message mentions duplicate"
 
       - section: "3.4"
         title: Identifiers as Operands
         testable: true
         tests:
-          - "test/assembler.bats::forward branch label resolves to correct relative offset"
-          - "test/assembler.bats::backward branch label resolves to correct negative relative offset"
-          - "test/assembler.bats::JMP to label uses absolute addressing"
-          - "test/assembler.bats::undefined label reference exits with non-zero status"
-          - "test/assembler.bats::undefined label error message mentions undefined"
+          - "tests/assembler.bats::forward branch label resolves to correct relative offset"
+          - "tests/assembler.bats::backward branch label resolves to correct negative relative offset"
+          - "tests/assembler.bats::JMP to label uses absolute addressing"
+          - "tests/assembler.bats::undefined label reference exits with non-zero status"
+          - "tests/assembler.bats::undefined label error message mentions undefined"
 
       - section: "4"
         title: Instructions
@@ -603,29 +603,29 @@ specs:
         title: Addressing Modes
         testable: true
         tests:
-          - "test/assembler.bats::immediate mode: LDA #$FF"
-          - "test/assembler.bats::zero page mode: LDA $10"
-          - "test/assembler.bats::four-digit hex forces absolute mode: LDA $0010"
-          - "test/assembler.bats::implied mode: NOP"
-          - "test/assembler.bats::implied mode: CLC"
-          - "test/assembler.bats::accumulator mode: ASL A"
-          - "test/assembler.bats::absolute X-indexed mode: LDA $0400,X"
-          - "test/assembler.bats::zero page X-indexed mode: LDA $10,X"
-          - "test/assembler.bats::absolute indirect mode: JMP ($FFFC)"
-          - "test/assembler.bats::X-indexed indirect mode: LDA ($10,X)"
-          - "test/assembler.bats::indirect Y-indexed mode: LDA ($10),Y"
-          - "test/assembler.bats::zero page indirect mode: LDA ($10)"
-          - "test/assembler.bats::forward branch label resolves to correct relative offset"
-          - "test/assembler.bats::backward branch label resolves to correct negative relative offset"
-          - "test/assembler.bats::branch target out of range exits with non-zero status"
-          - "test/assembler.bats::branch target out of range error message mentions range"
+          - "tests/assembler.bats::immediate mode: LDA #$FF"
+          - "tests/assembler.bats::zero page mode: LDA $10"
+          - "tests/assembler.bats::four-digit hex forces absolute mode: LDA $0010"
+          - "tests/assembler.bats::implied mode: NOP"
+          - "tests/assembler.bats::implied mode: CLC"
+          - "tests/assembler.bats::accumulator mode: ASL A"
+          - "tests/assembler.bats::absolute X-indexed mode: LDA $0400,X"
+          - "tests/assembler.bats::zero page X-indexed mode: LDA $10,X"
+          - "tests/assembler.bats::absolute indirect mode: JMP ($FFFC)"
+          - "tests/assembler.bats::X-indexed indirect mode: LDA ($10,X)"
+          - "tests/assembler.bats::indirect Y-indexed mode: LDA ($10),Y"
+          - "tests/assembler.bats::zero page indirect mode: LDA ($10)"
+          - "tests/assembler.bats::forward branch label resolves to correct relative offset"
+          - "tests/assembler.bats::backward branch label resolves to correct negative relative offset"
+          - "tests/assembler.bats::branch target out of range exits with non-zero status"
+          - "tests/assembler.bats::branch target out of range error message mentions range"
 
       - section: "4.2"
         title: Accumulator Disambiguation
         testable: true
         tests:
-          - "test/assembler.bats::accumulator mode: ASL A"
-          - "test/assembler.bats::accumulator mode: ASL with no operand"
+          - "tests/assembler.bats::accumulator mode: ASL A"
+          - "tests/assembler.bats::accumulator mode: ASL with no operand"
 
       - section: "5"
         title: Directives
@@ -635,25 +635,25 @@ specs:
         title: .byte
         testable: true
         tests:
-          - "test/assembler.bats::.byte emits the specified bytes"
+          - "tests/assembler.bats::.byte emits the specified bytes"
 
       - section: "5.2"
         title: .word
         testable: true
         tests:
-          - "test/assembler.bats::.word emits 16-bit values in little-endian order"
+          - "tests/assembler.bats::.word emits 16-bit values in little-endian order"
 
       - section: "5.3"
         title: .org
         testable: true
         tests:
-          - "test/assembler.bats::.org changes the assembly origin"
+          - "tests/assembler.bats::.org changes the assembly origin"
 
       - section: "5.4"
         title: .halt
         testable: true
         tests:
-          - "test/assembler.bats::.halt emits JMP to current address"
+          - "tests/assembler.bats::.halt emits JMP to current address"
 
       - section: "6"
         title: Assembly Process
@@ -665,21 +665,21 @@ specs:
         tests:
           # Forward label reference proves pass 1 records labels before pass 2
           # resolves them
-          - "test/assembler.bats::forward branch label resolves to correct relative offset"
-          - "test/assembler.bats::JMP to label uses absolute addressing"
+          - "tests/assembler.bats::forward branch label resolves to correct relative offset"
+          - "tests/assembler.bats::JMP to label uses absolute addressing"
 
       - section: "6.2"
         title: Error Reporting
         testable: true
         tests:
-          - "test/assembler.bats::unknown mnemonic exits with non-zero status"
-          - "test/assembler.bats::unknown mnemonic error message includes filename and line number"
-          - "test/assembler.bats::duplicate label exits with non-zero status"
-          - "test/assembler.bats::duplicate label error message mentions duplicate"
-          - "test/assembler.bats::undefined label reference exits with non-zero status"
-          - "test/assembler.bats::undefined label error message mentions undefined"
-          - "test/assembler.bats::branch target out of range exits with non-zero status"
-          - "test/assembler.bats::branch target out of range error message mentions range"
+          - "tests/assembler.bats::unknown mnemonic exits with non-zero status"
+          - "tests/assembler.bats::unknown mnemonic error message includes filename and line number"
+          - "tests/assembler.bats::duplicate label exits with non-zero status"
+          - "tests/assembler.bats::duplicate label error message mentions duplicate"
+          - "tests/assembler.bats::undefined label reference exits with non-zero status"
+          - "tests/assembler.bats::undefined label error message mentions undefined"
+          - "tests/assembler.bats::branch target out of range exits with non-zero status"
+          - "tests/assembler.bats::branch target out of range error message mentions range"
 
       - section: "7"
         title: Disk Image Output
@@ -689,9 +689,9 @@ specs:
         title: Layout
         testable: true
         tests:
-          - "test/assembler.bats::output is exactly 143360 bytes"
-          - "test/assembler.bats::small program sets sector count to 1"
-          - "test/assembler.bats::256-byte program sets sector count to 2"
+          - "tests/assembler.bats::output is exactly 143360 bytes"
+          - "tests/assembler.bats::small program sets sector count to 1"
+          - "tests/assembler.bats::256-byte program sets sector count to 2"
 
       - section: "7.2"
         title: Sector Interleaving
@@ -699,9 +699,9 @@ specs:
         tests:
           # Correct byte values at specific dsk offsets proves the interleave
           # is applied correctly
-          - "test/assembler.bats::.halt emits JMP to current address"
-          - "test/assembler.bats::immediate mode: LDA #$FF"
-          - "test/assembler.bats::zero page mode: LDA $10"
+          - "tests/assembler.bats::.halt emits JMP to current address"
+          - "tests/assembler.bats::immediate mode: LDA #$FF"
+          - "tests/assembler.bats::zero page mode: LDA $10"
 
       - section: "7.3"
         title: Size Limit
@@ -711,11 +711,11 @@ specs:
         title: Interface
         testable: true
         tests:
-          - "test/assembler.bats::valid program exits with status 0"
-          - "test/assembler.bats::stdin input via - produces correct output"
-          - "test/assembler.bats::stdout output when -o is omitted"
-          - "test/assembler.bats::unknown mnemonic exits with non-zero status"
-          - "test/assembler.bats::lowercase mnemonics are accepted"
+          - "tests/assembler.bats::valid program exits with status 0"
+          - "tests/assembler.bats::stdin input via - produces correct output"
+          - "tests/assembler.bats::stdout output when -o is omitted"
+          - "tests/assembler.bats::unknown mnemonic exits with non-zero status"
+          - "tests/assembler.bats::lowercase mnemonics are accepted"
 
       - section: "9"
         title: Design Considerations
@@ -784,94 +784,94 @@ specs:
         title: Implied (IMP)
         testable: true
         tests:
-          - "test/mos_cpu.bats::mode: implied -- INX operates on X with no operand"
+          - "tests/mos_cpu.bats::mode: implied -- INX operates on X with no operand"
 
       - section: "4.2"
         title: Accumulator (ACC)
         testable: true
         tests:
-          - "test/mos_cpu.bats::mode: accumulator -- ASL A shifts accumulator not memory"
-          - "test/mos_cpu.bats::ASL accumulator shifts left; old bit 7 goes to C"
+          - "tests/mos_cpu.bats::mode: accumulator -- ASL A shifts accumulator not memory"
+          - "tests/mos_cpu.bats::ASL accumulator shifts left; old bit 7 goes to C"
 
       - section: "4.3"
         title: Immediate (IMM)
         testable: true
         tests:
-          - "test/mos_cpu.bats::mode: immediate -- LDA #$5A -> A == $5A"
-          - "test/mos_cpu.bats::LDA immediate loads value into A"
+          - "tests/mos_cpu.bats::mode: immediate -- LDA #$5A -> A == $5A"
+          - "tests/mos_cpu.bats::LDA immediate loads value into A"
 
       - section: "4.4"
         title: Zero Page (ZPG)
         testable: true
         tests:
-          - "test/mos_cpu.bats::mode: zero-page -- LDA $10 reads from zero page"
-          - "test/mos_cpu.bats::LDA zero-page loads from memory"
+          - "tests/mos_cpu.bats::mode: zero-page -- LDA $10 reads from zero page"
+          - "tests/mos_cpu.bats::LDA zero-page loads from memory"
 
       - section: "4.5"
         title: Zero Page X-indexed (ZPX)
         testable: true
         tests:
-          - "test/mos_cpu.bats::mode: zero-page X -- LDA $10,X with X=2 reads $12"
-          - "test/mos_cpu.bats::LDA zero-page X-indexed loads from zpg+X"
+          - "tests/mos_cpu.bats::mode: zero-page X -- LDA $10,X with X=2 reads $12"
+          - "tests/mos_cpu.bats::LDA zero-page X-indexed loads from zpg+X"
 
       - section: "4.6"
         title: Zero Page Y-indexed (ZPY)
         testable: true
         tests:
-          - "test/mos_cpu.bats::mode: zero-page Y -- STX $10,Y with Y=2 writes to $12"
+          - "tests/mos_cpu.bats::mode: zero-page Y -- STX $10,Y with Y=2 writes to $12"
 
       - section: "4.7"
         title: Zero Page Indirect (ZPI)
         testable: true
         tests:
-          - "test/mos_cpu.bats::mode: zero-page indirect -- LDA ($10) dereferences ZP pointer"
+          - "tests/mos_cpu.bats::mode: zero-page indirect -- LDA ($10) dereferences ZP pointer"
 
       - section: "4.8"
         title: Absolute (ABS)
         testable: true
         tests:
-          - "test/mos_cpu.bats::mode: absolute -- LDA $0300 loads from full address"
-          - "test/mos_cpu.bats::LDA absolute loads from full 16-bit address"
+          - "tests/mos_cpu.bats::mode: absolute -- LDA $0300 loads from full address"
+          - "tests/mos_cpu.bats::LDA absolute loads from full 16-bit address"
 
       - section: "4.9"
         title: Absolute X-indexed (ABX)
         testable: true
         tests:
-          - "test/mos_cpu.bats::mode: absolute X -- LDA $0300,X with X=2 reads $0302"
-          - "test/mos_cpu.bats::LDA absolute X-indexed loads from abs+X"
+          - "tests/mos_cpu.bats::mode: absolute X -- LDA $0300,X with X=2 reads $0302"
+          - "tests/mos_cpu.bats::LDA absolute X-indexed loads from abs+X"
 
       - section: "4.10"
         title: Absolute Y-indexed (ABY)
         testable: true
         tests:
-          - "test/mos_cpu.bats::mode: absolute Y -- LDA $0300,Y with Y=2 reads $0302"
-          - "test/mos_cpu.bats::LDA absolute Y-indexed loads from abs+Y"
+          - "tests/mos_cpu.bats::mode: absolute Y -- LDA $0300,Y with Y=2 reads $0302"
+          - "tests/mos_cpu.bats::LDA absolute Y-indexed loads from abs+Y"
 
       - section: "4.11"
         title: Indirect (IND)
         testable: true
         tests:
-          - "test/mos_cpu.bats::mode: indirect -- JMP ($0200) dereferences pointer"
-          - "test/mos_cpu.bats::JMP indirect dereferences pointer"
+          - "tests/mos_cpu.bats::mode: indirect -- JMP ($0200) dereferences pointer"
+          - "tests/mos_cpu.bats::JMP indirect dereferences pointer"
 
       - section: "4.12"
         title: X-indexed Indirect (IDX)
         testable: true
         tests:
-          - "test/mos_cpu.bats::mode: X-indexed indirect -- LDA ($10,X) with X=2"
+          - "tests/mos_cpu.bats::mode: X-indexed indirect -- LDA ($10,X) with X=2"
 
       - section: "4.13"
         title: Indirect Y-indexed (IDY)
         testable: true
         tests:
-          - "test/mos_cpu.bats::mode: indirect Y-indexed -- LDA ($10),Y with Y=2"
+          - "tests/mos_cpu.bats::mode: indirect Y-indexed -- LDA ($10),Y with Y=2"
 
       - section: "4.14"
         title: Relative (REL)
         testable: true
         tests:
-          - "test/mos_cpu.bats::mode: relative -- BRA skips a trap value"
-          - "test/mos_cpu.bats::backward branch: loop counts down to zero"
+          - "tests/mos_cpu.bats::mode: relative -- BRA skips a trap value"
+          - "tests/mos_cpu.bats::backward branch: loop counts down to zero"
 
       - section: "4.15"
         title: Two-byte Placeholder (BY2)
@@ -889,142 +889,142 @@ specs:
         title: Load and Store
         testable: true
         tests:
-          - "test/mos_cpu.bats::LDA immediate loads value into A"
-          - "test/mos_cpu.bats::LDA zero-page loads from memory"
-          - "test/mos_cpu.bats::LDA absolute loads from full 16-bit address"
-          - "test/mos_cpu.bats::LDA zero-page X-indexed loads from zpg+X"
-          - "test/mos_cpu.bats::LDA absolute X-indexed loads from abs+X"
-          - "test/mos_cpu.bats::LDA absolute Y-indexed loads from abs+Y"
-          - "test/mos_cpu.bats::LDX immediate loads value into X"
-          - "test/mos_cpu.bats::LDX zero-page loads from memory"
-          - "test/mos_cpu.bats::LDX absolute loads from full 16-bit address"
-          - "test/mos_cpu.bats::LDY immediate loads value into Y"
-          - "test/mos_cpu.bats::LDY zero-page loads from memory"
-          - "test/mos_cpu.bats::LDY absolute loads from full 16-bit address"
-          - "test/mos_cpu.bats::STX stores X to zero-page"
-          - "test/mos_cpu.bats::STY stores Y to zero-page"
-          - "test/mos_cpu.bats::STZ zero-page stores zero"
-          - "test/mos_cpu.bats::STZ absolute stores zero"
-          - "test/mos_cpu.bats::LDA #$80 sets N flag; LDA #$40 clears N flag"
-          - "test/mos_cpu.bats::LDA #$00 sets Z flag; LDA #$01 clears Z flag"
+          - "tests/mos_cpu.bats::LDA immediate loads value into A"
+          - "tests/mos_cpu.bats::LDA zero-page loads from memory"
+          - "tests/mos_cpu.bats::LDA absolute loads from full 16-bit address"
+          - "tests/mos_cpu.bats::LDA zero-page X-indexed loads from zpg+X"
+          - "tests/mos_cpu.bats::LDA absolute X-indexed loads from abs+X"
+          - "tests/mos_cpu.bats::LDA absolute Y-indexed loads from abs+Y"
+          - "tests/mos_cpu.bats::LDX immediate loads value into X"
+          - "tests/mos_cpu.bats::LDX zero-page loads from memory"
+          - "tests/mos_cpu.bats::LDX absolute loads from full 16-bit address"
+          - "tests/mos_cpu.bats::LDY immediate loads value into Y"
+          - "tests/mos_cpu.bats::LDY zero-page loads from memory"
+          - "tests/mos_cpu.bats::LDY absolute loads from full 16-bit address"
+          - "tests/mos_cpu.bats::STX stores X to zero-page"
+          - "tests/mos_cpu.bats::STY stores Y to zero-page"
+          - "tests/mos_cpu.bats::STZ zero-page stores zero"
+          - "tests/mos_cpu.bats::STZ absolute stores zero"
+          - "tests/mos_cpu.bats::LDA #$80 sets N flag; LDA #$40 clears N flag"
+          - "tests/mos_cpu.bats::LDA #$00 sets Z flag; LDA #$01 clears Z flag"
 
       - section: "5.2"
         title: Register Transfers
         testable: true
         tests:
-          - "test/mos_cpu.bats::TAX copies A to X and sets N/Z flags"
-          - "test/mos_cpu.bats::TXA copies X to A and sets N/Z flags"
-          - "test/mos_cpu.bats::TAY copies A to Y"
-          - "test/mos_cpu.bats::TYA copies Y to A"
-          - "test/mos_cpu.bats::TSX copies S to X and sets N/Z flags"
-          - "test/mos_cpu.bats::TXS copies X to S without affecting flags"
+          - "tests/mos_cpu.bats::TAX copies A to X and sets N/Z flags"
+          - "tests/mos_cpu.bats::TXA copies X to A and sets N/Z flags"
+          - "tests/mos_cpu.bats::TAY copies A to Y"
+          - "tests/mos_cpu.bats::TYA copies Y to A"
+          - "tests/mos_cpu.bats::TSX copies S to X and sets N/Z flags"
+          - "tests/mos_cpu.bats::TXS copies X to S without affecting flags"
 
       - section: "5.3"
         title: Stack Operations
         testable: true
         tests:
-          - "test/mos_cpu.bats::PHA/PLA round-trip preserves value"
-          - "test/mos_cpu.bats::PHX/PLX round-trip preserves value"
-          - "test/mos_cpu.bats::PHY/PLY round-trip preserves value"
-          - "test/mos_cpu.bats::PHP/PLP round-trip preserves P"
-          - "test/mos_cpu.bats::multiple pushes stack in LIFO order"
-          - "test/mos_cpu.bats::S decrements on push and increments on pull"
+          - "tests/mos_cpu.bats::PHA/PLA round-trip preserves value"
+          - "tests/mos_cpu.bats::PHX/PLX round-trip preserves value"
+          - "tests/mos_cpu.bats::PHY/PLY round-trip preserves value"
+          - "tests/mos_cpu.bats::PHP/PLP round-trip preserves P"
+          - "tests/mos_cpu.bats::multiple pushes stack in LIFO order"
+          - "tests/mos_cpu.bats::S decrements on push and increments on pull"
 
       - section: "5.4"
         title: Arithmetic
         testable: true
         tests:
-          - "test/mos_cpu.bats::ADC basic addition without carry"
-          - "test/mos_cpu.bats::ADC with carry-in adds 1 extra"
-          - "test/mos_cpu.bats::ADC carry-out sets C flag"
-          - "test/mos_cpu.bats::ADC overflow sets V flag ($7F + $01)"
-          - "test/mos_cpu.bats::ADC result $00 sets Z flag"
-          - "test/mos_cpu.bats::ADC result with bit 7 set sets N flag"
-          - "test/mos_cpu.bats::SBC basic subtraction"
-          - "test/mos_cpu.bats::SBC borrow clears C flag"
-          - "test/mos_cpu.bats::SBC overflow $80 - $01 sets V flag"
-          - "test/mos_cpu.bats::INX increments X by 1"
-          - "test/mos_cpu.bats::INX wraps $FF to $00 and sets Z"
-          - "test/mos_cpu.bats::INY increments Y by 1"
-          - "test/mos_cpu.bats::DEX decrements X by 1"
-          - "test/mos_cpu.bats::DEX wraps $00 to $FF and sets N"
-          - "test/mos_cpu.bats::DEY decrements Y by 1"
-          - "test/mos_cpu.bats::INC zero-page increments memory and sets Z on $FF->$00"
-          - "test/mos_cpu.bats::DEC zero-page decrements memory"
+          - "tests/mos_cpu.bats::ADC basic addition without carry"
+          - "tests/mos_cpu.bats::ADC with carry-in adds 1 extra"
+          - "tests/mos_cpu.bats::ADC carry-out sets C flag"
+          - "tests/mos_cpu.bats::ADC overflow sets V flag ($7F + $01)"
+          - "tests/mos_cpu.bats::ADC result $00 sets Z flag"
+          - "tests/mos_cpu.bats::ADC result with bit 7 set sets N flag"
+          - "tests/mos_cpu.bats::SBC basic subtraction"
+          - "tests/mos_cpu.bats::SBC borrow clears C flag"
+          - "tests/mos_cpu.bats::SBC overflow $80 - $01 sets V flag"
+          - "tests/mos_cpu.bats::INX increments X by 1"
+          - "tests/mos_cpu.bats::INX wraps $FF to $00 and sets Z"
+          - "tests/mos_cpu.bats::INY increments Y by 1"
+          - "tests/mos_cpu.bats::DEX decrements X by 1"
+          - "tests/mos_cpu.bats::DEX wraps $00 to $FF and sets N"
+          - "tests/mos_cpu.bats::DEY decrements Y by 1"
+          - "tests/mos_cpu.bats::INC zero-page increments memory and sets Z on $FF->$00"
+          - "tests/mos_cpu.bats::DEC zero-page decrements memory"
 
       - section: "5.5"
         title: Compare
         testable: true
         tests:
-          - "test/mos_cpu.bats::CMP equal: Z=1 C=1 N=0; register unchanged"
-          - "test/mos_cpu.bats::CMP greater: Z=0 C=1 N=0"
-          - "test/mos_cpu.bats::CMP less: Z=0 C=0 N=1"
-          - "test/mos_cpu.bats::CPX equal sets Z and C flags"
-          - "test/mos_cpu.bats::CPX greater: Z=0 C=1 N=0"
-          - "test/mos_cpu.bats::CPX less: Z=0 C=0 N=1"
-          - "test/mos_cpu.bats::CPY equal sets Z and C flags"
-          - "test/mos_cpu.bats::CPY greater: Z=0 C=1 N=0"
-          - "test/mos_cpu.bats::CPY less: Z=0 C=0 N=1"
-          - "test/mos_cpu.bats::CMP does not modify the compared register"
+          - "tests/mos_cpu.bats::CMP equal: Z=1 C=1 N=0; register unchanged"
+          - "tests/mos_cpu.bats::CMP greater: Z=0 C=1 N=0"
+          - "tests/mos_cpu.bats::CMP less: Z=0 C=0 N=1"
+          - "tests/mos_cpu.bats::CPX equal sets Z and C flags"
+          - "tests/mos_cpu.bats::CPX greater: Z=0 C=1 N=0"
+          - "tests/mos_cpu.bats::CPX less: Z=0 C=0 N=1"
+          - "tests/mos_cpu.bats::CPY equal sets Z and C flags"
+          - "tests/mos_cpu.bats::CPY greater: Z=0 C=1 N=0"
+          - "tests/mos_cpu.bats::CPY less: Z=0 C=0 N=1"
+          - "tests/mos_cpu.bats::CMP does not modify the compared register"
 
       - section: "5.6"
         title: Bitwise and Shift
         testable: true
         tests:
-          - "test/mos_cpu.bats::AND masks bits correctly"
-          - "test/mos_cpu.bats::AND result $00 sets Z flag"
-          - "test/mos_cpu.bats::ORA sets bits correctly"
-          - "test/mos_cpu.bats::ORA result with bit 7 set sets N flag"
-          - "test/mos_cpu.bats::EOR flips bits correctly"
-          - "test/mos_cpu.bats::EOR self-XOR produces $00 and sets Z flag"
-          - "test/mos_cpu.bats::ASL accumulator shifts left; old bit 7 goes to C"
-          - "test/mos_cpu.bats::LSR accumulator shifts right; old bit 0 goes to C"
-          - "test/mos_cpu.bats::ROL accumulator rotates left through C"
-          - "test/mos_cpu.bats::ROR accumulator rotates right through C"
-          - "test/mos_cpu.bats::ASL zero-page shifts memory byte left"
-          - "test/mos_cpu.bats::LSR zero-page shifts memory byte right"
-          - "test/mos_cpu.bats::ASL twice equals multiply by 4"
-          - "test/mos_cpu.bats::ROL/ROR round-trip restores original value"
-          - "test/mos_cpu.bats::ROL/ROR round-trip on zero-page memory restores original value"
-          - "test/mos_cpu.bats::BIT immediate: Z set when A AND imm == 0"
-          - "test/mos_cpu.bats::BIT zero-page: N/V copied from bits 7/6 of memory"
-          - "test/mos_cpu.bats::BIT zero-page: Z set when A AND M == 0"
-          - "test/mos_cpu.bats::BIT absolute: N/V copied from bits 7/6 of memory"
-          - "test/mos_cpu.bats::TSB sets bits in memory that are set in A"
-          - "test/mos_cpu.bats::TRB clears bits in memory that are set in A"
+          - "tests/mos_cpu.bats::AND masks bits correctly"
+          - "tests/mos_cpu.bats::AND result $00 sets Z flag"
+          - "tests/mos_cpu.bats::ORA sets bits correctly"
+          - "tests/mos_cpu.bats::ORA result with bit 7 set sets N flag"
+          - "tests/mos_cpu.bats::EOR flips bits correctly"
+          - "tests/mos_cpu.bats::EOR self-XOR produces $00 and sets Z flag"
+          - "tests/mos_cpu.bats::ASL accumulator shifts left; old bit 7 goes to C"
+          - "tests/mos_cpu.bats::LSR accumulator shifts right; old bit 0 goes to C"
+          - "tests/mos_cpu.bats::ROL accumulator rotates left through C"
+          - "tests/mos_cpu.bats::ROR accumulator rotates right through C"
+          - "tests/mos_cpu.bats::ASL zero-page shifts memory byte left"
+          - "tests/mos_cpu.bats::LSR zero-page shifts memory byte right"
+          - "tests/mos_cpu.bats::ASL twice equals multiply by 4"
+          - "tests/mos_cpu.bats::ROL/ROR round-trip restores original value"
+          - "tests/mos_cpu.bats::ROL/ROR round-trip on zero-page memory restores original value"
+          - "tests/mos_cpu.bats::BIT immediate: Z set when A AND imm == 0"
+          - "tests/mos_cpu.bats::BIT zero-page: N/V copied from bits 7/6 of memory"
+          - "tests/mos_cpu.bats::BIT zero-page: Z set when A AND M == 0"
+          - "tests/mos_cpu.bats::BIT absolute: N/V copied from bits 7/6 of memory"
+          - "tests/mos_cpu.bats::TSB sets bits in memory that are set in A"
+          - "tests/mos_cpu.bats::TRB clears bits in memory that are set in A"
 
       - section: "5.7"
         title: Branch
         testable: true
         tests:
-          - "test/mos_cpu.bats::BEQ taken when Z=1: skips alternate path"
-          - "test/mos_cpu.bats::BEQ not-taken when Z=0: falls through"
-          - "test/mos_cpu.bats::BNE taken when Z=0: skips alternate path"
-          - "test/mos_cpu.bats::BNE not-taken when Z=1: falls through"
-          - "test/mos_cpu.bats::BCC taken when C=0"
-          - "test/mos_cpu.bats::BCC not-taken when C=1"
-          - "test/mos_cpu.bats::BCS taken when C=1"
-          - "test/mos_cpu.bats::BCS not-taken when C=0"
-          - "test/mos_cpu.bats::BMI taken when N=1"
-          - "test/mos_cpu.bats::BMI not-taken when N=0"
-          - "test/mos_cpu.bats::BPL taken when N=0"
-          - "test/mos_cpu.bats::BPL not-taken when N=1"
-          - "test/mos_cpu.bats::BVC taken when V=0"
-          - "test/mos_cpu.bats::BVC not-taken when V=1"
-          - "test/mos_cpu.bats::BVS taken when V=1"
-          - "test/mos_cpu.bats::BVS not-taken when V=0"
-          - "test/mos_cpu.bats::BRA always branches unconditionally"
-          - "test/mos_cpu.bats::backward branch: loop counts down to zero"
+          - "tests/mos_cpu.bats::BEQ taken when Z=1: skips alternate path"
+          - "tests/mos_cpu.bats::BEQ not-taken when Z=0: falls through"
+          - "tests/mos_cpu.bats::BNE taken when Z=0: skips alternate path"
+          - "tests/mos_cpu.bats::BNE not-taken when Z=1: falls through"
+          - "tests/mos_cpu.bats::BCC taken when C=0"
+          - "tests/mos_cpu.bats::BCC not-taken when C=1"
+          - "tests/mos_cpu.bats::BCS taken when C=1"
+          - "tests/mos_cpu.bats::BCS not-taken when C=0"
+          - "tests/mos_cpu.bats::BMI taken when N=1"
+          - "tests/mos_cpu.bats::BMI not-taken when N=0"
+          - "tests/mos_cpu.bats::BPL taken when N=0"
+          - "tests/mos_cpu.bats::BPL not-taken when N=1"
+          - "tests/mos_cpu.bats::BVC taken when V=0"
+          - "tests/mos_cpu.bats::BVC not-taken when V=1"
+          - "tests/mos_cpu.bats::BVS taken when V=1"
+          - "tests/mos_cpu.bats::BVS not-taken when V=0"
+          - "tests/mos_cpu.bats::BRA always branches unconditionally"
+          - "tests/mos_cpu.bats::backward branch: loop counts down to zero"
 
       - section: "5.8"
         title: Jump and Call
         testable: true
         tests:
-          - "test/mos_cpu.bats::JMP absolute moves PC to target"
-          - "test/mos_cpu.bats::JMP indirect dereferences pointer"
-          - "test/mos_cpu.bats::JSR jumps to subroutine; RTS returns"
-          - "test/mos_cpu.bats::nested JSR/RTS unwinds stack correctly"
-          - "test/mos_cpu.bats::S decrements by 2 on JSR and increments by 2 on RTS"
+          - "tests/mos_cpu.bats::JMP absolute moves PC to target"
+          - "tests/mos_cpu.bats::JMP indirect dereferences pointer"
+          - "tests/mos_cpu.bats::JSR jumps to subroutine; RTS returns"
+          - "tests/mos_cpu.bats::nested JSR/RTS unwinds stack correctly"
+          - "tests/mos_cpu.bats::S decrements by 2 on JSR and increments by 2 on RTS"
 
       - section: "5.9"
         title: Interrupt and Break
@@ -1033,23 +1033,23 @@ specs:
           # BRK is not directly testable in this harness: the Apple II ROM
           # owns the interrupt vector at $FFFE/$FFFF and its BRK handler
           # cannot be overridden from assembly in the disk image.
-          - "test/mos_cpu.bats::RTI restores PC from stack: jumps past trap to success code"
-          - "test/mos_cpu.bats::RTI restores P flags from stack"
+          - "tests/mos_cpu.bats::RTI restores PC from stack: jumps past trap to success code"
+          - "tests/mos_cpu.bats::RTI restores P flags from stack"
 
       - section: "5.10"
         title: Status Flag Operations
         testable: true
         tests:
-          - "test/mos_cpu.bats::CLC clears C; SEC sets C"
-          - "test/mos_cpu.bats::CLV clears V after overflow sets it"
-          - "test/mos_cpu.bats::SEI sets I flag; CLI clears I flag"
-          - "test/mos_cpu.bats::SED sets D flag; CLD clears D flag"
+          - "tests/mos_cpu.bats::CLC clears C; SEC sets C"
+          - "tests/mos_cpu.bats::CLV clears V after overflow sets it"
+          - "tests/mos_cpu.bats::SEI sets I flag; CLI clears I flag"
+          - "tests/mos_cpu.bats::SED sets D flag; CLD clears D flag"
 
       - section: "5.11"
         title: No Operation
         testable: true
         tests:
-          - "test/mos_cpu.bats::NOP does not affect registers or memory"
+          - "tests/mos_cpu.bats::NOP does not affect registers or memory"
 
       - section: "6"
         title: Execution Model
@@ -1065,27 +1065,27 @@ specs:
         tests:
           # Every PHP/PLA/STA $02 capture implicitly verifies that Unused
           # and Break are set, since assert_flag checks against the captured P
-          - "test/mos_cpu.bats::CLC clears C; SEC sets C"
-          - "test/mos_cpu.bats::SEI sets I flag; CLI clears I flag"
+          - "tests/mos_cpu.bats::CLC clears C; SEC sets C"
+          - "tests/mos_cpu.bats::SEI sets I flag; CLI clears I flag"
 
       - section: "7"
         title: Stack
         testable: true
         tests:
-          - "test/mos_cpu.bats::PHA/PLA round-trip preserves value"
-          - "test/mos_cpu.bats::multiple pushes stack in LIFO order"
-          - "test/mos_cpu.bats::S decrements on push and increments on pull"
-          - "test/mos_cpu.bats::S decrements by 2 on JSR and increments by 2 on RTS"
+          - "tests/mos_cpu.bats::PHA/PLA round-trip preserves value"
+          - "tests/mos_cpu.bats::multiple pushes stack in LIFO order"
+          - "tests/mos_cpu.bats::S decrements on push and increments on pull"
+          - "tests/mos_cpu.bats::S decrements by 2 on JSR and increments by 2 on RTS"
 
       - section: "8"
         title: Decimal (BCD) Mode
         testable: true
         tests:
-          - "test/mos_cpu.bats::SED enables decimal mode; CLD restores binary mode"
-          - "test/mos_cpu.bats::BCD add $99 + $01 = $00 with carry"
-          - "test/mos_cpu.bats::BCD add crossing nibble boundary: $28 + $14 = $42"
-          - "test/mos_cpu.bats::BCD subtract $20 - $01 = $19"
-          - "test/mos_cpu.bats::BCD subtract with borrow: $00 - $01 = $99 C=0"
+          - "tests/mos_cpu.bats::SED enables decimal mode; CLD restores binary mode"
+          - "tests/mos_cpu.bats::BCD add $99 + $01 = $00 with carry"
+          - "tests/mos_cpu.bats::BCD add crossing nibble boundary: $28 + $14 = $42"
+          - "tests/mos_cpu.bats::BCD subtract $20 - $01 = $19"
+          - "tests/mos_cpu.bats::BCD subtract with borrow: $00 - $01 = $99 C=0"
 
       - section: "9"
         title: Cycle Counting
@@ -1134,35 +1134,35 @@ specs:
         title: Flag Syntax
         testable: true
         tests:
-          - "test/headless_shortcuts.bats::invalid step number fails"
-          - "test/headless_shortcuts.bats::empty keyspec fails"
-          - "test/headless_shortcuts.bats::duplicate step numbers fail"
+          - "tests/headless_shortcuts.bats::invalid step number fails"
+          - "tests/headless_shortcuts.bats::empty keyspec fails"
+          - "tests/headless_shortcuts.bats::duplicate step numbers fail"
 
       - section: "3.2"
         title: Key Spec Format
         testable: true
         tests:
-          - "test/headless_shortcuts.bats::ctrl-a esc pauses the computer"
-          - "test/headless_shortcuts.bats::double ctrl-a sends literal ctrl-a to machine"
-          - "test/headless_shortcuts.bats::ctrl-a + increases speed"
+          - "tests/headless_shortcuts.bats::ctrl-a esc pauses the computer"
+          - "tests/headless_shortcuts.bats::double ctrl-a sends literal ctrl-a to machine"
+          - "tests/headless_shortcuts.bats::ctrl-a + increases speed"
 
       - section: "3.3"
         title: Injection Point
         testable: true
         tests:
-          - "test/headless_shortcuts.bats::ctrl-a esc pauses the computer"
-          - "test/headless_shortcuts.bats::ctrl-a + increases speed"
+          - "tests/headless_shortcuts.bats::ctrl-a esc pauses the computer"
+          - "tests/headless_shortcuts.bats::ctrl-a + increases speed"
 
       - section: "4"
         title: New Observable State
         testable: true
         tests:
-          - "test/headless_shortcuts.bats::ctrl-a + increases speed"
-          - "test/headless_shortcuts.bats::ctrl-a v mutes audio"
-          - "test/headless_shortcuts.bats::ctrl-a ] increases volume level"
-          - "test/headless_shortcuts.bats::ctrl-a w toggles write protect"
-          - "test/headless_shortcuts.bats::ctrl-a 3 selects state slot 3"
-          - "test/headless_shortcuts.bats::ctrl-a n loads next disk"
+          - "tests/headless_shortcuts.bats::ctrl-a + increases speed"
+          - "tests/headless_shortcuts.bats::ctrl-a v mutes audio"
+          - "tests/headless_shortcuts.bats::ctrl-a ] increases volume level"
+          - "tests/headless_shortcuts.bats::ctrl-a w toggles write protect"
+          - "tests/headless_shortcuts.bats::ctrl-a 3 selects state slot 3"
+          - "tests/headless_shortcuts.bats::ctrl-a n loads next disk"
 
       - section: "5"
         title: Testable Shortcuts
@@ -1172,81 +1172,81 @@ specs:
         title: Pause and Resume
         testable: true
         tests:
-          - "test/headless_shortcuts.bats::ctrl-a esc pauses the computer"
-          - "test/headless_shortcuts.bats::esc while paused resumes"
-          - "test/headless_shortcuts.bats::non-esc key while paused stays paused"
+          - "tests/headless_shortcuts.bats::ctrl-a esc pauses the computer"
+          - "tests/headless_shortcuts.bats::esc while paused resumes"
+          - "tests/headless_shortcuts.bats::non-esc key while paused stays paused"
 
       - section: "5.2"
         title: Speed Up and Speed Down
         testable: true
         tests:
-          - "test/headless_shortcuts.bats::ctrl-a + increases speed"
-          - "test/headless_shortcuts.bats::ctrl-a = increases speed"
-          - "test/headless_shortcuts.bats::ctrl-a - at minimum speed stays at 1"
-          - "test/headless_shortcuts.bats::ctrl-a _ decreases speed"
-          - "test/headless_shortcuts.bats::speed clamps at maximum of 5"
+          - "tests/headless_shortcuts.bats::ctrl-a + increases speed"
+          - "tests/headless_shortcuts.bats::ctrl-a = increases speed"
+          - "tests/headless_shortcuts.bats::ctrl-a - at minimum speed stays at 1"
+          - "tests/headless_shortcuts.bats::ctrl-a _ decreases speed"
+          - "tests/headless_shortcuts.bats::speed clamps at maximum of 5"
 
       - section: "5.3"
         title: Volume
         testable: true
         tests:
-          - "test/headless_shortcuts.bats::ctrl-a v mutes audio"
-          - "test/headless_shortcuts.bats::ctrl-a v toggles mute off after muting"
-          - "test/headless_shortcuts.bats::ctrl-a ] increases volume level"
-          - "test/headless_shortcuts.bats::ctrl-a [ decreases volume level"
-          - "test/headless_shortcuts.bats::volume decrease to zero sets muted"
-          - "test/headless_shortcuts.bats::volume increase clears muted"
+          - "tests/headless_shortcuts.bats::ctrl-a v mutes audio"
+          - "tests/headless_shortcuts.bats::ctrl-a v toggles mute off after muting"
+          - "tests/headless_shortcuts.bats::ctrl-a ] increases volume level"
+          - "tests/headless_shortcuts.bats::ctrl-a [ decreases volume level"
+          - "tests/headless_shortcuts.bats::volume decrease to zero sets muted"
+          - "tests/headless_shortcuts.bats::volume increase clears muted"
 
       - section: "5.4"
         title: Write Protect Toggle
         testable: true
         tests:
-          - "test/headless_shortcuts.bats::ctrl-a w toggles write protect"
+          - "tests/headless_shortcuts.bats::ctrl-a w toggles write protect"
 
       - section: "5.5"
         title: Debugger
         testable: true
         tests:
-          - "test/headless_shortcuts.bats::ctrl-a b enables debugger"
+          - "tests/headless_shortcuts.bats::ctrl-a b enables debugger"
 
       - section: "5.6"
         title: Load Next and Load Previous
         testable: true
         tests:
-          - "test/headless_shortcuts.bats::ctrl-a n loads next disk"
-          - "test/headless_shortcuts.bats::ctrl-a p loads previous disk"
+          - "tests/headless_shortcuts.bats::ctrl-a n loads next disk"
+          - "tests/headless_shortcuts.bats::ctrl-a p loads previous disk"
 
       - section: "5.7"
         title: Save and Load State
         testable: true
         tests:
-          - "test/headless_shortcuts.bats::ctrl-a s saves state"
-          - "test/headless_shortcuts.bats::ctrl-a l loads state without crashing when no state file exists"
-          - "test/headless_shortcuts.bats::save and load state round-trip preserves register"
+          - "tests/headless_shortcuts.bats::ctrl-a s saves state"
+          - "tests/headless_shortcuts.bats::ctrl-a l loads state without crashing when no state file exists"
+          - "tests/headless_shortcuts.bats::save and load state round-trip preserves register"
 
       - section: "5.8"
         title: State Slot Selection
         testable: true
         tests:
-          - "test/headless_shortcuts.bats::ctrl-a 3 selects state slot 3"
+          - "tests/headless_shortcuts.bats::ctrl-a 3 selects state slot 3"
 
       - section: "5.9"
         title: Quit
         testable: true
         tests:
-          - "test/headless_shortcuts.bats::ctrl-a q exits cleanly"
+          - "tests/headless_shortcuts.bats::ctrl-a q exits cleanly"
 
       - section: "5.10"
         title: Prefix Pass-Through (Double Ctrl-A)
         testable: true
         tests:
-          - "test/headless_shortcuts.bats::double ctrl-a sends literal ctrl-a to machine"
+          - "tests/headless_shortcuts.bats::double ctrl-a sends literal ctrl-a to machine"
 
       - section: "5.11"
         title: Unrecognized Key After Prefix
         testable: true
         tests:
-          - "test/headless_shortcuts.bats::unrecognized key after prefix produces no state change"
+          - "tests/headless_shortcuts.bats::unrecognized key after prefix produces no state change"
 
       - section: "6"
         title: Bats Test Structure
@@ -1308,23 +1308,23 @@ specs:
         title: "Parsing --keys"
         testable: true
         tests:
-          - "test/headless_shortcuts.bats::invalid step number fails"
-          - "test/headless_shortcuts.bats::empty keyspec fails"
-          - "test/headless_shortcuts.bats::duplicate step numbers fail"
+          - "tests/headless_shortcuts.bats::invalid step number fails"
+          - "tests/headless_shortcuts.bats::empty keyspec fails"
+          - "tests/headless_shortcuts.bats::duplicate step numbers fail"
 
       - section: "7.2"
         title: Event Dispatch in the Headless Loop
         testable: true
         tests:
-          - "test/headless_shortcuts.bats::ctrl-a esc pauses the computer"
-          - "test/headless_shortcuts.bats::ctrl-a + increases speed"
-          - "test/headless_shortcuts.bats::unrecognized key after prefix produces no state change"
+          - "tests/headless_shortcuts.bats::ctrl-a esc pauses the computer"
+          - "tests/headless_shortcuts.bats::ctrl-a + increases speed"
+          - "tests/headless_shortcuts.bats::unrecognized key after prefix produces no state change"
 
       - section: "7.3"
         title: Quit Handling
         testable: true
         tests:
-          - "test/headless_shortcuts.bats::ctrl-a q exits cleanly"
+          - "tests/headless_shortcuts.bats::ctrl-a q exits cleanly"
 
       - section: "8"
         title: Files
@@ -1338,13 +1338,13 @@ specs:
         title: Verification
         testable: true
         tests:
-          - "test/headless_shortcuts.bats::ctrl-a esc pauses the computer"
-          - "test/headless_shortcuts.bats::ctrl-a + increases speed"
-          - "test/headless_shortcuts.bats::ctrl-a v mutes audio"
-          - "test/headless_shortcuts.bats::ctrl-a w toggles write protect"
-          - "test/headless_shortcuts.bats::ctrl-a b enables debugger"
-          - "test/headless_shortcuts.bats::ctrl-a q exits cleanly"
-          - "test/headless_shortcuts.bats::double ctrl-a sends literal ctrl-a to machine"
+          - "tests/headless_shortcuts.bats::ctrl-a esc pauses the computer"
+          - "tests/headless_shortcuts.bats::ctrl-a + increases speed"
+          - "tests/headless_shortcuts.bats::ctrl-a v mutes audio"
+          - "tests/headless_shortcuts.bats::ctrl-a w toggles write protect"
+          - "tests/headless_shortcuts.bats::ctrl-a b enables debugger"
+          - "tests/headless_shortcuts.bats::ctrl-a q exits cleanly"
+          - "tests/headless_shortcuts.bats::double ctrl-a sends literal ctrl-a to machine"
 
   - spec: spec-8
     title: Debugger Testing
@@ -1401,109 +1401,109 @@ specs:
         title: help
         testable: true
         tests:
-          - "test/debugger.bats::help lists available commands"
+          - "tests/debugger.bats::help lists available commands"
 
       - section: "5.2"
         title: status
         testable: true
         tests:
-          - "test/debugger.bats::status shows registers and instructions"
+          - "tests/debugger.bats::status shows registers and instructions"
 
       - section: "5.3"
         title: get
         testable: true
         tests:
-          - "test/debugger.bats::get prints value at address"
+          - "tests/debugger.bats::get prints value at address"
 
       - section: "5.4"
         title: set and get round-trip
         testable: true
         tests:
-          - "test/debugger.bats::set then get returns written value"
+          - "tests/debugger.bats::set then get returns written value"
 
       - section: "5.5"
         title: reg and status round-trip
         testable: true
         tests:
-          - "test/debugger.bats::reg writes register visible in status"
-          - "test/debugger.bats::reg pc writes PC visible in status"
+          - "tests/debugger.bats::reg writes register visible in status"
+          - "tests/debugger.bats::reg pc writes PC visible in status"
 
       - section: "5.6"
         title: step
         testable: true
         tests:
-          - "test/debugger.bats::step executes one instruction"
-          - "test/debugger.bats::step N executes N instructions"
-          - "test/debugger.bats::step 0 executes zero times"
+          - "tests/debugger.bats::step executes one instruction"
+          - "tests/debugger.bats::step N executes N instructions"
+          - "tests/debugger.bats::step 0 executes zero times"
 
       - section: "5.7"
         title: until
         testable: true
         tests:
-          - "test/debugger.bats::until steps to matching instruction"
+          - "tests/debugger.bats::until steps to matching instruction"
 
       - section: "5.8"
         title: state
         testable: true
         tests:
-          - "test/debugger.bats::state shows known state keys"
+          - "tests/debugger.bats::state shows known state keys"
 
       - section: "5.9"
         title: keypress
         testable: true
         tests:
-          - "test/debugger.bats::keypress completes without error"
+          - "tests/debugger.bats::keypress completes without error"
 
       - section: "5.10"
         title: resume and re-entry via --debug-break
         testable: true
         tests:
-          - "test/debugger.bats::resume runs until breakpoint and re-enters debugger"
+          - "tests/debugger.bats::resume runs until breakpoint and re-enters debugger"
 
       - section: "5.11"
         title: quit
         testable: true
         tests:
-          - "test/debugger.bats::quit exits the emulator"
+          - "tests/debugger.bats::quit exits the emulator"
 
       - section: "5.12"
         title: dbatch
         testable: true
         tests:
-          - "test/debugger.bats::dbatch start and stop"
+          - "tests/debugger.bats::dbatch start and stop"
 
       - section: "5.13"
         title: Error handling
         testable: true
         tests:
-          - "test/debugger.bats::empty command shows error"
-          - "test/debugger.bats::unknown command shows error"
-          - "test/debugger.bats::get with no address shows error"
-          - "test/debugger.bats::set with no arguments shows error"
-          - "test/debugger.bats::reg with invalid register shows error"
-          - "test/debugger.bats::reg with invalid value shows error"
-          - "test/debugger.bats::step with negative value shows error"
-          - "test/debugger.bats::until with short mnemonic shows error"
-          - "test/debugger.bats::get with invalid address shows error"
-          - "test/debugger.bats::set with missing value shows error"
-          - "test/debugger.bats::set with invalid value shows error"
-          - "test/debugger.bats::keypress with no argument shows error"
-          - "test/debugger.bats::keypress with invalid hex shows error"
-          - "test/debugger.bats::step 0 executes zero times"
-          - "test/debugger.bats::dbatch with no subcommand shows usage"
-          - "test/debugger.bats::dbatch with unknown subcommand shows error"
+          - "tests/debugger.bats::empty command shows error"
+          - "tests/debugger.bats::unknown command shows error"
+          - "tests/debugger.bats::get with no address shows error"
+          - "tests/debugger.bats::set with no arguments shows error"
+          - "tests/debugger.bats::reg with invalid register shows error"
+          - "tests/debugger.bats::reg with invalid value shows error"
+          - "tests/debugger.bats::step with negative value shows error"
+          - "tests/debugger.bats::until with short mnemonic shows error"
+          - "tests/debugger.bats::get with invalid address shows error"
+          - "tests/debugger.bats::set with missing value shows error"
+          - "tests/debugger.bats::set with invalid value shows error"
+          - "tests/debugger.bats::keypress with no argument shows error"
+          - "tests/debugger.bats::keypress with invalid hex shows error"
+          - "tests/debugger.bats::step 0 executes zero times"
+          - "tests/debugger.bats::dbatch with no subcommand shows usage"
+          - "tests/debugger.bats::dbatch with unknown subcommand shows error"
 
       - section: "5.14"
         title: disk
         testable: true
         tests:
-          - "test/debugger.bats::disk loads image into drive"
+          - "tests/debugger.bats::disk loads image into drive"
 
       - section: "5.15"
         title: writeprotect
         testable: true
         tests:
-          - "test/debugger.bats::writeprotect toggles on and off"
+          - "tests/debugger.bats::writeprotect toggles on and off"
 
       - section: "5.16"
         title: runfor
@@ -1573,14 +1573,14 @@ specs:
         title: Adding Debugger Support to Headless
         testable: true
         tests:
-          - "test/debugger.bats::help lists available commands"
-          - "test/debugger.bats::resume runs until breakpoint and re-enters debugger"
+          - "tests/debugger.bats::help lists available commands"
+          - "tests/debugger.bats::resume runs until breakpoint and re-enters debugger"
 
       - section: "7.1.1"
         title: Step Loop Integration
         testable: true
         tests:
-          - "test/debugger.bats::resume runs until breakpoint and re-enters debugger"
+          - "tests/debugger.bats::resume runs until breakpoint and re-enters debugger"
 
       - section: "7.1.2"
         title: Liner Integration
@@ -1614,15 +1614,15 @@ specs:
         title: Verification
         testable: true
         tests:
-          - "test/debugger.bats::help lists available commands"
-          - "test/debugger.bats::status shows registers and instructions"
-          - "test/debugger.bats::get prints value at address"
-          - "test/debugger.bats::set then get returns written value"
-          - "test/debugger.bats::step executes one instruction"
-          - "test/debugger.bats::quit exits the emulator"
-          - "test/debugger.bats::resume runs until breakpoint and re-enters debugger"
-          - "test/debugger.bats::disk loads image into drive"
-          - "test/debugger.bats::writeprotect toggles on and off"
+          - "tests/debugger.bats::help lists available commands"
+          - "tests/debugger.bats::status shows registers and instructions"
+          - "tests/debugger.bats::get prints value at address"
+          - "tests/debugger.bats::set then get returns written value"
+          - "tests/debugger.bats::step executes one instruction"
+          - "tests/debugger.bats::quit exits the emulator"
+          - "tests/debugger.bats::resume runs until breakpoint and re-enters debugger"
+          - "tests/debugger.bats::disk loads image into drive"
+          - "tests/debugger.bats::writeprotect toggles on and off"
 
   - spec: spec-9
     title: 40-Column Text Mode
