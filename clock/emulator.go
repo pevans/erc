@@ -202,5 +202,7 @@ func (e *Emulator) IsFullSpeed() bool {
 // TimePerCycle returns the duration of time that would be spent per cycle by
 // the emulator
 func (e *Emulator) TimePerCycle() time.Duration {
+	e.timingMu.Lock()
+	defer e.timingMu.Unlock()
 	return e.timePerCycle
 }
