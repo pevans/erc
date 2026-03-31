@@ -3906,3 +3906,78 @@ specs:
           - "tests/headless_shortcuts.bats::ctrl-a v mutes audio"
           - "tests/headless_shortcuts.bats::ctrl-a ] increases volume level"
           - "tests/headless_shortcuts.bats::ctrl-a [ decreases volume level"
+
+  - spec: spec-22
+    title: Clock Emulation
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Configuration
+        testable: false
+
+      - section: "2.1"
+        title: Hertz
+        testable: false
+
+      - section: "2.2"
+        title: Changing the Clock Rate
+        testable: true
+        tests:
+          - "tests/clock.bats::speed increase changes the Speed state"
+          - "tests/clock.bats::speed decrease changes the Speed state"
+          - "tests/headless_shortcuts.bats::ctrl-a + increases speed"
+          - "tests/headless_shortcuts.bats::ctrl-a = increases speed"
+          - "tests/headless_shortcuts.bats::ctrl-a _ decreases speed"
+          - "tests/headless_shortcuts.bats::speed clamps at maximum of 5"
+
+      - section: "3"
+        title: Process Loop
+        testable: false
+
+      - section: "3.1"
+        title: Outer Loop
+        testable: true
+        tests:
+          - "tests/headless_shortcuts.bats::ctrl-a esc pauses the computer"
+          - "tests/headless_shortcuts.bats::esc while paused resumes"
+          - "tests/headless_shortcuts.bats::non-esc key while paused stays paused"
+
+      - section: "3.2"
+        title: Inner Loop
+        testable: false
+
+      - section: "3.3"
+        title: Timing Resets
+        testable: false
+
+      - section: "4"
+        title: Full-Speed Mode
+        testable: true
+        tests:
+          - "tests/clock.bats::disk motor on triggers full-speed"
+
+      - section: "5"
+        title: Debugger and Breakpoint Hooks
+        testable: false
+
+      - section: "5.1"
+        title: Breakpoint Check
+        testable: true
+        tests:
+          - "tests/headless_shortcuts.bats::ctrl-a b enables debugger"
+          - "tests/debugger.bats::resume runs until breakpoint and re-enters debugger"
+
+      - section: "5.2"
+        title: Debugger Entry
+        testable: false
+
+      - section: "6"
+        title: Queries
+        testable: false
+
+      - section: "7"
+        title: Concurrency
+        testable: false
