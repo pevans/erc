@@ -535,6 +535,7 @@ var headlessStateNameToKey = map[string]int{
 
 var headlessStateGetterMap = map[string]func(*a2.Computer) any{
 	"DiskIndex":    func(c *a2.Computer) any { return c.Disks.CurrentIndex() },
+	"FullSpeed":    func(c *a2.Computer) any { return c.IsFullSpeed() },
 	"Speed":        func(c *a2.Computer) any { return c.GetSpeed() },
 	"StateSlot":    func(c *a2.Computer) any { return c.GetStateSlot() },
 	"VolumeLevel":  func(c *a2.Computer) any { return c.GetVolumeLevel() },
