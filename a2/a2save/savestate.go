@@ -60,6 +60,7 @@ type StateFlags struct {
 	DisplayText       bool
 
 	// Keyboard state
+	CapsLock  bool
 	KBKeyDown uint8
 	KBLastKey uint8
 	KBStrobe  uint8

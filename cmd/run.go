@@ -28,6 +28,7 @@ var (
 	monochromeFlag      string
 	volumeOffFlag       bool
 	startInDebuggerFlag bool
+	capsLockFlag        bool
 )
 
 var runCmd = &cobra.Command{
@@ -52,6 +53,7 @@ func init() {
 	runCmd.Flags().StringVar(&monochromeFlag, "monochrome", "", "Render in monochrome (green or amber)")
 	runCmd.Flags().BoolVar(&volumeOffFlag, "volume-off", false, "Start with audio muted")
 	runCmd.Flags().BoolVar(&startInDebuggerFlag, "start-in-debugger", false, "Start the emulator in the debugger")
+	runCmd.Flags().BoolVar(&capsLockFlag, "caps-lock", false, "Start with caps lock enabled")
 }
 
 func runEmulator(images []string) {
@@ -128,6 +130,10 @@ func runEmulator(images []string) {
 		comp.State.SetBool(a2state.Debugger, true)
 	}
 
+	if capsLockFlag {
+		comp.State.SetBool(a2state.CapsLock, true)
+	}
+
 	// Set up keyboard input handler
 	go input.Listen(func(ev input.Event) {
 		found, err := shortcut.Check(ev, comp)
@@ -151,6 +157,8 @@ func runEmulator(images []string) {
 			// We want the Apple software to see this as a literal control
 			// character
 			key = ev.Key & 0x1F
+		} else if comp.State.Bool(a2state.CapsLock) && key >= 'a' && key <= 'z' {
+			key -= 0x20
 		}
 
 		comp.PressKey(uint8(key))

@@ -10,6 +10,7 @@ const (
 	BankSysBlockAux
 	BankSysBlockSegment
 	BankWriteRAM
+	CapsLock
 	Computer
 	DebugImage
 	Debugger
@@ -62,6 +63,7 @@ var keyStringMap = map[int]string{
 	BankSysBlockAux:     "BankSysBlockAux",
 	BankSysBlockSegment: "BankSysBlockSegment",
 	BankWriteRAM:        "BankWriteRAM",
+	CapsLock:            "CapsLock",
 	Computer:            "Computer",
 	DebugImage:          "DebugImage",
 	Debugger:            "Debugger",

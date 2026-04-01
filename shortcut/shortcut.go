@@ -76,6 +76,16 @@ func Check(ev input.Event, comp *a2.Computer) (bool, error) {
 		gfx.ShowStatus(obj.DebugPNG())
 		return true, nil
 
+	case 'c', 'C':
+		capsLock := !comp.State.Bool(a2state.CapsLock)
+		comp.State.SetBool(a2state.CapsLock, capsLock)
+		if capsLock {
+			comp.ShowText("caps lock: on")
+		} else {
+			comp.ShowText("caps lock: off")
+		}
+		return true, nil
+
 	case 'l', 'L':
 		if err := comp.LoadStateSlot(); err != nil {
 			comp.ShowText("could not load state")

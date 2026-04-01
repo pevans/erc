@@ -198,6 +198,7 @@ func (c *Computer) snapshotStateFlags() *a2save.StateFlags {
 		DisplayText:       c.State.Bool(a2state.DisplayText),
 
 		// Keyboard state
+		CapsLock:  c.State.Bool(a2state.CapsLock),
 		KBKeyDown: c.State.Uint8(a2state.KBKeyDown),
 		KBLastKey: c.State.Uint8(a2state.KBLastKey),
 		KBStrobe:  c.State.Uint8(a2state.KBStrobe),
@@ -238,6 +239,7 @@ func (c *Computer) restoreStateFlags(flags *a2save.StateFlags) {
 	c.State.SetBool(a2state.DisplayText, flags.DisplayText)
 
 	// Keyboard state
+	c.State.SetBool(a2state.CapsLock, flags.CapsLock)
 	c.State.SetUint8(a2state.KBKeyDown, flags.KBKeyDown)
 	c.State.SetUint8(a2state.KBLastKey, flags.KBLastKey)
 	c.State.SetUint8(a2state.KBStrobe, flags.KBStrobe)
