@@ -59,8 +59,7 @@ type Instruction struct {
 // ShortString returns a shortened version of String. This version includes
 // only the address, instruction, and operand.
 func (ln Instruction) ShortString() string {
-	linefmt := "%s" + // address
-		" | " + // spacing
+	linefmt := "%s" + // address (includes trailing separator)
 		"%s " + // instruction
 		"%-10s" // operand
 
