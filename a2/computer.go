@@ -503,7 +503,19 @@ func (c *Computer) CycleCounter() uint64 {
 
 // Speaker returns the speaker buffer.
 func (c *Computer) Speaker() a2speaker.Speaker {
+	// Explicit nil check needed because c.speaker is a concrete pointer type;
+	// returning it directly when nil would produce a non-nil interface that
+	// callers' == nil checks wouldn't catch.
+	if c.speaker == nil {
+		return nil
+	}
 	return c.speaker
+}
+
+// DisableSpeaker ensures the speaker activity check does not block full-speed
+// mode when audio recording is not needed.
+func (c *Computer) DisableSpeaker() {
+	c.speaker = nil
 }
 
 // LogDiskOp logs a disk operation if disk logging is enabled. This is used

@@ -95,7 +95,7 @@ func readWrite(addr int, val *uint8, stm *memory.StateMap) {
 			//
 			// To avoid weirdness with any sound being generated, if the
 			// speaker is or was recently toggled, we'll not set fullspeed.
-			if c.Speaker() == nil || !c.Speaker().IsActive() {
+			if spk := c.Speaker(); spk == nil || !spk.IsActive() {
 				c.ClockEmulator().SetFullSpeed(true)
 			}
 

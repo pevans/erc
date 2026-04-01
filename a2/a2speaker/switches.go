@@ -58,9 +58,9 @@ func toggle(stm *memory.StateMap) {
 	newState := !currentState
 	stm.SetBool(a2state.SpeakerState, newState)
 
-	if comp.Speaker() != nil {
+	if spk := comp.Speaker(); spk != nil {
 		cycle := comp.CycleCounter()
-		comp.Speaker().Push(cycle, newState)
+		spk.Push(cycle, newState)
 	}
 }
 

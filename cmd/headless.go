@@ -145,6 +145,10 @@ func runHeadless(images []string) {
 		fail(fmt.Sprintf("could not boot emulator: %v", err))
 	}
 
+	if !headlessRecordAudioFlag {
+		comp.DisableSpeaker()
+	}
+
 	switch headlessMonochromeFlag {
 	case "green":
 		comp.State.SetInt(a2state.DisplayMonochrome, a2mono.GreenScreen)
