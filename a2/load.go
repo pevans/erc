@@ -52,7 +52,6 @@ func (c *Computer) Load(r io.Reader, fileName string) error {
 
 		c.screenLog = elog.NewScreenLog()
 		c.screenLogFileName = fmt.Sprintf("%v.screen", fileName)
-		c.lastScreenCapture = c.BootTime
 
 		c.AudioLog = elog.NewAudioLog()
 		c.audioLogFileName = fmt.Sprintf("%v.audio", fileName)

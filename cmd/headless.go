@@ -36,6 +36,7 @@ var (
 	headlessStartInDebugger  bool
 	headlessDebugBreakFlag   string
 	headlessMonochromeFlag   string
+	headlessDebugImageFlag   bool
 )
 
 var headlessCmd = &cobra.Command{
@@ -120,6 +121,12 @@ func init() {
 		"",
 		"Render in monochrome (green or amber)",
 	)
+	headlessCmd.Flags().BoolVar(
+		&headlessDebugImageFlag,
+		"debug-image",
+		false,
+		"Write out debug artifact files alongside the disk image",
+	)
 }
 
 // headlessKeyEvent is a key press or release injected at a specific step.
@@ -130,6 +137,10 @@ type headlessKeyEvent struct {
 
 func runHeadless(images []string) {
 	comp := a2.NewComputer(1)
+
+	if headlessDebugImageFlag {
+		comp.State.SetBool(a2state.DebugImage, true)
+	}
 
 	for _, filename := range images {
 		if err := comp.Disks.Append(filename); err != nil {
@@ -145,7 +156,7 @@ func runHeadless(images []string) {
 		fail(fmt.Sprintf("could not boot emulator: %v", err))
 	}
 
-	if !headlessRecordAudioFlag {
+	if !headlessRecordAudioFlag && !headlessDebugImageFlag {
 		comp.DisableSpeaker()
 	}
 
@@ -224,8 +235,13 @@ func runHeadless(images []string) {
 	}
 
 	var audioRec *record.AudioRecorder
-	if headlessRecordAudioFlag {
+	needsAudioStream := headlessRecordAudioFlag ||
+		(headlessDebugImageFlag && comp.AudioLog != nil)
+	if needsAudioStream {
 		stream := a2audio.NewStream(comp.Speaker(), comp)
+		if comp.AudioLog != nil {
+			stream.SetAudioLogger(comp.AudioLog)
+		}
 		audioRec = record.NewAudioRecorder(
 			"audio",
 			stream,
@@ -322,6 +338,10 @@ func runHeadless(images []string) {
 			break
 		}
 
+		if headlessDebugImageFlag {
+			comp.Render()
+		}
+
 		if videoRec != nil {
 			step := rec.CurrentStep()
 			if videoRec.NeedsCapture(step) {
@@ -342,7 +362,7 @@ func runHeadless(images []string) {
 		}
 	}
 
-	if audioRec != nil {
+	if headlessRecordAudioFlag && audioRec != nil {
 		samples := audioRec.Samples()
 		if len(samples) > 0 {
 			path := filepath.Join(headlessOutputFlag, "audio.pcm")
@@ -364,6 +384,10 @@ func runHeadless(images []string) {
 				fail(fmt.Sprintf("could not write video.frame: %v", err))
 			}
 		}
+	}
+
+	if err := comp.Shutdown(); err != nil {
+		fail(fmt.Sprintf("could not properly shut down emulator: %v", err))
 	}
 }
 

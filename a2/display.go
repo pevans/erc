@@ -1,8 +1,6 @@
 package a2
 
 import (
-	"time"
-
 	"github.com/pevans/erc/a2/a2display"
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/gfx"
@@ -49,11 +47,12 @@ func (c *Computer) Render() {
 	a2display.Render(c.displaySnapshot, font40, font40FlashAlt, font80, font80FlashAlt, flashOn, c.State)
 
 	// Handle screen capture logging for debugging
-	if c.State.Bool(a2state.DisplayHires) {
-		if c.screenLog != nil && time.Since(c.lastScreenCapture) >= time.Second {
-			elapsed := time.Since(c.BootTime).Seconds()
+	if c.screenLog != nil {
+		cycles := c.CPU.CycleCounter()
+		if cycles-c.lastScreenCaptureCycle >= uint64(c.CPUClockRate()) {
+			elapsed := float64(cycles) / float64(c.CPUClockRate())
 			c.screenLog.CaptureFrame(gfx.Screen, elapsed)
-			c.lastScreenCapture = time.Now()
+			c.lastScreenCaptureCycle = cycles
 		}
 	}
 

@@ -121,9 +121,9 @@ type Computer struct {
 
 	MetricsFileName string
 
-	screenLog         *elog.ScreenLog
-	screenLogFileName string
-	lastScreenCapture time.Time
+	screenLog              *elog.ScreenLog
+	screenLogFileName      string
+	lastScreenCaptureCycle uint64
 
 	AudioLog         *elog.AudioLog
 	audioLogFileName string

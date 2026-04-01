@@ -155,6 +155,11 @@ func (s *Stream) Read(buf []byte) (int, error) {
 		s.fullSpeedSamples += uint64(numSamples)
 		s.samplesGenerated += uint64(numSamples)
 
+		if s.audioLogger != nil {
+			silentSamples := make([]float32, numSamples)
+			s.audioLogger.AddSamples(silentSamples, 0)
+		}
+
 		return numSamples * bytesPerSample, nil
 	}
 

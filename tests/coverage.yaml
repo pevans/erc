@@ -3981,3 +3981,114 @@ specs:
       - section: "7"
         title: Concurrency
         testable: false
+
+  - spec: spec-23
+    title: Debug Artifacts
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Activation
+        testable: true
+        tests:
+          - "tests/debug_artifacts.bats::debug-image flag produces artifact files"
+          - "tests/debug_artifacts.bats::no artifacts without debug-image flag"
+          - "tests/debug_artifacts.bats::disk swap flushes old artifacts and initializes new ones"
+
+      - section: "3"
+        title: Artifact Files
+        testable: false
+
+      - section: "3.1"
+        title: Instruction Log (.asm)
+        testable: true
+        tests:
+          - "tests/debug_artifacts.bats::asm file begins with preamble comments"
+          - "tests/debug_artifacts.bats::asm preamble contains format explanation"
+          - "tests/debug_artifacts.bats::asm file contains instruction lines with expected format"
+          - "tests/debug_artifacts.bats::asm hex values are uppercase"
+          - "tests/debug_artifacts.bats::asm file contains speculative instructions"
+          - "tests/debug_artifacts.bats::asm file has blank lines after block-ending instructions"
+          - "tests/debug_artifacts.bats::asm instructions are sorted by address"
+          - "tests/debug_artifacts.bats::asm preamble mentions MAIN label convention"
+          - "tests/debug_artifacts.bats::asm real instruction replaces speculative at same address"
+
+      - section: "3.2"
+        title: Instruction Timing (.time)
+        testable: true
+        tests:
+          - "tests/debug_artifacts.bats::time file contains timing entries"
+          - "tests/debug_artifacts.bats::time entries have expected format"
+          - "tests/debug_artifacts.bats::time entries are sorted alphabetically"
+          - "tests/debug_artifacts.bats::time instruction field matches short-string format"
+
+      - section: "3.3"
+        title: Metrics (.metrics)
+        testable: true
+        tests:
+          - "tests/debug_artifacts.bats::metrics file contains key-value pairs"
+          - "tests/debug_artifacts.bats::metrics file contains instructions count"
+          - "tests/debug_artifacts.bats::metrics keys are sorted alphabetically"
+
+      - section: "3.4"
+        title: Disk Log (.disklog)
+        testable: true
+        tests:
+          - "tests/debug_artifacts.bats::disklog file is created"
+          - "tests/debug_artifacts.bats::disklog file is non-empty"
+          - "tests/debug_artifacts.bats::disklog entries match expected format"
+          - "tests/debug_artifacts.bats::disklog entries contain RD mode"
+          - "tests/debug_artifacts.bats::disklog elapsed time is left-aligned in brackets"
+
+      - section: "3.5"
+        title: Screen Log (.screen)
+        testable: true
+        tests:
+          - "tests/debug_artifacts.bats::screen file is created"
+          - "tests/debug_artifacts.bats::screen file contains FRAME header"
+          - "tests/debug_artifacts.bats::screen frame has 192 rows"
+          - "tests/debug_artifacts.bats::screen rows are 280 characters wide"
+          - "tests/debug_artifacts.bats::screen pixels use only valid characters"
+          - "tests/debug_artifacts.bats::screen frames are separated by blank lines"
+
+      - section: "3.6"
+        title: Audio Log (.audio)
+        testable: true
+        tests:
+          - "tests/debug_artifacts.bats::audio file begins with header"
+          - "tests/debug_artifacts.bats::audio file contains frame duration line"
+          - "tests/debug_artifacts.bats::audio file contains activity timeline legend"
+          - "tests/debug_artifacts.bats::audio file contains FRAME header"
+          - "tests/debug_artifacts.bats::audio frame contains sample statistics"
+          - "tests/debug_artifacts.bats::audio frame contains analysis metrics"
+          - "tests/debug_artifacts.bats::audio frame contains activity timeline"
+          - "tests/debug_artifacts.bats::audio frame sample count is 44100"
+          - "tests/debug_artifacts.bats::audio frame contains waveform visualization"
+
+      - section: "3.7"
+        title: Physical Disk Image (.physical)
+        testable: true
+        tests:
+          - "tests/debug_artifacts.bats::physical file is non-empty binary"
+          - "tests/debug_artifacts.bats::physical file differs from original dsk"
+          - "tests/debug_artifacts.bats::physical file is written at load time"
+
+      - section: "3.8"
+        title: Instruction Diff Map (.diff.asm)
+        testable: true
+        tests:
+          - "tests/debug_artifacts.bats::diff.asm is not created without debug batch"
+          - "tests/debug_artifacts.bats::diff.asm is written at shutdown when batch still active"
+          - "tests/debug_artifacts.bats::diff.asm is created after debug batch"
+
+      - section: "4"
+        title: Data Collection
+        testable: false
+
+      - section: "5"
+        title: Shutdown Sequence
+        testable: true
+        tests:
+          - "tests/debug_artifacts.bats::all artifacts are written in a single run"
