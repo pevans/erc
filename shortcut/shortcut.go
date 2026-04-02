@@ -148,5 +148,5 @@ func Check(ev input.Event, comp *a2.Computer) (bool, error) {
 		return true, nil
 	}
 
-	return false, nil
+	return true, nil
 }
