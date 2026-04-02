@@ -1,5 +1,6 @@
 ---
 Specification: 15
+Category: Memory
 Drafted At: 2026-03-26
 Authors:
   - Peter Evans

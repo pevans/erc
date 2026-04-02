@@ -1,5 +1,6 @@
 ---
 Specification: 5
+Category: Tools
 Drafted At: 2026-03-09
 Authors:
   - Peter Evans

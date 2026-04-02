@@ -1,5 +1,6 @@
 ---
 Specification: 21
+Category: Sound
 Drafted At: 2026-03-30
 Authors:
   - Peter Evans

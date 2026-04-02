@@ -14,6 +14,7 @@
 specs:
   - spec: spec-0
     title: Specification Definition
+    category: None
     sections:
       - section: "1"
         title: Overview
@@ -37,6 +38,7 @@ specs:
 
   - spec: spec-1
     title: State Testing
+    category: Tests
     sections:
       - section: "1"
         title: Overview
@@ -143,6 +145,7 @@ specs:
 
   - spec: spec-2
     title: Audio Testing
+    category: Tests
     sections:
       - section: "1"
         title: Overview
@@ -260,6 +263,7 @@ specs:
 
   - spec: spec-3
     title: Video Testing
+    category: Tests
     sections:
       - section: "1"
         title: Overview
@@ -401,6 +405,7 @@ specs:
 
   - spec: spec-4
     title: Headless Mode
+    category: Tests
     sections:
       - section: "1"
         title: Overview
@@ -548,6 +553,7 @@ specs:
 
   - spec: spec-5
     title: Mini Assembler
+    category: Tools
     sections:
       - section: "1"
         title: Overview
@@ -739,6 +745,7 @@ specs:
 
   - spec: spec-6
     title: MOS 65C02 CPU
+    category: CPU
     sections:
       - section: "1"
         title: Overview
@@ -1117,6 +1124,7 @@ specs:
 
   - spec: spec-7
     title: Shortcut Testing
+    category: Tests
     sections:
       - section: "1"
         title: Overview
@@ -1184,6 +1192,7 @@ specs:
 
   - spec: spec-24
     title: Shortcut Implementation
+    category: User Interface
     sections:
       - section: "1"
         title: Overview
@@ -1303,6 +1312,7 @@ specs:
 
   - spec: spec-8
     title: Debugger Testing
+    category: Tests
     sections:
       - section: "1"
         title: Overview
@@ -1581,6 +1591,7 @@ specs:
 
   - spec: spec-9
     title: 40-Column Text Mode
+    category: Graphics
     sections:
       - section: "1"
         title: Overview
@@ -1850,6 +1861,7 @@ specs:
 
   - spec: spec-10
     title: Low-Resolution Graphics Mode
+    category: Graphics
     sections:
       - section: "1"
         title: Overview
@@ -2042,6 +2054,7 @@ specs:
 
   - spec: spec-11
     title: High-Resolution Graphics Mode
+    category: Graphics
     sections:
       - section: "1"
         title: Overview
@@ -2281,6 +2294,7 @@ specs:
 
   - spec: spec-12
     title: Double High-Resolution Graphics Mode
+    category: Graphics
     sections:
       - section: "1"
         title: Overview
@@ -2479,6 +2493,7 @@ specs:
 
   - spec: spec-13
     title: Disk Images
+    category: Storage
     sections:
       - section: "1"
         title: Overview
@@ -2767,6 +2782,7 @@ specs:
 
   - spec: spec-14
     title: Encode/Decode Commands
+    category: Storage
     sections:
       - section: "1"
         title: Overview
@@ -2866,6 +2882,7 @@ specs:
 
   - spec: spec-15
     title: Bank Memory
+    category: Memory
     sections:
       - section: "1"
         title: Overview
@@ -2988,6 +3005,7 @@ specs:
 
   - spec: spec-16
     title: Auxiliary Memory
+    category: Memory
     sections:
       - section: "1"
         title: Overview
@@ -3123,6 +3141,7 @@ specs:
 
   - spec: spec-17
     title: Peripheral Support
+    category: Computer
     sections:
       - section: "1"
         title: Overview
@@ -3263,6 +3282,7 @@ specs:
 
   - spec: spec-18
     title: Apple II Fonts
+    category: Graphics
     sections:
       - section: "1"
         title: Overview
@@ -3451,6 +3471,7 @@ specs:
 
   - spec: spec-19
     title: 80-Column Text Mode
+    category: Graphics
     sections:
       - section: "1"
         title: Overview
@@ -3626,6 +3647,7 @@ specs:
 
   - spec: spec-20
     title: Keyboard
+    category: User Interface
     sections:
       - section: "1"
         title: Overview
@@ -3729,6 +3751,7 @@ specs:
 
   - spec: spec-21
     title: Audio
+    category: Sound
     sections:
       - section: "1"
         title: Overview
@@ -3864,6 +3887,7 @@ specs:
 
   - spec: spec-22
     title: Clock Emulation
+    category: Computer
     sections:
       - section: "1"
         title: Overview
@@ -3939,6 +3963,7 @@ specs:
 
   - spec: spec-23
     title: Debug Artifacts
+    category: Tests
     sections:
       - section: "1"
         title: Overview

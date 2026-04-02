@@ -1,5 +1,6 @@
 ---
 Specification: 24
+Category: User Interface
 Drafted At: 2026-04-01
 Authors:
   - Peter Evans

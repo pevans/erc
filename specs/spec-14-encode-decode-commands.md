@@ -1,5 +1,6 @@
 ---
 Specification: 14
+Category: Storage
 Drafted At: 2026-03-26
 Authors:
   - Peter Evans

@@ -1,5 +1,6 @@
 ---
 Specification: 12
+Category: Graphics
 Drafted At: 2026-03-25
 Authors:
   - Peter Evans

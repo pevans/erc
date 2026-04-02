@@ -1,5 +1,6 @@
 ---
 Specification: 22
+Category: Computer
 Drafted At: 2026-03-31
 Authors:
   - Peter Evans

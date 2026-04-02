@@ -1,5 +1,6 @@
 ---
 Specification: 17
+Category: Computer
 Drafted At: 2026-03-28
 Authors:
   - Peter Evans

@@ -1,5 +1,6 @@
 ---
 Specification: 20
+Category: User Interface
 Drafted At: 2026-03-30
 Authors:
   - Peter Evans

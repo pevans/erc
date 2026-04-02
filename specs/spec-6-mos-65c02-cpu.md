@@ -1,5 +1,6 @@
 ---
 Specification: 6
+Category: CPU
 Drafted At: 2026-03-12
 Authors:
   - Peter Evans

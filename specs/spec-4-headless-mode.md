@@ -1,5 +1,6 @@
 ---
 Specification: 4
+Category: Tests
 Drafted At: 2026-03-08
 Authors:
   - Peter Evans
