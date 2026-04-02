@@ -4042,6 +4042,13 @@ specs:
           - "tests/headless_shortcuts.bats::double ctrl-a sends literal ctrl-a to machine"
 
       - section: "2.11"
+        title: Help
+        testable: true
+        tests:
+          - "tests/headless_shortcuts.bats::ctrl-a ? opens help modal and pauses"
+          - "tests/headless_shortcuts.bats::ctrl-a h opens help modal"
+
+      - section: "2.12"
         title: Unrecognized Key
         testable: true
         tests:
@@ -4070,5 +4077,31 @@ specs:
           - "tests/headless_shortcuts.bats::ctrl-a q exits cleanly"
 
       - section: "6"
+        title: Help Modal
+        testable: false
+
+      - section: "6.1"
+        title: Appearance
+        testable: false
+
+      - section: "6.2"
+        title: Pagination
+        testable: false
+
+      - section: "6.3"
+        title: Behavior
+        testable: true
+        tests:
+          - "tests/headless_shortcuts.bats::ctrl-a ? opens help modal and pauses"
+          - "tests/headless_shortcuts.bats::esc dismisses help modal and resumes"
+          - "tests/headless_shortcuts.bats::non-esc key while help modal is open does not dismiss it"
+          - "tests/headless_shortcuts.bats::help modal absorbs keys meant for shortcuts"
+          - "tests/headless_shortcuts.bats::help modal absorbs keys meant for the computer"
+
+      - section: "6.4"
+        title: Rendering
+        testable: false
+
+      - section: "7"
         title: Files
         testable: false

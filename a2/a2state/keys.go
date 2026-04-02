@@ -28,6 +28,7 @@ const (
 	DisplayRedraw
 	DisplayStore80
 	DisplayText
+	HelpModal
 	InstructionReadOp
 	KBKeyDown
 	KBLastKey
@@ -81,6 +82,7 @@ var keyStringMap = map[int]string{
 	DisplayRedraw:       "DisplayRedraw",
 	DisplayStore80:      "DisplayStore80",
 	DisplayText:         "DisplayText",
+	HelpModal:           "HelpModal",
 	InstructionReadOp:   "InstructionReadOp",
 	KBKeyDown:           "KBKeyDown",
 	KBLastKey:           "KBLastkey",

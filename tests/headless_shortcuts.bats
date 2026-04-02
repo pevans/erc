@@ -292,6 +292,70 @@ teardown()   { load test_helper; teardown; }
 	rm -f "$DISK.1.state"
 }
 
+# --- Help Modal ---
+
+@test "ctrl-a ? opens help modal and pauses" {
+	run_headless --steps 1000 \
+		--keys "100:ctrl-a,101:?" \
+		--watch-comp HelpModal,Paused \
+		"$DISK"
+	[[ $status -eq 0 ]]
+	grep -q 'comp HelpModal .* -> true' "$OUT/state.log"
+	grep -q 'comp Paused .* -> true' "$OUT/state.log"
+}
+
+@test "ctrl-a h opens help modal" {
+	run_headless --steps 1000 \
+		--keys "100:ctrl-a,101:h" \
+		--watch-comp HelpModal \
+		"$DISK"
+	[[ $status -eq 0 ]]
+	grep -q 'comp HelpModal .* -> true' "$OUT/state.log"
+}
+
+@test "esc dismisses help modal and resumes" {
+	run_headless --steps 1000 \
+		--keys "100:ctrl-a,101:?,200:esc" \
+		--watch-comp HelpModal,Paused \
+		"$DISK"
+	[[ $status -eq 0 ]]
+	grep -q 'comp HelpModal .* -> true' "$OUT/state.log"
+	grep -q 'comp HelpModal .* -> false' "$OUT/state.log"
+	grep -q 'comp Paused .* -> false' "$OUT/state.log"
+}
+
+@test "non-esc key while help modal is open does not dismiss it" {
+	run_headless --steps 1000 \
+		--keys "100:ctrl-a,101:?,200:a" \
+		--watch-comp HelpModal \
+		"$DISK"
+	[[ $status -eq 0 ]]
+	grep -q 'comp HelpModal .* -> true' "$OUT/state.log"
+	! grep -q 'comp HelpModal .* -> false' "$OUT/state.log"
+}
+
+@test "help modal absorbs keys meant for shortcuts" {
+	# Open help, press ctrl-a q (which normally quits) -- should be absorbed
+	run_headless --steps 1000 \
+		--keys "100:ctrl-a,101:?,200:ctrl-a,201:q" \
+		--watch-comp HelpModal \
+		"$DISK"
+	[[ $status -eq 0 ]]
+	# Should still be in help modal (ctrl-a and q absorbed as regular keys)
+	! grep -q 'comp HelpModal .* -> false' "$OUT/state.log"
+}
+
+@test "help modal absorbs keys meant for the computer" {
+	# Open help, press 'a' -- should not reach keyboard
+	run_headless --steps 1000 \
+		--keys "100:ctrl-a,101:h,200:a" \
+		--watch-comp HelpModal,KBLastKey \
+		"$DISK"
+	[[ $status -eq 0 ]]
+	grep -q 'comp HelpModal .* -> true' "$OUT/state.log"
+	! grep -q 'comp KBLastKey' "$OUT/state.log"
+}
+
 # --- Parse errors ---
 
 @test "invalid step number fails" {

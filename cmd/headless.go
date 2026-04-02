@@ -526,6 +526,7 @@ var headlessStateNameToKey = map[string]int{
 	"BankSysBlockSegment": a2state.BankSysBlockSegment,
 	"BankWriteRAM":        a2state.BankWriteRAM,
 	"Debugger":            a2state.Debugger,
+	"HelpModal":           a2state.HelpModal,
 	"DisplayAltChar":      a2state.DisplayAltChar,
 	"DisplayAuxSegment":   a2state.DisplayAuxSegment,
 	"DisplayCol80":        a2state.DisplayCol80,

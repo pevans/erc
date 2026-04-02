@@ -86,6 +86,7 @@ func (g *game) Draw(screen *ebiten.Image) {
 	gfx.StatusOverlay.Draw(screen)
 	gfx.PrefixOverlay.Draw(screen)
 	gfx.TextNotification.Draw(screen)
+	gfx.HelpModal.Draw(screen)
 }
 
 // Update handles logic once for every frame that is rendered, but this method

@@ -14,6 +14,18 @@ import (
 const escapeKey rune = 0x1B
 
 func Check(ev input.Event, comp *a2.Computer) (bool, error) {
+	// If the help modal is active, route all keys to it
+	if comp.State.Bool(a2state.HelpModal) {
+		if gfx.HelpModal.HandleKey(ev.Key) {
+			// ESC was pressed; dismiss modal and resume
+			gfx.HelpModal.Hide()
+			comp.State.SetBool(a2state.HelpModal, false)
+			comp.State.SetBool(a2state.Paused, false)
+			gfx.ShowStatus(obj.ResumePNG())
+		}
+		return true, nil
+	}
+
 	// If paused, ESC resumes; any other key flashes the pause graphic
 	if comp.State.Bool(a2state.Paused) {
 		if ev.Key == escapeKey {
@@ -121,6 +133,14 @@ func Check(ev input.Event, comp *a2.Computer) (bool, error) {
 			gfx.ShowStatus(obj.WriteablePNG())
 		}
 
+		return true, nil
+
+	case '?', 'h', 'H':
+		comp.ClearKeys()
+		comp.State.SetBool(a2state.Paused, true)
+		comp.State.SetBool(a2state.HelpModal, true)
+		w, h := comp.Dimensions()
+		gfx.HelpModal.Show(int(w), int(h))
 		return true, nil
 
 	case 'q', 'Q':
