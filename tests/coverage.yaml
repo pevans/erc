@@ -1190,126 +1190,6 @@ specs:
           - "tests/headless_shortcuts.bats::double ctrl-a sends literal ctrl-a to machine"
           - "tests/headless_shortcuts.bats::ctrl-a c toggles caps lock on"
 
-  - spec: spec-24
-    title: Shortcut Implementation
-    category: User Interface
-    sections:
-      - section: "1"
-        title: Overview
-        testable: false
-
-      - section: "2"
-        title: Shortcut System
-        testable: false
-
-      - section: "2.1"
-        title: Pause and Resume
-        testable: true
-        tests:
-          - "tests/headless_shortcuts.bats::ctrl-a esc pauses the computer"
-          - "tests/headless_shortcuts.bats::esc while paused resumes"
-          - "tests/headless_shortcuts.bats::non-esc key while paused stays paused"
-
-      - section: "2.2"
-        title: Speed
-        testable: true
-        tests:
-          - "tests/headless_shortcuts.bats::ctrl-a + increases speed"
-          - "tests/headless_shortcuts.bats::ctrl-a = increases speed"
-          - "tests/headless_shortcuts.bats::ctrl-a - at minimum speed stays at 1"
-          - "tests/headless_shortcuts.bats::ctrl-a _ decreases speed"
-          - "tests/headless_shortcuts.bats::speed clamps at maximum of 5"
-
-      - section: "2.3"
-        title: Volume
-        testable: true
-        tests:
-          - "tests/headless_shortcuts.bats::ctrl-a v mutes audio"
-          - "tests/headless_shortcuts.bats::ctrl-a v toggles mute off after muting"
-          - "tests/headless_shortcuts.bats::ctrl-a ] increases volume level"
-          - "tests/headless_shortcuts.bats::ctrl-a [ decreases volume level"
-          - "tests/headless_shortcuts.bats::volume decrease to zero sets muted"
-          - "tests/headless_shortcuts.bats::volume increase clears muted"
-
-      - section: "2.4"
-        title: Write Protect
-        testable: true
-        tests:
-          - "tests/headless_shortcuts.bats::ctrl-a w toggles write protect"
-
-      - section: "2.5"
-        title: Debugger
-        testable: true
-        tests:
-          - "tests/headless_shortcuts.bats::ctrl-a b enables debugger"
-
-      - section: "2.6"
-        title: Caps Lock
-        testable: true
-        tests:
-          - "tests/headless_shortcuts.bats::ctrl-a c toggles caps lock on"
-          - "tests/headless_shortcuts.bats::ctrl-a c toggles caps lock off after enabling"
-
-      - section: "2.7"
-        title: State Slots
-        testable: true
-        tests:
-          - "tests/headless_shortcuts.bats::ctrl-a 3 selects state slot 3"
-          - "tests/headless_shortcuts.bats::ctrl-a s saves state"
-          - "tests/headless_shortcuts.bats::ctrl-a l loads state without crashing when no state file exists"
-          - "tests/headless_shortcuts.bats::save and load state round-trip preserves register"
-
-      - section: "2.8"
-        title: Disk Navigation
-        testable: true
-        tests:
-          - "tests/headless_shortcuts.bats::ctrl-a n loads next disk"
-          - "tests/headless_shortcuts.bats::ctrl-a p loads previous disk"
-
-      - section: "2.9"
-        title: Quit
-        testable: true
-        tests:
-          - "tests/headless_shortcuts.bats::ctrl-a q exits cleanly"
-
-      - section: "2.10"
-        title: Double Prefix (Ctrl-A Ctrl-A)
-        testable: true
-        tests:
-          - "tests/headless_shortcuts.bats::double ctrl-a sends literal ctrl-a to machine"
-
-      - section: "2.11"
-        title: Unrecognized Key
-        testable: true
-        tests:
-          - "tests/headless_shortcuts.bats::unrecognized key after prefix produces no state change"
-
-      - section: "3"
-        title: "Parsing --keys"
-        testable: true
-        tests:
-          - "tests/headless_shortcuts.bats::invalid step number fails"
-          - "tests/headless_shortcuts.bats::empty keyspec fails"
-          - "tests/headless_shortcuts.bats::duplicate step numbers fail"
-
-      - section: "4"
-        title: Event Dispatch in the Headless Loop
-        testable: true
-        tests:
-          - "tests/headless_shortcuts.bats::ctrl-a esc pauses the computer"
-          - "tests/headless_shortcuts.bats::ctrl-a + increases speed"
-          - "tests/headless_shortcuts.bats::unrecognized key after prefix produces no state change"
-
-      - section: "5"
-        title: Quit Handling
-        testable: true
-        tests:
-          - "tests/headless_shortcuts.bats::ctrl-a q exits cleanly"
-
-      - section: "6"
-        title: Files
-        testable: false
-
   - spec: spec-8
     title: Debugger Testing
     category: Tests
@@ -4072,3 +3952,123 @@ specs:
         testable: true
         tests:
           - "tests/debug_artifacts.bats::all artifacts are written in a single run"
+
+  - spec: spec-24
+    title: Shortcut Implementation
+    category: User Interface
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Shortcut System
+        testable: false
+
+      - section: "2.1"
+        title: Pause and Resume
+        testable: true
+        tests:
+          - "tests/headless_shortcuts.bats::ctrl-a esc pauses the computer"
+          - "tests/headless_shortcuts.bats::esc while paused resumes"
+          - "tests/headless_shortcuts.bats::non-esc key while paused stays paused"
+
+      - section: "2.2"
+        title: Speed
+        testable: true
+        tests:
+          - "tests/headless_shortcuts.bats::ctrl-a + increases speed"
+          - "tests/headless_shortcuts.bats::ctrl-a = increases speed"
+          - "tests/headless_shortcuts.bats::ctrl-a - at minimum speed stays at 1"
+          - "tests/headless_shortcuts.bats::ctrl-a _ decreases speed"
+          - "tests/headless_shortcuts.bats::speed clamps at maximum of 5"
+
+      - section: "2.3"
+        title: Volume
+        testable: true
+        tests:
+          - "tests/headless_shortcuts.bats::ctrl-a v mutes audio"
+          - "tests/headless_shortcuts.bats::ctrl-a v toggles mute off after muting"
+          - "tests/headless_shortcuts.bats::ctrl-a ] increases volume level"
+          - "tests/headless_shortcuts.bats::ctrl-a [ decreases volume level"
+          - "tests/headless_shortcuts.bats::volume decrease to zero sets muted"
+          - "tests/headless_shortcuts.bats::volume increase clears muted"
+
+      - section: "2.4"
+        title: Write Protect
+        testable: true
+        tests:
+          - "tests/headless_shortcuts.bats::ctrl-a w toggles write protect"
+
+      - section: "2.5"
+        title: Debugger
+        testable: true
+        tests:
+          - "tests/headless_shortcuts.bats::ctrl-a b enables debugger"
+
+      - section: "2.6"
+        title: Caps Lock
+        testable: true
+        tests:
+          - "tests/headless_shortcuts.bats::ctrl-a c toggles caps lock on"
+          - "tests/headless_shortcuts.bats::ctrl-a c toggles caps lock off after enabling"
+
+      - section: "2.7"
+        title: State Slots
+        testable: true
+        tests:
+          - "tests/headless_shortcuts.bats::ctrl-a 3 selects state slot 3"
+          - "tests/headless_shortcuts.bats::ctrl-a s saves state"
+          - "tests/headless_shortcuts.bats::ctrl-a l loads state without crashing when no state file exists"
+          - "tests/headless_shortcuts.bats::save and load state round-trip preserves register"
+
+      - section: "2.8"
+        title: Disk Navigation
+        testable: true
+        tests:
+          - "tests/headless_shortcuts.bats::ctrl-a n loads next disk"
+          - "tests/headless_shortcuts.bats::ctrl-a p loads previous disk"
+
+      - section: "2.9"
+        title: Quit
+        testable: true
+        tests:
+          - "tests/headless_shortcuts.bats::ctrl-a q exits cleanly"
+
+      - section: "2.10"
+        title: Double Prefix (Ctrl-A Ctrl-A)
+        testable: true
+        tests:
+          - "tests/headless_shortcuts.bats::double ctrl-a sends literal ctrl-a to machine"
+
+      - section: "2.11"
+        title: Unrecognized Key
+        testable: true
+        tests:
+          - "tests/headless_shortcuts.bats::unrecognized key after prefix produces no state change"
+
+      - section: "3"
+        title: "Parsing --keys"
+        testable: true
+        tests:
+          - "tests/headless_shortcuts.bats::invalid step number fails"
+          - "tests/headless_shortcuts.bats::empty keyspec fails"
+          - "tests/headless_shortcuts.bats::duplicate step numbers fail"
+
+      - section: "4"
+        title: Event Dispatch in the Headless Loop
+        testable: true
+        tests:
+          - "tests/headless_shortcuts.bats::ctrl-a esc pauses the computer"
+          - "tests/headless_shortcuts.bats::ctrl-a + increases speed"
+          - "tests/headless_shortcuts.bats::unrecognized key after prefix produces no state change"
+
+      - section: "5"
+        title: Quit Handling
+        testable: true
+        tests:
+          - "tests/headless_shortcuts.bats::ctrl-a q exits cleanly"
+
+      - section: "6"
+        title: Files
+        testable: false
