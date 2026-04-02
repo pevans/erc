@@ -553,6 +553,7 @@ var headlessStateNameToKey = map[string]int{
 	"PCIOStrobe":          a2state.PCIOStrobe,
 	"PCSlotC3":            a2state.PCSlotC3,
 	"PCSlotCX":            a2state.PCSlotCX,
+	"CapsLock":            a2state.CapsLock,
 	"Paused":              a2state.Paused,
 	"SpeakerState":        a2state.SpeakerState,
 }

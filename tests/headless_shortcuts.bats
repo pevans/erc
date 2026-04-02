@@ -166,6 +166,27 @@ teardown()   { load test_helper; teardown; }
 	grep -q 'comp Debugger .* -> true' "$OUT/state.log"
 }
 
+# --- Caps Lock ---
+
+@test "ctrl-a c toggles caps lock on" {
+	run_headless --steps 1000 \
+		--keys "100:ctrl-a,101:c" \
+		--watch-comp CapsLock \
+		"$DISK"
+	[[ $status -eq 0 ]]
+	grep -q 'comp CapsLock .* -> true' "$OUT/state.log"
+}
+
+@test "ctrl-a c toggles caps lock off after enabling" {
+	run_headless --steps 1000 \
+		--keys "100:ctrl-a,101:c,200:ctrl-a,201:c" \
+		--watch-comp CapsLock \
+		"$DISK"
+	[[ $status -eq 0 ]]
+	grep -q 'comp CapsLock .* -> true' "$OUT/state.log"
+	grep -q 'comp CapsLock .* -> false' "$OUT/state.log"
+}
+
 # --- State Slot ---
 
 @test "ctrl-a 3 selects state slot 3" {
