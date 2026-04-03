@@ -2585,10 +2585,14 @@ specs:
         tests:
           - "tests/disk_images.bats::write protection defaults to off"
           - "tests/disk_images.bats::C0EE in read mode reports write-protect status"
+          - "tests/disk_drive_io.bats::C0EE bit 7 is set when write protection is enabled"
 
       - section: "10.4"
         title: Multiple Drives
-        testable: false
+        testable: true
+        tests:
+          - "tests/disk_drive_io.bats::C0EB selects drive 2 which reads FF with no disk"
+          - "tests/disk_drive_io.bats::C0EA switches back to drive 1 after selecting drive 2"
 
       - section: "10.5"
         title: The Latch
@@ -2605,7 +2609,10 @@ specs:
 
       - section: "10.7"
         title: Stepper Motor Phases
-        testable: false
+        testable: true
+        tests:
+          - "tests/disk_drive_io.bats::phase switches step the drive head to a new track"
+          - "tests/disk_drive_io.bats::reverse phase switches step the drive head backward"
 
       - section: "11"
         title: Disk Controller Soft Switches
@@ -2619,6 +2626,12 @@ specs:
           - "tests/disk_images.bats::C0EE in read mode reports write-protect status"
           - "tests/disk_images.bats::consecutive C0EC reads advance sector position"
           - "tests/disk_images.bats::C0ED returns latch without advancing position"
+          - "tests/disk_drive_io.bats::C0E9 turns motor on and enables full-speed mode"
+          - "tests/disk_drive_io.bats::C0E8 turns motors off and disables full-speed mode"
+          - "tests/disk_drive_io.bats::C0EB selects drive 2 which reads FF with no disk"
+          - "tests/disk_drive_io.bats::C0EA switches back to drive 1 after selecting drive 2"
+          - "tests/disk_drive_io.bats::C0EF sets write mode and C0EE restores read mode"
+          - "tests/disk_drive_io.bats::C0EE bit 7 is set when write protection is enabled"
 
       - section: "11.2"
         title: The Shift Operation ($C0EC)
@@ -2635,7 +2648,10 @@ specs:
 
       - section: "11.4"
         title: Full-Speed Mode
-        testable: false
+        testable: true
+        tests:
+          - "tests/disk_drive_io.bats::C0E9 turns motor on and enables full-speed mode"
+          - "tests/disk_drive_io.bats::C0E8 turns motors off and disables full-speed mode"
 
       - section: "12"
         title: Boot Sequence
