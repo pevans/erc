@@ -4206,3 +4206,67 @@ specs:
         tests:
           - "tests/save_load_state.bats::load from nonexistent slot does not crash"
           - "tests/save_load_state.bats::multiple saves to same slot overwrites cleanly"
+
+  - spec: spec-26
+    title: Disk Set
+    category: Storage
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: Construction
+        testable: false
+
+      - section: "2.1"
+        title: Appending Images
+        testable: true
+        tests:
+          - "tests/disk_set.bats::missing file produces an error before the emulator starts"
+
+      - section: "2.2"
+        title: Initial Load
+        testable: true
+        tests:
+          - "tests/disk_set.bats::initial disk index is 0"
+
+      - section: "3"
+        title: Navigation
+        testable: false
+
+      - section: "3.1"
+        title: Next
+        testable: true
+        tests:
+          - "tests/disk_set.bats::next advances from disk 0 to disk 1"
+          - "tests/disk_set.bats::next wraps from last disk back to disk 0"
+
+      - section: "3.2"
+        title: Previous
+        testable: true
+        tests:
+          - "tests/disk_set.bats::previous wraps from disk 0 to the last disk"
+          - "tests/disk_set.bats::previous after next returns to disk 0"
+
+      - section: "3.3"
+        title: Index Tracking
+        testable: true
+        tests:
+          - "tests/disk_set.bats::initial disk index is 0"
+          - "tests/disk_set.bats::sequential next visits each disk in a three-disk set"
+
+      - section: "4"
+        title: Drive Integration
+        testable: false
+
+      - section: "5"
+        title: Single-Disk Behavior
+        testable: true
+        tests:
+          - "tests/disk_set.bats::next with a single disk keeps index at 0"
+          - "tests/disk_set.bats::previous with a single disk keeps index at 0"
+
+      - section: "6"
+        title: Test Structure
+        testable: false
