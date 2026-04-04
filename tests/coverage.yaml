@@ -4130,3 +4130,79 @@ specs:
       - section: "7"
         title: Files
         testable: false
+
+  - spec: spec-25
+    title: Save/Load State
+    category: Persistence
+    sections:
+      - section: "1"
+        title: Overview
+        testable: false
+
+      - section: "2"
+        title: State File Creation
+        testable: true
+        tests:
+          - "tests/save_load_state.bats::save creates a state file named for disk and slot"
+          - "tests/save_load_state.bats::save to slot 3 creates a distinct state file"
+          - "tests/save_load_state.bats::different slots create separate files"
+
+      - section: "3"
+        title: Round-Trip Preservation
+        testable: false
+
+      - section: "3.1"
+        title: CPU Registers
+        testable: true
+        tests:
+          - "tests/save_load_state.bats::round-trip restores PC register"
+
+      - section: "3.2"
+        title: Keyboard State
+        testable: true
+        tests:
+          - "tests/save_load_state.bats::round-trip restores keyboard state"
+
+      - section: "3.3"
+        title: Speed Setting
+        testable: true
+        tests:
+          - "tests/save_load_state.bats::round-trip restores speed setting"
+
+      - section: "3.4"
+        title: Memory Contents
+        testable: true
+        tests:
+          - "tests/save_load_state.bats::round-trip restores memory contents"
+          - "tests/save_load_state.bats::round-trip restores auxiliary memory contents"
+
+      - section: "3.5"
+        title: Display State Flags
+        testable: true
+        tests:
+          - "tests/save_load_state.bats::round-trip restores display flags"
+
+      - section: "3.6"
+        title: Drive State
+        testable: true
+        tests:
+          - "tests/save_load_state.bats::round-trip restores drive state"
+
+      - section: "3.7"
+        title: Segment References
+        testable: true
+        tests:
+          - "tests/save_load_state.bats::round-trip rebuilds segment references from restored flags"
+
+      - section: "4"
+        title: Slot Isolation
+        testable: true
+        tests:
+          - "tests/save_load_state.bats::loading from one slot does not use another slot's data"
+
+      - section: "5"
+        title: Error Handling
+        testable: true
+        tests:
+          - "tests/save_load_state.bats::load from nonexistent slot does not crash"
+          - "tests/save_load_state.bats::multiple saves to same slot overwrites cleanly"

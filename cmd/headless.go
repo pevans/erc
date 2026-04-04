@@ -18,6 +18,7 @@ import (
 	"github.com/pevans/erc/a2/a2state"
 	"github.com/pevans/erc/debug"
 	"github.com/pevans/erc/input"
+	"github.com/pevans/erc/memory"
 	"github.com/pevans/erc/record"
 	"github.com/pevans/erc/shortcut"
 	"github.com/spf13/cobra"
@@ -26,6 +27,7 @@ import (
 var (
 	headlessStepsFlag        int
 	headlessWatchMemFlag     string
+	headlessWatchAuxMemFlag  string
 	headlessWatchRegFlag     string
 	headlessWatchCompFlag    string
 	headlessRecordAudioFlag  bool
@@ -60,6 +62,12 @@ func init() {
 		"watch-mem",
 		"",
 		"Comma-separated memory address ranges (e.g. 0400-07FF,2000-3FFF or 013F)",
+	)
+	headlessCmd.Flags().StringVar(
+		&headlessWatchAuxMemFlag,
+		"watch-aux-mem",
+		"",
+		"Comma-separated auxiliary memory address ranges (e.g. 0400-07FF,2000-3FFF or 013F)",
 	)
 	headlessCmd.Flags().StringVar(
 		&headlessWatchRegFlag,
@@ -198,9 +206,23 @@ func runHeadless(images []string) {
 			if rangeStr == "" {
 				continue
 			}
-			observers, err := parseHeadlessMemRange(comp, rangeStr)
+			observers, err := parseHeadlessMemRange(comp.Main, rangeStr)
 			if err != nil {
 				fail(fmt.Sprintf("invalid --watch-mem range %q: %v", rangeStr, err))
+			}
+			rec.Add(observers...)
+		}
+	}
+
+	if headlessWatchAuxMemFlag != "" {
+		for rangeStr := range strings.SplitSeq(headlessWatchAuxMemFlag, ",") {
+			rangeStr = strings.TrimSpace(rangeStr)
+			if rangeStr == "" {
+				continue
+			}
+			observers, err := parseHeadlessMemRange(comp.Aux, rangeStr)
+			if err != nil {
+				fail(fmt.Sprintf("invalid --watch-aux-mem range %q: %v", rangeStr, err))
 			}
 			rec.Add(observers...)
 		}
@@ -469,14 +491,14 @@ func parseKeySpec(spec string) (input.Event, error) {
 	return input.Event{}, fmt.Errorf("unrecognized keyspec %q", spec)
 }
 
-func parseHeadlessMemRange(comp *a2.Computer, rangeStr string) ([]record.Observer, error) {
+func parseHeadlessMemRange(getter memory.Getter, rangeStr string) ([]record.Observer, error) {
 	parts := strings.SplitN(rangeStr, "-", 2)
 	if len(parts) == 1 {
 		addr, err := strconv.ParseInt(parts[0], 16, 32)
 		if err != nil {
 			return nil, fmt.Errorf("invalid address: %w", err)
 		}
-		return []record.Observer{record.MemObserver(comp.Main, int(addr))}, nil
+		return []record.Observer{record.MemObserver(getter, int(addr))}, nil
 	}
 
 	start, err := strconv.ParseInt(parts[0], 16, 32)
@@ -491,7 +513,7 @@ func parseHeadlessMemRange(comp *a2.Computer, rangeStr string) ([]record.Observe
 
 	obs := make([]record.Observer, 0, int(end-start+1))
 	for addr := int(start); addr <= int(end); addr++ {
-		obs = append(obs, record.MemObserver(comp.Main, addr))
+		obs = append(obs, record.MemObserver(getter, addr))
 	}
 
 	return obs, nil

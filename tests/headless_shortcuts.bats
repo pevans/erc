@@ -261,12 +261,12 @@ teardown()   { load test_helper; teardown; }
 		--keys "100:ctrl-a,101:s" \
 		"$DISK"
 	[[ $status -eq 0 ]]
-	[[ -f "$DISK.1.state" ]]
-	rm -f "$DISK.1.state"
+	[[ -f "$DISK.0.state" ]]
+	rm -f "$DISK.0.state"
 }
 
 @test "ctrl-a l loads state without crashing when no state file exists" {
-	rm -f "$DISK.1.state"
+	rm -f "$DISK.0.state"
 	run_headless --steps 1000 \
 		--keys "100:ctrl-a,101:l" \
 		"$DISK"
@@ -289,7 +289,7 @@ teardown()   { load test_helper; teardown; }
 	local changes
 	changes=$(grep -c 'comp KBLastKey' "$OUT/state.log")
 	[[ $changes -ge 2 ]]
-	rm -f "$DISK.1.state"
+	rm -f "$DISK.0.state"
 }
 
 # --- Help Modal ---
