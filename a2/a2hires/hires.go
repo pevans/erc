@@ -48,10 +48,15 @@ var blueOrange = []color.RGBA{
 }
 
 // Render draws dots in memory onto the screen
-func Render(seg memory.Getter, start, end int, monochromeMode int) {
+func Render(seg memory.Getter, start, end int, monochromeMode int, mixed bool) {
 	dots := make([]Dot, 280)
 
-	for y := range uint(192) {
+	numRows := uint(192)
+	if mixed {
+		numRows = 160
+	}
+
+	for y := range numRows {
 		err := PrepareRow(seg, y, dots, monochromeMode)
 		if err != nil {
 			// This should really never happen...

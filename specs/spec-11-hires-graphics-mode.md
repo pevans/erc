@@ -338,18 +338,39 @@ in the upper portion and 4 rows of text at the bottom. For hires mode, the
 top 160 rows are rendered as hires graphics, and the bottom 32 rows (4 text
 rows x 8 scan lines each) are rendered as text.
 
-## 9.2. Current Status
+## 9.2. Screen Layout
 
-Mixed mode is not currently implemented in the hires renderer. The MIXED soft
-switch state is tracked, but the hires rendering loop does not check it. When
-mixed mode is active, the entire screen is rendered as hires graphics,
-including the bottom 32 rows that should show text.
+In mixed mode, the 280x192 hires display is reduced to 280x160. The top 160
+rows are rendered as hires graphics. The bottom 32 rows (4 text rows x 8 scan
+lines each) are rendered as text characters instead of graphics.
 
-A correct implementation would:
+The visible area is:
 
-1. Check the MIXED flag before rendering.
-2. If MIXED is on, render only hires rows 0-159.
-3. Render text rows 20-23 using the text renderer for the bottom portion.
+| Region         | Hires Rows | Text Rows | Pixel Rows | Content        |
+|----------------|------------|-----------|------------|----------------|
+| Graphics       | 0-159      | 0-19      | 0-319      | Hires dots     |
+| Text           | 160-191    | 20-23     | 320-383    | Text glyphs    |
+
+## 9.3. Rendering Behavior
+
+The hires renderer only iterates over rows 0-159 when MIXED is on, instead of
+the full 0-191.
+
+The text portion is rendered by the normal text renderer using the text/lores
+memory region ($0400-$07FF). The display dispatch is responsible for calling
+both the hires renderer (which stops at row 160) and the text renderer (which
+renders only the bottom 4 rows).
+
+## 9.4. Mode Dispatch
+
+When MIXED is on, TEXT is off, and HIRES is on, the display dispatch must:
+
+1. Call the hires renderer, which renders only rows 0-159.
+2. Call the text renderer for text rows 20-23.
+
+The text renderer uses the same font, flash state, and monochrome settings as
+normal text mode. The only difference is that it renders just the bottom 4 rows
+rather than all 24.
 
 # 10. Design Considerations
 

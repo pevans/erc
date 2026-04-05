@@ -433,6 +433,22 @@ teardown()   { load hires_helper; teardown; }
 	grep -q 'comp DisplayHires' "$OUT/state.log"
 }
 
+@test "toggling MIXED on logs DisplayMixed state change" {
+	asm_state DisplayMixed \
+		'STA $C053' '.halt'
+	[[ $status -eq 0 ]]
+	[[ -f "$OUT/state.log" ]]
+	grep -q 'comp DisplayMixed' "$OUT/state.log"
+}
+
+@test "toggling MIXED off logs DisplayMixed state change" {
+	asm_state DisplayMixed \
+		'STA $C053' 'STA $C052' '.halt'
+	[[ $status -eq 0 ]]
+	[[ -f "$OUT/state.log" ]]
+	grep -q 'comp DisplayMixed' "$OUT/state.log"
+}
+
 # ---------------------------------------------------------------------------
 # Read switches (8.2)
 # ---------------------------------------------------------------------------
@@ -577,4 +593,98 @@ teardown()   { load hires_helper; teardown; }
 	p2_pixels=$(tail -n +3 "$OUT/video.frame")
 
 	[[ "$p1_pixels" != "$p2_pixels" ]]
+}
+
+# ---------------------------------------------------------------------------
+# Mixed mode (9.3, 9.4)
+# ---------------------------------------------------------------------------
+
+@test "MIXED on in hires mode stops rendering at row 160" {
+	# Fill hires with $7F (white), enable mixed mode.
+	# Top 160 rows (pixel 0-319) should be white; bottom (320-383) should
+	# be text, not hires.
+	asm_hires_fill 7F 'STA $C053'
+	[[ $status -eq 0 ]]
+	# Top area should be white
+	grep -q 'FFFFFF' "$OUT/video.frame"
+	# Pixel row 0 and pixel row 320 should differ (graphics vs text)
+	rows_differ 0 320
+}
+
+@test "MIXED on in hires renders graphics in top 160 rows" {
+	# Fill hires with $7F (white), enable mixed mode.
+	# Pixel rows 0-319 (hires rows 0-159) should all be the same.
+	asm_hires_fill 7F 'STA $C053'
+	[[ $status -eq 0 ]]
+	rows_same 0 318
+}
+
+@test "hires mixed mode renders text in bottom 4 rows" {
+	# Fill text memory with spaces, put an 'A' at row 20 col 0 ($0650).
+	# In mixed mode, the bottom 4 text rows should show text.
+	asm_video \
+		'LDA #$A0' 'LDX #$00' \
+		'clrt: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE clrt' \
+		'LDA #$C1' 'STA $0650' \
+		"LDA #\$7F" 'STA $02' \
+		'LDA #$00' 'STA $00' 'LDA #$20' 'STA $01' \
+		'LDA $02' 'LDY #$00' \
+		'hfill: STA ($00),Y' 'INY' 'BNE hfill' \
+		'INC $01' 'LDX $01' 'CPX #$40' 'BNE hfill' \
+		'STA $C050' 'STA $C057' 'STA $C053' '.halt'
+	[[ $status -eq 0 ]]
+	# Text row 20 starts at pixel row 320. The 'A' glyph at col 0 should
+	# make the first 14 pixels different from the next 14 (blank space).
+	local left right
+	left=$(pixel_row 320)
+	left="${left:0:14}"
+	right=$(pixel_row 320)
+	right="${right:14:14}"
+	[[ "$left" != "$right" ]]
+}
+
+@test "MIXED off in hires renders all 192 rows as graphics" {
+	# Fill hires with $7F (white), MIXED off (default).
+	# Bottom rows should also be white, same as top.
+	asm_hires_fill 7F
+	[[ $status -eq 0 ]]
+	rows_same 0 320
+	rows_same 0 383
+}
+
+@test "hires mixed mode differs from hires full mode" {
+	# Run 1: hires full (MIXED off)
+	asm_hires_fill 7F
+	[[ $status -eq 0 ]]
+	local full_pixels
+	full_pixels=$(tail -n +3 "$OUT/video.frame")
+
+	rm -rf "$OUT"; mkdir -p "$OUT"
+
+	# Run 2: hires mixed (MIXED on)
+	asm_hires_fill 7F 'STA $C053'
+	[[ $status -eq 0 ]]
+	local mixed_pixels
+	mixed_pixels=$(tail -n +3 "$OUT/video.frame")
+
+	[[ "$full_pixels" != "$mixed_pixels" ]]
+}
+
+@test "toggling MIXED off restores full hires rendering" {
+	# Enable mixed, then disable -- should match plain hires
+	asm_hires_fill 7F 'STA $C053' 'STA $C052'
+	[[ $status -eq 0 ]]
+	local roundtrip_pixels
+	roundtrip_pixels=$(tail -n +3 "$OUT/video.frame")
+
+	rm -rf "$OUT"; mkdir -p "$OUT"
+
+	# Reference: plain hires
+	asm_hires_fill 7F
+	[[ $status -eq 0 ]]
+	local hires_pixels
+	hires_pixels=$(tail -n +3 "$OUT/video.frame")
+
+	[[ "$roundtrip_pixels" == "$hires_pixels" ]]
 }

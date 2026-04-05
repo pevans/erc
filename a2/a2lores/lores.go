@@ -145,12 +145,16 @@ func Block(bitPattern uint8, monochromeMode int) *gfx.FrameBuffer {
 
 // Render takes the data in the lo-res display buffer (essentially the text
 // page) and writes that to the Screen framebuffer.
-func Render(seg memory.Getter, start, end int, monochromeMode int) {
+func Render(seg memory.Getter, start, end int, monochromeMode int, mixed bool) {
 	for addr := start; addr < end; addr++ {
 		row := addressRows[addr-start]
 		col := addressCols[addr-start]
 
 		if row < 0 || col < 0 {
+			continue
+		}
+
+		if mixed && row >= 40 {
 			continue
 		}
 

@@ -84,7 +84,7 @@ func TestRenderWhite(t *testing.T) {
 	// pixels are white.
 	fillMemoryWithByte(mem, 0x7F)
 
-	a2hires.Render(mem, 0, 0, a2mono.None)
+	a2hires.Render(mem, 0, 0, a2mono.None, false)
 
 	white := color.RGBA{0xff, 0xff, 0xff, 0xff}
 	whiteCount := 0
@@ -114,7 +114,7 @@ func TestRenderBlack(t *testing.T) {
 
 	// All bits off (default zero memory)
 
-	a2hires.Render(mem, 0, 0, a2mono.None)
+	a2hires.Render(mem, 0, 0, a2mono.None, false)
 
 	black := color.RGBA{0x00, 0x00, 0x00, 0xff}
 
@@ -138,7 +138,7 @@ func TestRenderPurple(t *testing.T) {
 	// (even positions). High bit clear means purple/green palette.
 	fillMemoryWithByte(mem, 0x15)
 
-	a2hires.Render(mem, 0, 0, a2mono.None)
+	a2hires.Render(mem, 0, 0, a2mono.None, false)
 
 	purple := color.RGBA{0xd0, 0x43, 0xe5, 0xff}
 
@@ -166,7 +166,7 @@ func TestRenderGreen(t *testing.T) {
 	// (odd positions). High bit clear means purple/green palette.
 	fillMemoryWithByte(mem, 0x2A)
 
-	a2hires.Render(mem, 0, 0, a2mono.None)
+	a2hires.Render(mem, 0, 0, a2mono.None, false)
 
 	green := color.RGBA{0x2f, 0xbc, 0x1a, 0xff}
 
@@ -194,7 +194,7 @@ func TestRenderBlue(t *testing.T) {
 	// (even positions). High bit set means blue/orange palette.
 	fillMemoryWithByte(mem, 0x95)
 
-	a2hires.Render(mem, 0, 0, a2mono.None)
+	a2hires.Render(mem, 0, 0, a2mono.None, false)
 
 	blue := color.RGBA{0x2f, 0x95, 0xe5, 0xff}
 
@@ -222,7 +222,7 @@ func TestRenderOrange(t *testing.T) {
 	// (odd positions). High bit set means blue/orange palette.
 	fillMemoryWithByte(mem, 0xAA)
 
-	a2hires.Render(mem, 0, 0, a2mono.None)
+	a2hires.Render(mem, 0, 0, a2mono.None, false)
 
 	orange := color.RGBA{0xd0, 0x6a, 0x1a, 0xff}
 
@@ -257,7 +257,7 @@ func TestRenderMonochromeGreen(t *testing.T) {
 		}
 	}
 
-	a2hires.Render(mem, 0, 0, a2mono.GreenScreen)
+	a2hires.Render(mem, 0, 0, a2mono.GreenScreen, false)
 
 	green := a2mono.Green
 	black := a2mono.Black
@@ -301,7 +301,7 @@ func TestRenderMonochromeAmber(t *testing.T) {
 		}
 	}
 
-	a2hires.Render(mem, 0, 0, a2mono.AmberScreen)
+	a2hires.Render(mem, 0, 0, a2mono.AmberScreen, false)
 
 	amber := a2mono.Amber
 	black := a2mono.Black
@@ -335,7 +335,7 @@ func TestRenderMonochromeAllOn(t *testing.T) {
 
 	fillMemoryWithByte(mem, 0x7F)
 
-	a2hires.Render(mem, 0, 0, a2mono.GreenScreen)
+	a2hires.Render(mem, 0, 0, a2mono.GreenScreen, false)
 
 	green := a2mono.Green
 
@@ -356,7 +356,7 @@ func TestRenderMonochromeAllOff(t *testing.T) {
 
 	// All memory is zero by default
 
-	a2hires.Render(mem, 0, 0, a2mono.AmberScreen)
+	a2hires.Render(mem, 0, 0, a2mono.AmberScreen, false)
 
 	black := a2mono.Black
 

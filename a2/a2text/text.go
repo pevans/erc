@@ -51,6 +51,7 @@ func Render(
 	flashOn bool,
 	start, end int,
 	monochromeMode int,
+	startRow int,
 ) {
 	monochromeColor, useMonochrome := monochromeSetup(monochromeMode)
 
@@ -67,6 +68,10 @@ func Render(
 		// This address does not contain displayable data, and should be
 		// skipped.
 		if row < 0 || col < 0 {
+			continue
+		}
+
+		if row < startRow {
 			continue
 		}
 

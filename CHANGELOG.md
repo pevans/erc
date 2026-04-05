@@ -10,8 +10,10 @@ Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
 
 ### Added
 
-- There's a help modal that shows all available shortcut commands (hit CTRL-A
-  ? or CTRL-A H to see it).
+- A help modal that shows all available shortcut commands (hit CTRL-A ? or
+  CTRL-A H to see it).
+- Support for mixed mode with lores and hires graphics. When mixed mode is
+  enabled, the bottom of the screen is set aside for four rows of text.
 
 ### Fixed
 

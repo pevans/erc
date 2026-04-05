@@ -255,18 +255,41 @@ the upper portion and 4 rows of text at the bottom. For lores mode, this means
 the top 40 lores rows (20 text rows) are rendered as colored blocks, and the
 bottom 4 text rows (rows 20-23) are rendered as text characters.
 
-## 8.2. Current Status
+## 8.2. Screen Layout
 
-Mixed mode is not currently implemented in the lores renderer. The MIXED soft
-switch state is tracked (spec 9, section 6.1), but the lores rendering loop
-does not check it. When mixed mode is active, the entire screen is rendered as
-lores blocks, including the bottom 4 rows that should show text.
+In mixed mode, the 40x48 lores grid is reduced to 40x40. The top 20 text rows
+(lores rows 0-39) are rendered as colored blocks. The bottom 4 text rows (rows
+20-23, corresponding to lores rows 40-47) are rendered as text characters
+instead of graphics.
 
-A correct implementation would:
+The visible area is:
 
-1. Check the MIXED flag before rendering.
-2. If MIXED is on, skip lores rendering for text rows 20-23 (lores rows 40-47).
-3. Render those 4 rows using the text renderer instead.
+| Region         | Text Rows | Lores Rows | Pixel Rows | Content        |
+|----------------|-----------|------------|------------|----------------|
+| Graphics       | 0-19      | 0-39       | 0-319      | Lores blocks   |
+| Text           | 20-23     | 40-47      | 320-383    | Text glyphs    |
+
+## 8.3. Rendering Behavior
+
+The lores renderer skips any address whose row value (from the address lookup
+table) is >= 40. This excludes lores rows 40-47, which correspond to text rows
+20-23.
+
+The text portion is rendered by the normal text renderer using the same memory
+region ($0400-$07FF), since lores and text share the same backing memory. The
+display dispatch is responsible for calling both the lores renderer (which skips
+the bottom rows) and the text renderer (which renders only the bottom 4 rows).
+
+## 8.4. Mode Dispatch
+
+When MIXED is on, TEXT is off, and HIRES is off, the display dispatch must:
+
+1. Call the lores renderer, which skips rows >= 40.
+2. Call the text renderer for text rows 20-23.
+
+The text renderer uses the same snapshot, font, flash state, and monochrome
+settings as normal text mode. The only difference is that it renders just the
+bottom 4 rows rather than all 24.
 
 # 9. Design Considerations
 

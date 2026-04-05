@@ -1887,6 +1887,8 @@ specs:
           - "tests/lores.bats::HIRES on overrides lores mode"
           - "tests/lores.bats::toggling HIRES on logs DisplayHires state change"
           - "tests/lores.bats::toggling HIRES off logs DisplayHires state change"
+          - "tests/lores.bats::toggling MIXED on logs DisplayMixed state change"
+          - "tests/lores.bats::toggling MIXED off logs DisplayMixed state change"
           - "tests/lores.bats::PAGE2 switch changes lores displayed content"
 
       - section: "7.2"
@@ -1909,8 +1911,24 @@ specs:
         testable: false
 
       - section: "8.2"
-        title: Current Status
+        title: Screen Layout
         testable: false
+
+      - section: "8.3"
+        title: Rendering Behavior
+        testable: true
+        tests:
+          - "tests/lores.bats::MIXED on in lores mode skips bottom 8 lores rows"
+          - "tests/lores.bats::MIXED on in lores renders graphics in top 40 rows"
+          - "tests/lores.bats::MIXED on renders text in bottom 4 rows"
+          - "tests/lores.bats::MIXED off in lores renders all 48 rows as graphics"
+
+      - section: "8.4"
+        title: Mode Dispatch
+        testable: true
+        tests:
+          - "tests/lores.bats::lores mixed mode differs from lores full mode"
+          - "tests/lores.bats::toggling MIXED off restores full lores rendering"
 
       - section: "9"
         title: Design Considerations
@@ -2116,6 +2134,8 @@ specs:
         tests:
           - "tests/hires.bats::toggling HIRES on logs DisplayHires state change"
           - "tests/hires.bats::toggling HIRES off logs DisplayHires state change"
+          - "tests/hires.bats::toggling MIXED on logs DisplayMixed state change"
+          - "tests/hires.bats::toggling MIXED off logs DisplayMixed state change"
 
       - section: "8.2"
         title: Read Switches
@@ -2149,8 +2169,24 @@ specs:
         testable: false
 
       - section: "9.2"
-        title: Current Status
+        title: Screen Layout
         testable: false
+
+      - section: "9.3"
+        title: Rendering Behavior
+        testable: true
+        tests:
+          - "tests/hires.bats::MIXED on in hires mode stops rendering at row 160"
+          - "tests/hires.bats::MIXED on in hires renders graphics in top 160 rows"
+          - "tests/hires.bats::hires mixed mode renders text in bottom 4 rows"
+          - "tests/hires.bats::MIXED off in hires renders all 192 rows as graphics"
+
+      - section: "9.4"
+        title: Mode Dispatch
+        testable: true
+        tests:
+          - "tests/hires.bats::hires mixed mode differs from hires full mode"
+          - "tests/hires.bats::toggling MIXED off restores full hires rendering"
 
       - section: "10"
         title: Design Considerations

@@ -356,49 +356,34 @@ func Render(
 	flashOn bool,
 	state *memory.StateMap,
 ) {
+	var (
+		monochromeMode = state.Int(a2state.DisplayMonochrome)
+		mixed          = state.Bool(a2state.DisplayMixed)
+	)
+
 	switch {
 	case state.Bool(a2state.DisplayText) && state.Bool(a2state.DisplayCol80):
-		var (
-			start = 0x400
-			end   = 0x800
-		)
-
-		monochromeMode := state.Int(a2state.DisplayMonochrome)
-
-		a2text.Render80(snapshot, font80, font80FlashAlt, flashOn, start, end, monochromeMode)
+		a2text.Render80(snapshot, font80, font80FlashAlt, flashOn, 0x400, 0x800, monochromeMode)
 
 	case state.Bool(a2state.DisplayText):
-		var (
-			start = 0x400
-			end   = 0x800
-		)
-
-		monochromeMode := state.Int(a2state.DisplayMonochrome)
-
-		a2text.Render(snapshot, font40, font40FlashAlt, flashOn, start, end, monochromeMode)
+		a2text.Render(snapshot, font40, font40FlashAlt, flashOn, 0x400, 0x800, monochromeMode, 0)
 
 	case state.Bool(a2state.DisplayHires):
-		monochromeMode := state.Int(a2state.DisplayMonochrome)
-
 		if state.Bool(a2state.DisplayDoubleHigh) && state.Bool(a2state.DisplayCol80) {
 			a2dhires.Render(snapshot, monochromeMode)
 		} else {
-			var (
-				start = 0x2000
-				end   = 0x4000
-			)
+			a2hires.Render(snapshot, 0x2000, 0x4000, monochromeMode, mixed)
+		}
 
-			a2hires.Render(snapshot, start, end, monochromeMode)
+		if mixed {
+			a2text.Render(snapshot, font40, font40FlashAlt, flashOn, 0x400, 0x800, monochromeMode, 20)
 		}
 
 	default:
-		var (
-			start = 0x400
-			end   = 0x800
-		)
+		a2lores.Render(snapshot, 0x400, 0x800, monochromeMode, mixed)
 
-		monochromeMode := state.Int(a2state.DisplayMonochrome)
-
-		a2lores.Render(snapshot, start, end, monochromeMode)
+		if mixed {
+			a2text.Render(snapshot, font40, font40FlashAlt, flashOn, 0x400, 0x800, monochromeMode, 20)
+		}
 	}
 }

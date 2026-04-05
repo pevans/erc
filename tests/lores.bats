@@ -475,6 +475,142 @@ teardown()   { load lores_helper; teardown; }
 # Soft switches
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# Mixed mode (8.3, 8.4)
+# ---------------------------------------------------------------------------
+
+@test "MIXED on in lores mode skips bottom 8 lores rows" {
+	# Fill all lores memory with $FF (white), enable mixed mode.
+	# Rows 40-47 (pixel rows 320-383) should be text, not lores white.
+	asm_video \
+		'LDA #$FF' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' \
+		'STA $C050' 'STA $C053' '.halt'
+	[[ $status -eq 0 ]]
+	# Top area should have white
+	grep -q 'FFFFFF' "$OUT/video.frame"
+	# Bottom area (pixel row 320) should differ from top (text, not lores)
+	rows_differ 0 320
+}
+
+@test "MIXED on in lores renders graphics in top 40 rows" {
+	# Fill lores with $FF (white), enable mixed mode.
+	# Pixel row 319 (last row of lores area) should still be white.
+	asm_video \
+		'LDA #$FF' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' \
+		'STA $C050' 'STA $C053' '.halt'
+	[[ $status -eq 0 ]]
+	rows_same 0 319
+}
+
+@test "MIXED on renders text in bottom 4 rows" {
+	# Fill memory with spaces ($A0), put a visible char at text row 20 col 0.
+	# Row 20 base address is $0650. In mixed mode, bottom 4 rows are text.
+	asm_video \
+		'LDA #$A0' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' \
+		'LDA #$C1' 'STA $0650' \
+		'STA $C050' 'STA $C053' '.halt'
+	[[ $status -eq 0 ]]
+	# Text row 20 starts at pixel row 320. An 'A' glyph should make
+	# column 0 different from a blank column further right.
+	local left right
+	left=$(pixel_row 320)
+	left="${left:0:14}"
+	right=$(pixel_row 320)
+	right="${right:14:14}"
+	[[ "$left" != "$right" ]]
+}
+
+@test "MIXED off in lores renders all 48 rows as graphics" {
+	# Same fill as mixed test, but with MIXED off (default).
+	# Bottom rows should be lores white, same as top.
+	asm_video \
+		'LDA #$FF' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' \
+		'STA $C050' '.halt'
+	[[ $status -eq 0 ]]
+	rows_same 0 320
+	rows_same 0 383
+}
+
+@test "lores mixed mode differs from lores full mode" {
+	# Run 1: lores full (MIXED off)
+	asm_video \
+		'LDA #$FF' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' \
+		'STA $C050' '.halt'
+	[[ $status -eq 0 ]]
+	local full_pixels
+	full_pixels=$(tail -n +3 "$OUT/video.frame")
+
+	rm -rf "$OUT"; mkdir -p "$OUT"
+
+	# Run 2: lores mixed (MIXED on)
+	asm_video \
+		'LDA #$FF' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' \
+		'STA $C050' 'STA $C053' '.halt'
+	[[ $status -eq 0 ]]
+	local mixed_pixels
+	mixed_pixels=$(tail -n +3 "$OUT/video.frame")
+
+	[[ "$full_pixels" != "$mixed_pixels" ]]
+}
+
+@test "toggling MIXED off restores full lores rendering" {
+	# Enable mixed, then disable it -- should match plain lores
+	asm_video \
+		'LDA #$FF' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' \
+		'STA $C050' 'STA $C053' 'STA $C052' '.halt'
+	[[ $status -eq 0 ]]
+	local roundtrip_pixels
+	roundtrip_pixels=$(tail -n +3 "$OUT/video.frame")
+
+	rm -rf "$OUT"; mkdir -p "$OUT"
+
+	# Reference: plain lores
+	asm_video \
+		'LDA #$FF' 'LDX #$00' \
+		'fill: STA $0400,X' 'STA $0500,X' 'STA $0600,X' 'STA $0700,X' \
+		'INX' 'BNE fill' \
+		'STA $C050' '.halt'
+	[[ $status -eq 0 ]]
+	local lores_pixels
+	lores_pixels=$(tail -n +3 "$OUT/video.frame")
+
+	[[ "$roundtrip_pixels" == "$lores_pixels" ]]
+}
+
+# ---------------------------------------------------------------------------
+# Soft switches (7.1)
+# ---------------------------------------------------------------------------
+
+@test "toggling MIXED on logs DisplayMixed state change" {
+	asm_state DisplayMixed \
+		'STA $C053' '.halt'
+	[[ $status -eq 0 ]]
+	[[ -f "$OUT/state.log" ]]
+	grep -q 'comp DisplayMixed' "$OUT/state.log"
+}
+
+@test "toggling MIXED off logs DisplayMixed state change" {
+	asm_state DisplayMixed \
+		'STA $C053' 'STA $C052' '.halt'
+	[[ $status -eq 0 ]]
+	[[ -f "$OUT/state.log" ]]
+	grep -q 'comp DisplayMixed' "$OUT/state.log"
+}
+
 @test "toggling HIRES on logs DisplayHires state change" {
 	asm_state DisplayHires \
 		'STA $C057' '.halt'
