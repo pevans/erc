@@ -39,4 +39,3 @@ Erc is able to emulate Apple II DOS-order software. It can:
 - Mockingboard sound support
 - Mouse support
 - Double low resolution graphics
-- Mixed mode graphics
